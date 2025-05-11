@@ -1,6 +1,6 @@
 import { createContext, type ReactNode } from "react";
-import { doctors } from "../assets/assets";
-import type { Doctor } from "../assets/assets";
+import { doctors } from "../assets/user/assets";
+import type { Doctor } from "../assets/user/assets";
 
 
 

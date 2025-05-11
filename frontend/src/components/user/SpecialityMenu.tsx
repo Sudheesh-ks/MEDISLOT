@@ -1,5 +1,5 @@
 import React from 'react'
-import { specialityData } from '../assets/assets'
+import { specialityData } from '../../assets/user/assets'
 import { Link } from 'react-router-dom'
 
 const SpecialityMenu = () => {

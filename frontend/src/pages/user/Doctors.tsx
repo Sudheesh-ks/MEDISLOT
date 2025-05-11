@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { AppContext } from '../context/AppContext'
-import type { Doctor } from '../assets/assets';
+import { AppContext } from '../../context/AppContext'
+import type { Doctor } from '../../assets/user/assets';
 
 const Doctors = () => {
 

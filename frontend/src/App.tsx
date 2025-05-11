@@ -1,32 +1,60 @@
 import React from 'react'
 import { Route, Routes } from 'react-router-dom'
-import Home from './pages/Home'
-import Doctors from './pages/Doctors'
-import Contact from './pages/Contact'
-import About from './pages/About'
-import Login from './pages/Login'
-import MyProfile from './pages/MyProfile'
-import MyAppointments from './pages/MyAppointments'
-import Appointment from './pages/Appointment'
-import Navbar from './components/Navbar'
-import Footer from './components/Footer'
+import { ToastContainer, toast } from 'react-toastify';
+
+
+// Layouts
+import UserLayout from './layouts/UserLayout'
+import AdminLayout from './layouts/AdminLayout'
+import DoctorLayout from './layouts/DoctorLayout'
+
+
+// User Pages
+import Home from './pages/user/Home'
+import Doctors from './pages/user/Doctors'
+import Contact from './pages/user/Contact'
+import About from './pages/user/About'
+import Login from './pages/user/Login'
+import MyProfile from './pages/user/MyProfile'
+import MyAppointments from './pages/user/MyAppointments'
+import Appointment from './pages/user/Appointment'
+
+
+// Admin Pages
+import AdminLogin from './pages/admin/AdminLogin'
+
+
+// Doctor Pages
+import DoctorLogin from './pages/admin/AdminLogin'
+
 
 const App = () => {
   return (
     <div className='mx-4 sm:mx-[10%]'>
-      <Navbar />
+      
       <Routes>
-        <Route path='/' element={<Home />} />
-        <Route path='/login' element={<Login />} />
-        <Route path='/doctors' element={<Doctors />} />
-        <Route path='/doctors/:speciality' element={<Doctors />} />
-        <Route path='/about' element={<About />} />
-        <Route path='/contact' element={<Contact />} />
-        <Route path='/my-profile' element={<MyProfile />} />
-        <Route path='/my-appointments' element={<MyAppointments />} />
-        <Route path='/appointment/:docId' element={<Appointment />} />
+
+        {/* User Routes */}
+        <Route path='/' element={ <UserLayout><Home /></UserLayout> } />
+        <Route path='/login' element={ <UserLayout><Login /></UserLayout> } />
+        <Route path='/doctors' element={ <UserLayout><Doctors /></UserLayout>} />
+        <Route path='/doctors/:speciality' element={ <UserLayout><Doctors /></UserLayout>} />
+        <Route path='/about' element={ <UserLayout><About /></UserLayout>} />
+        <Route path='/contact' element={ <UserLayout><Contact /></UserLayout>} />
+        <Route path='/my-profile' element={ <UserLayout><MyProfile /></UserLayout>} />
+        <Route path='/my-appointments' element={ <UserLayout><MyAppointments /></UserLayout>} />
+        <Route path='/appointment/:docId' element={ <UserLayout><Appointment /></UserLayout>} />
+
+        {/* Admin Routes */}
+        <Route path='/admin/login' element={ <AdminLayout><AdminLogin /></AdminLayout> } />
+
+        {/* Doctor Routes */}
+        <Route path='/doctor/login' element={ <DoctorLayout><DoctorLogin /></DoctorLayout> } />
+
       </Routes>
-      <Footer />
+
+      <ToastContainer />
+      
     </div>
   )
 }

@@ -1,8 +1,8 @@
 import React, { useContext, useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
-import { AppContext } from '../context/AppContext';
-import { assets, type Doctor } from '../assets/assets';
-import RelatedDoctors from '../components/RelatedDoctors';
+import { AppContext } from '../../context/AppContext';
+import { assets, type Doctor } from '../../assets/user/assets';
+import RelatedDoctors from '../../components/user/RelatedDoctors';
 
 const Appointment = () => {
 

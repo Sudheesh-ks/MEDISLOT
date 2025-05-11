@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react'
-import { AppContext } from '../context/AppContext';
+import { AppContext } from '../../context/AppContext';
 import { useNavigate } from 'react-router-dom';
-import type { Doctor } from '../assets/assets';
+import type { Doctor } from '../../assets/user/assets';
 
 
 interface RelatedDoctorsProps {
