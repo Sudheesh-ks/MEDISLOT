@@ -1,6 +1,6 @@
 import React from 'react'
 import { Routes } from 'react-router-dom'
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 
 // Routes
 import UserRoutes from './routes/UserRoutes';

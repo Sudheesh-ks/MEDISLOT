@@ -51,6 +51,7 @@ export interface Doctor {
     speciality: string;
     degree: string;
     experience: string;
+    available: boolean;
     about: string;
     fees: number;
     address: Address;

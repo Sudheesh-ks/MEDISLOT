@@ -27,7 +27,7 @@ const AdminRoutes = () => {
             <Route path='/admin/appointments' element={ <AdminLayout><AdminAppointments /></AdminLayout> } />
             <Route path='/admin/add-doctor' element={ <AdminLayout><AdminAddDoctor /></AdminLayout> } />
             <Route path='/admin/update-doctor' element={ <AdminLayout><AdminUpdateDoctor /></AdminLayout> } />
-            <Route path='/admin/doctorlist' element={ <AdminLayout><AdminDoctorList /></AdminLayout> } />
+            <Route path='/admin/all-doctors' element={ <AdminLayout><AdminDoctorList /></AdminLayout> } />
             <Route path='/admin/inbox' element={ <AdminLayout><AdminInbox /></AdminLayout> } />
 
     </>
