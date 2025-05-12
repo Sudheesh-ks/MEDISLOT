@@ -3,9 +3,11 @@ import { assets } from '../../assets/admin/assets'
 import { AdminContext } from '../../context/AdminContext';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
 const Login = () => {
 
+    const navigate = useNavigate();
     const [state, setState] = useState('Admin');
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -28,6 +30,7 @@ const Login = () => {
 
             const {data} = await axios.post(backendUrl + '/api/admin/login', {email,password})
             if(data.success){
+              navigate('/admin/dashboard')
                 localStorage.setItem('aToken',data.token)
                 setAToken(data.token);
             }else{
