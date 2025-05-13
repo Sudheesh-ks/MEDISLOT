@@ -11,15 +11,16 @@ interface AdminContextType {
     backendUrl: string;
     doctors: Doctor[];
     getAllDoctors: () => Promise<void>;
+    changeAvailability: (docId: string) => Promise<void>;
 }
 
 export const AdminContext = createContext<AdminContextType | null>(null);
 
 interface AdminContextProviderProps {
-  children: ReactNode
+    children: ReactNode
 }
 
-const AdminContextProvider = ({children}: AdminContextProviderProps) => {
+const AdminContextProvider = ({ children }: AdminContextProviderProps) => {
 
     const [aToken, setAToken] = useState(localStorage.getItem('aToken') ?? '');
     const [doctors, setDoctors] = useState([]);
@@ -28,24 +29,44 @@ const AdminContextProvider = ({children}: AdminContextProviderProps) => {
 
     const getAllDoctors = async () => {
         try {
-            
-            const {data} = await axios.post(backendUrl + '/api/admin/all-doctors', {}, {headers:{aToken}})
-            if(data.success){
+
+            const { data } = await axios.post(backendUrl + '/api/admin/all-doctors', {}, { headers: { aToken } })
+            if (data.success) {
                 setDoctors(data.doctors)
                 console.log(data.doctors)
-            }else{
+            } else {
                 toast.error(data.message)
             }
 
-        } catch (error:any) {
+        } catch (error: any) {
             toast.error(error.message)
         }
     }
 
+    const changeAvailability = async (docId: string) => {
+        try {
+
+            const { data } = await axios.post(backendUrl + '/api/admin/change-availability', { docId }, { headers: { aToken } })
+            if (data.success) {
+                toast.success(data.message)
+                getAllDoctors()
+            } else {
+                toast.error(data.message)
+            }
+
+        } catch (error) {
+            if (error instanceof Error) {
+                toast.error(error.message);
+            } else {
+                toast.error("An unknown error occurred");
+            }
+        }
+    }
+
     const value: AdminContextType = {
-        aToken,setAToken,
-        backendUrl,doctors,
-        getAllDoctors
+        aToken, setAToken,
+        backendUrl, doctors,
+        getAllDoctors, changeAvailability,
     }
 
 

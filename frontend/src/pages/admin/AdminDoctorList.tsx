@@ -9,7 +9,7 @@ const AdminDoctorList = () => {
     throw new Error('AdminContext must be used within AdminContextProvider');
   }
 
-  const { doctors, aToken, getAllDoctors } = context;
+  const { doctors, aToken, getAllDoctors, changeAvailability } = context;
 
   useEffect(() => {
 
@@ -32,7 +32,7 @@ const AdminDoctorList = () => {
                     <p className='text-neutral-800 text-lg font-medium'>{item.name}</p>
                     <p className='text-zinc-600 text-sm'>{item.speciality}</p>
                     <div className='mt-2 flex items-center gap-1 text-sm'>
-                      <input type="checkbox" checked={item.available} />
+                      <input onChange={() => changeAvailability(item._id)} type="checkbox" checked={item.available} />
                       <p>Available</p>
                     </div>
                   </div>
