@@ -20,6 +20,21 @@ const changeAvailability = async (req: Request,res: Response) => {
 }
 
 
+const doctorList = async (req: Request,res: Response) => {
+    try {
+
+        const doctors = await doctorModel.find({}).select(['-password','-email'])
+        res.status(HttpStatus.OK).json({success:true,doctors})
+        
+    } catch (error) {
+        const err = error as ErrorType;
+        console.log(err.message);
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success:false, message:err.message });
+    }
+}
+
+
 export {
     changeAvailability,
+    doctorList
 }
