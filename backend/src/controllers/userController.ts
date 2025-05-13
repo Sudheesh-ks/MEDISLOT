@@ -4,6 +4,7 @@ import validator from 'validator';
 import bcrypt from 'bcrypt';
 import userModel from "../models/userModel";
 import  Jwt  from "jsonwebtoken";
+import { v2 as cloudinary } from 'cloudinary';
 import { ErrorType } from "../types/error";
 
 
@@ -86,8 +87,67 @@ const loginUser = async (req: Request, res: Response): Promise<void> => {
 }
 
 
+// API to get user profile data
+const getProfile = async (req: Request, res: Response): Promise<void> => {
+    try {
+
+        const userId = (req as any).userId;
+        const userData = await userModel.findById(userId).select('-password')
+
+        if (!userData) {
+            console.log("User not found")
+            res.status(404).json({ success: false, message: "User not found" });
+            return;   
+        }
+
+        res.json({success: true,userData})
+        
+    } catch (error) {
+        const err = error as ErrorType;
+        console.log(err.message);
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success:false, message:err.message });
+    }
+}
+
+
+// API to update user profile
+const updateProfile = async (req: Request, res: Response): Promise<void> => {
+    try {
+
+        const userId = (req as any).userId;
+        const {  name, phone, address, dob, gender } = req.body;
+        const imageFile = req.file
+
+        if( !name || !phone || !address || !dob || !gender) {
+            res.json({success:false,message:'Data Missing'})
+            return;
+        }
+
+        await userModel.findByIdAndUpdate(userId,{name,phone,address:JSON.parse(address),dob,gender})
+
+        if(imageFile){
+
+            // upload image to cloudinary
+            const imageUpload = await cloudinary.uploader.upload(imageFile.path,{resource_type:'image'})
+            const imageURL = imageUpload.secure_url;
+
+            await userModel.findByIdAndUpdate(userId,{image:imageURL})
+        }
+
+        res.json({success:true,message:'Profile Updated'})
+        
+    } catch (error) {
+        const err = error as ErrorType;
+        console.log(err.message);
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success:false, message:err.message });
+    }
+}
+
+
 
 export {
     registerUser,
     loginUser,
+    getProfile,
+    updateProfile,
 }

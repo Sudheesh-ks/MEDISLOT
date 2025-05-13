@@ -10,14 +10,14 @@ import DoctorContextProvider from './context/DoctorContext.tsx'
 
 createRoot(document.getElementById('root')!).render(
   <BrowserRouter>
-  <AppContextProvider>
     <AdminContextProvider>
     <DoctorContextProvider>
     <PanelContextProvider>
+        <AppContextProvider>
       <App />
+        </AppContextProvider>
     </PanelContextProvider>
     </DoctorContextProvider>
     </AdminContextProvider>
-  </AppContextProvider>
   </BrowserRouter>,
 )
