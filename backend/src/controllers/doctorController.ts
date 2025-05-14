@@ -1,40 +1,40 @@
-import doctorModel from "../models/doctorModel";
-import { ErrorType } from "../types/error"
-import { Request, Response } from "express";
-import { HttpStatus } from '../constants/status.constants'
+// import doctorModel from "../models/doctorModel";
+// import { ErrorType } from "../types/error"
+// import { Request, Response } from "express";
+// import { HttpStatus } from '../constants/status.constants'
 
-const changeAvailability = async (req: Request,res: Response) => {
-    try {
+// const changeAvailability = async (req: Request,res: Response) => {
+//     try {
 
-        const { docId } = req.body;
+//         const { docId } = req.body;
 
-        const docData = await doctorModel.findById(docId);
-        await doctorModel.findByIdAndUpdate(docId,{available: !docData?.available })
-        res.status(HttpStatus.OK).json({ success:true, message: 'Availability Changed' })
+//         const docData = await doctorModel.findById(docId);
+//         await doctorModel.findByIdAndUpdate(docId,{available: !docData?.available })
+//         res.status(HttpStatus.OK).json({ success:true, message: 'Availability Changed' })
         
-    } catch (error) {
-        const err = error as ErrorType;
-        console.log(err.message);
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success:false, message:err.message });
-    }
-}
+//     } catch (error) {
+//         const err = error as ErrorType;
+//         console.log(err.message);
+//         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success:false, message:err.message });
+//     }
+// }
 
 
-const doctorList = async (req: Request,res: Response) => {
-    try {
+// const doctorList = async (req: Request,res: Response) => {
+//     try {
 
-        const doctors = await doctorModel.find({}).select(['-password','-email'])
-        res.status(HttpStatus.OK).json({success:true,doctors})
+//         const doctors = await doctorModel.find({}).select(['-password','-email'])
+//         res.status(HttpStatus.OK).json({success:true,doctors})
         
-    } catch (error) {
-        const err = error as ErrorType;
-        console.log(err.message);
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success:false, message:err.message });
-    }
-}
+//     } catch (error) {
+//         const err = error as ErrorType;
+//         console.log(err.message);
+//         res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success:false, message:err.message });
+//     }
+// }
 
 
-export {
-    changeAvailability,
-    doctorList
-}
+// export {
+//     changeAvailability,
+//     doctorList
+// }
