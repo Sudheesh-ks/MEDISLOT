@@ -1,16 +1,43 @@
+// import express from 'express';
+// import { loginAdmin, addDoctor, allDoctors } from '../controllers/adminController';
+// import upload from '../middlewares/multer';
+// import authAdmin from '../middlewares/authAdmin';
+// import { changeAvailability } from '../controllers/doctorController';
+
+
+// const adminRouter = express.Router();
+
+// adminRouter.post('/login',loginAdmin)
+// adminRouter.post('/add-doctor',authAdmin,upload.single('image'),addDoctor)
+// adminRouter.post('/all-doctors',authAdmin,allDoctors)
+// adminRouter.post('/change-availability',authAdmin,changeAvailability);
+
+
+// export default adminRouter
+
 import express from 'express';
-import { loginAdmin, addDoctor, allDoctors } from '../controllers/adminController';
 import upload from '../middlewares/multer';
 import authAdmin from '../middlewares/authAdmin';
 import { changeAvailability } from '../controllers/doctorController';
 
+// Dependency layers
+import { AdminRepository } from '../repositories/implementation/AdminRepository';
+import { AdminService } from '../services/implementation/AdminService';
+import { AdminController } from '../controllers/implementation/AdminController';
+
+
+
+
+const adminRepository = new AdminRepository();
+const adminService = new AdminService(adminRepository);
+const adminController = new AdminController(adminService);
 
 const adminRouter = express.Router();
 
-adminRouter.post('/login',loginAdmin)
-adminRouter.post('/add-doctor',authAdmin,upload.single('image'),addDoctor)
-adminRouter.post('/all-doctors',authAdmin,allDoctors)
-adminRouter.post('/change-availability',authAdmin,changeAvailability);
+adminRouter.post('/login', adminController.loginAdmin.bind(adminController));
+adminRouter.post('/add-doctor', authAdmin, upload.single('image'), adminController.addDoctor.bind(adminController));
+adminRouter.post('/all-doctors', authAdmin, adminController.allDoctors.bind(adminController));
 
+adminRouter.post('/change-availability', authAdmin, changeAvailability);
 
-export default adminRouter
+export default adminRouter;
