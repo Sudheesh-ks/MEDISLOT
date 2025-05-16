@@ -15,6 +15,9 @@ import Login from '../pages/user/Login';
 import MyProfile from '../pages/user/MyProfile';
 import MyAppointments from '../pages/user/MyAppointments';
 import Appointment from '../pages/user/Appointment';
+import EmailVerificationPage from '../pages/user/EmailVerify';
+import OtpVerificationPage from '../pages/user/OTPVerification';
+import NewPasswordPage from '../pages/user/SetNewPassword';
 
 
 
@@ -24,6 +27,9 @@ const UserRoutes = () => {
             {/* User Routes */}
             <Route path='/' element={ <UserLayout><Home /></UserLayout> } />
             <Route path='/login' element={ <UserLayout><Login /></UserLayout> } />
+            <Route path='/verify-email' element={ <EmailVerificationPage /> } />
+            <Route path='/verify-otp' element={ <OtpVerificationPage /> } />
+            <Route path='/set-newpassword' element={ <NewPasswordPage /> } />
             <Route path='/doctors' element={ <UserLayout><Doctors /></UserLayout>} />
             <Route path='/doctors/:speciality' element={ <UserLayout><Doctors /></UserLayout>} />
             <Route path='/about' element={ <UserLayout><About /></UserLayout>} />

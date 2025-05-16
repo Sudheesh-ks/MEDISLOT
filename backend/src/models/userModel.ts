@@ -29,7 +29,7 @@ const userSchema: Schema<userDocument> = new mongoose.Schema({
 
     address: {
         type: Object,
-        default: {line1:'', line2:''}
+        default: {line1:'Enter your address here.', line2:''}
     },
 
     gender: {
@@ -44,7 +44,7 @@ const userSchema: Schema<userDocument> = new mongoose.Schema({
 
     phone: {
     type: String,
-    default: 'Not 0000000000'
+    default: 'Enter your phone no. here'
     },
 })
 

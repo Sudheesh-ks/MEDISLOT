@@ -31,8 +31,9 @@ const Login = () => {
 
           const { data } = await axios.post(backendUrl + '/api/user/register', {name,email,password})
           if(data.success) {
-            localStorage.setItem('token',data.token)
-            setToken(data.token)
+            localStorage.setItem("tempUserData", JSON.stringify({ email, name }));
+            toast.success("OTP sent to your email");
+            navigate('/verify-otp');
           }else{
             toast.error(data.message)
           }
@@ -43,7 +44,7 @@ const Login = () => {
             localStorage.setItem('token',data.token)
             setToken(data.token)
           }else{
-            toast.error(data.message)
+            toast.error(data?.message || 'Something went wrong')
           }
         }
         

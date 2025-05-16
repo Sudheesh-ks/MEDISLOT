@@ -52,4 +52,21 @@ export class UserService implements userDataService {
 
         await this.userRepository.updateById(userId, data);
     }
+
+     async checkEmailExists(email: string): Promise<boolean> {
+        const user = await this.userRepository.findByEmail(email);
+        return !!user
+    }
+
+    async hashPassword(password: string) {
+        return await bcrypt.hash(password, 10);
+    }
+
+    async finalizeRegister(userData: userData) {
+        return await this.userRepository.create(userData);
+    }
+
+    generateToken(userId: string): string {
+        return Jwt.sign({ id: userId }, process.env.JWT_SECRET!, { expiresIn: '1d' });
+    }
 }
