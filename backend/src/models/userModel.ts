@@ -1,8 +1,8 @@
-import mongoose, { Schema, Document, Model} from "mongoose";
+import mongoose, { Schema, Document, Model } from "mongoose";
 import { userData } from "../types/user";
 
 
-interface userDocument extends userData, Document {}
+interface userDocument extends userData, Document { }
 
 
 const userSchema: Schema<userDocument> = new mongoose.Schema({
@@ -19,7 +19,13 @@ const userSchema: Schema<userDocument> = new mongoose.Schema({
 
     password: {
         type: String,
-        required: true
+        required: function () {
+            return !this.googleId;
+        },
+    },
+
+    googleId: {
+        type: String,
     },
 
     image: {
@@ -29,7 +35,7 @@ const userSchema: Schema<userDocument> = new mongoose.Schema({
 
     address: {
         type: Object,
-        default: {line1:'Enter your address here.', line2:''}
+        default: { line1: 'Enter your address here.', line2: '' }
     },
 
     gender: {
@@ -38,13 +44,13 @@ const userSchema: Schema<userDocument> = new mongoose.Schema({
     },
 
     dob: {
-    type: String,
-    default: 'Not Selected'
+        type: String,
+        default: 'Not Selected'
     },
 
     phone: {
-    type: String,
-    default: 'Enter your phone no. here'
+        type: String,
+        default: 'Enter your phone no. here'
     },
 })
 

@@ -14,4 +14,5 @@ export interface userData {
   gender: string;
   dob: string;
   phone: string;
+  googleId?: string;
 }

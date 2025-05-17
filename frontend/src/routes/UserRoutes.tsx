@@ -1,4 +1,3 @@
-import React from 'react'
 import { Route } from 'react-router-dom'
 
 
@@ -18,6 +17,7 @@ import Appointment from '../pages/user/Appointment';
 import EmailVerificationPage from '../pages/user/EmailVerify';
 import OtpVerificationPage from '../pages/user/OTPVerification';
 import NewPasswordPage from '../pages/user/SetNewPassword';
+import GoogleCallback from '../pages/user/GoogleCallback';
 
 
 
@@ -30,6 +30,7 @@ const UserRoutes = () => {
             <Route path='/verify-email' element={ <EmailVerificationPage /> } />
             <Route path='/verify-otp' element={ <OtpVerificationPage /> } />
             <Route path='/reset-password' element={ <NewPasswordPage /> } />
+            <Route path='/auth/google/callback' element={<GoogleCallback />} />
             <Route path='/doctors' element={ <UserLayout><Doctors /></UserLayout>} />
             <Route path='/doctors/:speciality' element={ <UserLayout><Doctors /></UserLayout>} />
             <Route path='/about' element={ <UserLayout><About /></UserLayout>} />

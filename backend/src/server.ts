@@ -6,6 +6,9 @@ import dotenv from 'dotenv';
 import adminRouter from "./routes/adminRoute";
 import doctorRouter from "./routes/doctorRoute";
 import userRouter from "./routes/userRoute";
+import authRouter from "./routes/authRoute";
+import './utils/passport';
+import passport from "passport";
 dotenv.config();
 
 
@@ -21,10 +24,14 @@ connectCloudinary();
 app.use(express.json());
 app.use(cors());
 
+// initialize passport
+app.use(passport.initialize());
+
 // api endpoints
 app.use('/api/admin',adminRouter);
 app.use('/api/doctor',doctorRouter);
 app.use('/api/user',userRouter);
+app.use('/api/auth', authRouter);
 
 app.get('/', (req,res) => {
     res.send('API WORKING');
