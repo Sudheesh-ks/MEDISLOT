@@ -29,7 +29,7 @@ const UserRoutes = () => {
             <Route path='/login' element={ <UserLayout><Login /></UserLayout> } />
             <Route path='/verify-email' element={ <EmailVerificationPage /> } />
             <Route path='/verify-otp' element={ <OtpVerificationPage /> } />
-            <Route path='/set-newpassword' element={ <NewPasswordPage /> } />
+            <Route path='/reset-password' element={ <NewPasswordPage /> } />
             <Route path='/doctors' element={ <UserLayout><Doctors /></UserLayout>} />
             <Route path='/doctors/:speciality' element={ <UserLayout><Doctors /></UserLayout>} />
             <Route path='/about' element={ <UserLayout><About /></UserLayout>} />

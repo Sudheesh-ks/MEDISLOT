@@ -7,4 +7,8 @@ export interface IUserController {
   updateProfile(req: Request, res: Response): Promise<void>;
   verifyOtp(req: Request, res: Response): Promise<void>;
   resendOtp(req: Request, res: Response): Promise<void>;
+  forgotPasswordRequest(req: Request, res: Response): Promise<void>;
+  resetPassword(req: Request, res: Response): Promise<void>;
+
 }
+

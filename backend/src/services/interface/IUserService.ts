@@ -15,4 +15,5 @@ export interface userDataService {
     hashPassword(password: string): Promise<string>;
     finalizeRegister(userData: { name: string, email: string, password: string }): Promise<UserDocument>;
     generateToken(userId: string): string;
+    resetPassword(email: string, newHashedPassword: string): Promise<boolean>;
 }

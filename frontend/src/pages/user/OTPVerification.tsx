@@ -1,24 +1,37 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { toast } from 'react-toastify';
+import { AppContext } from '../../context/AppContext';
 
 const OtpVerificationPage = () => {
   const navigate = useNavigate();
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [email, setEmail] = useState('');
+  const [purpose, setPurpose] = useState('');
   const [error, setError] = useState('');
   const [timer, setTimer] = useState(60);
   const [canResend, setCanResend] = useState(false);
+
+
+      const context = useContext(AppContext);
+  
+      if (!context) {
+          throw new Error("TopDoctors must be used within an AppContextProvider");
+      }
+  
+      const { token } = context;
+
 
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
   useEffect(() => {
     const tempUser = JSON.parse(localStorage.getItem('tempUserData') || '{}');
-    if (!tempUser?.email) {
+    if (!tempUser?.email || !tempUser?.purpose) {
       navigate('/login');
     } else {
       setEmail(tempUser.email);
+      setPurpose(tempUser.purpose);
     }
   }, []);
 
@@ -66,10 +79,17 @@ const OtpVerificationPage = () => {
       });
 
       if (data.success) {
-        toast.success("Account created successfully");
-        localStorage.removeItem("tempUserData");
-        localStorage.setItem("token", data.token);
-        navigate('/');
+        // toast.success("OTP verified successfully");
+        if(purpose === 'register'){
+            toast.success("Account created successfully");
+            localStorage.removeItem("tempUserData");
+            localStorage.setItem("token", data.token);
+            navigate('/');
+        }else if(purpose === 'reset-password'){
+            toast.success("OTP verified successfully");
+            navigate('/reset-password')
+        }
+        
       } else {
         toast.error(data.message);
       }
@@ -79,12 +99,10 @@ const OtpVerificationPage = () => {
   };
 
   const resendOtp = async () => {
-  const tempUser = JSON.parse(localStorage.getItem("tempUserData") || '{}');
+//   const tempUser = JSON.parse(localStorage.getItem("tempUserData") || '{}');
 
   try {
-    const { data } = await axios.post(`${backendUrl}/api/user/resend-otp`, {
-      email: tempUser.email,
-    });
+    const { data } = await axios.post(`${backendUrl}/api/user/resend-otp`, {email});
 
     if (data.success) {
       toast.success("OTP resent to email");
@@ -99,11 +117,18 @@ const OtpVerificationPage = () => {
  };
 
 
+       useEffect(() => {
+        if (token) {
+          navigate('/')
+        }
+      })
+
+
   return (
     <form className='min-h-[80vh] flex items-center' onSubmit={handleSubmit}>
       <div className='flex flex-col gap-3 m-auto items-start p-8 min-w-[340px] sm:min-w-96 border rounded-xl text-zinc-600 text-sm shadow-lg'>
         <p className='text-2xl font-semibold'>Enter Verification Code</p>
-        <p>We've sent a 4-digit code to {email}</p>
+        <p>We've sent a 6-digit code to {email}</p>
 
         <div className="mb-6">
           <label className="block text-gray-700 mb-2">Verification Code</label>
@@ -125,7 +150,7 @@ const OtpVerificationPage = () => {
 
         <button type='submit' className='bg-primary text-white w-full py-2 rounded-md text-base'>Verify Code</button>
         <p>Didn't receive a code? 
-             
+
             <span
                 className={`text-blue-500 cursor-pointer ${!canResend ? 'opacity-50 cursor-not-allowed' : ''}`}
                 onClick={canResend ? resendOtp : undefined}

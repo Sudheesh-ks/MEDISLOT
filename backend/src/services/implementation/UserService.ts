@@ -5,6 +5,7 @@ import bcrypt from "bcrypt";
 import Jwt from "jsonwebtoken";
 import validator from "validator";
 import { v2 as cloudinary } from "cloudinary";
+import userModel from "../../models/userModel";
 
 
 export interface UserDocument extends userData {
@@ -68,5 +69,14 @@ export class UserService implements userDataService {
 
     generateToken(userId: string): string {
         return Jwt.sign({ id: userId }, process.env.JWT_SECRET!, { expiresIn: '1d' });
+    }
+
+    async resetPassword(email: string, newHashedPassword: string): Promise<boolean> {
+        const updatedUser = await userModel.findOneAndUpdate(
+            {email},
+            {$set:{ password: newHashedPassword }}
+        );
+
+        return !!updatedUser
     }
 }

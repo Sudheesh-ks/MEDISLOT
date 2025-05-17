@@ -8,7 +8,7 @@ import { generateOTP } from "../../utils/otp.util";
 
 
 export class UserController implements IUserController {
-    constructor(private userService: userDataService) {}
+    constructor(private userService: userDataService) { }
 
     async registerUser(req: Request, res: Response) {
         const { name, email, password } = req.body;
@@ -23,8 +23,8 @@ export class UserController implements IUserController {
         const otp = generateOTP();
         console.log(otp)
 
-        otpStore.set(email, { otp, userData: { name, email, password: hashed } });
-        
+        otpStore.set(email, { otp, purpose: 'register', userData: { name, email, password: hashed } });
+
         try {
 
             await sendOTP(email, otp);
@@ -32,7 +32,7 @@ export class UserController implements IUserController {
 
         } catch (err) {
             console.error('Email send failed:', err);
-            res.status(500).json({success:false,message: 'OTP sent failed'})
+            res.status(500).json({ success: false, message: 'OTP sent failed' })
         }
     }
 
@@ -46,11 +46,22 @@ export class UserController implements IUserController {
             return;
         }
 
-        const newUser = await this.userService.finalizeRegister(record.userData);
-        otpStore.delete(email);
+        if(record.purpose === 'register'){
+            const newUser = await this.userService.finalizeRegister(record.userData);
+            const token = this.userService.generateToken(newUser._id);
+            otpStore.delete(email);
+            res.status(201).json({ success: true, token, message: 'Registered Successfully' });
+            return;
+        }
 
-        const token = this.userService.generateToken(newUser._id);
-        res.status(201).json({ success: true, token });
+        if(record.purpose === 'reset-password'){
+            otpStore.set(email, {...record, otp: 'VERIFIED'});
+            res.status(200).json({success: true, message: 'OTP verified'});
+            return;
+        }
+
+        res.status(400).json({success: false, message: 'Unknown OTP purpose'})
+
     }
 
 
@@ -61,7 +72,7 @@ export class UserController implements IUserController {
             const record = otpStore.get(email);
 
             if (!record) {
-                res.status(404).json({ success: false, message: "No pending registration found for this email" });
+                res.status(404).json({ success: false, message: "No pending OTP found" });
                 return;
             }
 
@@ -77,6 +88,68 @@ export class UserController implements IUserController {
             res.status(500).json({ success: false, message: "Failed to resend OTP" });
         }
     }
+
+
+    async forgotPasswordRequest(req: Request, res: Response) {
+        const { email } = req.body;
+
+        try {
+            const user = await this.userService.checkEmailExists(email);
+            if (!user) {
+                res.status(404).json({ success: false, message: "Email not found" });
+                return;
+            }
+
+            const otp = generateOTP();
+            console.log(otp)
+            otpStore.set(email, {otp, purpose: 'reset-password', email});
+
+            await sendOTP(email, otp);
+            res.status(200).json({ success: true, message: "OTP sent to your email" });
+        } catch (err) {
+            console.error("Error sending OTP:", err);
+            res.status(500).json({ success: false, message: "Failed to send OTP" });
+        }
+    }
+
+
+    // async verifyForgotPasswordOtp(req: Request, res: Response) {
+    //     const { email, otp } = req.body;
+
+    //     const storedOtp = forgotPasswordOtpStore.get(email);
+    //     if (!storedOtp || storedOtp !== otp) {
+    //         res.status(401).json({ success: false, message: "Invalid OTP" });
+    //         return;
+    //     }
+
+    //     forgotPasswordOtpStore.set(email, "VERIFIED");
+
+    //     res.status(200).json({ success: true, message: "OTP verified" });
+    // }
+
+    async resetPassword(req: Request, res: Response) {
+        const { email, newPassword } = req.body;
+
+        const record = otpStore.get(email);
+        if (!record || record.purpose !== 'reset-password' || record.otp !== "VERIFIED") {
+            res.status(401).json({ success: false, message: "OTP not verified or expired" });
+            return;
+        }
+
+        const hashed = await this.userService.hashPassword(newPassword);
+        const updated = await this.userService.resetPassword(email, hashed);
+
+        if (!updated) {
+            res.status(404).json({ success: false, message: "User not found" });
+            return;
+        }
+
+        // Remove OTP after successful password reset
+        otpStore.delete(email);
+
+        res.status(200).json({ success: true, message: "Password updated successfully" });
+    }
+
 
 
     async loginUser(req: Request, res: Response) {
