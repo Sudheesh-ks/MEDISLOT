@@ -45,6 +45,8 @@ const doctorController = new DoctorController(doctorService);
 const adminRouter = express.Router();
 
 adminRouter.post('/login', adminController.loginAdmin.bind(adminController));
+adminRouter.get('/users', adminController.getAllUsers.bind(adminController));
+adminRouter.post('/toggle-user-block', adminController.toggleUserBlock.bind(adminController));
 adminRouter.post('/add-doctor', authAdmin, upload.single('image'), adminController.addDoctor.bind(adminController));
 adminRouter.post('/all-doctors', authAdmin, adminController.allDoctors.bind(adminController));
 

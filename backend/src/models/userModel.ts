@@ -52,6 +52,11 @@ const userSchema: Schema<userDocument> = new mongoose.Schema({
         type: String,
         default: 'Enter your phone no. here'
     },
+
+    isBlocked: {
+        type: Boolean,
+        default: false
+    },
 })
 
 

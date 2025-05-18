@@ -7,6 +7,7 @@ import { v2 as cloudinary } from "cloudinary";
 import { Request } from "express";
 import { DoctorData } from "../../types/doctor";
 import dotenv from 'dotenv';
+import userModel from "../../models/userModel";
 dotenv.config()
 
 
@@ -67,4 +68,19 @@ export class AdminService implements IAdminService {
     async getDoctors(): Promise<any[]> {
         return await this.adminRepository.getAllDoctors();
     }
+
+    async getAllUsers(): Promise<any> {
+    return await userModel.find({}, { password: 0 }); // exclude password
+}
+
+async toggleUserBlock(userId: string): Promise<string> {
+    const user = await userModel.findById(userId);
+    if (!user) throw new Error("User not found");
+
+    user.isBlocked = !user.isBlocked;
+    await user.save();
+
+    return user.isBlocked ? "User blocked" : "User unblocked";
+}
+
 }

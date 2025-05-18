@@ -6,6 +6,7 @@ export interface Address {
 
 
 export interface userData {
+  _id: string;
   name: string;
   email: string;
   image: string;
@@ -13,4 +14,5 @@ export interface userData {
   gender: string;
   dob: string;
   phone: string;
+  isBlocked: boolean;
 }

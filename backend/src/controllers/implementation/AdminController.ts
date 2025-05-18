@@ -6,7 +6,7 @@ import { CustomRequest } from "../../types/customRequest";
 
 
 export class AdminController implements IAdminController {
-    constructor(private adminService: IAdminService) {}
+    constructor(private adminService: IAdminService) { }
 
     async loginAdmin(req: Request, res: Response): Promise<void> {
         try {
@@ -39,4 +39,25 @@ export class AdminController implements IAdminController {
             res.status(500).json({ success: false, message: error.message });
         }
     }
+
+    // Inside AdminController.ts
+    async getAllUsers(req: Request, res: Response): Promise<void> {
+        try {
+            const users = await this.adminService.getAllUsers();
+            res.json({ success: true, users });
+        } catch (error: any) {
+            res.status(500).json({ success: false, message: error.message });
+        }
+    }
+
+    async toggleUserBlock(req: Request, res: Response): Promise<void> {
+        try {
+            const { userId } = req.body;
+            const message = await this.adminService.toggleUserBlock(userId);
+            res.json({ success: true, message });
+        } catch (error: any) {
+            res.status(400).json({ success: false, message: error.message });
+        }
+    }
+
 }

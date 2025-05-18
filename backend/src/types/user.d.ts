@@ -14,5 +14,6 @@ export interface userData {
   gender: string;
   dob: string;
   phone: string;
+  isBlocked: boolean;
   googleId?: string;
 }

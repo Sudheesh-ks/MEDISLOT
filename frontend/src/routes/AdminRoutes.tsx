@@ -9,6 +9,7 @@ import AdminLayout from '../layouts/AdminLayout';
 // Admin Pages
 import AdminLogin from '../pages/admin/AdminLogin';
 import AdminDashboard from '../pages/admin/AdminDashboard';
+import AdminUsersList from '../pages/admin/AdminUsersList';
 import AdminAppointments from '../pages/admin/AdminAppointments';
 import AdminAddDoctor from '../pages/admin/AdminAddDoctor';
 import AdminUpdateDoctor from '../pages/admin/AdminUpdateDoctor';
@@ -24,6 +25,7 @@ const AdminRoutes = () => {
             {/* Admin Routes */}
             <Route path='/admin/login' element={ <AdminLogin /> } />
             <Route path='/admin/dashboard' element={ <AdminLayout><AdminDashboard /></AdminLayout> } />
+            <Route path='/admin/user-management' element={ <AdminLayout><AdminUsersList /></AdminLayout> } />
             <Route path='/admin/appointments' element={ <AdminLayout><AdminAppointments /></AdminLayout> } />
             <Route path='/admin/add-doctor' element={ <AdminLayout><AdminAddDoctor /></AdminLayout> } />
             <Route path='/admin/update-doctor' element={ <AdminLayout><AdminUpdateDoctor /></AdminLayout> } />

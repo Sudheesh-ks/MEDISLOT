@@ -3,8 +3,20 @@ import type { Doctor } from "../assets/user/assets";
 import { assets } from "../assets/user/assets";
 import axios from "axios";
 import { toast } from "react-toastify";
-import type { userData } from "../types/user";
+// import type { userData } from "../types/user";
 
+interface userData {
+    name: string;
+    email: string;
+    image: string;
+    address: {
+        line1: string;
+        line2: string;
+    };
+    gender: string;
+    dob: string;
+    phone: string;
+}
 
 
 interface AppContextType {
@@ -25,7 +37,7 @@ interface AppContextProviderProps {
     children: ReactNode;
 }
 
-const AppContextProvider: React.FC<AppContextProviderProps> = ({children}) => {
+const AppContextProvider: React.FC<AppContextProviderProps> = ({ children }) => {
 
     const currencySymbol = '$'
 
@@ -36,15 +48,15 @@ const AppContextProvider: React.FC<AppContextProviderProps> = ({children}) => {
     const [token, setToken] = useState<string | null>(localStorage.getItem('token') ?? '')
     const [userData, setUserData] = useState<null | userData>({
         name: '',
-        email:  '',
-        phone:  '',
-        image:  `${assets.upload_image}`,
+        email: '',
+        phone: '',
+        image: `${assets.upload_image}`,
         address: {
-            line1:  '',
+            line1: '',
             line2: ''
         },
-        gender:  '',
-        dob:  '',
+        gender: '',
+        dob: '',
     })
 
 
@@ -52,12 +64,12 @@ const AppContextProvider: React.FC<AppContextProviderProps> = ({children}) => {
         try {
 
             const { data } = await axios.get(backendUrl + '/api/doctor/list')
-            if(data.success){
+            if (data.success) {
                 setDoctors(data.doctors)
-            }else{
+            } else {
                 toast.error(data.message);
             }
-            
+
         } catch (error) {
             if (error instanceof Error) {
                 toast.error(error.message);
@@ -71,13 +83,19 @@ const AppContextProvider: React.FC<AppContextProviderProps> = ({children}) => {
     const loadUserProfileData = async () => {
         try {
 
-            const { data } = await axios.get(backendUrl + '/api/user/get-profile',{headers:{Authorization: `Bearer ${token}`}})
-            if(data.success){
+            const { data } = await axios.get(backendUrl + '/api/user/get-profile', { headers: { Authorization: `Bearer ${token}` } })
+            if (data.success) {
+                if (data.userData.isBlocked) {
+                    toast.error("Your account has been blocked. Logging out.");
+                    localStorage.removeItem('token');
+                    setToken(null);
+                    return;
+                }
                 setUserData(data.userData)
-            }else{
+            } else {
                 toast.error(data.message)
             }
-            
+
         } catch (error) {
             if (error instanceof Error) {
                 toast.error(error.message);
@@ -92,33 +110,33 @@ const AppContextProvider: React.FC<AppContextProviderProps> = ({children}) => {
         currencySymbol,
         token, setToken,
         backendUrl,
-        userData,setUserData,
+        userData, setUserData,
         loadUserProfileData
     }
 
 
     useEffect(() => {
         getDoctorsData()
-    },[])
+    }, [])
 
     useEffect(() => {
-        if(token){
+        if (token) {
             loadUserProfileData()
-        }else{
+        } else {
             setUserData({
                 name: '',
-                email:  '',
-                phone:  '',
-                image:  `${assets.upload_image}`,
+                email: '',
+                phone: '',
+                image: `${assets.upload_image}`,
                 address: {
-                    line1:  '',
+                    line1: '',
                     line2: ''
                 },
-                gender:  '',
-                dob:  '',
+                gender: '',
+                dob: '',
             })
         }
-    },[token])
+    }, [token])
 
     return (
         <AppContext.Provider value={value}>

@@ -6,4 +6,6 @@ export interface IAdminController {
     loginAdmin(req: Request, res: Response): Promise<void>;
     addDoctor(req: CustomRequest, res: Response): Promise<void>;
     allDoctors(req: Request, res: Response): Promise<void>;
+    getAllUsers(req: Request, res: Response): Promise<void>;
+    toggleUserBlock(req: Request, res: Response): Promise<void>;
 }
