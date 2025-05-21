@@ -2,61 +2,66 @@ import { Request, Response } from "express";
 import { IAdminService } from "../../services/interface/IAdminService";
 import { IAdminController } from "../interface/adminController.interface";
 import { CustomRequest } from "../../types/customRequest";
+import { HttpStatus } from "../../constants/status.constants";
 
 
 
 export class AdminController implements IAdminController {
     constructor(private adminService: IAdminService) { }
 
+    // For Admin login
     async loginAdmin(req: Request, res: Response): Promise<void> {
         try {
             const token = await this.adminService.login(req.body.email, req.body.password);
 
             if (token) {
-                res.json({ success: true, token });
+                res.status(HttpStatus.OK).json({ success: true, token });
             } else {
-                res.json({ success: false, message: 'Invalid credentials' });
+                res.status(HttpStatus.NOT_FOUND).json({ success: false, message: 'Invalid credentials' });
             }
         } catch (error: any) {
-            res.status(500).json({ success: false, message: error.message });
+            res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: error.message });
         }
     }
 
+    // To add doctor
     async addDoctor(req: CustomRequest, res: Response): Promise<void> {
         try {
             const message = await this.adminService.addDoctor(req);
-            res.json({ success: true, message });
+            res.status(HttpStatus.CREATED).json({ success: true, message });
         } catch (error: any) {
-            res.status(400).json({ success: false, message: error.message });
+            res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: error.message });
         }
     }
 
+    // To get all the doctors
     async allDoctors(req: Request, res: Response): Promise<void> {
         try {
             const doctors = await this.adminService.getDoctors();
-            res.json({ success: true, doctors });
+            res.status(HttpStatus.OK).json({ success: true, doctors });
         } catch (error: any) {
-            res.status(500).json({ success: false, message: error.message });
+            res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: error.message });
         }
     }
 
-    // Inside AdminController.ts
+    // To get all users 
     async getAllUsers(req: Request, res: Response): Promise<void> {
         try {
-            const users = await this.adminService.getAllUsers();
-            res.json({ success: true, users });
+            const users = await this.adminService.getUsers();
+            res.status(HttpStatus.OK).json({ success: true, users });
         } catch (error: any) {
-            res.status(500).json({ success: false, message: error.message });
+            res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: error.message });
         }
     }
 
+    // To toggle the state of user
     async toggleUserBlock(req: Request, res: Response): Promise<void> {
         try {
             const { userId } = req.body;
             const message = await this.adminService.toggleUserBlock(userId);
-            res.json({ success: true, message });
+            res.status(HttpStatus.OK).json({ success: true, message });
         } catch (error: any) {
-            res.status(400).json({ success: false, message: error.message });
+            res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: error.message });
         }
     }
 

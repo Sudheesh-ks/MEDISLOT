@@ -12,7 +12,7 @@ export interface Address {
 export interface DoctorData {
   name: string;
   email: string;
-  image: string;
+  image?: string;
   password: string;
   speciality: string;
   degree: string;
@@ -21,6 +21,6 @@ export interface DoctorData {
   available?: boolean;
   fees: number;
   address: Address;
-  date: Date;
+  date?: Date;
   slots_booked?: object;
 }

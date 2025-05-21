@@ -5,7 +5,6 @@ import { UserRepository } from '../repositories/implementation/UserRepository';
 import authUser from '../middlewares/authUser';
 import upload from '../middlewares/multer';
 
-// Create instances and inject dependencies
 const userRepository = new UserRepository();
 const userService = new UserService(userRepository);
 const userController = new UserController(userService);

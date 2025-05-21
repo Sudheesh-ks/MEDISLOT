@@ -10,7 +10,8 @@ import { generateOTP } from "../../utils/otp.util";
 export class UserController implements IUserController {
     constructor(private userService: userDataService) { }
 
-    async registerUser(req: Request, res: Response) {
+    // For registering new user
+    async registerUser(req: Request, res: Response): Promise<void> {
         const { name, email, password } = req.body;
 
         const existing = await this.userService.checkEmailExists(email);
@@ -37,7 +38,8 @@ export class UserController implements IUserController {
     }
 
 
-    async verifyOtp(req: Request, res: Response) {
+    // For OTP verification
+    async verifyOtp(req: Request, res: Response): Promise<void> {
         const { email, otp } = req.body;
 
         const record = otpStore.get(email);
@@ -65,7 +67,8 @@ export class UserController implements IUserController {
     }
 
 
-    async resendOtp(req: Request, res: Response) {
+    // For resenting OTP
+    async resendOtp(req: Request, res: Response): Promise<void> {
         try {
             const { email } = req.body;
 
@@ -90,7 +93,8 @@ export class UserController implements IUserController {
     }
 
 
-    async forgotPasswordRequest(req: Request, res: Response) {
+    // For forgot password request
+    async forgotPasswordRequest(req: Request, res: Response): Promise<void> {
         const { email } = req.body;
 
         try {
@@ -113,21 +117,8 @@ export class UserController implements IUserController {
     }
 
 
-    // async verifyForgotPasswordOtp(req: Request, res: Response) {
-    //     const { email, otp } = req.body;
-
-    //     const storedOtp = forgotPasswordOtpStore.get(email);
-    //     if (!storedOtp || storedOtp !== otp) {
-    //         res.status(401).json({ success: false, message: "Invalid OTP" });
-    //         return;
-    //     }
-
-    //     forgotPasswordOtpStore.set(email, "VERIFIED");
-
-    //     res.status(200).json({ success: true, message: "OTP verified" });
-    // }
-
-    async resetPassword(req: Request, res: Response) {
+    // For reset password
+    async resetPassword(req: Request, res: Response): Promise<void> {
         const { email, newPassword } = req.body;
 
         const record = otpStore.get(email);
@@ -144,15 +135,14 @@ export class UserController implements IUserController {
             return;
         }
 
-        // Remove OTP after successful password reset
         otpStore.delete(email);
 
         res.status(200).json({ success: true, message: "Password updated successfully" });
     }
 
 
-
-    async loginUser(req: Request, res: Response) {
+    // For user login
+    async loginUser(req: Request, res: Response): Promise<void> {
         try {
             const { email, password } = req.body;
             const { token } = await this.userService.login(email, password);
@@ -162,7 +152,9 @@ export class UserController implements IUserController {
         }
     }
 
-    async getProfile(req: Request, res: Response) {
+    
+    // For getting user profile
+    async getProfile(req: Request, res: Response): Promise<void> {
         try {
             const userId = (req as any).userId;
             const userData = await this.userService.getProfile(userId);
@@ -176,7 +168,9 @@ export class UserController implements IUserController {
         }
     }
 
-    async updateProfile(req: Request, res: Response) {
+
+    // For updating user profile
+    async updateProfile(req: Request, res: Response): Promise<void> {
         try {
             const userId = (req as any).userId;
             await this.userService.updateProfile(userId, req.body, req.file);

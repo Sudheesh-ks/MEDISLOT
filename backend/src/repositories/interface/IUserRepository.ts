@@ -9,4 +9,5 @@ export interface userDataRepository {
     findByEmail(email: string): Promise<UserDocument | null>;
     findById(id: string): Promise<UserDocument | null>;
     updateById(id: string, data: Partial<userData>): Promise<void>;
+    updatePasswordByEmail(email: string, newHashedPassword: string): Promise<boolean>;
 }

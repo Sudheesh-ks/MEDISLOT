@@ -21,4 +21,13 @@ export class UserRepository implements userDataRepository {
     async updateById(id: string, data: Partial<userData>): Promise<void> {
         await userModel.findByIdAndUpdate(id, data);
     }
+
+    async updatePasswordByEmail(email: string, newHashedPassword: string): Promise<boolean> {
+        const updatedUser = await userModel.findOneAndUpdate(
+            { email },
+            { $set: { password: newHashedPassword } }
+        );
+        return !!updatedUser;
+    }
+
 }

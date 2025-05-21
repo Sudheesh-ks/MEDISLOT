@@ -2,21 +2,20 @@ import { IAdminRepository } from "../../repositories/interface/IAdminRepository"
 import { IAdminService } from "../interface/IAdminService";
 import bcrypt from 'bcrypt';
 import validator from 'validator';
-import jwt  from "jsonwebtoken";
+import jwt from "jsonwebtoken";
 import { v2 as cloudinary } from "cloudinary";
 import { Request } from "express";
 import { DoctorData } from "../../types/doctor";
 import dotenv from 'dotenv';
-import userModel from "../../models/userModel";
 dotenv.config()
 
 
 
 export class AdminService implements IAdminService {
-    constructor(private readonly adminRepository: IAdminRepository) {}
+    constructor(private readonly adminRepository: IAdminRepository) { }
 
     async login(email: string, password: string): Promise<string | null> {
-        if(email === process.env.ADMIN_EMAIL && password === process.env.ADMIN_PASSWORD){
+        if (email === process.env.ADMIN_EMAIL && password === process.env.ADMIN_PASSWORD) {
             return jwt.sign(email + password, process.env.JWT_SECRET!);
         }
         return null;
@@ -26,15 +25,15 @@ export class AdminService implements IAdminService {
         const { name, email, password, speciality, degree, experience, about, fees, address } = req.body;
         const imageFile = (req as any).file;
 
-        if(!name || !email || !password || !speciality || !degree || !experience || !about || !fees || !address){
-            throw new Error('Missing Details');
+        if (!name || !email || !password || !speciality || !degree || !experience || !about || !fees || !address) {
+            throw new Error('All Fields Required');
         }
 
-        if(!validator.isEmail(email)){
+        if (!validator.isEmail(email)) {
             throw new Error('Invalid Email');
         }
 
-        if(password.length < 8){
+        if (password.length < 8) {
             throw new Error('Password must be at least 8 characters');
         }
 
@@ -42,8 +41,8 @@ export class AdminService implements IAdminService {
         const hashedPassword = await bcrypt.hash(password, salt);
 
         let imageUrl = '';
-        if(imageFile){
-            const uploadResult = await cloudinary.uploader.upload(imageFile.path, {resource_type: "image"});
+        if (imageFile) {
+            const uploadResult = await cloudinary.uploader.upload(imageFile.path, { resource_type: "image" });
             imageUrl = uploadResult.secure_url;
         }
 
@@ -69,18 +68,12 @@ export class AdminService implements IAdminService {
         return await this.adminRepository.getAllDoctors();
     }
 
-    async getAllUsers(): Promise<any> {
-    return await userModel.find({}, { password: 0 }); // exclude password
-}
+    async getUsers(): Promise<any[]> {
+        return await this.adminRepository.getAllUsers();
+    }
 
-async toggleUserBlock(userId: string): Promise<string> {
-    const user = await userModel.findById(userId);
-    if (!user) throw new Error("User not found");
-
-    user.isBlocked = !user.isBlocked;
-    await user.save();
-
-    return user.isBlocked ? "User blocked" : "User unblocked";
-}
+    async toggleUserBlock(userId: string): Promise<string> {
+        return await this.adminRepository.toggleUserBlock(userId);
+    }
 
 }

@@ -5,8 +5,6 @@ import bcrypt from "bcrypt";
 import Jwt from "jsonwebtoken";
 import validator from "validator";
 import { v2 as cloudinary } from "cloudinary";
-import userModel from "../../models/userModel";
-
 
 export interface UserDocument extends userData {
     _id: string;
@@ -14,7 +12,7 @@ export interface UserDocument extends userData {
 
 
 export class UserService implements userDataService {
-    constructor(private userRepository: userDataRepository) {}
+    constructor(private userRepository: userDataRepository) { }
 
     async register(name: string, email: string, password: string): Promise<{ token: string }> {
         if (!name || !email || !password) throw new Error("Missing Details");
@@ -32,7 +30,7 @@ export class UserService implements userDataService {
         if (!user) throw new Error("User not found");
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) throw new Error("Invalid credentials");
-        if(user.isBlocked) throw new Error("Your account has been blocked");
+        if (user.isBlocked) throw new Error("Your account has been blocked");
 
         const token = Jwt.sign({ id: user._id }, process.env.JWT_SECRET!);
         return { token };
@@ -55,7 +53,7 @@ export class UserService implements userDataService {
         await this.userRepository.updateById(userId, data);
     }
 
-     async checkEmailExists(email: string): Promise<boolean> {
+    async checkEmailExists(email: string): Promise<boolean> {
         const user = await this.userRepository.findByEmail(email);
         return !!user
     }
@@ -73,11 +71,7 @@ export class UserService implements userDataService {
     }
 
     async resetPassword(email: string, newHashedPassword: string): Promise<boolean> {
-        const updatedUser = await userModel.findOneAndUpdate(
-            {email},
-            {$set:{ password: newHashedPassword }}
-        );
-
-        return !!updatedUser
+        return await this.userRepository.updatePasswordByEmail(email, newHashedPassword);
     }
+
 }

@@ -3,16 +3,16 @@ import { IDoctorService } from "../interface/IDoctorService";
 
 
 export class DoctorService implements IDoctorService {
-  constructor(private doctorRepo: IDoctorRepository) {}
+  constructor(private doctorRepository: IDoctorRepository) {}
 
   async toggleAvailability(docId: string): Promise<void> {
-    const doc = await this.doctorRepo.findById(docId);
+    const doc = await this.doctorRepository.findById(docId);
     if (!doc) throw new Error("Doctor not found");
 
-    await this.doctorRepo.updateAvailability(docId, !doc.available);
+    await this.doctorRepository.updateAvailability(docId, !doc.available);
   }
 
   async getAllDoctors(): Promise<any[]> {
-    return await this.doctorRepo.findAllDoctors();
+    return await this.doctorRepository.findAllDoctors();
   }
 }   

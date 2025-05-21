@@ -22,14 +22,12 @@ passport.use(
         let user = await userModel.findOne({ email });
 
         if (user) {
-          // If user doesn't have googleId, update it
           if (!user.googleId) {
             user.googleId = profile.id;
             await user.save();
           }
           return done(null, user);
         } else {
-          // Create new user (no password needed)
           const newUser = new userModel({
             name: profile.displayName,
             email,

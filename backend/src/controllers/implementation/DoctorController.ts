@@ -8,6 +8,7 @@ import { ErrorType } from "../../types/error";
 export class DoctorController implements IDoctorController {
   constructor(private doctorService: DoctorService) {}
 
+  // For updating doctor availability
   async changeAvailability(req: Request, res: Response): Promise<void> {
     try {
       const { docId } = req.body;
@@ -20,6 +21,7 @@ export class DoctorController implements IDoctorController {
     }
   }
 
+  // For getting all doctor profiles
   async doctorList(req: Request, res: Response): Promise<void> {
     try {
       const doctors = await this.doctorService.getAllDoctors();
