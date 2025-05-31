@@ -42,14 +42,14 @@ const NewPasswordPage = () => {
                 toast.error(data.message);
             }
         } catch (err) {
-            console.error("Password reset error:",err);
+            console.error("Password reset error:", err);
             toast.error("Something went wrong");
         }
     };
 
 
     useEffect(() => {
-        if(token){
+        if (token) {
             navigate('/')
         }
     })

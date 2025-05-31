@@ -4,6 +4,19 @@ import axios from 'axios';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 
+
+const isValidEmail = (email: string): boolean => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+};
+
+const isValidPassword = (password: string): boolean => {
+  const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&^_-])[A-Za-z\d@$!%*#?&^_-]{8,}$/;
+  return passwordRegex.test(password);
+};
+
+
+
 const Login = () => {
 
 
@@ -25,6 +38,23 @@ const Login = () => {
 
   const onSubmitHandler = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
+
+
+    if (!email || !password || (state === "Sign Up" && !name)) {
+      toast.error("Please fill in all required fields.");
+      return;
+    }
+
+    if (!isValidEmail(email)) {
+      toast.error("Please enter a valid email address.");
+      return;
+    }
+
+    if (!isValidPassword(password)) {
+      toast.error("Password must be at least 8 characters long, include 1 number and 1 special character.");
+      return;
+    }
+
 
     try {
 
@@ -50,7 +80,10 @@ const Login = () => {
       }
 
     } catch (error) {
-      if (error instanceof Error) {
+      if (axios.isAxiosError(error)) {
+        const errorMsg = error.response?.data?.message || "Something went wrong";
+        toast.error(errorMsg);
+      } else if (error instanceof Error) {
         toast.error(error.message);
       } else {
         toast.error("An unknown error occurred");
@@ -98,7 +131,7 @@ const Login = () => {
           </div>
         }
         <button type='submit' className='bg-primary text-white w-full py-2 rounded-md text-base'>{state === 'Sign Up' ? "Create Account" : "Login"}</button>
-        <button 
+        <button
           type='button'
           onClick={() => window.location.href = `${backendUrl}/api/auth/google`}
           className='flex items-center justify-center gap-2 border border-zinc-300 w-full py-2 rounded-md mt-2 hover:bg-zinc-100'

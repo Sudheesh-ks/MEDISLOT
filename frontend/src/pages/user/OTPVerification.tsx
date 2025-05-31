@@ -14,13 +14,13 @@ const OtpVerificationPage = () => {
   const [canResend, setCanResend] = useState(false);
 
 
-      const context = useContext(AppContext);
-  
-      if (!context) {
-          throw new Error("TopDoctors must be used within an AppContextProvider");
-      }
-  
-      const { token } = context;
+  const context = useContext(AppContext);
+
+  if (!context) {
+    throw new Error("TopDoctors must be used within an AppContextProvider");
+  }
+
+  const { token } = context;
 
 
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
@@ -37,17 +37,17 @@ const OtpVerificationPage = () => {
 
 
   useEffect(() => {
-  let interval: any;
+    let interval: any;
 
-  if (timer > 0) {
-    interval = setInterval(() => {
-      setTimer((prev) => prev - 1);
-    }, 1000);
-  } else {
-    setCanResend(true);
-  }
+    if (timer > 0) {
+      interval = setInterval(() => {
+        setTimer((prev) => prev - 1);
+      }, 1000);
+    } else {
+      setCanResend(true);
+    }
 
-  return () => clearInterval(interval);
+    return () => clearInterval(interval);
   }, [timer]);
 
 
@@ -80,16 +80,16 @@ const OtpVerificationPage = () => {
 
       if (data.success) {
         // toast.success("OTP verified successfully");
-        if(purpose === 'register'){
-            toast.success("Account created successfully");
-            localStorage.removeItem("tempUserData");
-            localStorage.setItem("token", data.token);
-            navigate('/');
-        }else if(purpose === 'reset-password'){
-            toast.success("OTP verified successfully");
-            navigate('/reset-password')
+        if (purpose === 'register') {
+          toast.success("Account created successfully");
+          localStorage.removeItem("tempUserData");
+          localStorage.setItem("token", data.token);
+          navigate('/');
+        } else if (purpose === 'reset-password') {
+          toast.success("OTP verified successfully");
+          navigate('/reset-password')
         }
-        
+
       } else {
         toast.error(data.message);
       }
@@ -99,29 +99,29 @@ const OtpVerificationPage = () => {
   };
 
   const resendOtp = async () => {
-//   const tempUser = JSON.parse(localStorage.getItem("tempUserData") || '{}');
+    //   const tempUser = JSON.parse(localStorage.getItem("tempUserData") || '{}');
 
-  try {
-    const { data } = await axios.post(`${backendUrl}/api/user/resend-otp`, {email});
+    try {
+      const { data } = await axios.post(`${backendUrl}/api/user/resend-otp`, { email });
 
-    if (data.success) {
-      toast.success("OTP resent to email");
-      setTimer(60); // restart timer
-      setCanResend(false);
-    } else {
-      toast.error(data.message);
+      if (data.success) {
+        toast.success("OTP resent to email");
+        setTimer(60); // restart timer
+        setCanResend(false);
+      } else {
+        toast.error(data.message);
+      }
+    } catch (err) {
+      toast.error("Failed to resend OTP");
     }
-  } catch (err) {
-    toast.error("Failed to resend OTP");
-  }
- };
+  };
 
 
-       useEffect(() => {
-        if (token) {
-          navigate('/')
-        }
-      })
+  useEffect(() => {
+    if (token) {
+      navigate('/')
+    }
+  })
 
 
   return (
@@ -149,14 +149,14 @@ const OtpVerificationPage = () => {
         </div>
 
         <button type='submit' className='bg-primary text-white w-full py-2 rounded-md text-base'>Verify Code</button>
-        <p>Didn't receive a code? 
+        <p>Didn't receive a code?
 
-            <span
-                className={`text-blue-500 cursor-pointer ${!canResend ? 'opacity-50 cursor-not-allowed' : ''}`}
-                onClick={canResend ? resendOtp : undefined}
-            >
-                Resend {canResend ? '' : `in ${timer}s`}
-            </span>
+          <span
+            className={`text-blue-500 cursor-pointer ${!canResend ? 'opacity-50 cursor-not-allowed' : ''}`}
+            onClick={canResend ? resendOtp : undefined}
+          >
+            Resend {canResend ? '' : `in ${timer}s`}
+          </span>
         </p>
       </div>
     </form>

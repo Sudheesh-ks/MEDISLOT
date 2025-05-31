@@ -19,12 +19,12 @@ const AdminAddDoctor = () => {
   const [address2, setAddress2] = useState('')
 
   const context = useContext(AdminContext);
-      
-          if (!context) {
-              throw new Error('AdminContext must be used within AdminContextProvider');
-          }
-      
-          const { aToken, backendUrl } = context;
+
+  if (!context) {
+    throw new Error('AdminContext must be used within AdminContextProvider');
+  }
+
+  const { aToken, backendUrl } = context;
 
   const onSubmitHandler = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -38,44 +38,50 @@ const AdminAddDoctor = () => {
 
       const formData = new FormData()
 
-      formData.append('image',docImg)
-      formData.append('name',name)
-      formData.append('email',email)
-      formData.append('password',password)
-      formData.append('experience',experience)
-      formData.append('fees',fees)
-      formData.append('about',about)
-      formData.append('speciality',speciality)
-      formData.append('degree',degree)
-      formData.append('address',JSON.stringify({line1:address1,line2:address2}))
+      formData.append('image', docImg)
+      formData.append('name', name)
+      formData.append('email', email)
+      formData.append('password', password)
+      formData.append('experience', experience)
+      formData.append('fees', fees)
+      formData.append('about', about)
+      formData.append('speciality', speciality)
+      formData.append('degree', degree)
+      formData.append('address', JSON.stringify({ line1: address1, line2: address2 }))
 
       // console log formData
-      formData.forEach((value,key) => {
+      formData.forEach((value, key) => {
         console.log(`${key} : ${value}`)
-    })
+      })
 
-    const {data} = await axios.post(backendUrl + '/api/admin/add-doctor',formData, { headers: { aToken } })
+      const { data } = await axios.post(backendUrl + '/api/admin/add-doctor', formData, { headers: { aToken } })
 
-    if(data.success){
-      toast.success(data.message)
-      setDocImg(null)
-      setName('')
-      setEmail('')
-      setPassword('')
-      setExperience('')
-      setFees('')
-      setAbout('')
-      setSpeciality('')
-      setDegree('')
-      setAddress1('')
-      setAddress2('')
-    }else{
-      toast.error(data.message)
-    }
+      if (data.success) {
+        toast.success(data.message)
+        setDocImg(null)
+        setName('')
+        setEmail('')
+        setPassword('')
+        setExperience('')
+        setFees('')
+        setAbout('')
+        setSpeciality('')
+        setDegree('')
+        setAddress1('')
+        setAddress2('')
+      } else {
+        toast.error(data.message)
+      }
 
-    } catch (error:any) {
-      toast.error(error.message)
-      console.log(error)
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        const errorMsg = error.response?.data?.message || "Something went wrong";
+        toast.error(errorMsg);
+      } else if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("An unknown error occurred");
+      }
     }
   }
 
@@ -90,7 +96,7 @@ const AdminAddDoctor = () => {
           <label htmlFor="doc-img">
             <img className='w-16 bg-gray-100 rounded-full cursor-pointer' src={docImg ? URL.createObjectURL(docImg) : assets.upload_area} alt="" />
           </label>
-          <input onChange={(e) => {if(e.target.files && e.target.files[0]){ setDocImg(e.target.files[0])} }} type="file" id='doc-img' hidden />
+          <input onChange={(e) => { if (e.target.files && e.target.files[0]) { setDocImg(e.target.files[0]) } }} type="file" id='doc-img' hidden />
           <p>Upload doctor <br /> picture</p>
         </div>
 
@@ -131,9 +137,9 @@ const AdminAddDoctor = () => {
               <p>Fees</p>
               <input onChange={(e) => setFees(e.target.value)} value={fees} className='border-rounded px-3 py-2' type="number" placeholder='fees' required />
             </div>
-            </div>
+          </div>
 
-            <div className='w-full lg:flex-1 flex flex-col gap-4'>
+          <div className='w-full lg:flex-1 flex flex-col gap-4'>
             <div className='flex-1 flex flex-col gap-1'>
               <p>Speciality</p>
               <select onChange={(e) => setSpeciality(e.target.value)} value={speciality} className='border-rounded px-3 py-2'>

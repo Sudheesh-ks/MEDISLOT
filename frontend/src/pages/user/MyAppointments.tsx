@@ -1,21 +1,21 @@
-import React, { useContext } from 'react'
+import { useContext } from 'react'
 import { AppContext } from '../../context/AppContext'
 
 const MyAppointments = () => {
 
   const context = useContext(AppContext);
 
-  if(!context){
+  if (!context) {
     throw new Error("TopDoctors must be used within an AppContextProvider");
   }
 
-  const {doctors} = context;
+  const { doctors } = context;
 
   return (
     <div>
       <p className='pb-3 mt-12 font-medium text-zinc-700 border-b'>My Appointments</p>
       <div>
-        {doctors.slice(0,3).map((item,index) => (
+        {doctors.slice(0, 3).map((item, index) => (
           <div className='grid grid-cols-[1fr_2fr] gap-4 sm:flex sm:gap-6 py-2 border-b' key={index}>
             <div>
               <img className='w-32 bg-indigo-50' src={item.image} alt="" />

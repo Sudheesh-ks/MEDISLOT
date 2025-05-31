@@ -43,8 +43,15 @@ const AdminContextProvider = ({ children }: AdminContextProviderProps) => {
                 toast.error(data.message)
             }
 
-        } catch (error: any) {
-            toast.error(error.message)
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+    const errorMsg = error.response?.data?.message || "Something went wrong";
+    toast.error(errorMsg);
+  } else if (error instanceof Error) {
+    toast.error(error.message);
+  } else {
+    toast.error("An unknown error occurred");
+  }
         }
     }
 
@@ -60,11 +67,14 @@ const AdminContextProvider = ({ children }: AdminContextProviderProps) => {
             }
 
         } catch (error) {
-            if (error instanceof Error) {
-                toast.error(error.message);
-            } else {
-                toast.error("An unknown error occurred");
-            }
+            if (axios.isAxiosError(error)) {
+    const errorMsg = error.response?.data?.message || "Something went wrong";
+    toast.error(errorMsg);
+  } else if (error instanceof Error) {
+    toast.error(error.message);
+  } else {
+    toast.error("An unknown error occurred");
+  }
         }
     }
 
@@ -80,11 +90,14 @@ const AdminContextProvider = ({ children }: AdminContextProviderProps) => {
             }
             
         } catch (error) {
-            if (error instanceof Error) {
-                toast.error(error.message);
-            } else {
-                toast.error("An unknown error occurred");
-            }
+            if (axios.isAxiosError(error)) {
+    const errorMsg = error.response?.data?.message || "Something went wrong";
+    toast.error(errorMsg);
+  } else if (error instanceof Error) {
+    toast.error(error.message);
+  } else {
+    toast.error("An unknown error occurred");
+  }
         }
     }
 
@@ -101,11 +114,14 @@ const AdminContextProvider = ({ children }: AdminContextProviderProps) => {
             }
             
         } catch (error) {
-            if (error instanceof Error) {
-                toast.error(error.message);
-            } else {
-                toast.error("An unknown error occurred | Error in blockin user");
-            }
+           if (axios.isAxiosError(error)) {
+    const errorMsg = error.response?.data?.message || "Something went wrong";
+    toast.error(errorMsg);
+  } else if (error instanceof Error) {
+    toast.error(error.message);
+  } else {
+    toast.error("An unknown error occurred");
+  }
         }
     }
 

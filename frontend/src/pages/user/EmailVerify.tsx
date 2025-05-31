@@ -36,11 +36,11 @@ const EmailVerificationPage = () => {
     };
 
 
-      useEffect(() => {
+    useEffect(() => {
         if (token) {
-          navigate('/')
+            navigate('/')
         }
-      })
+    })
 
 
 

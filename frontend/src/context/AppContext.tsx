@@ -21,6 +21,7 @@ interface userData {
 
 interface AppContextType {
     doctors: Doctor[];
+    getDoctorsData: () => Promise<void>;
     currencySymbol: string;
     backendUrl: string;
     token: string | null;
@@ -71,7 +72,10 @@ const AppContextProvider: React.FC<AppContextProviderProps> = ({ children }) => 
             }
 
         } catch (error) {
-            if (error instanceof Error) {
+            if (axios.isAxiosError(error)) {
+                const errorMsg = error.response?.data?.message || "Something went wrong";
+                toast.error(errorMsg);
+            } else if (error instanceof Error) {
                 toast.error(error.message);
             } else {
                 toast.error("An unknown error occurred");
@@ -97,7 +101,10 @@ const AppContextProvider: React.FC<AppContextProviderProps> = ({ children }) => 
             }
 
         } catch (error) {
-            if (error instanceof Error) {
+            if (axios.isAxiosError(error)) {
+                const errorMsg = error.response?.data?.message || "Something went wrong";
+                toast.error(errorMsg);
+            } else if (error instanceof Error) {
                 toast.error(error.message);
             } else {
                 toast.error("An unknown error occurred");
@@ -106,7 +113,7 @@ const AppContextProvider: React.FC<AppContextProviderProps> = ({ children }) => 
     }
 
     const value: AppContextType = {
-        doctors,
+        doctors, getDoctorsData,
         currencySymbol,
         token, setToken,
         backendUrl,
