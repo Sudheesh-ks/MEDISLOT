@@ -19,5 +19,6 @@ userRouter.post('/forgot-password', userController.forgotPasswordRequest.bind(us
 userRouter.post('/reset-password', userController.resetPassword.bind(userController));
 userRouter.get('/get-profile', authUser, userController.getProfile.bind(userController));
 userRouter.post('/update-profile', upload.single('image'), authUser, userController.updateProfile.bind(userController));
+userRouter.post('/book-appointment', authUser, userController.bookAppointment.bind(userController));
 
 export default userRouter;

@@ -1,6 +1,9 @@
 import { userDataRepository, UserDocument } from '../../repositories/interface/IUserRepository'
 import userModel from "../../models/userModel";
 import { userData } from "../../types/user";
+import doctorModel from '../../models/doctorModel';
+import { AppointmentTypes } from '../../types/appointment';
+import appointmentModel from '../../models/appointmentModel';
 
 
 
@@ -29,5 +32,39 @@ export class UserRepository implements userDataRepository {
         );
         return !!updatedUser;
     }
+
+
+    async bookAppointment(appointmentData: AppointmentTypes): Promise<void> {
+    const { userId, docId, slotDate, slotTime } = appointmentData;
+
+    const doctor = await doctorModel.findById(docId);
+    if (!doctor || !doctor.available) throw new Error("Doctor not available");
+
+    const slots = (doctor.slots_booked || {}) as Record<string, string[]>;
+
+    if (slots[slotDate]?.includes(slotTime)) {
+      throw new Error("Slot not available");
+    }
+
+    if (!slots[slotDate]) slots[slotDate] = [];
+    slots[slotDate].push(slotTime);
+
+    const userData = await userModel.findById(userId).select("-password");
+    const docData = await doctorModel.findById(docId).select("-password");
+
+    const appointment = new appointmentModel({
+      userId,
+      docId,
+      userData,
+      docData,
+      amount: docData!.fees,
+      slotTime,
+      slotDate,
+      date: new Date()
+    });
+
+    await appointment.save();
+    await doctorModel.findByIdAndUpdate(docId, { slots_booked: slots });
+  }
 
 }

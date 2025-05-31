@@ -7,12 +7,34 @@ import { sendOTP } from "../../utils/mail.util";
 import { generateOTP } from "../../utils/otp.util";
 
 
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&^_-])[A-Za-z\d@$!%*#?&^_-]{8,}$/;
+
+
 export class UserController implements IUserController {
     constructor(private userService: userDataService) { }
 
     // For registering new user
     async registerUser(req: Request, res: Response): Promise<void> {
         const { name, email, password } = req.body;
+
+        if (!name || !email || !password) {
+            res.status(400).json({ success: false, message: 'All fields are required' });
+            return;
+        }
+
+        if (!emailRegex.test(email)) {
+            res.status(400).json({ success: false, message: 'Invalid email format' });
+            return;
+        }
+
+        if (!passwordRegex.test(password)) {
+            res.status(400).json({
+                success: false,
+                message: 'Password must be at least 8 characters long, contain at least 1 letter, 1 number, and 1 special character'
+            });
+            return;
+        }
 
         const existing = await this.userService.checkEmailExists(email);
         if (existing) {
@@ -48,7 +70,7 @@ export class UserController implements IUserController {
             return;
         }
 
-        if(record.purpose === 'register'){
+        if (record.purpose === 'register') {
             const newUser = await this.userService.finalizeRegister(record.userData);
             const token = this.userService.generateToken(newUser._id);
             otpStore.delete(email);
@@ -56,13 +78,13 @@ export class UserController implements IUserController {
             return;
         }
 
-        if(record.purpose === 'reset-password'){
-            otpStore.set(email, {...record, otp: 'VERIFIED'});
-            res.status(200).json({success: true, message: 'OTP verified'});
+        if (record.purpose === 'reset-password') {
+            otpStore.set(email, { ...record, otp: 'VERIFIED' });
+            res.status(200).json({ success: true, message: 'OTP verified' });
             return;
         }
 
-        res.status(400).json({success: false, message: 'Unknown OTP purpose'})
+        res.status(400).json({ success: false, message: 'Unknown OTP purpose' })
 
     }
 
@@ -106,7 +128,7 @@ export class UserController implements IUserController {
 
             const otp = generateOTP();
             console.log(otp)
-            otpStore.set(email, {otp, purpose: 'reset-password', email});
+            otpStore.set(email, { otp, purpose: 'reset-password', email });
 
             await sendOTP(email, otp);
             res.status(200).json({ success: true, message: "OTP sent to your email" });
@@ -145,6 +167,12 @@ export class UserController implements IUserController {
     async loginUser(req: Request, res: Response): Promise<void> {
         try {
             const { email, password } = req.body;
+
+            if (!email || !password) {
+                res.status(400).json({ success: false, message: "Email and password are required" });
+                return;
+            }
+
             const { token } = await this.userService.login(email, password);
             res.json({ success: true, token });
         } catch (error) {
@@ -152,7 +180,7 @@ export class UserController implements IUserController {
         }
     }
 
-    
+
     // For getting user profile
     async getProfile(req: Request, res: Response): Promise<void> {
         try {
@@ -179,5 +207,18 @@ export class UserController implements IUserController {
             res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: (error as Error).message });
         }
     }
+
+
+
+    // For Booking an appointment
+    async bookAppointment(req: Request, res: Response): Promise<void> {
+        try {
+            await this.userService.bookAppointment(req.body);
+            res.json({ success: true, message: 'Appointment booked' });
+        } catch (error) {
+            res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: (error as Error).message });
+        }
+    }
+
 
 }

@@ -5,6 +5,7 @@ import bcrypt from "bcrypt";
 import Jwt from "jsonwebtoken";
 import validator from "validator";
 import { v2 as cloudinary } from "cloudinary";
+import { AppointmentTypes } from "../../types/appointment";
 
 export interface UserDocument extends userData {
     _id: string;
@@ -72,6 +73,10 @@ export class UserService implements userDataService {
 
     async resetPassword(email: string, newHashedPassword: string): Promise<boolean> {
         return await this.userRepository.updatePasswordByEmail(email, newHashedPassword);
+    }
+
+    async bookAppointment(appointmentData: AppointmentTypes): Promise<void> {
+        await this.userRepository.bookAppointment(appointmentData);
     }
 
 }
