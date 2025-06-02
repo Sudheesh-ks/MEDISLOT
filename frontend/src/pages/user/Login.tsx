@@ -3,17 +3,8 @@ import { AppContext } from '../../context/AppContext';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
-
-
-const isValidEmail = (email: string): boolean => {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
-};
-
-const isValidPassword = (password: string): boolean => {
-  const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&^_-])[A-Za-z\d@$!%*#?&^_-]{8,}$/;
-  return passwordRegex.test(password);
-};
+import { assets } from '../../assets/user/assets';
+import { isValidEmail, isValidPassword } from '../../utils/validator';
 
 
 
@@ -99,56 +90,77 @@ const Login = () => {
   })
 
   return (
-    <form onSubmit={onSubmitHandler} className='min-h-[80vh] flex items-center'>
-      <div className='flex flex-col gap-3 m-auto items-start p-8 min-w-[340px] sm:min-w-96 border rounded-xl text-zinc-600 text-sm shadow-lg'>
-        <p className='text-2xl font-semibold'>{state === 'Sign Up' ? "Create Account" : "Login"}</p>
-        <p>Please {state === 'Sign Up' ? "sign up" : "login"} to book appointment</p>
-        {
-          state === 'Sign Up'
-          &&
-          <div className='w-full'>
-            <p>Full Name</p>
-            <input className='border border-zinc-300 rounded w-full p-2 mt-1' type="text" onChange={(e) => setName(e.target.value)} value={name} required />
-          </div>
-        }
+    <form onSubmit={onSubmitHandler} className='min-h-[80vh] flex items-center justify-center'>
+  <div className='flex flex-col mt-40 sm:flex-row bg-white shadow-lg rounded-xl overflow-hidden'>
+    
+    {/* LEFT: Image section */}
+    <div className='hidden sm:block w-full sm:w-96'>
+      <img 
+        src={assets.contact_image}  // replace with your image path
+        alt="Login Visual"
+        className='w-full h-full object-cover'
+      />
+    </div>
+
+    {/* RIGHT: Form section */}
+    <div className='flex flex-col gap-3 p-8 min-w-[340px] sm:min-w-96 text-zinc-600 text-sm'>
+      <p className='text-2xl font-semibold'>{state === 'Sign Up' ? "Create Account" : "Login"}</p>
+      <p>Please {state === 'Sign Up' ? "sign up" : "login"} to book appointment</p>
+
+      {state === 'Sign Up' && (
         <div className='w-full'>
-          <p>Email</p>
-          <input className='border border-zinc-300 rounded w-full p-2 mt-1' type="email" onChange={(e) => setEmail(e.target.value)} value={email} required />
+          <p>Full Name</p>
+          <input className='border border-zinc-300 rounded w-full p-2 mt-1' type="text" onChange={(e) => setName(e.target.value)} value={name} required />
         </div>
-        <div className='w-full'>
-          <p>Password</p>
-          <input className='border border-zinc-300 rounded w-full p-2 mt-1' type="password" onChange={(e) => setPassword(e.target.value)} value={password} required />
-        </div>
-        {
-          state === 'Login' &&
-          <div className="w-full text-right text-sm mt-1">
-            <span
-              onClick={() => navigate('/verify-email')}
-              className="text-primary cursor-pointer hover:underline"
-            >
-              Forgot Password?
-            </span>
-          </div>
-        }
-        <button type='submit' className='bg-primary text-white w-full py-2 rounded-md text-base'>{state === 'Sign Up' ? "Create Account" : "Login"}</button>
-        <button
-          type='button'
-          onClick={() => window.location.href = `${backendUrl}/api/auth/google`}
-          className='flex items-center justify-center gap-2 border border-zinc-300 w-full py-2 rounded-md mt-2 hover:bg-zinc-100'
-        >
-          <img
-            src="https://developers.google.com/identity/images/g-logo.png"
-            alt="Google"
-            className="w-5 h-5"
-          />
-          Continue with Google
-        </button>
-        {
-          state === "Sign Up" ? <p>Already have an account? <span onClick={() => setState('Login')} className='text-primary underline cursor-pointer'>Login here</span></p> : <p>Create a new account? <span onClick={() => setState('Sign Up')} className='text-primary underline cursor-pointer'>click here</span></p>
-        }
+      )}
+
+      <div className='w-full'>
+        <p>Email</p>
+        <input className='border border-zinc-300 rounded w-full p-2 mt-1' type="email" onChange={(e) => setEmail(e.target.value)} value={email} required />
       </div>
 
-    </form>
+      <div className='w-full'>
+        <p>Password</p>
+        <input className='border border-zinc-300 rounded w-full p-2 mt-1' type="password" onChange={(e) => setPassword(e.target.value)} value={password} required />
+      </div>
+
+      {state === 'Login' && (
+        <div className="w-full text-right text-sm mt-1">
+          <span
+            onClick={() => navigate('/verify-email')}
+            className="text-primary cursor-pointer hover:underline"
+          >
+            Forgot Password?
+          </span>
+        </div>
+      )}
+
+      <button type='submit' className='bg-primary text-white w-full py-2 rounded-md text-base'>{state === 'Sign Up' ? "Create Account" : "Login"}</button>
+
+      <button
+        type='button'
+        onClick={() => window.location.href = `${backendUrl}/api/auth/google`}
+        className='flex items-center justify-center gap-2 border border-zinc-300 w-full py-2 rounded-md mt-2 hover:bg-zinc-100'
+      >
+        <img
+          src="https://developers.google.com/identity/images/g-logo.png"
+          alt="Google"
+          className="w-5 h-5"
+        />
+        Continue with Google
+      </button>
+
+      <p className='mt-2'>
+        {state === "Sign Up" ? (
+          <>Already have an account? <span onClick={() => setState('Login')} className='text-primary underline cursor-pointer'>Login here</span></>
+        ) : (
+          <>Create a new account? <span onClick={() => setState('Sign Up')} className='text-primary underline cursor-pointer'>click here</span></>
+        )}
+      </p>
+    </div>
+  </div>
+</form>
+
   )
 }
 

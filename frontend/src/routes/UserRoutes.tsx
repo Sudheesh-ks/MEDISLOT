@@ -26,7 +26,7 @@ const UserRoutes = () => {
     <>
             {/* User Routes */}
             <Route path='/' element={ <UserLayout><Home /></UserLayout> } />
-            <Route path='/login' element={ <UserLayout><Login /></UserLayout> } />
+            <Route path='/login' element={ <Login /> } />
             <Route path='/verify-email' element={ <EmailVerificationPage /> } />
             <Route path='/verify-otp' element={ <OtpVerificationPage /> } />
             <Route path='/reset-password' element={ <NewPasswordPage /> } />

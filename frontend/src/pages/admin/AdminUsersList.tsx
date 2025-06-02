@@ -1,15 +1,25 @@
-import React, { useEffect, useContext } from 'react';
+import { useEffect, useContext } from 'react';
 import { AdminContext } from '../../context/AdminContext';
+import { useNavigate } from 'react-router-dom';
 
 const AdminUsersList = () => {
+
+    const navigate = useNavigate();
     const context = useContext(AdminContext);
     if (!context) throw new Error("AdminContext must be used inside provider");
 
-    const { users, getAllUsers, toggleBlockUser } = context;
+    const { aToken, users, getAllUsers, toggleBlockUser } = context;
 
     useEffect(() => {
         getAllUsers();
     }, []);
+
+
+    useEffect(() => {
+        if(!aToken){
+            navigate('/admin/login')
+        }
+    })
 
     return (
         <div className="m-5 max-h-[90vh] overflow-y-auto">

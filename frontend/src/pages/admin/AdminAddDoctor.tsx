@@ -1,8 +1,9 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { assets } from '../../assets/admin/assets'
 import { AdminContext } from '../../context/AdminContext'
 import { toast } from 'react-toastify'
 import axios from 'axios'
+import { useNavigate } from 'react-router-dom'
 
 const AdminAddDoctor = () => {
 
@@ -18,6 +19,8 @@ const AdminAddDoctor = () => {
   const [address1, setAddress1] = useState('')
   const [address2, setAddress2] = useState('')
 
+
+  const navigate = useNavigate();
   const context = useContext(AdminContext);
 
   if (!context) {
@@ -84,6 +87,13 @@ const AdminAddDoctor = () => {
       }
     }
   }
+
+
+  useEffect(() => {
+    if(!aToken){
+      navigate('/admin/login')
+    }
+  })
 
 
   return (

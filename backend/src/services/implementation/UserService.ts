@@ -31,7 +31,7 @@ export class UserService implements userDataService {
         if (!user) throw new Error("User not found");
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) throw new Error("Invalid credentials");
-        if (user.isBlocked) throw new Error("Your account has been blocked");
+        if (user.isBlocked) throw new Error("Your account has been blocked by admin");
 
         const token = Jwt.sign({ id: user._id }, process.env.JWT_SECRET!);
         return { token };

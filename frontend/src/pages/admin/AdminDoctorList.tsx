@@ -1,8 +1,10 @@
-import React, { useContext, useEffect } from 'react'
+import { useContext, useEffect } from 'react'
 import { AdminContext } from '../../context/AdminContext';
+import { useNavigate } from 'react-router-dom';
 
 const AdminDoctorList = () => {
 
+  const navigate = useNavigate();
   const context = useContext(AdminContext);
 
   if (!context) {
@@ -18,6 +20,12 @@ const AdminDoctorList = () => {
     }
 
   },[aToken])
+
+  useEffect(() => {
+    if(!aToken){
+      navigate('/admin/login')
+    }
+  })
 
 
   return (
