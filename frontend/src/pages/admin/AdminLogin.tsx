@@ -1,9 +1,10 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { AdminContext } from '../../context/AdminContext';
 import axios from 'axios';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import { assets } from '../../assets/user/assets';
+import { adminLoginAPI } from '../../services/adminServices';
 
 const Login = () => {
 
@@ -18,7 +19,7 @@ const Login = () => {
     throw new Error('AdminContext must be used within AdminContextProvider');
   }
 
-  const { setAToken, backendUrl } = context;
+  const { aToken, setAToken } = context;
 
 
   const onSubmitHandler = async (event: React.FormEvent<HTMLFormElement>) => {
@@ -28,7 +29,7 @@ const Login = () => {
 
       if (state === 'Admin') {
 
-        const { data } = await axios.post(backendUrl + '/api/admin/login', { email, password })
+        const { data } = await adminLoginAPI(email, password)
         if (data.success) {
           navigate('/admin/dashboard')
           localStorage.setItem('aToken', data.token)
@@ -52,6 +53,13 @@ const Login = () => {
       }
     }
   }
+
+
+  useEffect(() => {
+    if(aToken){
+      navigate('/admin/dashboard')
+    }
+  },[aToken,navigate])
 
 
   return (

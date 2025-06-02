@@ -3,6 +3,8 @@ import type { Doctor } from "../assets/user/assets";
 import { assets } from "../assets/user/assets";
 import axios from "axios";
 import { toast } from "react-toastify";
+import { getUserProfileAPI } from "../services/userProfileServices";
+import { getDoctorsAPI } from "../services/doctorServices";
 // import type { userData } from "../types/user";
 
 interface userData {
@@ -40,7 +42,7 @@ interface AppContextProviderProps {
 
 const AppContextProvider: React.FC<AppContextProviderProps> = ({ children }) => {
 
-    const currencySymbol = '$'
+    const currencySymbol = '₹'
 
     const backendUrl = import.meta.env.VITE_BACKEND_URL
 
@@ -64,7 +66,7 @@ const AppContextProvider: React.FC<AppContextProviderProps> = ({ children }) => 
     const getDoctorsData = async () => {
         try {
 
-            const { data } = await axios.get(backendUrl + '/api/doctor/list')
+            const { data } = await getDoctorsAPI()
             if (data.success) {
                 setDoctors(data.doctors)
             } else {
@@ -87,7 +89,12 @@ const AppContextProvider: React.FC<AppContextProviderProps> = ({ children }) => 
     const loadUserProfileData = async () => {
         try {
 
-            const { data } = await axios.get(backendUrl + '/api/user/get-profile', { headers: { Authorization: `Bearer ${token}` } })
+            if (!token) {
+        toast.error("Please login to continue...");
+        return;
+      }
+
+            const { data } = await getUserProfileAPI(token)
             if (data.success) {
                 if (data.userData.isBlocked) {
                     toast.error("Your account has been blocked. Logging out.");

@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { AppContext } from '../../context/AppContext';
-import { verifyEmailAPI } from '../../services/userAuthServices';
+import { verifyEmailAPI } from '../../services/authServices';
 
 // 1. Email Verification Page Component
 const EmailVerificationPage = () => {

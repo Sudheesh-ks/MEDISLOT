@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { AppContext } from '../../context/AppContext';
-import { resendOtpAPI, verifyOtpAPI } from '../../services/userAuthServices';
+import { resendOtpAPI, verifyOtpAPI } from '../../services/authServices';
 
 const OtpVerificationPage = () => {
   const navigate = useNavigate();

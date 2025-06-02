@@ -5,6 +5,7 @@ import { assets, type Doctor } from '../../assets/user/assets';
 import RelatedDoctors from '../../components/user/RelatedDoctors';
 import { toast } from 'react-toastify';
 import axios from 'axios';
+import { appointmentBookingAPI } from '../../services/appointmentServices';
 
 const Appointment = () => {
 
@@ -21,7 +22,7 @@ const Appointment = () => {
     throw new Error("TopDoctors must be used within an AppContextProvider");
   }
 
-  const { doctors, currencySymbol, backendUrl, token, getDoctorsData } = context;
+  const { doctors, currencySymbol, token, getDoctorsData } = context;
   const daysOfWeek = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT']
 
   const [docInfo, setDocInfo] = useState<Doctor | undefined | null>(null)
@@ -96,7 +97,7 @@ const Appointment = () => {
 
       const slotDate = day + '_' + month + '_' + year;
 
-      const { data } = await axios.post(backendUrl + '/api/book-appointment', { docId, slotDate, slotTime }, { headers: { token } })
+      const { data } = await appointmentBookingAPI(docId!, slotDate, slotTime, token)
       if (data.success) {
         toast.success(data.message)
         getDoctorsData()

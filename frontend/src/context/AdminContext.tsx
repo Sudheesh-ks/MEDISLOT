@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { toast } from "react-toastify";
 import type { Doctor } from "../assets/user/assets";
 import type { userData } from "../types/user";
+import { changeAvailabilityAPI, getAllDoctorsAPI, getAllUsersAPI, toggleUserBlockAPI } from "../services/adminServices";
 
 
 interface AdminContextType {
@@ -35,7 +36,7 @@ const AdminContextProvider = ({ children }: AdminContextProviderProps) => {
     const getAllDoctors = async () => {
         try {
 
-            const { data } = await axios.post(backendUrl + '/api/admin/all-doctors', {}, { headers: { aToken } })
+            const { data } = await getAllDoctorsAPI(aToken)
             if (data.success) {
                 setDoctors(data.doctors)
                 console.log(data.doctors)
@@ -58,7 +59,7 @@ const AdminContextProvider = ({ children }: AdminContextProviderProps) => {
     const changeAvailability = async (docId: string) => {
         try {
 
-            const { data } = await axios.post(backendUrl + '/api/admin/change-availability', { docId }, { headers: { aToken } })
+            const { data } = await changeAvailabilityAPI(docId, aToken)
             if (data.success) {
                 toast.success(data.message)
                 getAllDoctors()
@@ -82,7 +83,7 @@ const AdminContextProvider = ({ children }: AdminContextProviderProps) => {
     const getAllUsers = async () => {
         try {
 
-            const { data } = await axios.get(`${backendUrl}/api/admin/users`, {headers: {aToken}});
+            const { data } = await getAllUsersAPI(aToken);
             if(data.success){
                 setUsers(data.users);
             }else{
@@ -105,7 +106,7 @@ const AdminContextProvider = ({ children }: AdminContextProviderProps) => {
     const toggleBlockUser = async (userId: string) => {
         try {
 
-            const { data } = await axios.post(`${backendUrl}/api/admin/toggle-user-block`, {userId}, {headers: {aToken}});
+            const { data } = await toggleUserBlockAPI(userId, aToken);
             if(data.success){
                 toast.success(data.message);
                 getAllUsers();

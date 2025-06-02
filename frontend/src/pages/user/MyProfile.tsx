@@ -1,8 +1,8 @@
 import { useContext, useState } from 'react'
 import { AppContext } from '../../context/AppContext'
 import { assets } from '../../assets/user/assets';
-import axios from 'axios';
 import { toast } from 'react-toastify';
+import { updateUserProfileAPI } from '../../services/userProfileServices';
 
 const MyProfile = () => {
 
@@ -13,7 +13,7 @@ const MyProfile = () => {
     throw new Error("TopDoctors must be used within an AppContextProvider");
   }
 
-  const { userData, setUserData, token, backendUrl, loadUserProfileData } = context;
+  const { userData, setUserData, token, loadUserProfileData } = context;
 
   const [isEdit, setIsEdit] = useState(false)
   const [image, setImage] = useState<File | null>(null);
@@ -23,37 +23,26 @@ const MyProfile = () => {
 
   const updateUserProfileData = async () => {
     try {
-
-      const formData = new FormData()
-
-      formData.append('name', userData.name)
-      formData.append('phone', userData?.phone)
-      formData.append('address', JSON.stringify(userData?.address))
-      formData.append('gender', userData?.gender)
-      formData.append('dob', userData.dob)
-
-      if (image) formData.append('image', image)
-
-      const { data } = await axios.post(backendUrl + '/api/user/update-profile', formData, { headers: { Authorization: `Bearer ${token}` } })
-
-      if (data.success) {
-        toast.success(data.message)
-        await loadUserProfileData()
-        setIsEdit(false)
-        setImage(null)
-      } else {
-        toast.error(data.message)
+      if (!token) {
+        toast.error("Please login to continue...");
+        return;
       }
+
+      const data = await updateUserProfileAPI(token, {
+        name: userData.name,
+        phone: userData.phone,
+        address: userData.address,
+        gender: userData.gender,
+        dob: userData.dob,
+      }, image);
+
+      toast.success(data.message);
+      await loadUserProfileData();
+      setIsEdit(false);
+      setImage(null);
 
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        const errorMsg = error.response?.data?.message || "Something went wrong";
-        toast.error(errorMsg);
-      } else if (error instanceof Error) {
-        toast.error(error.message);
-      } else {
-        toast.error("An unknown error occurred");
-      }
+      toast.error(error instanceof Error ? error.message : "An unknown error occurred");
     }
   }
 
@@ -64,8 +53,21 @@ const MyProfile = () => {
         isEdit
           ? <label htmlFor="image">
             <div className='inline-block relative cursor-pointer'>
-              <img className='w-36 rounded opacity-75' src={image ? URL.createObjectURL(image) : userData.image} alt="" />
-              <img className='w-10 absolute bottom-12 right-12' src={image ? '' : assets.upload_icon} alt="" />
+              {/* Displaying profile image or new selected image  */}
+              <img
+                className='w-36 rounded opacity-75'
+                src={image ? URL.createObjectURL(image) : userData.image}
+                alt="Profile"
+              />
+
+              {/* Displaying upload icon if no new image is selected */}
+              {!image && (
+                <img
+                  className='w-10 absolute bottom-12 right-12'
+                  src={assets.upload_icon}
+                  alt="Upload icon"
+                />
+              )}
             </div>
             <input onChange={(e) => setImage(e.target.files?.[0] || null)} type="file" id='image' hidden />
           </label>

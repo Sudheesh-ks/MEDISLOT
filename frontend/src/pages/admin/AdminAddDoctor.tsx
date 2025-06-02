@@ -4,6 +4,7 @@ import { AdminContext } from '../../context/AdminContext'
 import { toast } from 'react-toastify'
 import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
+import { adminAddDoctorAPI } from '../../services/adminServices'
 
 const AdminAddDoctor = () => {
 
@@ -57,7 +58,7 @@ const AdminAddDoctor = () => {
         console.log(`${key} : ${value}`)
       })
 
-      const { data } = await axios.post(backendUrl + '/api/admin/add-doctor', formData, { headers: { aToken } })
+      const { data } = await adminAddDoctorAPI(formData, aToken)
 
       if (data.success) {
         toast.success(data.message)

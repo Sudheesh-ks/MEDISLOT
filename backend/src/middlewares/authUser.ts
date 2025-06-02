@@ -5,7 +5,7 @@ import { HttpStatus } from '../constants/status.constants';
 dotenv.config();
 
 
-// Admin authentication middleware
+// User authentication middleware
 const authUser = async (req: Request,res: Response,next: NextFunction): Promise<void> => {
     try {
         

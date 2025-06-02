@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import { assets } from '../../assets/user/assets';
 import { isValidEmail, isValidPassword } from '../../utils/validator';
-import { loginUserAPI, registerUserAPI } from '../../services/userAuthServices';
+import { loginUserAPI, registerUserAPI } from '../../services/authServices';
 
 
 
