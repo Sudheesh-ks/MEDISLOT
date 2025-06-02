@@ -1,8 +1,8 @@
-import axios from 'axios';
 import { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { AppContext } from '../../context/AppContext';
+import { verifyEmailAPI } from '../../services/userAuthServices';
 
 // 1. Email Verification Page Component
 const EmailVerificationPage = () => {
@@ -17,12 +17,12 @@ const EmailVerificationPage = () => {
         throw new Error("TopDoctors must be used within an AppContextProvider");
     }
 
-    const { backendUrl, token } = context;
+    const { token } = context;
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            const { data } = await axios.post(`${backendUrl}/api/user/forgot-password`, { email });
+            const { data } = await verifyEmailAPI(email);
             if (data.success) {
                 toast.success("OTP sent to your email");
                 localStorage.setItem("tempUserData", JSON.stringify({ email, purpose: 'reset-password' }));

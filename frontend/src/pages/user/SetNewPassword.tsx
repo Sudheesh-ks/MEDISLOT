@@ -1,8 +1,8 @@
-import axios from 'axios';
 import { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { AppContext } from '../../context/AppContext';
+import { resetPasswordAPI } from '../../services/userAuthServices';
 
 // New Password Page Component
 const NewPasswordPage = () => {
@@ -18,7 +18,7 @@ const NewPasswordPage = () => {
         throw new Error("TopDoctors must be used within an AppContextProvider");
     }
 
-    const { backendUrl, token } = context;
+    const { token } = context;
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -29,10 +29,7 @@ const NewPasswordPage = () => {
 
         try {
             const tempUser = JSON.parse(localStorage.getItem("tempUserData") || '{}');
-            const { data } = await axios.post(`${backendUrl}/api/user/reset-password`, {
-                email: tempUser.email,
-                newPassword: password,
-            });
+            const { data } = await resetPasswordAPI(tempUser.email, password);
 
             if (data.success) {
                 toast.success("Password reset successful");

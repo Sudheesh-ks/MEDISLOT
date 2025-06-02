@@ -5,6 +5,7 @@ import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import { assets } from '../../assets/user/assets';
 import { isValidEmail, isValidPassword } from '../../utils/validator';
+import { loginUserAPI, registerUserAPI } from '../../services/userAuthServices';
 
 
 
@@ -51,7 +52,7 @@ const Login = () => {
 
       if (state === 'Sign Up') {
 
-        const { data } = await axios.post(backendUrl + '/api/user/register', { name, email, password })
+        const { data } = await registerUserAPI(name, email, password);
         if (data.success) {
           localStorage.setItem("tempUserData", JSON.stringify({ email, name, purpose: 'register' }));
           toast.success("OTP sent to your email");
@@ -61,7 +62,7 @@ const Login = () => {
         }
 
       } else {
-        const { data } = await axios.post(backendUrl + '/api/user/login', { email, password })
+        const { data } = await loginUserAPI(email, password);
         if (data.success) {
           localStorage.setItem('token', data.token)
           setToken(data.token)

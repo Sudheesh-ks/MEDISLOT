@@ -1,6 +1,3 @@
-// export const registrationOtpStore = new Map<string, { otp: string, userData: any }>();
-// export const forgotPasswordOtpStore = new Map<string, string>();
-
 
 export type OtpPurpose = 'register' | 'reset-password';
 

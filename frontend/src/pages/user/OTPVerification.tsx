@@ -1,8 +1,8 @@
 import { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { toast } from 'react-toastify';
 import { AppContext } from '../../context/AppContext';
+import { resendOtpAPI, verifyOtpAPI } from '../../services/userAuthServices';
 
 const OtpVerificationPage = () => {
   const navigate = useNavigate();
@@ -73,10 +73,7 @@ const OtpVerificationPage = () => {
     }
 
     try {
-      const { data } = await axios.post(`${backendUrl}/api/user/verify-otp`, {
-        email,
-        otp: enteredOtp,
-      });
+      const { data } = await verifyOtpAPI(email, enteredOtp);
 
       if (data.success) {
         // toast.success("OTP verified successfully");
@@ -102,7 +99,7 @@ const OtpVerificationPage = () => {
     //   const tempUser = JSON.parse(localStorage.getItem("tempUserData") || '{}');
 
     try {
-      const { data } = await axios.post(`${backendUrl}/api/user/resend-otp`, { email });
+      const { data } = await resendOtpAPI(email);
 
       if (data.success) {
         toast.success("OTP resent to email");
