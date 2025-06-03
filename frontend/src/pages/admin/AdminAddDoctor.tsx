@@ -28,7 +28,7 @@ const AdminAddDoctor = () => {
     throw new Error('AdminContext must be used within AdminContextProvider');
   }
 
-  const { aToken, backendUrl } = context;
+  const { aToken } = context;
 
   const onSubmitHandler = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -53,7 +53,6 @@ const AdminAddDoctor = () => {
       formData.append('degree', degree)
       formData.append('address', JSON.stringify({ line1: address1, line2: address2 }))
 
-      // console log formData
       formData.forEach((value, key) => {
         console.log(`${key} : ${value}`)
       })
@@ -91,7 +90,7 @@ const AdminAddDoctor = () => {
 
 
   useEffect(() => {
-    if(!aToken){
+    if (!aToken) {
       navigate('/admin/login')
     }
   })

@@ -24,3 +24,18 @@ export interface DoctorData {
   date?: Date;
   slots_booked?: object;
 }
+
+
+
+export interface DoctorDTO {
+  name: string;
+  email: string;
+  password: string;
+  speciality: string;
+  degree: string;
+  experience: string;
+  about: string;
+  fees: number;
+  address: Address;
+  imagePath?: string;
+}

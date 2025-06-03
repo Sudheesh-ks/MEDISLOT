@@ -3,8 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { AppContext } from '../../context/AppContext';
 import { resetPasswordAPI } from '../../services/authServices';
+import axios from 'axios';
 
-// New Password Page Component
+
 const NewPasswordPage = () => {
 
     const navigate = useNavigate();
@@ -38,9 +39,15 @@ const NewPasswordPage = () => {
             } else {
                 toast.error(data.message);
             }
-        } catch (err) {
-            console.error("Password reset error:", err);
-            toast.error("Something went wrong");
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+        const errorMsg = error.response?.data?.message || "Something went wrong";
+        toast.error(errorMsg);
+      } else if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("An unknown error occurred");
+      }
         }
     };
 

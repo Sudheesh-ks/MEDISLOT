@@ -39,16 +39,12 @@ const AdminUsersList = () => {
                             />
                         </div>
 
-                        {/* Index */}
                         <div className="w-10 text-gray-500 font-medium">{index + 1}</div>
 
-                        {/* Name */}
                         <div className="flex-1 text-gray-800 font-medium">{user.name}</div>
 
-                        {/* Email */}
                         <div className="flex-1 text-gray-600 text-sm">{user.email}</div>
 
-                        {/* Status */}
                         <div className="w-28 text-center">
                             <span
                                 className={`px-3 py-1 text-xs rounded-full font-semibold ${
@@ -61,7 +57,6 @@ const AdminUsersList = () => {
                             </span>
                         </div>
 
-                        {/* Action */}
                         <div className="w-32 text-right">
                             <button
                                 onClick={() => toggleBlockUser(user._id)}

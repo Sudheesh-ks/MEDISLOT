@@ -6,6 +6,7 @@ import Jwt from "jsonwebtoken";
 import validator from "validator";
 import { v2 as cloudinary } from "cloudinary";
 import { AppointmentTypes } from "../../types/appointment";
+import { isValidDateOfBirth, isValidPhone } from "../../utils/validator";
 
 export interface UserDocument extends userData {
     _id: string;
@@ -43,7 +44,15 @@ export class UserService implements userDataService {
 
     async updateProfile(userId: string, data: Partial<userData>, imageFile?: Express.Multer.File): Promise<void> {
         if (!data.name || !data.phone || !data.address || !data.dob || !data.gender) {
-            throw new Error("Data missing");
+            throw new Error("Please provide all details");
+        }
+
+        if(!isValidPhone(data.phone)){
+            throw new Error("Phone number must be 10 numbers");
+        }
+
+        if(!isValidDateOfBirth(data.dob)){
+            throw new Error("Enter a valid birth date")
         }
 
         if (imageFile) {

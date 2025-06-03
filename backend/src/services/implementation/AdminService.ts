@@ -1,11 +1,10 @@
 import { IAdminRepository } from "../../repositories/interface/IAdminRepository";
 import { IAdminService } from "../interface/IAdminService";
 import bcrypt from 'bcrypt';
-import validator from 'validator';
 import jwt from "jsonwebtoken";
 import { v2 as cloudinary } from "cloudinary";
-import { Request } from "express";
-import { DoctorData } from "../../types/doctor";
+import { DoctorData, DoctorDTO } from "../../types/doctor";
+import { isValidName, isValidEmail, isValidPassword } from "../../utils/validator";
 import dotenv from 'dotenv';
 dotenv.config()
 
@@ -21,28 +20,32 @@ export class AdminService implements IAdminService {
         return null;
     }
 
-    async addDoctor(req: Request): Promise<string> {
-        const { name, email, password, speciality, degree, experience, about, fees, address } = req.body;
-        const imageFile = (req as any).file;
+    async addDoctor(data: DoctorDTO): Promise<string> {
+        const { name, email, password, speciality, degree, experience, about, fees, address, imagePath } = data;
+
 
         if (!name || !email || !password || !speciality || !degree || !experience || !about || !fees || !address) {
             throw new Error('All Fields Required');
         }
 
-        if (!validator.isEmail(email)) {
+        if (!isValidName(name)) {
+            throw new Error('Name must only contain atleast 4 characters');
+        }
+
+        if (!isValidEmail(email)) {
             throw new Error('Invalid Email');
         }
 
-        if (password.length < 8) {
-            throw new Error('Password must be at least 8 characters');
+        if (!isValidPassword(password)) {
+            throw new Error('Password must be at least 8 characters long, contain at least 1 letter, 1 number, and 1 special character');
         }
 
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(password, salt);
 
         let imageUrl = '';
-        if (imageFile) {
-            const uploadResult = await cloudinary.uploader.upload(imageFile.path, { resource_type: "image" });
+        if (imagePath) {
+            const uploadResult = await cloudinary.uploader.upload(imagePath, { resource_type: "image" });
             imageUrl = uploadResult.secure_url;
         }
 
@@ -56,7 +59,7 @@ export class AdminService implements IAdminService {
             experience,
             about,
             fees,
-            address: JSON.parse(address),
+            address,
             date: new Date()
         }
 

@@ -3,8 +3,9 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { AppContext } from '../../context/AppContext';
 import { verifyEmailAPI } from '../../services/authServices';
+import axios from 'axios';
 
-// 1. Email Verification Page Component
+
 const EmailVerificationPage = () => {
 
 
@@ -30,8 +31,15 @@ const EmailVerificationPage = () => {
             } else {
                 toast.error(data.message);
             }
-        } catch (err) {
-            toast.error("Failed to send OTP");
+        } catch (error) {
+            if (axios.isAxiosError(error)) {
+        const errorMsg = error.response?.data?.message || "Something went wrong";
+        toast.error(errorMsg);
+      } else if (error instanceof Error) {
+        toast.error(error.message);
+      } else {
+        toast.error("An unknown error occurred");
+      }
         }
     };
 

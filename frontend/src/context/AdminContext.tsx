@@ -46,13 +46,13 @@ const AdminContextProvider = ({ children }: AdminContextProviderProps) => {
 
         } catch (error) {
             if (axios.isAxiosError(error)) {
-    const errorMsg = error.response?.data?.message || "Something went wrong";
-    toast.error(errorMsg);
-  } else if (error instanceof Error) {
-    toast.error(error.message);
-  } else {
-    toast.error("An unknown error occurred");
-  }
+                const errorMsg = error.response?.data?.message || "Something went wrong";
+                toast.error(errorMsg);
+            } else if (error instanceof Error) {
+                toast.error(error.message);
+            } else {
+                toast.error("An unknown error occurred");
+            }
         }
     }
 
@@ -69,13 +69,13 @@ const AdminContextProvider = ({ children }: AdminContextProviderProps) => {
 
         } catch (error) {
             if (axios.isAxiosError(error)) {
-    const errorMsg = error.response?.data?.message || "Something went wrong";
-    toast.error(errorMsg);
-  } else if (error instanceof Error) {
-    toast.error(error.message);
-  } else {
-    toast.error("An unknown error occurred");
-  }
+                const errorMsg = error.response?.data?.message || "Something went wrong";
+                toast.error(errorMsg);
+            } else if (error instanceof Error) {
+                toast.error(error.message);
+            } else {
+                toast.error("An unknown error occurred");
+            }
         }
     }
 
@@ -84,21 +84,21 @@ const AdminContextProvider = ({ children }: AdminContextProviderProps) => {
         try {
 
             const { data } = await getAllUsersAPI(aToken);
-            if(data.success){
+            if (data.success) {
                 setUsers(data.users);
-            }else{
+            } else {
                 toast.error(data.message);
             }
-            
+
         } catch (error) {
             if (axios.isAxiosError(error)) {
-    const errorMsg = error.response?.data?.message || "Something went wrong";
-    toast.error(errorMsg);
-  } else if (error instanceof Error) {
-    toast.error(error.message);
-  } else {
-    toast.error("An unknown error occurred");
-  }
+                const errorMsg = error.response?.data?.message || "Something went wrong";
+                toast.error(errorMsg);
+            } else if (error instanceof Error) {
+                toast.error(error.message);
+            } else {
+                toast.error("An unknown error occurred");
+            }
         }
     }
 
@@ -107,22 +107,22 @@ const AdminContextProvider = ({ children }: AdminContextProviderProps) => {
         try {
 
             const { data } = await toggleUserBlockAPI(userId, aToken);
-            if(data.success){
+            if (data.success) {
                 toast.success(data.message);
                 getAllUsers();
-            }else{
+            } else {
                 toast.error(data.message);
             }
-            
+
         } catch (error) {
-           if (axios.isAxiosError(error)) {
-    const errorMsg = error.response?.data?.message || "Something went wrong";
-    toast.error(errorMsg);
-  } else if (error instanceof Error) {
-    toast.error(error.message);
-  } else {
-    toast.error("An unknown error occurred");
-  }
+            if (axios.isAxiosError(error)) {
+                const errorMsg = error.response?.data?.message || "Something went wrong";
+                toast.error(errorMsg);
+            } else if (error instanceof Error) {
+                toast.error(error.message);
+            } else {
+                toast.error("An unknown error occurred");
+            }
         }
     }
 

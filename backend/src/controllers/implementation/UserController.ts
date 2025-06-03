@@ -5,10 +5,10 @@ import { IUserController } from "../interface/userController.interface";
 import { otpStore } from "../../utils/otpStore";
 import { sendOTP } from "../../utils/mail.util";
 import { generateOTP } from "../../utils/otp.util";
+import { isValidName, isValidEmail, isValidPassword } from "../../utils/validator";
 
 
-const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&^_-])[A-Za-z\d@$!%*#?&^_-]{8,}$/;
+
 
 
 export class UserController implements IUserController {
@@ -23,12 +23,17 @@ export class UserController implements IUserController {
             return;
         }
 
-        if (!emailRegex.test(email)) {
+        if (!isValidName(name)) {
+            res.status(400).json({ success: false, message: 'Name must only contain atleast 4 characters' });
+            return;
+        }
+
+        if (!isValidEmail(email)) {
             res.status(400).json({ success: false, message: 'Invalid email format' });
             return;
         }
 
-        if (!passwordRegex.test(password)) {
+        if (!isValidPassword(password)) {
             res.status(400).json({
                 success: false,
                 message: 'Password must be at least 8 characters long, contain at least 1 letter, 1 number, and 1 special character'
@@ -143,6 +148,14 @@ export class UserController implements IUserController {
     async resetPassword(req: Request, res: Response): Promise<void> {
         const { email, newPassword } = req.body;
 
+        if (!isValidPassword(newPassword)) {
+            res.status(400).json({
+                success: false,
+                message: 'Password must be at least 8 characters long, contain at least 1 letter, 1 number, and 1 special character'
+            });
+            return;
+        }
+
         const record = otpStore.get(email);
         if (!record || record.purpose !== 'reset-password' || record.otp !== "VERIFIED") {
             res.status(401).json({ success: false, message: "OTP not verified or expired" });
@@ -170,6 +183,19 @@ export class UserController implements IUserController {
 
             if (!email || !password) {
                 res.status(400).json({ success: false, message: "Email and password are required" });
+                return;
+            }
+
+            if (!isValidEmail(email)) {
+                res.status(400).json({ success: false, message: 'Invalid email format' });
+                return;
+            }
+
+            if (!isValidPassword(password)) {
+                res.status(400).json({
+                    success: false,
+                    message: 'Password must be at least 8 characters long, contain at least 1 letter, 1 number, and 1 special character'
+                });
                 return;
             }
 

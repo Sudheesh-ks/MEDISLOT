@@ -24,7 +24,7 @@ import GoogleCallback from '../pages/user/GoogleCallback';
 const UserRoutes = () => {
   return (
     <>
-            {/* User Routes */}
+
             <Route path='/' element={ <UserLayout><Home /></UserLayout> } />
             <Route path='/login' element={ <Login /> } />
             <Route path='/verify-email' element={ <EmailVerificationPage /> } />

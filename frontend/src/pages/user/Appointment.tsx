@@ -66,13 +66,13 @@ const Appointment = () => {
       while (currentDate < endTime) {
         let formattedTime = currentDate.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
 
-        // add slots to array
+        // adding slots to array
         timeSlots.push({
           datetime: new Date(currentDate),
           time: formattedTime
         })
 
-        // increment the time by 30 min
+        // incrementing the time by 30 min
         currentDate.setMinutes(currentDate.getMinutes() + 30)
       }
 

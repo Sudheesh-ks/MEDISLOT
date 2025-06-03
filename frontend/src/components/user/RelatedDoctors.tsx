@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { AppContext } from '../../context/AppContext';
 import { useNavigate } from 'react-router-dom';
 import type { Doctor } from '../../assets/user/assets';

@@ -70,7 +70,7 @@ const Login = () => {
         {/* LEFT: Image Section */}
         <div className='hidden sm:block w-full sm:w-96'>
           <img
-            src={assets.about_image}  // replace with your actual image path
+            src={assets.about_image} 
             alt="Admin Login Visual"
             className='w-full h-full object-cover'
           />

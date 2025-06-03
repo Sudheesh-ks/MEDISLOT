@@ -3,6 +3,7 @@ import { IAdminService } from "../../services/interface/IAdminService";
 import { IAdminController } from "../interface/adminController.interface";
 import { CustomRequest } from "../../types/customRequest";
 import { HttpStatus } from "../../constants/status.constants";
+import { DoctorDTO } from "../../types/doctor";
 
 
 
@@ -27,8 +28,29 @@ export class AdminController implements IAdminController {
     // To add doctor
     async addDoctor(req: CustomRequest, res: Response): Promise<void> {
         try {
-            const message = await this.adminService.addDoctor(req);
+
+            const {
+                name, email, password, speciality, degree,
+                experience, about, fees, address
+            } = req.body;
+
+            const imageFile = req.file;
+
+            const doctorDTO: DoctorDTO = {
+                name,
+                email,
+                password,
+                speciality,
+                degree,
+                experience,
+                about,
+                fees: Number(fees),
+                address: JSON.parse(address),
+                imagePath: imageFile?.path
+            };
+            const message = await this.adminService.addDoctor(doctorDTO);
             res.status(HttpStatus.CREATED).json({ success: true, message });
+            return;
         } catch (error: any) {
             res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: error.message });
         }

@@ -1,12 +1,15 @@
-import { useContext, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { AppContext } from '../../context/AppContext'
 import { assets } from '../../assets/user/assets';
 import { toast } from 'react-toastify';
 import { updateUserProfileAPI } from '../../services/userProfileServices';
+import { useNavigate } from 'react-router-dom';
+import { isValidDateOfBirth, isValidPhone } from '../../utils/validator';
 
 const MyProfile = () => {
 
 
+  const navigate = useNavigate();
   const context = useContext(AppContext);
 
   if (!context) {
@@ -28,6 +31,16 @@ const MyProfile = () => {
         return;
       }
 
+          if (!isValidPhone(userData.phone)) {
+      toast.error("Phone number must be exactly 10 digits.");
+      return;
+    }
+
+    if (!isValidDateOfBirth(userData.dob)) {
+      toast.error("Please enter a valid birth date.");
+      return;
+    }
+
       const data = await updateUserProfileAPI(token, {
         name: userData.name,
         phone: userData.phone,
@@ -35,6 +48,7 @@ const MyProfile = () => {
         gender: userData.gender,
         dob: userData.dob,
       }, image);
+
 
       toast.success(data.message);
       await loadUserProfileData();
@@ -45,6 +59,13 @@ const MyProfile = () => {
       toast.error(error instanceof Error ? error.message : "An unknown error occurred");
     }
   }
+
+
+  useEffect(() => {
+    if(!token){
+      navigate('/')
+    }
+  },[token,navigate])
 
   return userData && (
     <div className='max-w-lg flex flex-col gap-2 text-sm'>

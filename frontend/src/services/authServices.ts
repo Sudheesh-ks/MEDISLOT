@@ -35,5 +35,5 @@ export const verifyEmailAPI = async (email: string) => {
 
 // Reset Password
 export const resetPasswordAPI = async (email: string, newPassword: string) => {
-  return await api.post('/api/user/reset-password', { email,  newPassword });
+  return await api.post('/api/user/reset-password', { email, newPassword });
 };

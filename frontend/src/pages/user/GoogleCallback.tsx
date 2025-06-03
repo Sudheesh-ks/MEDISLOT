@@ -1,4 +1,3 @@
-// GoogleCallback.tsx
 import { useEffect, useContext } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { AppContext } from '../../context/AppContext';
