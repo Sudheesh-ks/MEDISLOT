@@ -26,12 +26,10 @@ export class UserController implements IUserController {
     }
 
     if (!isValidName(name)) {
-      res
-        .status(400)
-        .json({
-          success: false,
-          message: "Name must only contain atleast 4 characters",
-        });
+      res.status(400).json({
+        success: false,
+        message: "Name must only contain atleast 4 characters",
+      });
       return;
     }
 

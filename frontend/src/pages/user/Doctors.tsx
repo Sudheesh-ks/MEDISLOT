@@ -24,9 +24,9 @@ const Doctors = () => {
     }
   };
 
-    useEffect(() => {
-        getDoctorsData()
-    }, [])
+  useEffect(() => {
+    getDoctorsData();
+  }, []);
 
   useEffect(() => {
     applyFilter();

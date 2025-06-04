@@ -1,18 +1,15 @@
-import axios from 'axios';
-
+import axios from "axios";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_BACKEND_URL,
   withCredentials: true,
 });
 
-
 export const getUserProfileAPI = async (token: string) => {
-  return await api.get('/api/user/get-profile', {
-    headers: { Authorization: `Bearer ${token}` }
+  return await api.get("/api/user/get-profile", {
+    headers: { Authorization: `Bearer ${token}` },
   });
 };
-
 
 export const updateUserProfileAPI = async (
   token: string,
@@ -21,23 +18,22 @@ export const updateUserProfileAPI = async (
 ) => {
   try {
     const formData = new FormData();
-    formData.append('name', data.name);
-    formData.append('phone', data.phone);
-    formData.append('gender', data.gender);
-    formData.append('dob', data.dob);
-    formData.append('address[line1]', data.address.line1);
-    formData.append('address[line2]', data.address.line2);
-    if (image) formData.append('image', image);
+    formData.append("name", data.name);
+    formData.append("phone", data.phone);
+    formData.append("gender", data.gender);
+    formData.append("dob", data.dob);
+    formData.append("address[line1]", data.address.line1);
+    formData.append("address[line2]", data.address.line2);
+    if (image) formData.append("image", image);
 
-    const res = await api.put('/api/user/update-profile', formData, {
+    const res = await api.put("/api/user/update-profile", formData, {
       headers: {
         Authorization: `Bearer ${token}`,
-        'Content-Type': 'multipart/form-data',
+        "Content-Type": "multipart/form-data",
       },
     });
 
     return res.data;
-
   } catch (error) {
     let errorMessage = "Something went wrong";
     if (axios.isAxiosError(error)) {

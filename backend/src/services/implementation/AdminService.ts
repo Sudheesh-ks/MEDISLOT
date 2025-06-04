@@ -12,14 +12,14 @@ export class AdminService implements IAdminService {
   constructor(private readonly adminRepository: IAdminRepository) {}
 
   async login(email: string, password: string): Promise<{ token: string }> {
-      const admin = await this.adminRepository.findByEmail(email);
-      if (!admin) throw new Error("User not found");
-      const isMatch = await bcrypt.compare(password, admin.password);
-      if (!isMatch) throw new Error("Invalid credentials");
-  
-      const token = jwt.sign({ id: admin._id }, process.env.JWT_SECRET!);
-      return { token };
-    }
+    const admin = await this.adminRepository.findByEmail(email);
+    if (!admin) throw new Error("User not found");
+    const isMatch = await bcrypt.compare(password, admin.password);
+    if (!isMatch) throw new Error("Invalid credentials");
+
+    const token = jwt.sign({ id: admin._id }, process.env.JWT_SECRET!);
+    return { token };
+  }
 
   async addDoctor(data: DoctorDTO): Promise<string> {
     const {

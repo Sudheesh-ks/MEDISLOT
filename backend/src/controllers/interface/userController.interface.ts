@@ -9,6 +9,4 @@ export interface IUserController {
   resendOtp(req: Request, res: Response): Promise<void>;
   forgotPasswordRequest(req: Request, res: Response): Promise<void>;
   resetPassword(req: Request, res: Response): Promise<void>;
-
 }
-

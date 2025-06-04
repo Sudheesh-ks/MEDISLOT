@@ -1,9 +1,7 @@
-
 export interface Address {
-    line1: string;
-    line2: string;
+  line1: string;
+  line2: string;
 }
-
 
 export interface userData {
   _id: string;

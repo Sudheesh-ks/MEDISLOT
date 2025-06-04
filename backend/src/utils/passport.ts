@@ -50,9 +50,10 @@ passport.serializeUser((user: any, done) => {
 });
 
 passport.deserializeUser((id: string, done) => {
-  userModel.findById(id)
-    .then(user => done(null, user))
-    .catch(err => done(err, null));
+  userModel
+    .findById(id)
+    .then((user) => done(null, user))
+    .catch((err) => done(err, null));
 });
 
 export default passport;

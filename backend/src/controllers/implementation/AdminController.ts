@@ -12,16 +12,16 @@ export class AdminController implements IAdminController {
   async loginAdmin(req: Request, res: Response): Promise<void> {
     try {
       const { email, password } = req.body;
-      
-            if (!email || !password) {
-              res
-                .status(400)
-                .json({ success: false, message: "Email and password are required" });
-              return;
-            }
-      
-            const { token } = await this.adminService.login(email, password);
-            res.json({ success: true, token });
+
+      if (!email || !password) {
+        res
+          .status(400)
+          .json({ success: false, message: "Email and password are required" });
+        return;
+      }
+
+      const { token } = await this.adminService.login(email, password);
+      res.json({ success: true, token });
     } catch (error: any) {
       res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)

@@ -21,8 +21,6 @@ const OtpVerificationPage = () => {
 
   const { token } = context;
 
-  const backendUrl = import.meta.env.VITE_BACKEND_URL;
-
   useEffect(() => {
     const tempUser = JSON.parse(localStorage.getItem("tempUserData") || "{}");
     if (!tempUser?.email || !tempUser?.purpose) {

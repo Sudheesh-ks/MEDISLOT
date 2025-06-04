@@ -1,20 +1,19 @@
-import nodemailer from 'nodemailer';
+import nodemailer from "nodemailer";
 
 export const sendOTP = async (email: string, otp: string) => {
-    const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-            user: process.env.MAIL_EMAIL,
-            pass: process.env.MAIL_PASSWORD,
-        },
-    });
+  const transporter = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: process.env.MAIL_EMAIL,
+      pass: process.env.MAIL_PASSWORD,
+    },
+  });
 
-
-    await transporter.sendMail({
-        from: process.env.MAIL_EMAIL,
-        to: email,
-        subject: 'Verify Your Account - OTP Inside',
-        html: `
+  await transporter.sendMail({
+    from: process.env.MAIL_EMAIL,
+    to: email,
+    subject: "Verify Your Account - OTP Inside",
+    html: `
     <div style="font-family: Arial, sans-serif; background-color: #f4f4f4; padding: 40px 0;">
         <div style="max-width: 600px; margin: auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 8px rgba(0,0,0,0.1);">
             <h2 style="text-align: center; color: #333;">Welcome to MediSlot🙏</h2>
@@ -36,9 +35,6 @@ export const sendOTP = async (email: string, otp: string) => {
             </p>
         </div>
     </div>
-    `
-    });
-
+    `,
+  });
 };
-
-
