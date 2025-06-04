@@ -1,2 +1,1 @@
-
-export type ErrorType = Error & { message: string }
+export type ErrorType = Error & { message: string };

@@ -129,9 +129,9 @@ const AppContextProvider: React.FC<AppContextProviderProps> = ({ children }) => 
     }
 
 
-    useEffect(() => {
-        getDoctorsData()
-    }, [])
+    // useEffect(() => {
+    //     getDoctorsData()
+    // }, [])
 
     useEffect(() => {
         if (token) {

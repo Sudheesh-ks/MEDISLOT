@@ -9,83 +9,110 @@ import { AppointmentTypes } from "../../types/appointment";
 import { isValidDateOfBirth, isValidPhone } from "../../utils/validator";
 
 export interface UserDocument extends userData {
-    _id: string;
+  _id: string;
 }
 
-
 export class UserService implements userDataService {
-    constructor(private userRepository: userDataRepository) { }
+  constructor(private userRepository: userDataRepository) {}
 
-    async register(name: string, email: string, password: string): Promise<{ token: string }> {
-        if (!name || !email || !password) throw new Error("Missing Details");
-        if (!validator.isEmail(email)) throw new Error("Invalid email");
-        if (password.length < 8) throw new Error("Password too short");
+  async register(
+    name: string,
+    email: string,
+    password: string
+  ): Promise<{ token: string }> {
+    if (!name || !email || !password) throw new Error("Missing Details");
+    if (!validator.isEmail(email)) throw new Error("Invalid email");
+    if (password.length < 8) throw new Error("Password too short");
 
-        const hashedPassword = await bcrypt.hash(password, 10);
-        const user = await this.userRepository.create({ name, email, password: hashedPassword }) as UserDocument;
-        const token = Jwt.sign({ id: user._id }, process.env.JWT_SECRET!);
-        return { token };
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const user = (await this.userRepository.create({
+      name,
+      email,
+      password: hashedPassword,
+    })) as UserDocument;
+    const token = Jwt.sign({ id: user._id }, process.env.JWT_SECRET!);
+    return { token };
+  }
+
+  async login(email: string, password: string): Promise<{ token: string }> {
+    const user = await this.userRepository.findByEmail(email);
+    if (!user) throw new Error("User not found");
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) throw new Error("Invalid credentials");
+    if (user.isBlocked)
+      throw new Error("Your account has been blocked by admin");
+
+    const token = Jwt.sign({ id: user._id }, process.env.JWT_SECRET!);
+    return { token };
+  }
+
+  async getProfile(userId: string): Promise<userData | null> {
+    return await this.userRepository.findById(userId);
+  }
+
+  async updateProfile(
+    userId: string,
+    data: Partial<userData>,
+    imageFile?: Express.Multer.File
+  ): Promise<void> {
+    if (
+      !data.name ||
+      !data.phone ||
+      !data.address ||
+      !data.dob ||
+      !data.gender
+    ) {
+      throw new Error("Please provide all details");
     }
 
-    async login(email: string, password: string): Promise<{ token: string }> {
-        const user = await this.userRepository.findByEmail(email);
-        if (!user) throw new Error("User not found");
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) throw new Error("Invalid credentials");
-        if (user.isBlocked) throw new Error("Your account has been blocked by admin");
-
-        const token = Jwt.sign({ id: user._id }, process.env.JWT_SECRET!);
-        return { token };
+    if (!isValidPhone(data.phone)) {
+      throw new Error("Phone number must be 10 numbers");
     }
 
-    async getProfile(userId: string): Promise<userData | null> {
-        return await this.userRepository.findById(userId);
+    if (!isValidDateOfBirth(data.dob)) {
+      throw new Error("Enter a valid birth date");
     }
 
-    async updateProfile(userId: string, data: Partial<userData>, imageFile?: Express.Multer.File): Promise<void> {
-        if (!data.name || !data.phone || !data.address || !data.dob || !data.gender) {
-            throw new Error("Please provide all details");
-        }
-
-        if(!isValidPhone(data.phone)){
-            throw new Error("Phone number must be 10 numbers");
-        }
-
-        if(!isValidDateOfBirth(data.dob)){
-            throw new Error("Enter a valid birth date")
-        }
-
-        if (imageFile) {
-            const imageUpload = await cloudinary.uploader.upload(imageFile.path, { resource_type: "image" });
-            data.image = imageUpload.secure_url;
-        }
-
-        await this.userRepository.updateById(userId, data);
+    if (imageFile) {
+      const imageUpload = await cloudinary.uploader.upload(imageFile.path, {
+        resource_type: "image",
+      });
+      data.image = imageUpload.secure_url;
     }
 
-    async checkEmailExists(email: string): Promise<boolean> {
-        const user = await this.userRepository.findByEmail(email);
-        return !!user
-    }
+    await this.userRepository.updateById(userId, data);
+  }
 
-    async hashPassword(password: string) {
-        return await bcrypt.hash(password, 10);
-    }
+  async checkEmailExists(email: string): Promise<boolean> {
+    const user = await this.userRepository.findByEmail(email);
+    return !!user;
+  }
 
-    async finalizeRegister(userData: userData) {
-        return await this.userRepository.create(userData);
-    }
+  async hashPassword(password: string) {
+    return await bcrypt.hash(password, 10);
+  }
 
-    generateToken(userId: string): string {
-        return Jwt.sign({ id: userId }, process.env.JWT_SECRET!, { expiresIn: '1d' });
-    }
+  async finalizeRegister(userData: userData) {
+    return await this.userRepository.create(userData);
+  }
 
-    async resetPassword(email: string, newHashedPassword: string): Promise<boolean> {
-        return await this.userRepository.updatePasswordByEmail(email, newHashedPassword);
-    }
+  generateToken(userId: string): string {
+    return Jwt.sign({ id: userId }, process.env.JWT_SECRET!, {
+      expiresIn: "1d",
+    });
+  }
 
-    async bookAppointment(appointmentData: AppointmentTypes): Promise<void> {
-        await this.userRepository.bookAppointment(appointmentData);
-    }
+  async resetPassword(
+    email: string,
+    newHashedPassword: string
+  ): Promise<boolean> {
+    return await this.userRepository.updatePasswordByEmail(
+      email,
+      newHashedPassword
+    );
+  }
 
+  async bookAppointment(appointmentData: AppointmentTypes): Promise<void> {
+    await this.userRepository.bookAppointment(appointmentData);
+  }
 }

@@ -1,6 +1,6 @@
-import { useEffect, useContext } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
-import { AppContext } from '../../context/AppContext';
+import { useEffect, useContext } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { AppContext } from "../../context/AppContext";
 
 const GoogleCallback = () => {
   const [params] = useSearchParams();
@@ -14,13 +14,13 @@ const GoogleCallback = () => {
   const { setToken } = context;
 
   useEffect(() => {
-    const token = params.get('token');
+    const token = params.get("token");
     if (token) {
-      localStorage.setItem('token', token);
+      localStorage.setItem("token", token);
       setToken(token);
-      navigate('/');
+      navigate("/");
     } else {
-      navigate('/login');
+      navigate("/login");
     }
   }, []);
 
@@ -59,8 +59,7 @@ const styles: Record<string, React.CSSProperties> = {
 
 // CSS keyframes for spinner animation
 const styleSheet = document.styleSheets[0];
-const keyframes =
-  `@keyframes spin {
+const keyframes = `@keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
   }`;

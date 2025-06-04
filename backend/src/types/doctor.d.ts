@@ -1,13 +1,11 @@
 interface CustomRequest extends Request {
-    file?: Express.Multer.File;
+  file?: Express.Multer.File;
 }
-
 
 export interface Address {
-    line1: string;
-    line2: string;
+  line1: string;
+  line2: string;
 }
-
 
 export interface DoctorData {
   name: string;
@@ -24,8 +22,6 @@ export interface DoctorData {
   date?: Date;
   slots_booked?: object;
 }
-
-
 
 export interface DoctorDTO {
   name: string;

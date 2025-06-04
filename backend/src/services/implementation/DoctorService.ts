@@ -1,7 +1,6 @@
 import { IDoctorRepository } from "../../repositories/interface/IDoctorRepository";
 import { IDoctorService } from "../interface/IDoctorService";
 
-
 export class DoctorService implements IDoctorService {
   constructor(private doctorRepository: IDoctorRepository) {}
 
@@ -15,4 +14,4 @@ export class DoctorService implements IDoctorService {
   async getAllDoctors(): Promise<any[]> {
     return await this.doctorRepository.findAllDoctors();
   }
-}   
+}

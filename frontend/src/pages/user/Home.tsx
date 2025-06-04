@@ -1,7 +1,7 @@
-import Header from '../../components/user/Header'
-import SpecialityMenu from '../../components/user/SpecialityMenu'
-import TopDoctors from '../../components/user/TopDoctors'
-import Banner from '../../components/user/Banner'
+import Header from "../../components/user/Header";
+import SpecialityMenu from "../../components/user/SpecialityMenu";
+import TopDoctors from "../../components/user/TopDoctors";
+import Banner from "../../components/user/Banner";
 
 const Home = () => {
   return (
@@ -11,7 +11,7 @@ const Home = () => {
       <TopDoctors />
       <Banner />
     </div>
-  )
-}
+  );
+};
 
-export default Home
+export default Home;

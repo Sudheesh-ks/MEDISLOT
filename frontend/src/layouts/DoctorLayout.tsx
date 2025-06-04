@@ -2,16 +2,14 @@ import React, { Children } from "react";
 import Navbar from "../components/doctor/DoctorNavbar";
 import Footer from "../components/doctor/DoctorFooter";
 
-
 const DoctorLayout = ({ children }: { children: React.ReactNode }) => {
-    return (
+  return (
     <div className="mx-4 sm:mx=[10%]">
-        <Navbar />
-        {children}
-        <Footer />
+      <Navbar />
+      {children}
+      <Footer />
     </div>
-    )
-}
+  );
+};
 
-
-export default DoctorLayout
+export default DoctorLayout;
