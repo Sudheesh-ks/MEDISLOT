@@ -1,10 +1,10 @@
 import React, { useContext, useEffect, useState } from "react";
 import { AdminContext } from "../../context/AdminContext";
-import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { assets } from "../../assets/user/assets";
 import { adminLoginAPI } from "../../services/adminServices";
+import { showErrorToast } from "../../utils/errorHandler";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -36,15 +36,7 @@ const Login = () => {
       } else {
       }
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        const errorMsg =
-          error.response?.data?.message || "Something went wrong";
-        toast.error(errorMsg);
-      } else if (error instanceof Error) {
-        toast.error(error.message);
-      } else {
-        toast.error("An unknown error occurred");
-      }
+      showErrorToast(error);
     }
   };
 

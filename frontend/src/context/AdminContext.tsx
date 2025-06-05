@@ -1,4 +1,3 @@
-import axios from "axios";
 import { createContext, useState } from "react";
 import type { ReactNode } from "react";
 import { toast } from "react-toastify";
@@ -10,6 +9,7 @@ import {
   getAllUsersAPI,
   toggleUserBlockAPI,
 } from "../services/adminServices";
+import { showErrorToast } from "../utils/errorHandler";
 
 interface AdminContextType {
   aToken: string;
@@ -46,15 +46,7 @@ const AdminContextProvider = ({ children }: AdminContextProviderProps) => {
         toast.error(data.message);
       }
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        const errorMsg =
-          error.response?.data?.message || "Something went wrong";
-        toast.error(errorMsg);
-      } else if (error instanceof Error) {
-        toast.error(error.message);
-      } else {
-        toast.error("An unknown error occurred");
-      }
+      showErrorToast(error);
     }
   };
 
@@ -68,15 +60,7 @@ const AdminContextProvider = ({ children }: AdminContextProviderProps) => {
         toast.error(data.message);
       }
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        const errorMsg =
-          error.response?.data?.message || "Something went wrong";
-        toast.error(errorMsg);
-      } else if (error instanceof Error) {
-        toast.error(error.message);
-      } else {
-        toast.error("An unknown error occurred");
-      }
+      showErrorToast(error);
     }
   };
 
@@ -89,15 +73,7 @@ const AdminContextProvider = ({ children }: AdminContextProviderProps) => {
         toast.error(data.message);
       }
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        const errorMsg =
-          error.response?.data?.message || "Something went wrong";
-        toast.error(errorMsg);
-      } else if (error instanceof Error) {
-        toast.error(error.message);
-      } else {
-        toast.error("An unknown error occurred");
-      }
+      showErrorToast(error);
     }
   };
 
@@ -111,15 +87,7 @@ const AdminContextProvider = ({ children }: AdminContextProviderProps) => {
         toast.error(data.message);
       }
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        const errorMsg =
-          error.response?.data?.message || "Something went wrong";
-        toast.error(errorMsg);
-      } else if (error instanceof Error) {
-        toast.error(error.message);
-      } else {
-        toast.error("An unknown error occurred");
-      }
+      showErrorToast(error);
     }
   };
 

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { AppContext } from "../../context/AppContext";
 import { verifyEmailAPI } from "../../services/authServices";
-import axios from "axios";
+import { showErrorToast } from "../../utils/errorHandler";
 
 const EmailVerificationPage = () => {
   const [email, setEmail] = useState("");
@@ -32,15 +32,7 @@ const EmailVerificationPage = () => {
         toast.error(data.message);
       }
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        const errorMsg =
-          error.response?.data?.message || "Something went wrong";
-        toast.error(errorMsg);
-      } else if (error instanceof Error) {
-        toast.error(error.message);
-      } else {
-        toast.error("An unknown error occurred");
-      }
+      showErrorToast(error);
     }
   };
 

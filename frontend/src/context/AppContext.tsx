@@ -1,11 +1,10 @@
 import { createContext, useEffect, useState, type ReactNode } from "react";
 import type { Doctor } from "../assets/user/assets";
 import { assets } from "../assets/user/assets";
-import axios from "axios";
 import { toast } from "react-toastify";
 import { getUserProfileAPI } from "../services/userProfileServices";
 import { getDoctorsAPI } from "../services/doctorServices";
-// import type { userData } from "../types/user";
+import { showErrorToast } from "../utils/errorHandler";
 
 interface userData {
   name: string;
@@ -71,15 +70,7 @@ const AppContextProvider: React.FC<AppContextProviderProps> = ({
         toast.error(data.message);
       }
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        const errorMsg =
-          error.response?.data?.message || "Something went wrong";
-        toast.error(errorMsg);
-      } else if (error instanceof Error) {
-        toast.error(error.message);
-      } else {
-        toast.error("An unknown error occurred");
-      }
+      showErrorToast(error);
     }
   };
 
@@ -103,15 +94,7 @@ const AppContextProvider: React.FC<AppContextProviderProps> = ({
         toast.error(data.message);
       }
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        const errorMsg =
-          error.response?.data?.message || "Something went wrong";
-        toast.error(errorMsg);
-      } else if (error instanceof Error) {
-        toast.error(error.message);
-      } else {
-        toast.error("An unknown error occurred");
-      }
+      showErrorToast(error);
     }
   };
 

@@ -1,4 +1,5 @@
 import { api } from "../axios/axiosInstance";
+import { showErrorToast } from "../utils/errorHandler";
 
 // To get user profile
 export const getUserProfileAPI = async (token: string) => {
@@ -32,12 +33,6 @@ export const updateUserProfileAPI = async (
 
     return res.data;
   } catch (error) {
-    let errorMessage = "Something went wrong";
-    if (axios.isAxiosError(error)) {
-      errorMessage = error.response?.data?.message || error.message;
-    } else if (error instanceof Error) {
-      errorMessage = error.message;
-    }
-    throw new Error(errorMessage);
+    showErrorToast(error);
   }
 };

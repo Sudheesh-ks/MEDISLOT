@@ -4,8 +4,8 @@ import { AppContext } from "../../context/AppContext";
 import { assets, type Doctor } from "../../assets/user/assets";
 import RelatedDoctors from "../../components/user/RelatedDoctors";
 import { toast } from "react-toastify";
-import axios from "axios";
 import { appointmentBookingAPI } from "../../services/appointmentServices";
+import { showErrorToast } from "../../utils/errorHandler";
 
 const Appointment = () => {
   type TimeSlot = {
@@ -113,15 +113,7 @@ const Appointment = () => {
         toast.error(data.message);
       }
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        const errorMsg =
-          error.response?.data?.message || "Something went wrong";
-        toast.error(errorMsg);
-      } else if (error instanceof Error) {
-        toast.error(error.message);
-      } else {
-        toast.error("An unknown error occurred");
-      }
+      showErrorToast(error);
     }
   };
 

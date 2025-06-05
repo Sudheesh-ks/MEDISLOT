@@ -1,21 +1,10 @@
-import { useContext } from "react";
-import { AdminContext } from "../../context/AdminContext";
 import { assets } from "../../assets/admin/assets";
 import { NavLink } from "react-router-dom";
 
 const AdminSidebar = () => {
-  const context = useContext(AdminContext);
-
-  if (!context) {
-    throw new Error("AdminContext must be used within AdminContextProvider");
-  }
-
-  const { aToken } = context;
-
   return (
     <div className="min-h-screen bg-white border-r">
       {
-        // aToken &&
         <ul className="text-[#515151] mt-5">
           <NavLink
             className={({ isActive }) =>

@@ -5,6 +5,7 @@ import { toast } from "react-toastify";
 import { updateUserProfileAPI } from "../../services/userProfileServices";
 import { useNavigate } from "react-router-dom";
 import { isValidDateOfBirth, isValidPhone } from "../../utils/validator";
+import { showErrorToast } from "../../utils/errorHandler";
 
 const MyProfile = () => {
   const navigate = useNavigate();
@@ -55,9 +56,7 @@ const MyProfile = () => {
       setIsEdit(false);
       setImage(null);
     } catch (error) {
-      toast.error(
-        error instanceof Error ? error.message : "An unknown error occurred"
-      );
+      showErrorToast(error);
     }
   };
 

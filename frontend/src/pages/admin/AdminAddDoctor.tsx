@@ -2,9 +2,9 @@ import React, { useContext, useEffect, useState } from "react";
 import { assets } from "../../assets/admin/assets";
 import { AdminContext } from "../../context/AdminContext";
 import { toast } from "react-toastify";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { adminAddDoctorAPI } from "../../services/adminServices";
+import { showErrorToast } from "../../utils/errorHandler";
 
 const AdminAddDoctor = () => {
   const [docImg, setDocImg] = useState<File | null>(null);
@@ -75,15 +75,7 @@ const AdminAddDoctor = () => {
         toast.error(data.message);
       }
     } catch (error) {
-      if (axios.isAxiosError(error)) {
-        const errorMsg =
-          error.response?.data?.message || "Something went wrong";
-        toast.error(errorMsg);
-      } else if (error instanceof Error) {
-        toast.error(error.message);
-      } else {
-        toast.error("An unknown error occurred");
-      }
+      showErrorToast(error);
     }
   };
 
