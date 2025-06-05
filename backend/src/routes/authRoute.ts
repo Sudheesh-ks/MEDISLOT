@@ -31,7 +31,7 @@ authRouter.get(
     );
 
     // Redirect to your frontend with token
-    res.redirect(`http://localhost:5173/auth/google/callback?token=${token}`);
+    res.redirect(`${process.env.GOOGLE_REDIRECT_URL}?token=${token}`);
   }
 );
 
