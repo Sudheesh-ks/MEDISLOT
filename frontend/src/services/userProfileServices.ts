@@ -1,16 +1,13 @@
-import axios from "axios";
+import { api } from "../axios/axiosInstance";
 
-const api = axios.create({
-  baseURL: import.meta.env.VITE_BACKEND_URL,
-  withCredentials: true,
-});
-
+// To get user profile
 export const getUserProfileAPI = async (token: string) => {
   return await api.get("/api/user/get-profile", {
     headers: { Authorization: `Bearer ${token}` },
   });
 };
 
+// To update user profile
 export const updateUserProfileAPI = async (
   token: string,
   data: any,

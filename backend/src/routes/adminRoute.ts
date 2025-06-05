@@ -24,9 +24,14 @@ const doctorController = new DoctorController(doctorService);
 const adminRouter = express.Router();
 
 adminRouter.post("/login", adminController.loginAdmin.bind(adminController));
-adminRouter.get("/users", adminController.getAllUsers.bind(adminController));
+adminRouter.get(
+  "/users",
+  authAdmin,
+  adminController.getAllUsers.bind(adminController)
+);
 adminRouter.post(
   "/toggle-user-block",
+  authAdmin,
   adminController.toggleUserBlock.bind(adminController)
 );
 adminRouter.post(

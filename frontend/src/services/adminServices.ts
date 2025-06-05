@@ -1,14 +1,11 @@
-import axios from "axios";
+import { api } from "../axios/axiosInstance";
 
-const api = axios.create({
-  baseURL: import.meta.env.VITE_BACKEND_URL,
-  withCredentials: true,
-});
-
+// For admin login
 export const adminLoginAPI = async (email: string, password: string) => {
   return await api.post("/api/admin/login", { email, password });
 };
 
+// For adding doctors
 export const adminAddDoctorAPI = async (formData: FormData, token: string) => {
   return await api.post("/api/admin/add-doctor", formData, {
     headers: {

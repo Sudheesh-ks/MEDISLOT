@@ -1,10 +1,6 @@
-import axios from "axios";
+import { api } from "../axios/axiosInstance";
 
-const api = axios.create({
-  baseURL: import.meta.env.VITE_BACKEND_URL,
-  withCredentials: true,
-});
-
+// To list all doctors
 export const getDoctorsAPI = async () => {
   return await api.get("/api/doctor/list");
 };
