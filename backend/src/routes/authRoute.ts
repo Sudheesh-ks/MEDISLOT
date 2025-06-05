@@ -30,7 +30,7 @@ authRouter.get(
       { expiresIn: "1d" }
     );
 
-    // Redirect to your frontend with token
+    // Redirect to the frontend with token
     res.redirect(`${process.env.GOOGLE_REDIRECT_URL}?token=${token}`);
   }
 );

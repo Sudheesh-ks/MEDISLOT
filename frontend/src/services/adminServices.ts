@@ -7,7 +7,7 @@ export const adminLoginAPI = async (email: string, password: string) => {
 
 // For adding doctors
 export const adminAddDoctorAPI = async (formData: FormData, token: string) => {
-  return await api.post("/api/admin/add-doctor", formData, {
+  return await api.post("/api/admin/doctors", formData, {
     headers: {
       aToken: token,
       "Content-Type": "multipart/form-data",
@@ -17,9 +17,8 @@ export const adminAddDoctorAPI = async (formData: FormData, token: string) => {
 
 // Get all doctors
 export const getAllDoctorsAPI = async (token: string) => {
-  return await api.post(
-    "/api/admin/all-doctors",
-    {},
+  return await api.get(
+    "/api/admin/doctors",
     {
       headers: { aToken: token },
     }
@@ -27,12 +26,12 @@ export const getAllDoctorsAPI = async (token: string) => {
 };
 
 // Change doctor availability
-export const changeAvailabilityAPI = async (docId: string, aToken: string) => {
-  return await api.post(
-    "/api/admin/change-availability",
-    { docId },
+export const changeAvailabilityAPI = async (docId: string, isAvailable: boolean, token: string) => {
+  return await api.patch(
+    `/api/admin/doctors/${docId}/availability`,
+    { isAvailable },
     {
-      headers: { aToken },
+      headers: { aToken: token },
     }
   );
 };
@@ -45,12 +44,12 @@ export const getAllUsersAPI = async (token: string) => {
 };
 
 // Toggle user block/unblock
-export const toggleUserBlockAPI = async (userId: string, aToken: string) => {
-  return await api.post(
-    "/api/admin/toggle-user-block",
-    { userId },
+export const toggleUserBlockAPI = async (userId: string, block: boolean, token: string) => {
+  return await api.patch(
+    `/api/admin/users/${userId}/block`,
+    { block },
     {
-      headers: { aToken },
+      headers: { aToken: token },
     }
   );
 };

@@ -9,5 +9,5 @@ export interface IAdminService {
   addDoctor(data: DoctorDTO): Promise<string>;
   getDoctors(): Promise<any[]>;
   getUsers(): Promise<any[]>;
-  toggleUserBlock(userId: string): Promise<string>;
+  toggleUserBlock(userId: string, block: boolean): Promise<string>;
 }

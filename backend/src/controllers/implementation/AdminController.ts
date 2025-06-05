@@ -69,7 +69,7 @@ export class AdminController implements IAdminController {
   }
 
   // To get all the doctors
-  async allDoctors(req: Request, res: Response): Promise<void> {
+  async getDoctors(req: Request, res: Response): Promise<void> {
     try {
       const doctors = await this.adminService.getDoctors();
       res.status(HttpStatus.OK).json({ success: true, doctors });
@@ -95,8 +95,15 @@ export class AdminController implements IAdminController {
   // To toggle the state of user
   async toggleUserBlock(req: Request, res: Response): Promise<void> {
     try {
-      const { userId } = req.body;
-      const message = await this.adminService.toggleUserBlock(userId);
+      const { userId } = req.params;
+      const { block } = req.body as { block?: boolean }
+
+      if (typeof block !== 'boolean') {
+  res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Block status is required and must be a boolean" });
+  return;
+}
+
+      const message = await this.adminService.toggleUserBlock(userId, block);
       res.status(HttpStatus.OK).json({ success: true, message });
     } catch (error: any) {
       res

@@ -29,25 +29,25 @@ adminRouter.get(
   authAdmin,
   adminController.getAllUsers.bind(adminController)
 );
-adminRouter.post(
-  "/toggle-user-block",
+adminRouter.patch(
+  "/users/:userId/block",
   authAdmin,
   adminController.toggleUserBlock.bind(adminController)
 );
 adminRouter.post(
-  "/add-doctor",
+  "/doctors",
   authAdmin,
   upload.single("image"),
   adminController.addDoctor.bind(adminController)
 );
-adminRouter.post(
-  "/all-doctors",
+adminRouter.get(
+  "/doctors",
   authAdmin,
-  adminController.allDoctors.bind(adminController)
+  adminController.getDoctors.bind(adminController)
 );
 
-adminRouter.post(
-  "/change-availability",
+adminRouter.patch(
+  "/doctors/:doctorId/availability",
   authAdmin,
   doctorController.changeAvailability.bind(doctorController)
 );

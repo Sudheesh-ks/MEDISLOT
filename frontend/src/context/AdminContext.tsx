@@ -31,7 +31,7 @@ interface AdminContextProviderProps {
 
 const AdminContextProvider = ({ children }: AdminContextProviderProps) => {
   const [aToken, setAToken] = useState(localStorage.getItem("aToken") ?? "");
-  const [doctors, setDoctors] = useState([]);
+  const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [users, setUsers] = useState<userData[]>([]);
 
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
@@ -52,7 +52,16 @@ const AdminContextProvider = ({ children }: AdminContextProviderProps) => {
 
   const changeAvailability = async (docId: string) => {
     try {
-      const { data } = await changeAvailabilityAPI(docId, aToken);
+
+      const doctor = doctors.find((doc) => doc._id === docId);
+    if (!doctor) {
+      toast.error("Doctor not found");
+      return;
+    }
+
+    const newAvailability = !doctor.available;
+
+      const { data } = await changeAvailabilityAPI(docId, newAvailability, aToken);
       if (data.success) {
         toast.success(data.message);
         getAllDoctors();
@@ -79,7 +88,16 @@ const AdminContextProvider = ({ children }: AdminContextProviderProps) => {
 
   const toggleBlockUser = async (userId: string) => {
     try {
-      const { data } = await toggleUserBlockAPI(userId, aToken);
+
+      const user = users.find((u) => u._id === userId);
+    if (!user) {
+      toast.error("User not found");
+      return;
+    }
+
+    const newBlockStatus = !user.isBlocked;
+
+      const { data } = await toggleUserBlockAPI(userId, newBlockStatus, aToken);
       if (data.success) {
         toast.success(data.message);
         getAllUsers();
