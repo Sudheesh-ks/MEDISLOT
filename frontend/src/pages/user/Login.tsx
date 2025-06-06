@@ -6,6 +6,7 @@ import { assets } from "../../assets/user/assets";
 import { isValidEmail, isValidPassword } from "../../utils/validator";
 import { loginUserAPI, registerUserAPI } from "../../services/authServices";
 import { showErrorToast } from "../../utils/errorHandler";
+import LoadingButton from "../../components/common/LoadingButton";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -22,6 +23,8 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   const onSubmitHandler = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -44,6 +47,7 @@ const Login = () => {
     }
 
     try {
+      setLoading(true);
       if (state === "Sign Up") {
         const { data } = await registerUserAPI(name, email, password);
         if (data.success) {
@@ -147,27 +151,32 @@ const Login = () => {
             </div>
           )}
 
-          <button
-            type="submit"
-            className="bg-primary text-white w-full py-2 rounded-md text-base"
-          >
-            {state === "Sign Up" ? "Create Account" : "Login"}
-          </button>
+          <LoadingButton
+  text={state === "Sign Up" ? "Create Account" : "Login"}
+  type="submit"
+  loading={loading}
+  className="w-full py-2 text-base"
+/>
 
-          <button
-            type="button"
-            onClick={() =>
-              (window.location.href = `${backendUrl}/api/auth/google`)
-            }
-            className="flex items-center justify-center gap-2 border border-zinc-300 w-full py-2 rounded-md mt-2 hover:bg-zinc-100"
-          >
-            <img
-              src="https://developers.google.com/identity/images/g-logo.png"
-              alt="Google"
-              className="w-5 h-5"
-            />
-            Continue with Google
-          </button>
+          <LoadingButton
+  text={
+    <span className="flex items-center gap-2">
+      <img
+        src="https://developers.google.com/identity/images/g-logo.png"
+        alt="Google"
+        className="w-5 h-5"
+      />
+      Continue with Google
+    </span>
+  }
+  type="button"
+  loading={googleLoading}
+  onClick={() => {
+    setGoogleLoading(true);
+    window.location.href = `${backendUrl}/api/auth/google`;
+  }}
+  className="border border-zinc-300 text-zinc-700 w-full py-2 rounded-md mt-2 hover:bg-zinc-100 bg-white"
+/>
 
           <p className="mt-2">
             {state === "Sign Up" ? (
