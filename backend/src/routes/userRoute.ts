@@ -40,4 +40,10 @@ userRouter.post(
   userController.bookAppointment.bind(userController)
 );
 
+userRouter.get(
+  '/appointments',
+  authUser,
+  userController.listAppointment.bind(userController)
+)
+
 export default userRouter;

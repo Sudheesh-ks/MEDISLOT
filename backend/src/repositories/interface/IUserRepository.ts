@@ -1,5 +1,6 @@
 import { userData } from "../../types/user";
 import { AppointmentTypes } from "../../types/appointment";
+import { DoctorData } from "../../types/doctor";
 
 export interface UserDocument extends userData {
   _id: string;
@@ -15,4 +16,6 @@ export interface userDataRepository {
     newHashedPassword: string
   ): Promise<boolean>;
   bookAppointment(appointmentData: AppointmentTypes): Promise<void>;
+  findDoctorById(id: string): Promise<DoctorData | null>;
+  getAppointmentsByUserId(userId: string):Promise<AppointmentTypes[]>;
 }

@@ -7,6 +7,7 @@ import { userData } from "../../types/user";
 import doctorModel from "../../models/doctorModel";
 import { AppointmentTypes } from "../../types/appointment";
 import appointmentModel from "../../models/appointmentModel";
+import { DoctorData } from "../../types/doctor";
 
 export class UserRepository implements userDataRepository {
   async create(user: Partial<userData>): Promise<UserDocument> {
@@ -69,5 +70,15 @@ export class UserRepository implements userDataRepository {
 
     await appointment.save();
     await doctorModel.findByIdAndUpdate(docId, { slots_booked: slots });
+  }
+
+  async findDoctorById(id: string): Promise<DoctorData | null> {
+    return (await doctorModel
+      .findById(id)
+      .select("-password")) as DoctorData | null;
+  }
+
+  async getAppointmentsByUserId(userId: string): Promise<AppointmentTypes[]> {
+    return await appointmentModel.find({userId}).sort({ date: -1 });
   }
 }

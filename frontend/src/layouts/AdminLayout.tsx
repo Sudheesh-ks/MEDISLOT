@@ -1,6 +1,5 @@
 import React from "react";
 import Navbar from "../components/admin/AdminNavbar";
-import Footer from "../components/admin/AdminFooter";
 import AdminSidebar from "../components/admin/AdminSidebar";
 
 const AdminLayout = ({ children }: { children: React.ReactNode }) => {
@@ -11,7 +10,6 @@ const AdminLayout = ({ children }: { children: React.ReactNode }) => {
         <AdminSidebar />
         <div className="flex-1">{children}</div>
       </div>
-      <Footer />
     </div>
   );
 };

@@ -1,4 +1,5 @@
 import { IDoctorRepository } from "../../repositories/interface/IDoctorRepository";
+import { DoctorData } from "../../types/doctor";
 import { IDoctorService } from "../interface/IDoctorService";
 
 export class DoctorService implements IDoctorService {
@@ -14,4 +15,5 @@ export class DoctorService implements IDoctorService {
   async getAllDoctors(): Promise<any[]> {
     return await this.doctorRepository.findAllDoctors();
   }
+
 }

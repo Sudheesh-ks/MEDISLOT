@@ -7,6 +7,8 @@ import validator from "validator";
 import { v2 as cloudinary } from "cloudinary";
 import { AppointmentTypes } from "../../types/appointment";
 import { isValidDateOfBirth, isValidPhone } from "../../utils/validator";
+import { DoctorRepository } from "../../repositories/implementation/DoctorRepository";
+import { DoctorData } from "../../types/doctor";
 
 export interface UserDocument extends userData {
   _id: string;
@@ -112,7 +114,23 @@ export class UserService implements userDataService {
     );
   }
 
+    async getUserById(id: string): Promise<UserDocument> {
+    const user = await this.userRepository.findById(id);
+    if (!user) throw new Error("User not found");
+    return user;
+  }
+
+  async getDoctorById(id: string): Promise<DoctorData> {
+      const doctor = await this.userRepository.findDoctorById(id) as DoctorData | null;
+      if (!doctor) throw new Error("Doctor not found");
+      return doctor;
+    }
+
   async bookAppointment(appointmentData: AppointmentTypes): Promise<void> {
     await this.userRepository.bookAppointment(appointmentData);
+  }
+
+  async listUserAppointments(userId: string): Promise<AppointmentTypes[]> {
+    return await this.userRepository.getAppointmentsByUserId(userId);
   }
 }

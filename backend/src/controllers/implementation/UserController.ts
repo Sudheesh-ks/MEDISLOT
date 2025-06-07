@@ -10,6 +10,8 @@ import {
   isValidEmail,
   isValidPassword,
 } from "../../utils/validator";
+import { DoctorService } from "../../services/implementation/DoctorService";
+import appointmentModel from "../../models/appointmentModel";
 
 export class UserController implements IUserController {
   constructor(private userService: userDataService) {}
@@ -266,8 +268,50 @@ export class UserController implements IUserController {
   // For Booking an appointment
   async bookAppointment(req: Request, res: Response): Promise<void> {
     try {
-      await this.userService.bookAppointment(req.body);
+
+       const { docId, slotDate, slotTime } = req.body;
+    const userId = (req as any).userId;            // set by authUser
+
+    /* ⬇️ fetch user / doctor info you need for userData & docData  */
+    const user = await this.userService.getUserById(userId);
+    const doctor = await this.userService.getDoctorById(docId);
+
+    const appointmentData = {
+      userId,
+      docId,
+      slotDate,
+      slotTime,
+      userData: {
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+      },
+      docData: {
+        name: doctor.name,
+        speciality: doctor.speciality,
+      },
+      amount: doctor.fees,
+      date: Date.now(),
+    };
+
+      await this.userService.bookAppointment(appointmentData);
       res.json({ success: true, message: "Appointment booked" });
+    } catch (error) {
+      res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ success: false, message: (error as Error).message });
+    }
+  }
+
+  async listAppointment(req: Request, res: Response): Promise<void> {
+
+    try {
+
+      const  userId  = (req as any).userId;
+      const appointments = await this.userService.listUserAppointments(userId)
+
+      res.json({success: true, appointments})
+      
     } catch (error) {
       res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)

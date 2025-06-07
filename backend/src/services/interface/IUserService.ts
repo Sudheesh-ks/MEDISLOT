@@ -1,4 +1,5 @@
 import { AppointmentTypes } from "../../types/appointment";
+import { DoctorData } from "../../types/doctor";
 import { userData } from "../../types/user";
 
 export interface UserDocument extends userData {
@@ -27,5 +28,8 @@ export interface userDataService {
   }): Promise<UserDocument>;
   generateToken(userId: string): string;
   resetPassword(email: string, newHashedPassword: string): Promise<boolean>;
+  getUserById(id: string): Promise<UserDocument>;
+  getDoctorById(id: string): Promise<DoctorData>;
   bookAppointment(appointmentData: AppointmentTypes): Promise<void>;
+  listUserAppointments(userId: string): Promise<AppointmentTypes[]>;
 }

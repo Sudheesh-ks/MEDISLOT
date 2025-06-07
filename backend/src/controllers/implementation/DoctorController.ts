@@ -37,4 +37,5 @@ export class DoctorController implements IDoctorController {
         .json({ success: false, message: err.message });
     }
   }
+  
 }

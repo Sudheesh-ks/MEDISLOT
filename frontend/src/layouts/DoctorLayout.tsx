@@ -1,6 +1,6 @@
 import React from "react";
 import Navbar from "../components/doctor/DoctorNavbar";
-import Footer from "../components/doctor/DoctorFooter";
+import Footer from "../components/common/Footer";
 
 const DoctorLayout = ({ children }: { children: React.ReactNode }) => {
   return (

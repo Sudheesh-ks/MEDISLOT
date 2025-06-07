@@ -8,8 +8,24 @@ export const appointmentBookingAPI = async (
   token: string
 ) => {
   return await api.post(
-    "/api/book-appointment",
+    "/api/user/book-appointment",
     { docId, slotDate, slotTime },
-    { headers: { token } }
+    {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }
   );
 };
+
+
+export const getAppointmentsAPI = async (token: string) => {
+  return await api.get('/api/user/appointments', 
+    {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }
+  )
+}
+
