@@ -10,8 +10,9 @@ import {
   isValidEmail,
   isValidPassword,
 } from "../../utils/validator";
-import { DoctorService } from "../../services/implementation/DoctorService";
 import appointmentModel from "../../models/appointmentModel";
+import doctorModel from "../../models/doctorModel";
+
 
 export class UserController implements IUserController {
   constructor(private userService: userDataService) {}
@@ -303,6 +304,7 @@ export class UserController implements IUserController {
     }
   }
 
+  // To list all the appointments
   async listAppointment(req: Request, res: Response): Promise<void> {
 
     try {
@@ -311,6 +313,24 @@ export class UserController implements IUserController {
       const appointments = await this.userService.listUserAppointments(userId)
 
       res.json({success: true, appointments})
+      
+    } catch (error) {
+      res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ success: false, message: (error as Error).message });
+    }
+  }
+
+
+  async cancelAppointment(req: Request, res: Response): Promise<void> {
+
+    try {
+
+       const userId = (req as any).userId;          
+    const { appointmentId } = req.body;                  
+
+    await this.userService.cancelAppointment(userId, appointmentId);
+    res.json({ success: true, message: "Appointment cancelled" });
       
     } catch (error) {
       res

@@ -1,4 +1,5 @@
 export interface AppointmentTypes {
+  _id?: string;
   userId: string;
   docId: string;
   slotDate: string;

@@ -20,7 +20,9 @@ export interface DoctorData {
   fees: number;
   address: Address;
   date?: Date;
-  slots_booked?: object;
+  slots_booked?: {
+    [date: string]: string[]; 
+  };
 }
 
 export interface DoctorDTO {

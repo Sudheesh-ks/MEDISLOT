@@ -41,9 +41,15 @@ userRouter.post(
 );
 
 userRouter.get(
-  '/appointments',
+  "/appointments",
   authUser,
   userController.listAppointment.bind(userController)
-)
+);
+
+userRouter.post(
+  "/cancel-appointment",
+  authUser,
+  userController.cancelAppointment.bind(userController)
+);
 
 export default userRouter;

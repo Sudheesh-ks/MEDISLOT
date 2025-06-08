@@ -32,4 +32,5 @@ export interface userDataService {
   getDoctorById(id: string): Promise<DoctorData>;
   bookAppointment(appointmentData: AppointmentTypes): Promise<void>;
   listUserAppointments(userId: string): Promise<AppointmentTypes[]>;
+  cancelAppointment(userId: string, appointmentId: string): Promise<void>;
 }

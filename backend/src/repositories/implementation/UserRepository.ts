@@ -81,4 +81,39 @@ export class UserRepository implements userDataRepository {
   async getAppointmentsByUserId(userId: string): Promise<AppointmentTypes[]> {
     return await appointmentModel.find({userId}).sort({ date: -1 });
   }
+
+  async cancelAppointment(userId: string, appointmentId: string): Promise<void> {
+  // 1.  ❓  Is the appointment there?
+  const appointment = await appointmentModel.findById(appointmentId);
+  if (!appointment) throw new Error("Appointment not found");
+
+  // 2.  ❓  Does it belong to this user?
+  if (appointment.userId.toString() !== userId) {
+    throw new Error("Unauthorized action");
+  }
+
+  // 3.  Already cancelled?
+  if (appointment.cancelled) {
+    throw new Error("Appointment already cancelled");
+  }
+
+  // 4.  Mark as cancelled
+  appointment.cancelled = true;
+  await appointment.save();
+
+  // 5.  Release the slot on the doctor
+  const { docId, slotDate, slotTime } = appointment;
+  const doctor = await doctorModel.findById(docId);
+  if (doctor) {
+    const slots = doctor.slots_booked || {};
+    if (Array.isArray(slots[slotDate])) {
+      slots[slotDate] = slots[slotDate].filter((t: string) => t !== slotTime);
+      if (!slots[slotDate].length) delete slots[slotDate]; // tidy up
+      doctor.slots_booked = slots;
+      doctor.markModified('slots_booked');
+      await doctor.save();
+    }
+  }
+}
+
 }

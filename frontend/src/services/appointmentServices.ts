@@ -29,3 +29,15 @@ export const getAppointmentsAPI = async (token: string) => {
   )
 }
 
+
+export const cancelAppointmentAPI = async (appointmentId: string, token: string) => {
+  return await api.post('/api/user/cancel-appointment', 
+    {appointmentId},
+    {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  }
+  )
+}
+

@@ -55,6 +55,9 @@ export interface Doctor {
     about: string;
     fees: number;
     address: Address;
+    slots_booked?: {
+    [date: string]: string[]; 
+    };
 }
 
 

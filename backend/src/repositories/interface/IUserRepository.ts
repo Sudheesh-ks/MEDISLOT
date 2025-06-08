@@ -18,4 +18,5 @@ export interface userDataRepository {
   bookAppointment(appointmentData: AppointmentTypes): Promise<void>;
   findDoctorById(id: string): Promise<DoctorData | null>;
   getAppointmentsByUserId(userId: string):Promise<AppointmentTypes[]>;
+  cancelAppointment(userId: string, appointmentId: string): Promise<void>;
 }

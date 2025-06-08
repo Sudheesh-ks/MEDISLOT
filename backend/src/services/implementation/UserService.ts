@@ -133,4 +133,8 @@ export class UserService implements userDataService {
   async listUserAppointments(userId: string): Promise<AppointmentTypes[]> {
     return await this.userRepository.getAppointmentsByUserId(userId);
   }
+
+  async cancelAppointment(userId: string, appointmentId: string): Promise<void> {
+  await this.userRepository.cancelAppointment(userId, appointmentId);
+}
 }
