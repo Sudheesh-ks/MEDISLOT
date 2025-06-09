@@ -12,10 +12,30 @@ import {
 } from "../../utils/validator";
 import appointmentModel from "../../models/appointmentModel";
 import doctorModel from "../../models/doctorModel";
+import Razorpay from 'razorpay';
+
+
+class PaymentService {
+  private razorpayInstance = new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID!,
+    key_secret: process.env.RAZORPAY_KEY_SECRET!
+  });
+
+  get instance() {
+    return this.razorpayInstance;
+  }
+}
 
 
 export class UserController implements IUserController {
-  constructor(private userService: userDataService) {}
+  private paymentService: PaymentService;
+
+  constructor(
+    private userService: userDataService,
+    paymentService?: PaymentService
+  ) {
+    this.paymentService = paymentService || new PaymentService();
+  }
 
   // For registering new user
   async registerUser(req: Request, res: Response): Promise<void> {
@@ -338,4 +358,47 @@ export class UserController implements IUserController {
         .json({ success: false, message: (error as Error).message });
     }
   }
+
+
+  // For payment using razorpay
+  async paymentRazorpay(req: Request, res: Response): Promise<void> {
+
+    try {
+
+       const userId = (req as any).userId;
+    const { appointmentId } = req.body;
+
+    const { order } = await this.userService.startPayment(
+      userId,
+      appointmentId
+    );
+
+    res.json({ success: true, order });
+      
+    } catch (error) {
+      res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ success: false, message: (error as Error).message });
+    }
+  }
+
+
+  // For verifying the razorpay payment
+  async verifyRazorpay(req: Request, res: Response): Promise<void> {
+
+    try {
+
+      const userId = (req as any).userId;
+    const { appointmentId, razorpay_order_id } = req.body;
+
+    await this.userService.verifyPayment(userId, appointmentId, razorpay_order_id);
+
+    res.json({ success: true, message: "Payment Successful" });
+      
+    } catch (error) {
+      res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ success: false, message: (error as Error).message });
+    }
+  } 
 }

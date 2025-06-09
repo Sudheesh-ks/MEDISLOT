@@ -10,4 +10,11 @@ export interface AppointmentTypes {
   cancelled?: boolean;
   payment?: boolean;
   isCompleted?: boolean;
+  razorpayOrderId?: string | null;
+}
+
+
+export interface AppointmentDocument
+  extends AppointmentTypes, Document {
+  _id: Types.ObjectId;
 }

@@ -52,4 +52,17 @@ userRouter.post(
   userController.cancelAppointment.bind(userController)
 );
 
+userRouter.post(
+  "/payment-razorpay",
+  authUser,
+  userController.paymentRazorpay.bind(userController)
+);
+
+
+userRouter.post(
+  "/verifyRazorpay",
+  authUser,
+  userController.verifyRazorpay.bind(userController)
+);
+
 export default userRouter;

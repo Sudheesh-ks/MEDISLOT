@@ -9,13 +9,17 @@ import { AppointmentTypes } from "../../types/appointment";
 import { isValidDateOfBirth, isValidPhone } from "../../utils/validator";
 import { DoctorRepository } from "../../repositories/implementation/DoctorRepository";
 import { DoctorData } from "../../types/doctor";
+import { PaymentService } from "./PaymentService";
 
 export interface UserDocument extends userData {
   _id: string;
 }
 
 export class UserService implements userDataService {
-  constructor(private userRepository: userDataRepository) {}
+  constructor(
+    private userRepository: userDataRepository,
+    private paymentService = new PaymentService()
+  ) {}
 
   async register(
     name: string,
@@ -136,5 +140,45 @@ export class UserService implements userDataService {
 
   async cancelAppointment(userId: string, appointmentId: string): Promise<void> {
   await this.userRepository.cancelAppointment(userId, appointmentId);
+}
+
+
+async startPayment(
+    userId: string,
+    appointmentId: string
+  ): Promise<{ order: any }> {
+    const appointment = await this.userRepository.findPayableAppointment(userId, appointmentId);
+
+    const order = await this.paymentService.createOrder(appointment.amount * 100, appointment._id.toString());
+
+    // await this.userRepository.saveRazorpayOrderId(appointmentId, order.id);
+
+    return { order };
+  }
+
+
+  async verifyPayment(
+  userId: string,
+  appointmentId: string,
+  razorpay_order_id: string
+): Promise<void> {
+   await this.userRepository.findPayableAppointment(userId, appointmentId);
+
+  // 2️⃣ fetch order from Razorpay
+  const orderInfo = await this.paymentService.fetchOrder(razorpay_order_id);
+
+  // 3️⃣ verify payment status
+  if (orderInfo.status !== "paid") {
+    throw new Error("Payment not completed");
+  }
+
+  // ⬅️  optional extra sanity-check
+  if (orderInfo.receipt !== appointmentId) {
+    throw new Error("Receipt / appointment mismatch");
+  }
+
+  // 4️⃣ mark appointment paid in DB
+  await this.userRepository.markAppointmentPaid(appointmentId);
+
 }
 }

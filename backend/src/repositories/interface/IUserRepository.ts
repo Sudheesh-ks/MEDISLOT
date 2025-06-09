@@ -1,5 +1,5 @@
 import { userData } from "../../types/user";
-import { AppointmentTypes } from "../../types/appointment";
+import { AppointmentDocument, AppointmentTypes } from "../../types/appointment";
 import { DoctorData } from "../../types/doctor";
 
 export interface UserDocument extends userData {
@@ -17,6 +17,11 @@ export interface userDataRepository {
   ): Promise<boolean>;
   bookAppointment(appointmentData: AppointmentTypes): Promise<void>;
   findDoctorById(id: string): Promise<DoctorData | null>;
-  getAppointmentsByUserId(userId: string):Promise<AppointmentTypes[]>;
+  getAppointmentsByUserId(userId: string): Promise<AppointmentTypes[]>;
   cancelAppointment(userId: string, appointmentId: string): Promise<void>;
+  findPayableAppointment(userId: string,appointmentId: string): Promise<AppointmentDocument>;
+  saveRazorpayOrderId(appointmentId: string, orderId: string): Promise<void>;
+  markAppointmentPaid(appointmentId: string): Promise<void>;
+
+
 }

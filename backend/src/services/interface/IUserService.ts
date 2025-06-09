@@ -33,4 +33,6 @@ export interface userDataService {
   bookAppointment(appointmentData: AppointmentTypes): Promise<void>;
   listUserAppointments(userId: string): Promise<AppointmentTypes[]>;
   cancelAppointment(userId: string, appointmentId: string): Promise<void>;
+  startPayment(userId: string,appointmentId: string): Promise<{ order: any }>
+  verifyPayment(userId: string,appointmentId: string,razorpay_order_id: string): Promise<void>;
 }

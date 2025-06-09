@@ -58,6 +58,11 @@ const appointmentSchema: Schema<AppointmentDocument> = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
+
+  razorpayOrderId: {
+  type: String,
+  default: null,
+},
 });
 
 const appointmentModel: Model<AppointmentDocument> =

@@ -5,7 +5,7 @@ import {
 import userModel from "../../models/userModel";
 import { userData } from "../../types/user";
 import doctorModel from "../../models/doctorModel";
-import { AppointmentTypes } from "../../types/appointment";
+import { AppointmentDocument, AppointmentTypes } from "../../types/appointment";
 import appointmentModel from "../../models/appointmentModel";
 import { DoctorData } from "../../types/doctor";
 
@@ -83,25 +83,20 @@ export class UserRepository implements userDataRepository {
   }
 
   async cancelAppointment(userId: string, appointmentId: string): Promise<void> {
-  // 1.  ❓  Is the appointment there?
   const appointment = await appointmentModel.findById(appointmentId);
   if (!appointment) throw new Error("Appointment not found");
 
-  // 2.  ❓  Does it belong to this user?
   if (appointment.userId.toString() !== userId) {
     throw new Error("Unauthorized action");
   }
 
-  // 3.  Already cancelled?
   if (appointment.cancelled) {
     throw new Error("Appointment already cancelled");
   }
 
-  // 4.  Mark as cancelled
   appointment.cancelled = true;
   await appointment.save();
 
-  // 5.  Release the slot on the doctor
   const { docId, slotDate, slotTime } = appointment;
   const doctor = await doctorModel.findById(docId);
   if (doctor) {
@@ -114,6 +109,28 @@ export class UserRepository implements userDataRepository {
       await doctor.save();
     }
   }
+}
+
+
+async findPayableAppointment(
+  userId: string,
+  appointmentId: string
+): Promise<AppointmentDocument> {
+  const appointment = await appointmentModel.findById<AppointmentDocument>(appointmentId);
+  if (!appointment) throw new Error('Appointment not found');
+  if (appointment.userId.toString() !== userId) throw new Error('Unauthorized');
+  if (appointment.cancelled) throw new Error('Appointment cancelled');
+  return appointment;
+}
+
+
+async saveRazorpayOrderId(appointmentId: string, orderId: string): Promise<void> {
+  await appointmentModel.findByIdAndUpdate(appointmentId, { razorpayOrderId: orderId });
+}
+
+async markAppointmentPaid(appointmentId: string): Promise<void> {
+  console.log(appointmentId)
+  await appointmentModel.findByIdAndUpdate(appointmentId, { payment: true });
 }
 
 }
