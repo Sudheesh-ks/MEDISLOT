@@ -4,6 +4,7 @@ import { IAdminController } from "../interface/adminController.interface";
 import { CustomRequest } from "../../types/customRequest";
 import { HttpStatus } from "../../constants/status.constants";
 import { DoctorDTO } from "../../types/doctor";
+import appointmentModel from "../../models/appointmentModel";
 
 export class AdminController implements IAdminController {
   constructor(private adminService: IAdminService) {}
@@ -22,10 +23,10 @@ export class AdminController implements IAdminController {
 
       const { token } = await this.adminService.login(email, password);
       res.json({ success: true, token });
-    } catch (error: any) {
+    } catch (error) {
       res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ success: false, message: error.message });
+        .json({ success: false, message: (error as Error).message });
     }
   }
 
@@ -61,10 +62,10 @@ export class AdminController implements IAdminController {
       const message = await this.adminService.addDoctor(doctorDTO);
       res.status(HttpStatus.CREATED).json({ success: true, message });
       return;
-    } catch (error: any) {
+    } catch (error) {
       res
         .status(HttpStatus.BAD_REQUEST)
-        .json({ success: false, message: error.message });
+        .json({ success: false, message: (error as Error).message });
     }
   }
 
@@ -73,10 +74,10 @@ export class AdminController implements IAdminController {
     try {
       const doctors = await this.adminService.getDoctors();
       res.status(HttpStatus.OK).json({ success: true, doctors });
-    } catch (error: any) {
+    } catch (error) {
       res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ success: false, message: error.message });
+        .json({ success: false, message: (error as Error).message });
     }
   }
 
@@ -85,10 +86,10 @@ export class AdminController implements IAdminController {
     try {
       const users = await this.adminService.getUsers();
       res.status(HttpStatus.OK).json({ success: true, users });
-    } catch (error: any) {
+    } catch (error) {
       res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ success: false, message: error.message });
+        .json({ success: false, message: (error as Error).message });
     }
   }
 
@@ -105,10 +106,70 @@ export class AdminController implements IAdminController {
 
       const message = await this.adminService.toggleUserBlock(userId, block);
       res.status(HttpStatus.OK).json({ success: true, message });
-    } catch (error: any) {
+    } catch (error) {
       res
         .status(HttpStatus.BAD_REQUEST)
-        .json({ success: false, message: error.message });
+        .json({ success: false, message: (error as Error).message });
     }
   }
+
+  // For getting all the appointments
+  async appointmentsList(req: Request, res: Response): Promise<void> {
+
+    try {
+
+      const appointments = await this.adminService.listAppointments();
+      res.json({ success: true, appointments });
+      
+    } catch (error) {
+      res
+        .status(HttpStatus.BAD_REQUEST)
+        .json({ success: false, message: (error as Error).message });
+    }
+  }
+
+
+  // For appointment cancelation
+  async adminCancelAppointment(req: Request, res: Response): Promise<void> {
+
+    try {
+          
+    const { appointmentId } = req.body;                  
+
+    await this.adminService.cancelAppointment(appointmentId);
+    res.json({ success: true, message: "Appointment cancelled" });
+      
+    } catch (error) {
+      res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ success: false, message: (error as Error).message });
+    }
+  }
+
+
+  // For admin dashboard
+  async adminDashboard(req: Request, res: Response): Promise<void> {
+
+    try {
+
+      const doctors = await this.adminService.getDoctors();
+      const users = await this.adminService.getUsers();
+      const appointments = await this.adminService.listAppointments();
+
+      const dashData = {
+        doctors: doctors.length,
+        patients: users.length,
+        appointments: appointments.length,
+        latestAppointments: appointments.reverse().slice(0,5)
+      }
+
+      res.json({success: true, dashData})
+      
+    } catch (error) {
+      res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ success: false, message: (error as Error).message });
+    }
+  }
+
 }

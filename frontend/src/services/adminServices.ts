@@ -53,3 +53,28 @@ export const toggleUserBlockAPI = async (userId: string, block: boolean, token: 
     }
   );
 };
+
+
+// To get all the appointments
+export const getAllAppointmentsAPI = async (token: string) => {
+  return await api.get(
+    '/api/admin/appointments',
+    {
+      headers: { aToken: token },
+    }
+  );
+};
+
+
+// To cancel the appointments
+export const adminCancelAppointmentAPI = async (appointmentId: string, token: string) => {
+  return await api.post(
+    '/api/admin/cancel-appointment',
+    {appointmentId},
+    {
+      headers: { aToken: token },
+    }
+  );
+};
+
+

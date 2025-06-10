@@ -7,4 +7,6 @@ export interface IAdminController {
   getDoctors(req: Request, res: Response): Promise<void>;
   getAllUsers(req: Request, res: Response): Promise<void>;
   toggleUserBlock(req: Request, res: Response): Promise<void>;
+  appointmentsList(req: Request, res: Response): Promise<void>;
+  adminCancelAppointment(req: Request, res: Response): Promise<void>;
 }

@@ -4,12 +4,16 @@ import { toast } from "react-toastify";
 import type { Doctor } from "../assets/user/assets";
 import type { userData } from "../types/user";
 import {
+  adminCancelAppointmentAPI,
   changeAvailabilityAPI,
+  getAllAppointmentsAPI,
   getAllDoctorsAPI,
   getAllUsersAPI,
   toggleUserBlockAPI,
 } from "../services/adminServices";
 import { showErrorToast } from "../utils/errorHandler";
+import type { AppointmentTypes } from "../types/appointment";
+import axios from "axios";
 
 interface AdminContextType {
   aToken: string;
@@ -21,6 +25,10 @@ interface AdminContextType {
   users: userData[];
   getAllUsers: () => Promise<void>;
   toggleBlockUser: (userId: string) => Promise<void>;
+  appointments: AppointmentTypes[];
+  setAppointments: React.Dispatch<React.SetStateAction<AppointmentTypes[]>>;
+  getAllAppointments: () => Promise<void>;
+  cancelAppointment: (appointmentId: string) => Promise<void>;
 }
 
 export const AdminContext = createContext<AdminContextType | null>(null);
@@ -33,6 +41,7 @@ const AdminContextProvider = ({ children }: AdminContextProviderProps) => {
   const [aToken, setAToken] = useState(localStorage.getItem("aToken") ?? "");
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [users, setUsers] = useState<userData[]>([]);
+  const [appointments, setAppointments] = useState<AppointmentTypes[]>([]);
 
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
@@ -109,6 +118,43 @@ const AdminContextProvider = ({ children }: AdminContextProviderProps) => {
     }
   };
 
+
+  const getAllAppointments = async () => {
+
+    try {
+
+      const { data } = await getAllAppointmentsAPI(aToken);
+
+      if(data.success){
+        setAppointments(data.appointments);
+      } else {
+        toast.error(data.message);
+      }
+      
+    } catch (error) {
+      showErrorToast(error);
+    }
+  }
+
+
+  const cancelAppointment = async (appointmentId: string) => {
+
+    try {
+
+      const { data } = await adminCancelAppointmentAPI(appointmentId,aToken);
+
+      if(data.success){
+        toast.success(data.message);
+        getAllAppointments();
+      }else{
+        toast.error(data.message);
+      }
+      
+    } catch (error) {
+      showErrorToast(error);
+    }
+  }
+
   const value: AdminContextType = {
     aToken,
     setAToken,
@@ -119,6 +165,9 @@ const AdminContextProvider = ({ children }: AdminContextProviderProps) => {
     users,
     getAllUsers,
     toggleBlockUser,
+    appointments, setAppointments,
+    getAllAppointments,
+    cancelAppointment
   };
 
   return (

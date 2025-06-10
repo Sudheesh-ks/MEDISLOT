@@ -1,3 +1,4 @@
+import { AppointmentDocument } from "../../types/appointment";
 import { DoctorData, DoctorDTO } from "../../types/doctor";
 
 export interface DoctorInput extends DoctorData {
@@ -10,4 +11,6 @@ export interface IAdminService {
   getDoctors(): Promise<any[]>;
   getUsers(): Promise<any[]>;
   toggleUserBlock(userId: string, block: boolean): Promise<string>;
+  listAppointments(): Promise<AppointmentDocument[]>;
+  cancelAppointment(appointmentId: string): Promise<void>;
 }

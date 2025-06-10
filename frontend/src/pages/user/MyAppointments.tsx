@@ -15,17 +15,12 @@ const MyAppointments = () => {
     throw new Error("MyAppointments must be used within an AppContextProvider");
   }
 
-  const { token, getDoctorsData } = context;
+  const { token, getDoctorsData, slotDateFormat } = context;
 
   const [appointments, setAppointments] = useState<AppointmentTypes[]>([]);
-  const months = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
-  const slotDateFormat = (slotDate: string) => {
-    const dateArray = slotDate.split('_');
-    return dateArray[0] + " " + months[Number(dateArray[1])] + " " + dateArray[2];
-  }
 
   if (!token) {
               toast.error("Please login to continue...");

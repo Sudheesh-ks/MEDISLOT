@@ -1,4 +1,5 @@
 import { adminData } from "../../types/admin";
+import { AppointmentDocument } from "../../types/appointment";
 import { DoctorData } from "../../types/doctor";
 import { userData } from "../../types/user";
 
@@ -8,4 +9,6 @@ export interface IAdminRepository {
   getAllDoctors(): Promise<Omit<DoctorData, "password">[]>;
   getAllUsers(): Promise<Omit<userData, "password">[]>;
   toggleUserBlock(userId: string): Promise<string>;
+  getAllAppointments():Promise<AppointmentDocument[]>;
+  cancelAppointment(appointmentId: string): Promise<void>;
 }

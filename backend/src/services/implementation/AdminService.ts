@@ -6,6 +6,7 @@ import { v2 as cloudinary } from "cloudinary";
 import { DoctorData, DoctorDTO } from "../../types/doctor";
 import { isValidEmail, isValidPassword } from "../../utils/validator";
 import dotenv from "dotenv";
+import { AppointmentDocument } from "../../types/appointment";
 dotenv.config();
 
 export class AdminService implements IAdminService {
@@ -99,4 +100,12 @@ export class AdminService implements IAdminService {
   async toggleUserBlock(userId: string): Promise<string> {
     return await this.adminRepository.toggleUserBlock(userId);
   }
+
+   async listAppointments(): Promise<AppointmentDocument[]> {
+    return await this.adminRepository.getAllAppointments();
+  } 
+
+    async cancelAppointment(appointmentId: string): Promise<void> {
+  await this.adminRepository.cancelAppointment(appointmentId);
+}
 }

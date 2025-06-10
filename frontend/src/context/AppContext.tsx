@@ -29,6 +29,8 @@ interface AppContextType {
   userData: userData | null;
   setUserData: React.Dispatch<React.SetStateAction<userData | null>>;
   loadUserProfileData: () => Promise<void>;
+  calculateAge: (dob: string) => number;
+  slotDateFormat: (slotDate: string) => string;
 }
 
 export const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -98,6 +100,21 @@ const AppContextProvider: React.FC<AppContextProviderProps> = ({
     }
   };
 
+  const calculateAge = (dob: string): number => {
+    const today = new Date();
+    const birthDate = new Date(dob);
+
+    let age = today.getFullYear() - birthDate.getFullYear();
+    return age;
+  }
+
+      const months = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+      const slotDateFormat = (slotDate: string): string => {
+    const dateArray = slotDate.split('_');
+    return dateArray[0] + " " + months[Number(dateArray[1])] + " " + dateArray[2];
+  }
+
   const value: AppContextType = {
     doctors,
     getDoctorsData,
@@ -108,6 +125,8 @@ const AppContextProvider: React.FC<AppContextProviderProps> = ({
     userData,
     setUserData,
     loadUserProfileData,
+    calculateAge,
+    slotDateFormat
   };
 
   useEffect(() => {
