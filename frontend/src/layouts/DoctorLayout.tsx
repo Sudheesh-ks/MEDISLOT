@@ -1,13 +1,15 @@
 import React from "react";
-import Navbar from "../components/doctor/DoctorNavbar";
-import Footer from "../components/common/Footer";
+import DoctorSidebar from "../components/doctor/DoctorSidebar";
+import DoctorNavbar from "../components/doctor/DoctorNavbar";
 
 const DoctorLayout = ({ children }: { children: React.ReactNode }) => {
   return (
     <div className="mx-4 sm:mx=[10%]">
-      <Navbar />
-      {children}
-      <Footer />
+      <DoctorNavbar />
+      <div className="flex">
+        <DoctorSidebar />
+        <div className="flex-1">{children}</div>
+      </div>
     </div>
   );
 };

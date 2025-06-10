@@ -143,7 +143,7 @@ const Appointment = () => {
       <div className="flex flex-col sm:flex-row gap-4">
         <div>
           <img
-            className="bg-primary w-full sm:max-w-72 rounded-lg"
+            className="bg-primary w-full sm:max-w-72 rounded-lg "
             src={docInfo?.image}
             alt=""
           />

@@ -57,7 +57,7 @@ const AdminAppointments = () => {
                     <p className="max-sm:hidden">{calculateAge(item.userData.dob)}</p>
                     <p>{slotDateFormat(item.slotDate)}, {item.slotTime}</p>
                     <div className="flex items-center gap-2">
-                      <img className="w-8 rounded-full bg-blue-300" src={item.docData.image} alt="" /> <p>{item.docData.name}</p>
+                      <img className="w-12 h-12 rounded-full bg-blue-300" src={item.docData.image} alt="" /> <p>{item.docData.name}</p>
                     </div>
                     <p>{currencySymbol}{item.amount}</p>
                     {

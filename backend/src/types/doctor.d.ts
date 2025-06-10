@@ -8,6 +8,7 @@ export interface Address {
 }
 
 export interface DoctorData {
+  _id?: string;
   name: string;
   email: string;
   image?: string;

@@ -1,7 +1,9 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
 import { DoctorData } from "../types/doctor";
 
-interface DoctorDocument extends DoctorData, Document {}
+interface DoctorDocument extends DoctorData, Document {
+  _id: string;
+}
 
 const doctorSchema: Schema<DoctorDocument> = new mongoose.Schema(
   {

@@ -1,24 +1,46 @@
 import React, { useContext, useEffect, useState } from "react";
 import { AdminContext } from "../../context/AdminContext";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { assets } from "../../assets/user/assets";
 import { adminLoginAPI } from "../../services/adminServices";
 import { showErrorToast } from "../../utils/errorHandler";
+import { DoctorContext } from "../../context/DoctorContext";
+import { doctorLoginAPI } from "../../services/doctorServices";
 
 const Login = () => {
   const navigate = useNavigate();
-  const [state, setState] = useState("Admin");
+  const location = useLocation();
+  
+  // Determine login type based on current route
+  const getLoginType = () => {
+    if (location.pathname.includes('/admin/login')) {
+      return 'Admin';
+    } else if (location.pathname.includes('/doctor/login')) {
+      return 'Doctor';
+    }
+    return 'Admin'; // default fallback
+  };
+  
+  const [state, setState] = useState(getLoginType());
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const context = useContext(AdminContext);
+  const DocContext = useContext(DoctorContext);
 
   if (!context) {
     throw new Error("AdminContext must be used within AdminContextProvider");
   }
 
   const { aToken, setAToken } = context;
+
+  // FIXED: Check DocContext instead of context
+  if (!DocContext) {
+    throw new Error("DoctorContext must be used within DoctorContextProvider");
+  }
+
+  const { dToken, setDToken } = DocContext;
 
   const onSubmitHandler = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -34,11 +56,24 @@ const Login = () => {
           toast.error(data.message);
         }
       } else {
+        const { data } = await doctorLoginAPI(email, password);
+        if (data.success) {
+          navigate("/doctor/dashboard");
+          localStorage.setItem("dToken", data.token);
+          setDToken(data.token);
+        } else {
+          toast.error(data.message);
+        }
       }
     } catch (error) {
       showErrorToast(error);
     }
   };
+
+  // Update state when route changes
+  useEffect(() => {
+    setState(getLoginType());
+  }, [location.pathname]);
 
   useEffect(() => {
     if (aToken) {
@@ -96,7 +131,7 @@ const Login = () => {
                 Doctor Login?{" "}
                 <span
                   className="text-primary underline cursor-pointer"
-                  onClick={() => setState("Doctor")}
+                  onClick={() => navigate("/doctor/login")}
                 >
                   Click here
                 </span>
@@ -106,7 +141,7 @@ const Login = () => {
                 Admin Login?{" "}
                 <span
                   className="text-primary underline cursor-pointer"
-                  onClick={() => setState("Admin")}
+                  onClick={() => navigate("/admin/login")}
                 >
                   Click here
                 </span>

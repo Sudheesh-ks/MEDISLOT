@@ -78,3 +78,14 @@ export const adminCancelAppointmentAPI = async (appointmentId: string, token: st
 };
 
 
+// To get the dashboard data
+export const adminDashboardAPI = async (token: string) => {
+  return await api.get(
+    '/api/admin/dashboard',
+    {
+      headers: { aToken: token },
+    }
+  );
+};
+
+

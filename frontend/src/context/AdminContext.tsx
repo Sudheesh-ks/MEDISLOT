@@ -5,6 +5,7 @@ import type { Doctor } from "../assets/user/assets";
 import type { userData } from "../types/user";
 import {
   adminCancelAppointmentAPI,
+  adminDashboardAPI,
   changeAvailabilityAPI,
   getAllAppointmentsAPI,
   getAllDoctorsAPI,
@@ -29,6 +30,8 @@ interface AdminContextType {
   setAppointments: React.Dispatch<React.SetStateAction<AppointmentTypes[]>>;
   getAllAppointments: () => Promise<void>;
   cancelAppointment: (appointmentId: string) => Promise<void>;
+  dashData: any; 
+  getDashData: () => Promise<void>;
 }
 
 export const AdminContext = createContext<AdminContextType | null>(null);
@@ -42,6 +45,7 @@ const AdminContextProvider = ({ children }: AdminContextProviderProps) => {
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [users, setUsers] = useState<userData[]>([]);
   const [appointments, setAppointments] = useState<AppointmentTypes[]>([]);
+  const [dashData, setDashData] = useState(false);
 
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
@@ -155,6 +159,22 @@ const AdminContextProvider = ({ children }: AdminContextProviderProps) => {
     }
   }
 
+  const getDashData = async () => {
+    try {
+
+      const { data } = await adminDashboardAPI(aToken);
+
+      if(data.success){
+        setDashData(data.dashData);
+      }else{
+        toast.error(data.message);
+      }
+      
+    } catch (error) {
+      showErrorToast(error);
+    }
+  }
+
   const value: AdminContextType = {
     aToken,
     setAToken,
@@ -167,7 +187,8 @@ const AdminContextProvider = ({ children }: AdminContextProviderProps) => {
     toggleBlockUser,
     appointments, setAppointments,
     getAllAppointments,
-    cancelAppointment
+    cancelAppointment,
+    dashData,getDashData
   };
 
   return (

@@ -2,6 +2,7 @@ import express from "express";
 import { DoctorController } from "../controllers/implementation/DoctorController";
 import { DoctorService } from "../services/implementation/DoctorService";
 import { DoctorRepository } from "../repositories/implementation/DoctorRepository";
+import authDoctor from "../middlewares/authDoctor";
 
 const doctorRepository = new DoctorRepository();
 const doctorService = new DoctorService(doctorRepository);
@@ -14,5 +15,12 @@ doctorRouter.patch(
   "/availability",
   doctorController.changeAvailability.bind(doctorController)
 );
+doctorRouter.post("/login", doctorController.loginDoctor.bind(doctorController));
+doctorRouter.get("/appointments", authDoctor, doctorController.appointmentsDoctor.bind(doctorController));
+doctorRouter.post("/complete-appointment", authDoctor, doctorController.appointmentComplete.bind(doctorController));
+doctorRouter.post("/cancel-appointment", authDoctor, doctorController.appointmentCancel.bind(doctorController));
+
+
+
 
 export default doctorRouter;
