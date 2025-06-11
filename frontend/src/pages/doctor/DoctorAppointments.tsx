@@ -2,11 +2,13 @@ import React, { useContext, useEffect } from 'react'
 import { DoctorContext } from '../../context/DoctorContext';
 import { AppContext } from '../../context/AppContext';
 import { assets } from '../../assets/admin/assets';
+import { useNavigate } from 'react-router-dom';
 
 const DoctorAppointments = () => {
 
     const context = useContext(DoctorContext);
       const appContext = useContext(AppContext);
+      const navigate = useNavigate();
 
 
       if (!appContext) {
@@ -26,6 +28,12 @@ const DoctorAppointments = () => {
         getAppointments()
       }
     },[dToken])
+
+      useEffect(() => {
+        if (!dToken) {
+          navigate("/doctor/login");
+        }
+      });
 
   return (
     <div className='w-full max-w-6xl m-5'>

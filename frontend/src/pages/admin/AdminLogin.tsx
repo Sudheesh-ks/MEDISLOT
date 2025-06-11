@@ -75,11 +75,15 @@ const Login = () => {
     setState(getLoginType());
   }, [location.pathname]);
 
-  useEffect(() => {
-    if (aToken) {
-      navigate("/admin/dashboard");
-    }
-  }, [aToken, navigate]);
+  
+useEffect(() => {
+  if (aToken && location.pathname === "/admin/login") {
+    navigate("/admin/dashboard");
+  } else if (dToken && location.pathname === "/doctor/login") {
+    navigate("/doctor/dashboard");
+  }
+}, [aToken, dToken, location.pathname, navigate]);
+
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center">
