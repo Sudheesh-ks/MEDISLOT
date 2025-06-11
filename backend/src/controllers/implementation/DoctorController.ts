@@ -12,12 +12,13 @@ export class DoctorController implements IDoctorController {
   // For updating doctor availability
   async changeAvailability(req: Request, res: Response): Promise<void> {
     try {
-      const { docId } = req.body;
+      const docId = (req as any).docId || req.params.doctorId || req.params.id;
       await this.doctorService.toggleAvailability(docId);
       res
         .status(HttpStatus.OK)
         .json({ success: true, message: "Availability Changed" });
     } catch (error) {
+      console.log((error as Error))
       res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .json({ success: false, message: (error as Error).message });

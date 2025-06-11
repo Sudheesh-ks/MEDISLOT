@@ -13,6 +13,7 @@ const doctorRouter = express.Router();
 doctorRouter.get("/list", doctorController.doctorList.bind(doctorController));
 doctorRouter.patch(
   "/availability",
+  authDoctor,
   doctorController.changeAvailability.bind(doctorController)
 );
 doctorRouter.post("/login", doctorController.loginDoctor.bind(doctorController));
