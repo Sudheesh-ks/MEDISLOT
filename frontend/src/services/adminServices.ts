@@ -68,9 +68,9 @@ export const getAllAppointmentsAPI = async (token: string) => {
 
 // To cancel the appointments
 export const adminCancelAppointmentAPI = async (appointmentId: string, token: string) => {
-  return await api.post(
-    '/api/admin/cancel-appointment',
-    {appointmentId},
+  return await api.patch(
+    `/api/admin/appointments/${appointmentId}/cancel`,  // ⬅️ Updated URL with route param
+    {}, // No body needed since the appointmentId is already in the URL
     {
       headers: { aToken: token },
     }

@@ -10,7 +10,7 @@ const doctorController = new DoctorController(doctorService);
 
 const doctorRouter = express.Router();
 
-doctorRouter.get("/list", doctorController.doctorList.bind(doctorController));
+doctorRouter.get("/", doctorController.doctorList.bind(doctorController));
 doctorRouter.patch(
   "/availability",
   authDoctor,
@@ -18,8 +18,18 @@ doctorRouter.patch(
 );
 doctorRouter.post("/login", doctorController.loginDoctor.bind(doctorController));
 doctorRouter.get("/appointments", authDoctor, doctorController.appointmentsDoctor.bind(doctorController));
-doctorRouter.post("/complete-appointment", authDoctor, doctorController.appointmentComplete.bind(doctorController));
-doctorRouter.post("/cancel-appointment", authDoctor, doctorController.appointmentCancel.bind(doctorController));
+doctorRouter.patch(
+  "/appointments/:appointmentId/complete",  // ⬅️ CHANGED
+  authDoctor,
+  doctorController.appointmentComplete.bind(doctorController)
+);
+
+// ⬅️ CHANGED: POST /cancel-appointment → PATCH /appointments/:appointmentId/cancel
+doctorRouter.patch(
+  "/appointments/:appointmentId/cancel",    // ⬅️ CHANGED
+  authDoctor,
+  doctorController.appointmentCancel.bind(doctorController)
+);
 
 
 

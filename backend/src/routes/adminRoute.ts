@@ -59,8 +59,8 @@ adminRouter.get(
 );
 
 
-adminRouter.post(
-  "/cancel-appointment",
+adminRouter.patch(
+  "/appointments/:appointmentId/cancel",
   authAdmin,
   adminController.adminCancelAppointment.bind(adminController)
 );

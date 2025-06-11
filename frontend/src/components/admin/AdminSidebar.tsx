@@ -15,7 +15,7 @@ const AdminSidebar = () => {
             to="/admin/dashboard"
           >
             <img src={assets.home_icon} alt="" />
-            <p>Dashboard</p>
+            <p className="hidden md:block">Dashboard</p>
           </NavLink>
 
           <NavLink
@@ -27,7 +27,7 @@ const AdminSidebar = () => {
             to="/admin/user-management"
           >
             <img src={assets.people_icon} alt="" />
-            <p>Manage Users</p>
+            <p className="hidden md:block">Manage Users</p>
           </NavLink>
 
           <NavLink
@@ -39,7 +39,7 @@ const AdminSidebar = () => {
             to="/admin/appointments"
           >
             <img src={assets.appointment_icon} alt="" />
-            <p>Appointments</p>
+            <p className="hidden md:block">Appointments</p>
           </NavLink>
 
           <NavLink
@@ -51,7 +51,7 @@ const AdminSidebar = () => {
             to="/admin/add-doctor"
           >
             <img src={assets.add_icon} alt="" />
-            <p>Add Doctor</p>
+            <p className="hidden md:block">Add Doctor</p>
           </NavLink>
 
           <NavLink
@@ -63,7 +63,7 @@ const AdminSidebar = () => {
             to="/admin/update-doctor"
           >
             <img src={assets.people_icon} alt="" />
-            <p>Update Doctor</p>
+            <p className="hidden md:block">Update Doctor</p>
           </NavLink>
 
           <NavLink
@@ -75,7 +75,7 @@ const AdminSidebar = () => {
             to="/admin/all-doctors"
           >
             <img src={assets.people_icon} alt="" />
-            <p>Doctor List</p>
+            <p className="hidden md:block">Doctor List</p>
           </NavLink>
 
           <NavLink
@@ -87,7 +87,7 @@ const AdminSidebar = () => {
             to="/admin/inbox"
           >
             <img src={assets.appointment_icon} alt="" />
-            <p>Inbox</p>
+            <p className="hidden md:block">Inbox</p>
           </NavLink>
         </ul>
       }

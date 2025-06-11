@@ -86,7 +86,7 @@ export class DoctorController implements IDoctorController {
     try {
 
       const docId = (req as any).docId;
-    const { appointmentId } = req.body;
+    const { appointmentId } = req.params;
 
     await this.doctorService.completeAppointment(docId, appointmentId);
 
@@ -105,7 +105,7 @@ export class DoctorController implements IDoctorController {
     try {
 
       const docId = (req as any).docId;
-    const { appointmentId } = req.body;
+    const { appointmentId } = req.params;
 
     await this.doctorService.cancelAppointment(docId, appointmentId);
 

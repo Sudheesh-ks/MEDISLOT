@@ -13,54 +13,48 @@ const userRouter = express.Router();
 
 userRouter.post("/register", userController.registerUser.bind(userController));
 userRouter.post("/login", userController.loginUser.bind(userController));
-userRouter.post("/resend-otp", userController.resendOtp.bind(userController));
-userRouter.post("/verify-otp", userController.verifyOtp.bind(userController));
-userRouter.post(
-  "/forgot-password",
-  userController.forgotPasswordRequest.bind(userController)
-);
-userRouter.post(
-  "/reset-password",
-  userController.resetPassword.bind(userController)
-);
+userRouter.post("/otp/resend",  userController.resendOtp.bind(userController));       // ⬅️ CHANGED
+userRouter.post("/otp/verify",  userController.verifyOtp.bind(userController));   
+userRouter.post("/password/forgot", userController.forgotPasswordRequest.bind(userController)); // ⬅️ CHANGED
+userRouter.post("/password/reset",  userController.resetPassword.bind(userController));  
 userRouter.get(
-  "/get-profile",
+  "/profile",                                // ⬅️ CHANGED  (was /get-profile)
   authUser,
   userController.getProfile.bind(userController)
 );
 userRouter.put(
-  "/update-profile",
+  "/profile",                                // ⬅️ CHANGED  (was /update-profile)
   upload.single("image"),
   authUser,
   userController.updateProfile.bind(userController)
 );
 userRouter.post(
-  "/book-appointment",
+  "/appointments",                           // ⬅️ CHANGED  (was /book-appointment)
   authUser,
   userController.bookAppointment.bind(userController)
 );
-
 userRouter.get(
   "/appointments",
   authUser,
   userController.listAppointment.bind(userController)
 );
 
-userRouter.post(
-  "/cancel-appointment",
+userRouter.patch(
+  "/appointments/:appointmentId/cancel",     // ⬅️ CHANGED
   authUser,
   userController.cancelAppointment.bind(userController)
 );
 
+// ────────────────────────────────────────────────────────────────────────────────
+// Payments (authenticated user)
+// ────────────────────────────────────────────────────────────────────────────────
 userRouter.post(
-  "/payment-razorpay",
+  "/payments/razorpay",                      // ⬅️ CHANGED  (was /payment-razorpay)
   authUser,
   userController.paymentRazorpay.bind(userController)
 );
-
-
 userRouter.post(
-  "/verifyRazorpay",
+  "/payments/razorpay/verify",               // ⬅️ CHANGED  (was /verifyRazorpay)
   authUser,
   userController.verifyRazorpay.bind(userController)
 );

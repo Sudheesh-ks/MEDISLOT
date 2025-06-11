@@ -3,12 +3,13 @@ import { showErrorToast } from "../utils/errorHandler";
 
 // To get user profile
 export const getUserProfileAPI = async (token: string) => {
-  return await api.get("/api/user/get-profile", {
+  // ⬅️ CHANGED /get-profile → /profile
+  return api.get("/api/user/profile", {           // ⬅️ CHANGED
     headers: { Authorization: `Bearer ${token}` },
   });
 };
 
-// To update user profile
+// Update profile
 export const updateUserProfileAPI = async (
   token: string,
   data: any,
@@ -24,7 +25,8 @@ export const updateUserProfileAPI = async (
     formData.append("address[line2]", data.address.line2);
     if (image) formData.append("image", image);
 
-    const res = await api.put("/api/user/update-profile", formData, {
+    // ⬅️ CHANGED /update-profile → /profile
+    const res = await api.put("/api/user/profile", formData, { // ⬅️ CHANGED
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "multipart/form-data",

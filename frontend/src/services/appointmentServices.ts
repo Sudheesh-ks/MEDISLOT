@@ -7,37 +7,31 @@ export const appointmentBookingAPI = async (
   slotTime: string,
   token: string
 ) => {
-  return await api.post(
-    "/api/user/book-appointment",
+  // ⬅️ CHANGED  POST /book-appointment  →  POST /appointments
+  return api.post(
+    "/api/user/appointments",            // ⬅️ CHANGED
     { docId, slotDate, slotTime },
-    {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  }
+    { headers: { Authorization: `Bearer ${token}` } }
   );
 };
 
-
+// Get all appointments (unchanged)
 export const getAppointmentsAPI = async (token: string) => {
-  return await api.get('/api/user/appointments', 
-    {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  }
-  )
-}
+  return api.get("/api/user/appointments", {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+};
 
-
-export const cancelAppointmentAPI = async (appointmentId: string, token: string) => {
-  return await api.post('/api/user/cancel-appointment', 
-    {appointmentId},
-    {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  }
-  )
-}
+// Cancel an appointment
+export const cancelAppointmentAPI = async (
+  appointmentId: string,
+  token: string
+) => {
+  // ⬅️ CHANGED: POST /cancel-appointment → PATCH /appointments/:id/cancel, no body
+  return api.patch(
+    `/api/user/appointments/${appointmentId}/cancel`,  // ⬅️ CHANGED
+    {},                                                // ⬅️ no body needed
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+};
 

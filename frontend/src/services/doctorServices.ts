@@ -2,7 +2,7 @@ import { api } from "../axios/axiosInstance";
 
 // To list all doctors
 export const getDoctorsAPI = async () => {
-  return await api.get("/api/doctor/list");
+  return await api.get("/api/doctor");
 };
 
 // For doctor login
@@ -20,18 +20,26 @@ export const getDoctorAppointmentsAPI = async (token: string) => {
 };
 // For marking a doctor appointment as completed
 export const AppointmentCompleteAPI = async (appointmentId: string, token: string) => {
-  return api.post('/api/doctor/complete-appointment', { appointmentId }, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  return api.patch(
+    `/api/doctor/appointments/${appointmentId}/complete`,  // ✅ changed to PATCH + route param
+    {}, // ✅ body removed (ID is now in URL)
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
 };
 
-// For cancelling a doctor appointment
+// For cancelling a doctor appointment (REST update)
 export const AppointmentCancelAPI = async (appointmentId: string, token: string) => {
-  return api.post('/api/doctor/cancel-appointment', { appointmentId }, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  return api.patch(
+    `/api/doctor/appointments/${appointmentId}/cancel`,   // ✅ changed to PATCH + route param
+    {}, // ✅ no body
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
 };

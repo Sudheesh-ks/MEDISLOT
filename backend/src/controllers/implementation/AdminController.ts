@@ -134,7 +134,7 @@ export class AdminController implements IAdminController {
 
     try {
           
-    const { appointmentId } = req.body;                  
+    const { appointmentId } = req.params;                  
 
     await this.adminService.cancelAppointment(appointmentId);
     res.json({ success: true, message: "Appointment cancelled" });
