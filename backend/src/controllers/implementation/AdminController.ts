@@ -4,7 +4,6 @@ import { IAdminController } from "../interface/adminController.interface";
 import { CustomRequest } from "../../types/customRequest";
 import { HttpStatus } from "../../constants/status.constants";
 import { DoctorDTO } from "../../types/doctor";
-import appointmentModel from "../../models/appointmentModel";
 
 export class AdminController implements IAdminController {
   constructor(private adminService: IAdminService) {}
@@ -16,13 +15,13 @@ export class AdminController implements IAdminController {
 
       if (!email || !password) {
         res
-          .status(400)
+          .status(HttpStatus.BAD_REQUEST)
           .json({ success: false, message: "Email and password are required" });
         return;
       }
 
       const { token } = await this.adminService.login(email, password);
-      res.json({ success: true, token });
+      res.status(HttpStatus.OK).json({ success: true, token });
     } catch (error) {
       res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -97,12 +96,17 @@ export class AdminController implements IAdminController {
   async toggleUserBlock(req: Request, res: Response): Promise<void> {
     try {
       const { userId } = req.params;
-      const { block } = req.body as { block?: boolean }
+      const { block } = req.body as { block?: boolean };
 
-      if (typeof block !== 'boolean') {
-  res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Block status is required and must be a boolean" });
-  return;
-}
+      if (typeof block !== "boolean") {
+        res
+          .status(HttpStatus.BAD_REQUEST)
+          .json({
+            success: false,
+            message: "Block status is required and must be a boolean",
+          });
+        return;
+      }
 
       const message = await this.adminService.toggleUserBlock(userId, block);
       res.status(HttpStatus.OK).json({ success: true, message });
@@ -115,12 +119,9 @@ export class AdminController implements IAdminController {
 
   // For getting all the appointments
   async appointmentsList(req: Request, res: Response): Promise<void> {
-
     try {
-
       const appointments = await this.adminService.listAppointments();
-      res.json({ success: true, appointments });
-      
+      res.status(HttpStatus.OK).json({ success: true, appointments });
     } catch (error) {
       res
         .status(HttpStatus.BAD_REQUEST)
@@ -128,17 +129,15 @@ export class AdminController implements IAdminController {
     }
   }
 
-
   // For appointment cancelation
   async adminCancelAppointment(req: Request, res: Response): Promise<void> {
-
     try {
-          
-    const { appointmentId } = req.params;                  
+      const { appointmentId } = req.params;
 
-    await this.adminService.cancelAppointment(appointmentId);
-    res.json({ success: true, message: "Appointment cancelled" });
-      
+      await this.adminService.cancelAppointment(appointmentId);
+      res
+        .status(HttpStatus.OK)
+        .json({ success: true, message: "Appointment cancelled" });
     } catch (error) {
       res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -146,12 +145,9 @@ export class AdminController implements IAdminController {
     }
   }
 
-
   // For admin dashboard
   async adminDashboard(req: Request, res: Response): Promise<void> {
-
     try {
-
       const doctors = await this.adminService.getDoctors();
       const users = await this.adminService.getUsers();
       const appointments = await this.adminService.listAppointments();
@@ -160,16 +156,14 @@ export class AdminController implements IAdminController {
         doctors: doctors.length,
         patients: users.length,
         appointments: appointments.length,
-        latestAppointments: appointments.reverse().slice(0,5)
-      }
+        latestAppointments: appointments.reverse().slice(0, 5),
+      };
 
-      res.json({success: true, dashData})
-      
+      res.status(HttpStatus.OK).json({ success: true, dashData });
     } catch (error) {
       res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .json({ success: false, message: (error as Error).message });
     }
   }
-
 }

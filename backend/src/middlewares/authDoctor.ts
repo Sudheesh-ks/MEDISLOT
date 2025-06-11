@@ -4,7 +4,6 @@ import dotenv from "dotenv";
 import { HttpStatus } from "../constants/status.constants";
 dotenv.config();
 
-// Doctor authentication middleware
 const authDoctor = async (
   req: Request,
   res: Response,

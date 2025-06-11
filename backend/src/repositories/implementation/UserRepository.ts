@@ -103,7 +103,7 @@ export class UserRepository implements userDataRepository {
     const slots = doctor.slots_booked || {};
     if (Array.isArray(slots[slotDate])) {
       slots[slotDate] = slots[slotDate].filter((t: string) => t !== slotTime);
-      if (!slots[slotDate].length) delete slots[slotDate]; // tidy up
+      if (!slots[slotDate].length) delete slots[slotDate]; 
       doctor.slots_booked = slots;
       doctor.markModified('slots_booked');
       await doctor.save();

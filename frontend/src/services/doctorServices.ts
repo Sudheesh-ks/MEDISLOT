@@ -21,8 +21,8 @@ export const getDoctorAppointmentsAPI = async (token: string) => {
 // For marking a doctor appointment as completed
 export const AppointmentCompleteAPI = async (appointmentId: string, token: string) => {
   return api.patch(
-    `/api/doctor/appointments/${appointmentId}/complete`,  // ✅ changed to PATCH + route param
-    {}, // ✅ body removed (ID is now in URL)
+    `/api/doctor/appointments/${appointmentId}/complete`,  
+    {}, 
     {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -34,8 +34,8 @@ export const AppointmentCompleteAPI = async (appointmentId: string, token: strin
 // For cancelling a doctor appointment (REST update)
 export const AppointmentCancelAPI = async (appointmentId: string, token: string) => {
   return api.patch(
-    `/api/doctor/appointments/${appointmentId}/cancel`,   // ✅ changed to PATCH + route param
-    {}, // ✅ no body
+    `/api/doctor/appointments/${appointmentId}/cancel`,   
+    {}, 
     {
       headers: {
         Authorization: `Bearer ${token}`,

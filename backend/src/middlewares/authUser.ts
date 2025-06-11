@@ -4,7 +4,6 @@ import dotenv from "dotenv";
 import { HttpStatus } from "../constants/status.constants";
 dotenv.config();
 
-// User authentication middleware
 const authUser = async (
   req: Request,
   res: Response,

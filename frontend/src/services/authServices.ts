@@ -16,20 +16,18 @@ export const loginUserAPI = async (email: string, password: string) => {
 
 // OTP Verification
 export const verifyOtpAPI = async (email: string, otp: string) => {
-  // ⬅️ CHANGED  /verify-otp → /otp/verify
-  return api.post("/api/user/otp/verify", { email, otp }); // ⬅️ CHANGED
+  
+  return api.post("/api/user/otp/verify", { email, otp }); 
 };
 
 // OTP – resend
 export const resendOtpAPI = async (email: string) => {
-  // ⬅️ CHANGED  /resend-otp → /otp/resend
-  return api.post("/api/user/otp/resend", { email }); // ⬅️ CHANGED
+  return api.post("/api/user/otp/resend", { email }); 
 };
 
 // Forgot-password request
 export const verifyEmailAPI = async (email: string) => {
-  // ⬅️ CHANGED  /forgot-password → /password/forgot
-  return api.post("/api/user/password/forgot", { email }); // ⬅️ CHANGED
+  return api.post("/api/user/password/forgot", { email }); 
 };
 
 // Reset password
@@ -37,6 +35,5 @@ export const resetPasswordAPI = async (
   email: string,
   newPassword: string
 ) => {
-  // ⬅️ CHANGED  /reset-password → /password/reset
-  return api.post("/api/user/password/reset", { email, newPassword }); // ⬅️ CHANGED
+  return api.post("/api/user/password/reset", { email, newPassword }); 
 };

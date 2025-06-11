@@ -2,9 +2,7 @@ import { Request, Response } from "express";
 import { DoctorService } from "../../services/implementation/DoctorService";
 import { IDoctorController } from "../interface/doctorController.interface";
 import { HttpStatus } from "../../constants/status.constants";
-import bcrypt from 'bcrypt'
-import jwt from 'jsonwebtoken'
-import appointmentModel from "../../models/appointmentModel";
+
 
 export class DoctorController implements IDoctorController {
   constructor(private doctorService: DoctorService) {}
@@ -90,7 +88,7 @@ export class DoctorController implements IDoctorController {
 
     await this.doctorService.completeAppointment(docId, appointmentId);
 
-    res.json({ success: true, message: "Appointment Completed" });
+    res.status(HttpStatus.OK).json({ success: true, message: "Appointment Completed" });
       
     } catch (error) {
       res
@@ -109,7 +107,7 @@ export class DoctorController implements IDoctorController {
 
     await this.doctorService.cancelAppointment(docId, appointmentId);
 
-    res.json({ success: true, message: "Appointment Cancelled" });
+    res.status(HttpStatus.OK).json({ success: true, message: "Appointment Cancelled" });
       
     } catch (error) {
       res

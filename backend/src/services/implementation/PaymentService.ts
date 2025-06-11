@@ -1,11 +1,10 @@
-// services/PaymentService.ts
 import Razorpay from 'razorpay';
 
 
 export interface RazorpayOrderPayload {
-  amount: number;          // paise
+  amount: number;          
   currency: "INR";
-  receipt: string;         // appointment-id
+  receipt: string;        
 }
 
 export interface RazorpayVerifyPayload {
@@ -25,7 +24,7 @@ export class PaymentService {
       currency: process.env.CURRENCY || 'INR',
       receipt,
     });
-    return order; // contains id, amount, etc.
+    return order; 
   }
 
 

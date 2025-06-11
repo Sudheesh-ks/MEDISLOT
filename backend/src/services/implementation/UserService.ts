@@ -7,7 +7,6 @@ import validator from "validator";
 import { v2 as cloudinary } from "cloudinary";
 import { AppointmentTypes } from "../../types/appointment";
 import { isValidDateOfBirth, isValidPhone } from "../../utils/validator";
-import { DoctorRepository } from "../../repositories/implementation/DoctorRepository";
 import { DoctorData } from "../../types/doctor";
 import { PaymentService } from "./PaymentService";
 
@@ -18,7 +17,7 @@ export interface UserDocument extends userData {
 export class UserService implements userDataService {
   constructor(
     private userRepository: userDataRepository,
-    private paymentService = new PaymentService()
+    private paymentService = new PaymentService
   ) {}
 
   async register(
@@ -164,20 +163,16 @@ async startPayment(
 ): Promise<void> {
    await this.userRepository.findPayableAppointment(userId, appointmentId);
 
-  // 2️⃣ fetch order from Razorpay
   const orderInfo = await this.paymentService.fetchOrder(razorpay_order_id);
 
-  // 3️⃣ verify payment status
   if (orderInfo.status !== "paid") {
     throw new Error("Payment not completed");
   }
 
-  // ⬅️  optional extra sanity-check
   if (orderInfo.receipt !== appointmentId) {
     throw new Error("Receipt / appointment mismatch");
   }
 
-  // 4️⃣ mark appointment paid in DB
   await this.userRepository.markAppointmentPaid(appointmentId);
 
 }

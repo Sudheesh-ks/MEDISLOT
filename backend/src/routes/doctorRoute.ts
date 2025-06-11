@@ -19,14 +19,13 @@ doctorRouter.patch(
 doctorRouter.post("/login", doctorController.loginDoctor.bind(doctorController));
 doctorRouter.get("/appointments", authDoctor, doctorController.appointmentsDoctor.bind(doctorController));
 doctorRouter.patch(
-  "/appointments/:appointmentId/complete",  // ⬅️ CHANGED
+  "/appointments/:appointmentId/complete",  
   authDoctor,
   doctorController.appointmentComplete.bind(doctorController)
 );
 
-// ⬅️ CHANGED: POST /cancel-appointment → PATCH /appointments/:appointmentId/cancel
 doctorRouter.patch(
-  "/appointments/:appointmentId/cancel",    // ⬅️ CHANGED
+  "/appointments/:appointmentId/cancel",    
   authDoctor,
   doctorController.appointmentCancel.bind(doctorController)
 );

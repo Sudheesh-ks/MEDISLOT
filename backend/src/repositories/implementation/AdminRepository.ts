@@ -5,7 +5,7 @@ import { userData } from "../../types/user";
 import userModel from "../../models/userModel";
 import { adminData } from "../../types/admin";
 import adminModel from "../../models/adminModel";
-import { AppointmentDocument, AppointmentTypes } from "../../types/appointment";
+import { AppointmentDocument } from "../../types/appointment";
 import appointmentModel from "../../models/appointmentModel";
 
 export class AdminRepository implements IAdminRepository {

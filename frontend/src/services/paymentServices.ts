@@ -5,9 +5,8 @@ export const PaymentRazorpayAPI = async (
   appointmentId: string,
   token: string
 ) => {
-  // ⬅️ CHANGED  /payment-razorpay → /payments/razorpay
   return api.post(
-    "/api/user/payments/razorpay",               // ⬅️ CHANGED
+    "/api/user/payments/razorpay",               
     { appointmentId },
     { headers: { Authorization: `Bearer ${token}` } }
   );
@@ -19,9 +18,8 @@ export const VerifyRazorpayAPI = async (
   response: RazorpayPaymentResponse,
   token: string
 ) => {
-  // ⬅️ CHANGED  /verifyRazorpay → /payments/razorpay/verify
   return api.post(
-    "/api/user/payments/razorpay/verify",        // ⬅️ CHANGED
+    "/api/user/payments/razorpay/verify",      
     {
       appointmentId,
       razorpay_order_id: response.razorpay_order_id,

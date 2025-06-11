@@ -10,32 +10,16 @@ import {
   isValidEmail,
   isValidPassword,
 } from "../../utils/validator";
-import appointmentModel from "../../models/appointmentModel";
-import doctorModel from "../../models/doctorModel";
-import Razorpay from 'razorpay';
+import { PaymentService } from "../../services/implementation/PaymentService";
 
-
-class PaymentService {
-  private razorpayInstance = new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID!,
-    key_secret: process.env.RAZORPAY_KEY_SECRET!
-  });
-
-  get instance() {
-    return this.razorpayInstance;
-  }
-}
 
 
 export class UserController implements IUserController {
-  private paymentService: PaymentService;
 
   constructor(
     private userService: userDataService,
-    paymentService?: PaymentService
-  ) {
-    this.paymentService = paymentService || new PaymentService();
-  }
+    private paymentService: PaymentService
+  ) {}
 
   // For registering new user
   async registerUser(req: Request, res: Response): Promise<void> {
@@ -43,13 +27,13 @@ export class UserController implements IUserController {
 
     if (!name || !email || !password) {
       res
-        .status(400)
+        .status(HttpStatus.BAD_REQUEST)
         .json({ success: false, message: "All fields are required" });
       return;
     }
 
     if (!isValidName(name)) {
-      res.status(400).json({
+      res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
         message: "Name must only contain atleast 4 characters",
       });
@@ -57,12 +41,12 @@ export class UserController implements IUserController {
     }
 
     if (!isValidEmail(email)) {
-      res.status(400).json({ success: false, message: "Invalid email format" });
+      res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Invalid email format" });
       return;
     }
 
     if (!isValidPassword(password)) {
-      res.status(400).json({
+      res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
         message:
           "Password must be at least 8 characters long, contain at least 1 letter, 1 number, and 1 special character",
@@ -73,7 +57,7 @@ export class UserController implements IUserController {
     const existing = await this.userService.checkEmailExists(email);
     if (existing) {
       res
-        .status(409)
+        .status(HttpStatus.CONFLICT)
         .json({ success: false, message: "Email already registered" });
       return;
     }
@@ -90,10 +74,10 @@ export class UserController implements IUserController {
 
     try {
       await sendOTP(email, otp);
-      res.status(200).json({ success: true, message: "OTP sent to email" });
+      res.status(HttpStatus.OK).json({ success: true, message: "OTP sent to email" });
     } catch (err) {
       console.error("Email send failed:", err);
-      res.status(500).json({ success: false, message: "OTP sent failed" });
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: "OTP sent failed" });
     }
   }
 
@@ -103,7 +87,7 @@ export class UserController implements IUserController {
 
     const record = otpStore.get(email);
     if (!record || record.otp !== otp) {
-      res.status(401).json({ success: false, message: "Invalid OTP" });
+      res.status(HttpStatus.UNAUTHORIZED).json({ success: false, message: "Invalid OTP" });
       return;
     }
 
@@ -112,18 +96,18 @@ export class UserController implements IUserController {
       const token = this.userService.generateToken(newUser._id);
       otpStore.delete(email);
       res
-        .status(201)
+        .status(HttpStatus.CREATED)
         .json({ success: true, token, message: "Registered Successfully" });
       return;
     }
 
     if (record.purpose === "reset-password") {
       otpStore.set(email, { ...record, otp: "VERIFIED" });
-      res.status(200).json({ success: true, message: "OTP verified" });
+      res.status(HttpStatus.OK).json({ success: true, message: "OTP verified" });
       return;
     }
 
-    res.status(400).json({ success: false, message: "Unknown OTP purpose" });
+    res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Unknown OTP purpose" });
   }
 
   // For resenting OTP
@@ -135,7 +119,7 @@ export class UserController implements IUserController {
 
       if (!record) {
         res
-          .status(404)
+          .status(HttpStatus.NOT_FOUND)
           .json({ success: false, message: "No pending OTP found" });
         return;
       }
@@ -146,11 +130,11 @@ export class UserController implements IUserController {
 
       await sendOTP(email, newOtp);
       res
-        .status(200)
+        .status(HttpStatus.OK)
         .json({ success: true, message: "OTP resent successfully" });
     } catch (error) {
       console.error("Resend OTP error:", error);
-      res.status(500).json({ success: false, message: "Failed to resend OTP" });
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: "Failed to resend OTP" });
     }
   }
 
@@ -161,7 +145,7 @@ export class UserController implements IUserController {
     try {
       const user = await this.userService.checkEmailExists(email);
       if (!user) {
-        res.status(404).json({ success: false, message: "Email not found" });
+        res.status(HttpStatus.NOT_FOUND).json({ success: false, message: "Email not found" });
         return;
       }
 
@@ -171,11 +155,11 @@ export class UserController implements IUserController {
 
       await sendOTP(email, otp);
       res
-        .status(200)
+        .status(HttpStatus.OK)
         .json({ success: true, message: "OTP sent to your email" });
     } catch (err) {
       console.error("Error sending OTP:", err);
-      res.status(500).json({ success: false, message: "Failed to send OTP" });
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: "Failed to send OTP" });
     }
   }
 
@@ -184,7 +168,7 @@ export class UserController implements IUserController {
     const { email, newPassword } = req.body;
 
     if (!isValidPassword(newPassword)) {
-      res.status(400).json({
+      res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
         message:
           "Password must be at least 8 characters long, contain at least 1 letter, 1 number, and 1 special character",
@@ -199,7 +183,7 @@ export class UserController implements IUserController {
       record.otp !== "VERIFIED"
     ) {
       res
-        .status(401)
+        .status(HttpStatus.UNAUTHORIZED)
         .json({ success: false, message: "OTP not verified or expired" });
       return;
     }
@@ -208,14 +192,14 @@ export class UserController implements IUserController {
     const updated = await this.userService.resetPassword(email, hashed);
 
     if (!updated) {
-      res.status(404).json({ success: false, message: "User not found" });
+      res.status(HttpStatus.NOT_FOUND).json({ success: false, message: "User not found" });
       return;
     }
 
     otpStore.delete(email);
 
     res
-      .status(200)
+      .status(HttpStatus.OK)
       .json({ success: true, message: "Password updated successfully" });
   }
 
@@ -226,20 +210,20 @@ export class UserController implements IUserController {
 
       if (!email || !password) {
         res
-          .status(400)
+          .status(HttpStatus.BAD_REQUEST)
           .json({ success: false, message: "Email and password are required" });
         return;
       }
 
       if (!isValidEmail(email)) {
         res
-          .status(400)
+          .status(HttpStatus.BAD_REQUEST)
           .json({ success: false, message: "Invalid email format" });
         return;
       }
 
       if (!isValidPassword(password)) {
-        res.status(400).json({
+        res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
           message:
             "Password must be at least 8 characters long, contain at least 1 letter, 1 number, and 1 special character",
@@ -248,7 +232,7 @@ export class UserController implements IUserController {
       }
 
       const { token } = await this.userService.login(email, password);
-      res.json({ success: true, token });
+      res.status(HttpStatus.OK).json({ success: true, token });
     } catch (error) {
       res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -262,10 +246,10 @@ export class UserController implements IUserController {
       const userId = (req as any).userId;
       const userData = await this.userService.getProfile(userId);
       if (!userData) {
-        res.status(404).json({ success: false, message: "User not found" });
+        res.status(HttpStatus.NOT_FOUND).json({ success: false, message: "User not found" });
         return;
       }
-      res.json({ success: true, userData });
+      res.status(HttpStatus.OK).json({ success: true, userData });
     } catch (error) {
       res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -278,7 +262,7 @@ export class UserController implements IUserController {
     try {
       const userId = (req as any).userId;
       await this.userService.updateProfile(userId, req.body, req.file);
-      res.json({ success: true, message: "Profile updated" });
+      res.status(HttpStatus.OK).json({ success: true, message: "Profile updated" });
     } catch (error) {
       res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -291,9 +275,8 @@ export class UserController implements IUserController {
     try {
 
        const { docId, slotDate, slotTime } = req.body;
-    const userId = (req as any).userId;            // set by authUser
+    const userId = (req as any).userId;            
 
-    /* ⬇️ fetch user / doctor info you need for userData & docData  */
     const user = await this.userService.getUserById(userId);
     const doctor = await this.userService.getDoctorById(docId);
 
@@ -316,7 +299,7 @@ export class UserController implements IUserController {
     };
 
       await this.userService.bookAppointment(appointmentData);
-      res.json({ success: true, message: "Appointment booked" });
+      res.status(HttpStatus.OK).json({ success: true, message: "Appointment booked" });
     } catch (error) {
       res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -332,7 +315,7 @@ export class UserController implements IUserController {
       const  userId  = (req as any).userId;
       const appointments = await this.userService.listUserAppointments(userId)
 
-      res.json({success: true, appointments})
+      res.status(HttpStatus.OK).json({success: true, appointments})
       
     } catch (error) {
       res
@@ -341,7 +324,7 @@ export class UserController implements IUserController {
     }
   }
 
-
+// For cancelling the appointment
   async cancelAppointment(req: Request, res: Response): Promise<void> {
 
     try {
@@ -350,7 +333,7 @@ export class UserController implements IUserController {
     const { appointmentId } = req.body;                  
 
     await this.userService.cancelAppointment(userId, appointmentId);
-    res.json({ success: true, message: "Appointment cancelled" });
+    res.status(HttpStatus.OK).json({ success: true, message: "Appointment cancelled" });
       
     } catch (error) {
       res
@@ -373,7 +356,7 @@ export class UserController implements IUserController {
       appointmentId
     );
 
-    res.json({ success: true, order });
+    res.status(HttpStatus.OK).json({ success: true, order });
       
     } catch (error) {
       res
@@ -393,7 +376,7 @@ export class UserController implements IUserController {
 
     await this.userService.verifyPayment(userId, appointmentId, razorpay_order_id);
 
-    res.json({ success: true, message: "Payment Successful" });
+    res.status(HttpStatus.OK).json({ success: true, message: "Payment Successful" });
       
     } catch (error) {
       res

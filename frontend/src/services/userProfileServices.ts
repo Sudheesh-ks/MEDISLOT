@@ -3,8 +3,7 @@ import { showErrorToast } from "../utils/errorHandler";
 
 // To get user profile
 export const getUserProfileAPI = async (token: string) => {
-  // ⬅️ CHANGED /get-profile → /profile
-  return api.get("/api/user/profile", {           // ⬅️ CHANGED
+  return api.get("/api/user/profile", {           
     headers: { Authorization: `Bearer ${token}` },
   });
 };
@@ -25,8 +24,7 @@ export const updateUserProfileAPI = async (
     formData.append("address[line2]", data.address.line2);
     if (image) formData.append("image", image);
 
-    // ⬅️ CHANGED /update-profile → /profile
-    const res = await api.put("/api/user/profile", formData, { // ⬅️ CHANGED
+    const res = await api.put("/api/user/profile", formData, { 
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "multipart/form-data",
