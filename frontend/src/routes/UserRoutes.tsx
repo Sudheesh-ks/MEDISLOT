@@ -16,6 +16,7 @@ import EmailVerificationPage from "../pages/user/EmailVerify";
 import OtpVerificationPage from "../pages/user/OTPVerification";
 import NewPasswordPage from "../pages/user/SetNewPassword";
 import GoogleCallback from "../pages/user/GoogleCallback";
+import Consultation from "../pages/user/Consultation";
 
 const UserRoutes = () => {
   return (
@@ -86,6 +87,14 @@ const UserRoutes = () => {
         element={
           <UserLayout>
             <Appointment />
+          </UserLayout>
+        }
+      />
+      <Route
+        path="/consultation"
+        element={
+          <UserLayout>
+            <Consultation />
           </UserLayout>
         }
       />
