@@ -274,7 +274,7 @@ export class UserController implements IUserController {
   async bookAppointment(req: Request, res: Response): Promise<void> {
     try {
 
-       const { docId, slotDate, slotTime } = req.body;
+    const { docId, slotDate, slotTime } = req.body;
     const userId = (req as any).userId;            
 
     const user = await this.userService.getUserById(userId);
@@ -329,7 +329,7 @@ export class UserController implements IUserController {
 
     try {
 
-       const userId = (req as any).userId;          
+    const userId = (req as any).userId;          
     const { appointmentId } = req.body;                  
 
     await this.userService.cancelAppointment(userId, appointmentId);
@@ -348,7 +348,7 @@ export class UserController implements IUserController {
 
     try {
 
-       const userId = (req as any).userId;
+    const userId = (req as any).userId;
     const { appointmentId } = req.body;
 
     const { order } = await this.userService.startPayment(
@@ -371,7 +371,7 @@ export class UserController implements IUserController {
 
     try {
 
-      const userId = (req as any).userId;
+    const userId = (req as any).userId;
     const { appointmentId, razorpay_order_id } = req.body;
 
     await this.userService.verifyPayment(userId, appointmentId, razorpay_order_id);

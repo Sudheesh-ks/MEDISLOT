@@ -8,6 +8,6 @@ export interface IDoctorRepository {
   findByEmail(email: string): Promise<DoctorData | null>;
   findAppointmentsByDoctorId(docId: string): Promise<AppointmentTypes[]>;
   findAppointmentById(id: string): Promise<AppointmentTypes | null>;
-  markAppointmentAsCompleted(id: string): Promise<void>;
+  markAppointmentAsConfirmed(id: string): Promise<void>;
   cancelAppointment(id: string): Promise<void>
 }

@@ -99,12 +99,10 @@ export class AdminController implements IAdminController {
       const { block } = req.body as { block?: boolean };
 
       if (typeof block !== "boolean") {
-        res
-          .status(HttpStatus.BAD_REQUEST)
-          .json({
-            success: false,
-            message: "Block status is required and must be a boolean",
-          });
+        res.status(HttpStatus.BAD_REQUEST).json({
+          success: false,
+          message: "Block status is required and must be a boolean",
+        });
         return;
       }
 

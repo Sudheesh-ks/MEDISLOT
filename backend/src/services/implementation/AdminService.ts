@@ -101,11 +101,11 @@ export class AdminService implements IAdminService {
     return await this.adminRepository.toggleUserBlock(userId);
   }
 
-   async listAppointments(): Promise<AppointmentDocument[]> {
+  async listAppointments(): Promise<AppointmentDocument[]> {
     return await this.adminRepository.getAllAppointments();
-  } 
+  }
 
-    async cancelAppointment(appointmentId: string): Promise<void> {
-  await this.adminRepository.cancelAppointment(appointmentId);
-}
+  async cancelAppointment(appointmentId: string): Promise<void> {
+    await this.adminRepository.cancelAppointment(appointmentId);
+  }
 }

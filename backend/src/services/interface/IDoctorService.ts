@@ -6,6 +6,6 @@ export interface IDoctorService {
   getAllDoctors(): Promise<any[]>;
   loginDoctor(email: string, plainPassword: string): Promise<string | null>;
   getDoctorAppointments(docId: string): Promise<AppointmentTypes[]>;
-  completeAppointment(docId: string, appointmentId: string): Promise<void>;
+  confirmAppointment(docId: string, appointmentId: string): Promise<void>;
   cancelAppointment(docId: string, appointmentId: string): Promise<void>; 
 }

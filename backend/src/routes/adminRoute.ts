@@ -58,13 +58,11 @@ adminRouter.get(
   adminController.appointmentsList.bind(adminController)
 );
 
-
 adminRouter.patch(
   "/appointments/:appointmentId/cancel",
   authAdmin,
   adminController.adminCancelAppointment.bind(adminController)
 );
-
 
 adminRouter.get(
   "/dashboard",

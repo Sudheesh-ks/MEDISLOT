@@ -11,17 +11,16 @@ import { doctorLoginAPI } from "../../services/doctorServices";
 const Login = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  
-  // Determine login type based on current route
+
   const getLoginType = () => {
-    if (location.pathname.includes('/admin/login')) {
-      return 'Admin';
-    } else if (location.pathname.includes('/doctor/login')) {
-      return 'Doctor';
+    if (location.pathname.includes("/admin/login")) {
+      return "Admin";
+    } else if (location.pathname.includes("/doctor/login")) {
+      return "Doctor";
     }
-    return 'Admin'; // default fallback
+    return "Admin";
   };
-  
+
   const [state, setState] = useState(getLoginType());
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -35,7 +34,6 @@ const Login = () => {
 
   const { aToken, setAToken } = context;
 
-  // FIXED: Check DocContext instead of context
   if (!DocContext) {
     throw new Error("DoctorContext must be used within DoctorContextProvider");
   }
@@ -70,20 +68,17 @@ const Login = () => {
     }
   };
 
-  // Update state when route changes
   useEffect(() => {
     setState(getLoginType());
   }, [location.pathname]);
 
-  
-useEffect(() => {
-  if (aToken && location.pathname === "/admin/login") {
-    navigate("/admin/dashboard");
-  } else if (dToken && location.pathname === "/doctor/login") {
-    navigate("/doctor/dashboard");
-  }
-}, [aToken, dToken, location.pathname, navigate]);
-
+  useEffect(() => {
+    if (aToken && location.pathname === "/admin/login") {
+      navigate("/admin/dashboard");
+    } else if (dToken && location.pathname === "/doctor/login") {
+      navigate("/doctor/dashboard");
+    }
+  }, [aToken, dToken, location.pathname, navigate]);
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center">

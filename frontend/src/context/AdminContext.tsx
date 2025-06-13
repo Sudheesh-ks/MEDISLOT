@@ -130,7 +130,7 @@ const AdminContextProvider = ({ children }: AdminContextProviderProps) => {
       const { data } = await getAllAppointmentsAPI(aToken);
 
       if(data.success){
-        setAppointments(data.appointments);
+        setAppointments(data.appointments.reverse());
       } else {
         toast.error(data.message);
       }

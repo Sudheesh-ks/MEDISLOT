@@ -17,7 +17,7 @@ export interface UserDocument extends userData {
 export class UserService implements userDataService {
   constructor(
     private userRepository: userDataRepository,
-    private paymentService = new PaymentService
+    private paymentService = new PaymentService()
   ) {}
 
   async register(
@@ -117,17 +117,19 @@ export class UserService implements userDataService {
     );
   }
 
-    async getUserById(id: string): Promise<UserDocument> {
+  async getUserById(id: string): Promise<UserDocument> {
     const user = await this.userRepository.findById(id);
     if (!user) throw new Error("User not found");
     return user;
   }
 
   async getDoctorById(id: string): Promise<DoctorData> {
-      const doctor = await this.userRepository.findDoctorById(id) as DoctorData | null;
-      if (!doctor) throw new Error("Doctor not found");
-      return doctor;
-    }
+    const doctor = (await this.userRepository.findDoctorById(
+      id
+    )) as DoctorData | null;
+    if (!doctor) throw new Error("Doctor not found");
+    return doctor;
+  }
 
   async bookAppointment(appointmentData: AppointmentTypes): Promise<void> {
     await this.userRepository.bookAppointment(appointmentData);
@@ -137,43 +139,49 @@ export class UserService implements userDataService {
     return await this.userRepository.getAppointmentsByUserId(userId);
   }
 
-  async cancelAppointment(userId: string, appointmentId: string): Promise<void> {
-  await this.userRepository.cancelAppointment(userId, appointmentId);
-}
+  async cancelAppointment(
+    userId: string,
+    appointmentId: string
+  ): Promise<void> {
+    await this.userRepository.cancelAppointment(userId, appointmentId);
+  }
 
-
-async startPayment(
+  async startPayment(
     userId: string,
     appointmentId: string
   ): Promise<{ order: any }> {
-    const appointment = await this.userRepository.findPayableAppointment(userId, appointmentId);
+    const appointment = await this.userRepository.findPayableAppointment(
+      userId,
+      appointmentId
+    );
 
-    const order = await this.paymentService.createOrder(appointment.amount * 100, appointment._id.toString());
+    const order = await this.paymentService.createOrder(
+      appointment.amount * 100,
+      appointment._id.toString()
+    );
 
     // await this.userRepository.saveRazorpayOrderId(appointmentId, order.id);
 
     return { order };
   }
 
-
   async verifyPayment(
-  userId: string,
-  appointmentId: string,
-  razorpay_order_id: string
-): Promise<void> {
-   await this.userRepository.findPayableAppointment(userId, appointmentId);
+    userId: string,
+    appointmentId: string,
+    razorpay_order_id: string
+  ): Promise<void> {
+    await this.userRepository.findPayableAppointment(userId, appointmentId);
 
-  const orderInfo = await this.paymentService.fetchOrder(razorpay_order_id);
+    const orderInfo = await this.paymentService.fetchOrder(razorpay_order_id);
 
-  if (orderInfo.status !== "paid") {
-    throw new Error("Payment not completed");
+    if (orderInfo.status !== "paid") {
+      throw new Error("Payment not completed");
+    }
+
+    if (orderInfo.receipt !== appointmentId) {
+      throw new Error("Receipt / appointment mismatch");
+    }
+
+    await this.userRepository.markAppointmentPaid(appointmentId);
   }
-
-  if (orderInfo.receipt !== appointmentId) {
-    throw new Error("Receipt / appointment mismatch");
-  }
-
-  await this.userRepository.markAppointmentPaid(appointmentId);
-
-}
 }

@@ -8,7 +8,7 @@ export const appointmentBookingAPI = async (
   token: string
 ) => {
   return api.post(
-    "/api/user/appointments",           
+    "/api/user/appointments",
     { docId, slotDate, slotTime },
     { headers: { Authorization: `Bearer ${token}` } }
   );
@@ -27,9 +27,8 @@ export const cancelAppointmentAPI = async (
   token: string
 ) => {
   return api.patch(
-    `/api/user/appointments/${appointmentId}/cancel`,  
-    {},                                                
+    `/api/user/appointments/${appointmentId}/cancel`,
+    {},
     { headers: { Authorization: `Bearer ${token}` } }
   );
 };
-

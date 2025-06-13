@@ -13,7 +13,8 @@ const AdminAppointments = () => {
     throw new Error("AdminContext must be used within AdminContextProvider");
   }
 
-  const { aToken, appointments, getAllAppointments, cancelAppointment } = context;
+  const { aToken, appointments, getAllAppointments, cancelAppointment } =
+    context;
 
   if (!appContext) {
     throw new Error("AdminContext must be used within AdminContextProvider");
@@ -21,12 +22,11 @@ const AdminAppointments = () => {
 
   const { calculateAge, slotDateFormat, currencySymbol } = appContext;
 
-
   useEffect(() => {
-    if(aToken){
-      getAllAppointments()
+    if (aToken) {
+      getAllAppointments();
     }
-  },[aToken])
+  }, [aToken]);
 
   useEffect(() => {
     if (!aToken) {
@@ -48,31 +48,51 @@ const AdminAppointments = () => {
           <p>Actions</p>
         </div>
 
-            {appointments.map((item,index) => (
-                <div className="flex flex-wrap justify-between max-sm:gap-2 sm:grid sm:grid-cols-[0.5fr_3fr_1fr_3fr_3fr_1fr_1fr] items-center text-gray-500 py-3 px-6 border-b hover:bg-gray-50" key={index}>
-                    <p className="max-sm:hidden">{index + 1}</p>
-                    <div className="flex items-center gap-2">
-                      <img className="w-12 h-12 rounded-full object-cover" src={item.userData.image} alt="" /> <p>{item.userData.name}</p>
-                    </div>
-                    <p className="max-sm:hidden">{calculateAge(item.userData.dob)}</p>
-                    <p>{slotDateFormat(item.slotDate)}, {item.slotTime}</p>
-                    <div className="flex items-center gap-2">
-                      <img className="w-10 h-10 rounded-full bg-blue-300" src={item.docData.image} alt="" /> <p>{item.docData.name}</p>
-                    </div>
-                    <p>{currencySymbol}{item.amount}</p>
-                    {
-                      item.cancelled 
-                      ? <p className="text-red-400 text-xs font-medium">Cancelled</p>
-                      : <img onClick={() => cancelAppointment(item._id!)} className="w-10 cursor-pointer" src={assets.cancel_icon} alt="" />
-                    }
-                    
-                </div>
-            ))}
-
-
+        {appointments.map((item, index) => (
+          <div
+            className="flex flex-wrap justify-between max-sm:gap-2 sm:grid sm:grid-cols-[0.5fr_3fr_1fr_3fr_3fr_1fr_1fr] items-center text-gray-500 py-3 px-6 border-b hover:bg-gray-50"
+            key={index}
+          >
+            <p className="max-sm:hidden">{index + 1}</p>
+            <div className="flex items-center gap-2">
+              <img
+                className="w-12 h-12 rounded-full object-cover"
+                src={item.userData.image}
+                alt=""
+              />{" "}
+              <p>{item.userData.name}</p>
+            </div>
+            <p className="max-sm:hidden">{calculateAge(item.userData.dob)}</p>
+            <p>
+              {slotDateFormat(item.slotDate)}, {item.slotTime}
+            </p>
+            <div className="flex items-center gap-2">
+              <img
+                className="w-10 h-10 rounded-full bg-blue-300"
+                src={item.docData.image}
+                alt=""
+              />{" "}
+              <p>{item.docData.name}</p>
+            </div>
+            <p>
+              {currencySymbol}
+              {item.amount}
+            </p>
+            {item.cancelled ? (
+              <p className="text-red-400 text-xs font-medium">Cancelled</p>
+            ) : (
+              <img
+                onClick={() => cancelAppointment(item._id!)}
+                className="w-10 cursor-pointer"
+                src={assets.cancel_icon}
+                alt=""
+              />
+            )}
+          </div>
+        ))}
       </div>
     </div>
-  )
+  );
 };
 
 export default AdminAppointments;

@@ -54,6 +54,11 @@ const appointmentSchema: Schema<AppointmentDocument> = new mongoose.Schema({
     default: false,
   },
 
+  isConfirmed: {
+    type: Boolean,
+    default: false,
+  },
+
   isCompleted: {
     type: Boolean,
     default: false,

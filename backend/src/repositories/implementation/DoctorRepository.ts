@@ -9,8 +9,7 @@ export class DoctorRepository implements IDoctorRepository {
     return await doctorModel.findById(id);
   }
 
-
-    async findByEmail(email: string): Promise<DoctorData | null> {
+  async findByEmail(email: string): Promise<DoctorData | null> {
     return (await doctorModel.findOne({ email })) as DoctorData | null;
   }
 
@@ -22,19 +21,19 @@ export class DoctorRepository implements IDoctorRepository {
     return await doctorModel.find({}).select("-password -email");
   }
 
-    async findAppointmentsByDoctorId(docId: string): Promise<AppointmentTypes[]> {
+  async findAppointmentsByDoctorId(docId: string): Promise<AppointmentTypes[]> {
     return await appointmentModel.find({ docId });
   }
 
   async findAppointmentById(id: string): Promise<AppointmentTypes | null> {
-  return await appointmentModel.findById(id);
-}
+    return await appointmentModel.findById(id);
+  }
 
-async markAppointmentAsCompleted(id: string): Promise<void> {
-  await appointmentModel.findByIdAndUpdate(id, { isCompleted: true });
-}
+  async markAppointmentAsConfirmed(id: string): Promise<void> {
+    await appointmentModel.findByIdAndUpdate(id, { isConfirmed: true });
+  }
 
-async cancelAppointment(id: string): Promise<void> {
-  await appointmentModel.findByIdAndUpdate(id, { cancelled: true });
-}
+  async cancelAppointment(id: string): Promise<void> {
+    await appointmentModel.findByIdAndUpdate(id, { cancelled: true });
+  }
 }

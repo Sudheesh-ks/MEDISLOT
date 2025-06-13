@@ -16,21 +16,25 @@ doctorRouter.patch(
   authDoctor,
   doctorController.changeAvailability.bind(doctorController)
 );
-doctorRouter.post("/login", doctorController.loginDoctor.bind(doctorController));
-doctorRouter.get("/appointments", authDoctor, doctorController.appointmentsDoctor.bind(doctorController));
-doctorRouter.patch(
-  "/appointments/:appointmentId/complete",  
+doctorRouter.post(
+  "/login",
+  doctorController.loginDoctor.bind(doctorController)
+);
+doctorRouter.get(
+  "/appointments",
   authDoctor,
-  doctorController.appointmentComplete.bind(doctorController)
+  doctorController.appointmentsDoctor.bind(doctorController)
+);
+doctorRouter.patch(
+  "/appointments/:appointmentId/confirm",
+  authDoctor,
+  doctorController.appointmentConfirm.bind(doctorController)
 );
 
 doctorRouter.patch(
-  "/appointments/:appointmentId/cancel",    
+  "/appointments/:appointmentId/cancel",
   authDoctor,
   doctorController.appointmentCancel.bind(doctorController)
 );
-
-
-
 
 export default doctorRouter;

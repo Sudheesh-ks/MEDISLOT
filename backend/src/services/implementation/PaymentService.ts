@@ -1,16 +1,14 @@
-import Razorpay from 'razorpay';
-
+import Razorpay from "razorpay";
 
 export interface RazorpayOrderPayload {
-  amount: number;          
+  amount: number;
   currency: "INR";
-  receipt: string;        
+  receipt: string;
 }
 
 export interface RazorpayVerifyPayload {
   razorpay_order_id: string;
 }
-
 
 export class PaymentService {
   private razorpay = new Razorpay({
@@ -21,15 +19,13 @@ export class PaymentService {
   async createOrder(amountPaise: number, receipt: string) {
     const order = await this.razorpay.orders.create({
       amount: amountPaise,
-      currency: process.env.CURRENCY || 'INR',
+      currency: process.env.CURRENCY || "INR",
       receipt,
     });
-    return order; 
+    return order;
   }
 
-
-    async fetchOrder(razorpay_order_id: string) {
+  async fetchOrder(razorpay_order_id: string) {
     return await this.razorpay.orders.fetch(razorpay_order_id);
   }
-  
 }

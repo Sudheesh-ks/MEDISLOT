@@ -6,7 +6,7 @@ type ChatCardProps = {
   doctorId?: string;
 };
 
-const ChatCard: React.FC<ChatCardProps> = ({ doctorId }) => {
+const DocChatCard: React.FC<ChatCardProps> = ({ doctorId }) => {
   const navigate = useNavigate();
 
   return (
@@ -38,7 +38,7 @@ const ChatCard: React.FC<ChatCardProps> = ({ doctorId }) => {
       {/* Card Footer */}
       <div className="px-6 pb-6 pt-0">
         <button
-          onClick={() => navigate(`/chats/${doctorId}`)}
+          onClick={() => navigate(`/doctor/chats`)}
           className="w-full bg-primary hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-medium transition-all duration-200 hover:scale-105 focus:scale-105 active:scale-100 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
         >
           Message
@@ -48,4 +48,4 @@ const ChatCard: React.FC<ChatCardProps> = ({ doctorId }) => {
   );
 };
 
-export default ChatCard;
+export default DocChatCard;

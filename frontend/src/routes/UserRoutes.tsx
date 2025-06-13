@@ -17,6 +17,7 @@ import OtpVerificationPage from "../pages/user/OTPVerification";
 import NewPasswordPage from "../pages/user/SetNewPassword";
 import GoogleCallback from "../pages/user/GoogleCallback";
 import Consultation from "../pages/user/Consultation";
+import ChatPage from "../pages/user/ChatPage";
 
 const UserRoutes = () => {
   return (
@@ -91,13 +92,14 @@ const UserRoutes = () => {
         }
       />
       <Route
-        path="/consultation"
+        path="/consultation/:doctorId"
         element={
           <UserLayout>
             <Consultation />
           </UserLayout>
         }
       />
+      <Route path="/chats/:doctorId" element={<ChatPage />} />
     </>
   );
 };

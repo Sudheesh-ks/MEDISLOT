@@ -1,32 +1,26 @@
-import React, { useContext, useEffect } from 'react'
-import { DoctorContext } from '../../context/DoctorContext';
-import { useNavigate } from 'react-router-dom';
+import { useContext, useEffect } from "react";
+import { DoctorContext } from "../../context/DoctorContext";
+import { useNavigate } from "react-router-dom";
 
 const DoctorProfile = () => {
+  const context = useContext(DoctorContext);
+  const navigate = useNavigate();
 
-       const context = useContext(DoctorContext);
-      const navigate = useNavigate();
+  if (!context) {
+    throw new Error(
+      "DoctorAppointments must be used within DoctorContextProvider"
+    );
+  }
 
-
-      if (!context) {
-      throw new Error("DoctorAppointments must be used within DoctorContextProvider");
-    }
-  
-    const { dToken } = context;
-
+  const { dToken } = context;
 
   useEffect(() => {
-          if (!dToken) {
-            navigate("/doctor/login");
-          }
-        });
+    if (!dToken) {
+      navigate("/doctor/login");
+    }
+  });
 
+  return <div></div>;
+};
 
-  return (
-    <div>
-      
-    </div>
-  )
-}
-
-export default DoctorProfile
+export default DoctorProfile;

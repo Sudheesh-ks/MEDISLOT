@@ -1,7 +1,7 @@
 import { createContext, useState } from "react";
 import type { ReactNode } from "react";
 import { showErrorToast } from "../utils/errorHandler";
-import { AppointmentCancelAPI, AppointmentCompleteAPI, getDoctorAppointmentsAPI } from "../services/doctorServices";
+import { AppointmentCancelAPI, AppointmentConfirmAPI, getDoctorAppointmentsAPI } from "../services/doctorServices";
 import { toast } from "react-toastify";
 import type { AppointmentTypes } from "../types/appointment";
 
@@ -12,7 +12,7 @@ interface DoctorContextType {
     appointments: AppointmentTypes[];
   setAppointments: React.Dispatch<React.SetStateAction<AppointmentTypes[]>>;
   getAppointments: () => Promise<void>;
-    completeAppointment: (appointmentId: string) => Promise<void>; 
+    confirmAppointment: (appointmentId: string) => Promise<void>; 
   cancelAppointment: (appointmentId: string) => Promise<void>; 
 }
 
@@ -48,10 +48,10 @@ const DoctorContextProvider = ({ children }: DoctorContextProviderProps) => {
   }
 
 
-  const completeAppointment = async (appointmentId: string) => {
+  const confirmAppointment = async (appointmentId: string) => {
     try {
 
-      const { data } = await AppointmentCompleteAPI(appointmentId,dToken)
+      const { data } = await AppointmentConfirmAPI(appointmentId,dToken)
 
       if(data.success){
         toast.success(data.message)
@@ -88,7 +88,7 @@ const DoctorContextProvider = ({ children }: DoctorContextProviderProps) => {
     backendUrl,
     appointments, setAppointments,
     getAppointments,
-    completeAppointment, cancelAppointment
+    confirmAppointment, cancelAppointment
   };
 
   return (

@@ -9,6 +9,7 @@ export interface AppointmentTypes {
   date: number;
   cancelled?: boolean;
   payment?: boolean;
+  isConfirmed?: boolean;
   isCompleted?: boolean;
   razorpayOrderId?: string | null;
 }

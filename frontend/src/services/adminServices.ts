@@ -17,16 +17,17 @@ export const adminAddDoctorAPI = async (formData: FormData, token: string) => {
 
 // Get all doctors
 export const getAllDoctorsAPI = async (token: string) => {
-  return await api.get(
-    "/api/admin/doctors",
-    {
-      headers: { aToken: token },
-    }
-  );
+  return await api.get("/api/admin/doctors", {
+    headers: { aToken: token },
+  });
 };
 
 // Change doctor availability
-export const changeAvailabilityAPI = async (docId: string, isAvailable: boolean, token: string) => {
+export const changeAvailabilityAPI = async (
+  docId: string,
+  isAvailable: boolean,
+  token: string
+) => {
   return await api.patch(
     `/api/admin/doctors/${docId}/availability`,
     { isAvailable },
@@ -44,7 +45,11 @@ export const getAllUsersAPI = async (token: string) => {
 };
 
 // Toggle user block/unblock
-export const toggleUserBlockAPI = async (userId: string, block: boolean, token: string) => {
+export const toggleUserBlockAPI = async (
+  userId: string,
+  block: boolean,
+  token: string
+) => {
   return await api.patch(
     `/api/admin/users/${userId}/block`,
     { block },
@@ -54,38 +59,30 @@ export const toggleUserBlockAPI = async (userId: string, block: boolean, token: 
   );
 };
 
-
 // To get all the appointments
 export const getAllAppointmentsAPI = async (token: string) => {
-  return await api.get(
-    '/api/admin/appointments',
-    {
-      headers: { aToken: token },
-    }
-  );
+  return await api.get("/api/admin/appointments", {
+    headers: { aToken: token },
+  });
 };
-
 
 // To cancel the appointments
-export const adminCancelAppointmentAPI = async (appointmentId: string, token: string) => {
+export const adminCancelAppointmentAPI = async (
+  appointmentId: string,
+  token: string
+) => {
   return await api.patch(
-    `/api/admin/appointments/${appointmentId}/cancel`,  
-    {}, 
+    `/api/admin/appointments/${appointmentId}/cancel`,
+    {},
     {
       headers: { aToken: token },
     }
   );
 };
-
 
 // To get the dashboard data
 export const adminDashboardAPI = async (token: string) => {
-  return await api.get(
-    '/api/admin/dashboard',
-    {
-      headers: { aToken: token },
-    }
-  );
+  return await api.get("/api/admin/dashboard", {
+    headers: { aToken: token },
+  });
 };
-
-

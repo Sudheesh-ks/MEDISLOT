@@ -8,16 +8,13 @@ import DoctorLogin from "../pages/admin/AdminLogin";
 import DoctorDashboard from "../pages/doctor/DoctorDashboard";
 import DoctorAppointments from "../pages/doctor/DoctorAppointments";
 import DoctorProfile from "../pages/doctor/DoctorProfile";
+import DoctorConsultation from "../pages/doctor/DoctorConsultation";
+import DocChatPage from "../pages/doctor/DocChatPage";
 
 const DoctorRoutes = () => {
   return (
     <>
-      <Route
-        path="/doctor/login"
-        element={
-            <DoctorLogin />
-        }
-      />
+      <Route path="/doctor/login" element={<DoctorLogin />} />
       <Route
         path="/doctor/dashboard"
         element={
@@ -42,6 +39,15 @@ const DoctorRoutes = () => {
           </DoctorLayout>
         }
       />
+      <Route
+        path="/doctor/consultation"
+        element={
+          <DoctorLayout>
+            <DoctorConsultation />
+          </DoctorLayout>
+        }
+      />
+      <Route path="/doctor/chats" element={<DocChatPage />} />
     </>
   );
 };

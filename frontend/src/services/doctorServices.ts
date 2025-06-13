@@ -12,17 +12,20 @@ export const doctorLoginAPI = async (email: string, password: string) => {
 
 // For getting all doctor appointments
 export const getDoctorAppointmentsAPI = async (token: string) => {
-  return api.get('/api/doctor/appointments', {
+  return api.get("/api/doctor/appointments", {
     headers: {
-      Authorization: `Bearer ${token}`,  
+      Authorization: `Bearer ${token}`,
     },
   });
 };
-// For marking a doctor appointment as completed
-export const AppointmentCompleteAPI = async (appointmentId: string, token: string) => {
+// For marking a doctor appointment as confirmed
+export const AppointmentConfirmAPI = async (
+  appointmentId: string,
+  token: string
+) => {
   return api.patch(
-    `/api/doctor/appointments/${appointmentId}/complete`,  
-    {}, 
+    `/api/doctor/appointments/${appointmentId}/confirm`,
+    {},
     {
       headers: {
         Authorization: `Bearer ${token}`,
@@ -32,10 +35,13 @@ export const AppointmentCompleteAPI = async (appointmentId: string, token: strin
 };
 
 // For cancelling a doctor appointment (REST update)
-export const AppointmentCancelAPI = async (appointmentId: string, token: string) => {
+export const AppointmentCancelAPI = async (
+  appointmentId: string,
+  token: string
+) => {
   return api.patch(
-    `/api/doctor/appointments/${appointmentId}/cancel`,   
-    {}, 
+    `/api/doctor/appointments/${appointmentId}/cancel`,
+    {},
     {
       headers: {
         Authorization: `Bearer ${token}`,

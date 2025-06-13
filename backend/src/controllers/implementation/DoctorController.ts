@@ -3,7 +3,6 @@ import { DoctorService } from "../../services/implementation/DoctorService";
 import { IDoctorController } from "../interface/doctorController.interface";
 import { HttpStatus } from "../../constants/status.constants";
 
-
 export class DoctorController implements IDoctorController {
   constructor(private doctorService: DoctorService) {}
 
@@ -16,7 +15,7 @@ export class DoctorController implements IDoctorController {
         .status(HttpStatus.OK)
         .json({ success: true, message: "Availability Changed" });
     } catch (error) {
-      console.log((error as Error))
+      console.log(error as Error);
       res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .json({ success: false, message: (error as Error).message });
@@ -35,42 +34,35 @@ export class DoctorController implements IDoctorController {
     }
   }
 
-
   // For doctor login
   async loginDoctor(req: Request, res: Response): Promise<void> {
     try {
-
       const { email, password } = req.body;
 
-    const token = await this.doctorService.loginDoctor(email, password);
-    if (!token) {
-      res
-        .status(HttpStatus.UNAUTHORIZED)
-        .json({ success: false, message: 'Invalid credentials' });
-      return;
-    }
+      const token = await this.doctorService.loginDoctor(email, password);
+      if (!token) {
+        res
+          .status(HttpStatus.UNAUTHORIZED)
+          .json({ success: false, message: "Invalid credentials" });
+        return;
+      }
 
-    res.status(HttpStatus.OK).json({ success: true, token });
-      
+      res.status(HttpStatus.OK).json({ success: true, token });
     } catch (error) {
       res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .json({ success: false, message: (error as Error).message });
     }
   }
-
 
   // For getting doctor appointments
   async appointmentsDoctor(req: Request, res: Response): Promise<void> {
     try {
-
       const docId = (req as any).docId;
-      
-      // Now using the service layer instead of direct model access
+
       const appointments = await this.doctorService.getDoctorAppointments(docId);
 
       res.status(HttpStatus.OK).json({ success: true, appointments });
-      
     } catch (error) {
       res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -78,42 +70,39 @@ export class DoctorController implements IDoctorController {
     }
   }
 
-
-  // For appointment acceptance
-  async appointmentComplete(req: Request, res: Response): Promise<void> {
+  // For appointment confirmation
+  async appointmentConfirm(req: Request, res: Response): Promise<void> {
     try {
-
       const docId = (req as any).docId;
-    const { appointmentId } = req.params;
+      const { appointmentId } = req.params;
 
-    await this.doctorService.completeAppointment(docId, appointmentId);
+      await this.doctorService.confirmAppointment(docId, appointmentId);
 
-    res.status(HttpStatus.OK).json({ success: true, message: "Appointment Completed" });
-      
+      res
+        .status(HttpStatus.OK)
+        .json({ success: true, message: "Appointment Confirmed" });
     } catch (error) {
       res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .json({ success: false, message: (error as Error).message });
     }
   }
-
 
   // For appointment cancellation
   async appointmentCancel(req: Request, res: Response): Promise<void> {
     try {
-
       const docId = (req as any).docId;
-    const { appointmentId } = req.params;
+      const { appointmentId } = req.params;
 
-    await this.doctorService.cancelAppointment(docId, appointmentId);
+      await this.doctorService.cancelAppointment(docId, appointmentId);
 
-    res.status(HttpStatus.OK).json({ success: true, message: "Appointment Cancelled" });
-      
+      res
+        .status(HttpStatus.OK)
+        .json({ success: true, message: "Appointment Cancelled" });
     } catch (error) {
       res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .json({ success: false, message: (error as Error).message });
     }
   }
-  
 }

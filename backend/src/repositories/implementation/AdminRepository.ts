@@ -36,33 +36,32 @@ export class AdminRepository implements IAdminRepository {
     return user.isBlocked ? "User blocked" : "User unblocked";
   }
 
-  async getAllAppointments():Promise<AppointmentDocument[]> {
+  async getAllAppointments(): Promise<AppointmentDocument[]> {
     return await appointmentModel.find({});
   }
 
-
   async cancelAppointment(appointmentId: string): Promise<void> {
-  const appointment = await appointmentModel.findById(appointmentId);
-  if (!appointment) throw new Error("Appointment not found");
+    const appointment = await appointmentModel.findById(appointmentId);
+    if (!appointment) throw new Error("Appointment not found");
 
-  if (appointment.cancelled) {
-    throw new Error("Appointment already cancelled");
-  }
+    if (appointment.cancelled) {
+      throw new Error("Appointment already cancelled");
+    }
 
-  appointment.cancelled = true;
-  await appointment.save();
+    appointment.cancelled = true;
+    await appointment.save();
 
-  const { docId, slotDate, slotTime } = appointment;
-  const doctor = await doctorModel.findById(docId);
-  if (doctor) {
-    const slots = doctor.slots_booked || {};
-    if (Array.isArray(slots[slotDate])) {
-      slots[slotDate] = slots[slotDate].filter((t: string) => t !== slotTime);
-      if (!slots[slotDate].length) delete slots[slotDate]; // tidy up
-      doctor.slots_booked = slots;
-      doctor.markModified('slots_booked');
-      await doctor.save();
+    const { docId, slotDate, slotTime } = appointment;
+    const doctor = await doctorModel.findById(docId);
+    if (doctor) {
+      const slots = doctor.slots_booked || {};
+      if (Array.isArray(slots[slotDate])) {
+        slots[slotDate] = slots[slotDate].filter((t: string) => t !== slotTime);
+        if (!slots[slotDate].length) delete slots[slotDate];
+        doctor.slots_booked = slots;
+        doctor.markModified("slots_booked");
+        await doctor.save();
+      }
     }
   }
-}
 }
