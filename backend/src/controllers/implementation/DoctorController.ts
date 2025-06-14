@@ -1,16 +1,16 @@
 import { Request, Response } from "express";
 import { DoctorService } from "../../services/implementation/DoctorService";
-import { IDoctorController } from "../interface/doctorController.interface";
+import { IDoctorController } from "../interface/IdoctorController.interface";
 import { HttpStatus } from "../../constants/status.constants";
 
 export class DoctorController implements IDoctorController {
-  constructor(private doctorService: DoctorService) {}
+  constructor(private _doctorService: DoctorService) {}
 
   // For updating doctor availability
   async changeAvailability(req: Request, res: Response): Promise<void> {
     try {
       const docId = (req as any).docId || req.params.doctorId || req.params.id;
-      await this.doctorService.toggleAvailability(docId);
+      await this._doctorService.toggleAvailability(docId);
       res
         .status(HttpStatus.OK)
         .json({ success: true, message: "Availability Changed" });
@@ -25,7 +25,7 @@ export class DoctorController implements IDoctorController {
   // For getting all doctor profiles
   async doctorList(req: Request, res: Response): Promise<void> {
     try {
-      const doctors = await this.doctorService.getAllDoctors();
+      const doctors = await this._doctorService.getAllDoctors();
       res.status(HttpStatus.OK).json({ success: true, doctors });
     } catch (error) {
       res
@@ -39,7 +39,7 @@ export class DoctorController implements IDoctorController {
     try {
       const { email, password } = req.body;
 
-      const token = await this.doctorService.loginDoctor(email, password);
+      const token = await this._doctorService.loginDoctor(email, password);
       if (!token) {
         res
           .status(HttpStatus.UNAUTHORIZED)
@@ -60,7 +60,7 @@ export class DoctorController implements IDoctorController {
     try {
       const docId = (req as any).docId;
 
-      const appointments = await this.doctorService.getDoctorAppointments(docId);
+      const appointments = await this._doctorService.getDoctorAppointments(docId);
 
       res.status(HttpStatus.OK).json({ success: true, appointments });
     } catch (error) {
@@ -76,7 +76,7 @@ export class DoctorController implements IDoctorController {
       const docId = (req as any).docId;
       const { appointmentId } = req.params;
 
-      await this.doctorService.confirmAppointment(docId, appointmentId);
+      await this._doctorService.confirmAppointment(docId, appointmentId);
 
       res
         .status(HttpStatus.OK)
@@ -94,7 +94,7 @@ export class DoctorController implements IDoctorController {
       const docId = (req as any).docId;
       const { appointmentId } = req.params;
 
-      await this.doctorService.cancelAppointment(docId, appointmentId);
+      await this._doctorService.cancelAppointment(docId, appointmentId);
 
       res
         .status(HttpStatus.OK)

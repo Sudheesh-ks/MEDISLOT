@@ -5,24 +5,24 @@ import { IDoctorService } from "../interface/IDoctorService";
 import { AppointmentTypes } from "../../types/appointment";
 
 export class DoctorService implements IDoctorService {
-  constructor(private doctorRepository: IDoctorRepository) {}
+  constructor(private _doctorRepository: IDoctorRepository) {}
 
   async toggleAvailability(docId: string): Promise<void> {
-    const doc = await this.doctorRepository.findById(docId);
+    const doc = await this._doctorRepository.findById(docId);
     if (!doc) throw new Error("Doctor not found");
 
-    await this.doctorRepository.updateAvailability(docId, !doc.available);
+    await this._doctorRepository.updateAvailability(docId, !doc.available);
   }
 
   async getAllDoctors(): Promise<any[]> {
-    return await this.doctorRepository.findAllDoctors();
+    return await this._doctorRepository.findAllDoctors();
   }
 
   async loginDoctor(
     email: string,
     plainPassword: string
   ): Promise<string | null> {
-    const doctor = await this.doctorRepository.findByEmail(email);
+    const doctor = await this._doctorRepository.findByEmail(email);
     if (!doctor) return null;
 
     const match = await bcrypt.compare(plainPassword, doctor.password);
@@ -34,34 +34,34 @@ export class DoctorService implements IDoctorService {
   }
 
   async getDoctorAppointments(docId: string): Promise<AppointmentTypes[]> {
-    const doctor = await this.doctorRepository.findById(docId);
+    const doctor = await this._doctorRepository.findById(docId);
     if (!doctor) {
       throw new Error("Doctor not found");
     }
 
-    return await this.doctorRepository.findAppointmentsByDoctorId(docId);
+    return await this._doctorRepository.findAppointmentsByDoctorId(docId);
   }
 
   async confirmAppointment(
     docId: string,
     appointmentId: string
   ): Promise<void> {
-    const appointment = await this.doctorRepository.findAppointmentById(
+    const appointment = await this._doctorRepository.findAppointmentById(
       appointmentId
     );
     if (!appointment || appointment.docId !== docId) {
       throw new Error("Mark Failed");
     }
-    await this.doctorRepository.markAppointmentAsConfirmed(appointmentId);
+    await this._doctorRepository.markAppointmentAsConfirmed(appointmentId);
   }
 
   async cancelAppointment(docId: string, appointmentId: string): Promise<void> {
-    const appointment = await this.doctorRepository.findAppointmentById(
+    const appointment = await this._doctorRepository.findAppointmentById(
       appointmentId
     );
     if (!appointment || appointment.docId !== docId) {
       throw new Error("Cancellation Failed");
     }
-    await this.doctorRepository.cancelAppointment(appointmentId);
+    await this._doctorRepository.cancelAppointment(appointmentId);
   }
 }

@@ -1,5 +1,4 @@
 import { AppointmentTypes } from "../../types/appointment";
-import { DoctorData } from "../../types/doctor";
 
 export interface IDoctorService {
   toggleAvailability(docId: string): Promise<void>;

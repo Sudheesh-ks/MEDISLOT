@@ -6,7 +6,7 @@ export interface UserDocument extends userData {
   _id: string;
 }
 
-export interface userDataRepository {
+export interface IUserRepository {
   create(user: Partial<userData>): Promise<UserDocument>;
   findByEmail(email: string): Promise<UserDocument | null>;
   findById(id: string): Promise<UserDocument | null>;

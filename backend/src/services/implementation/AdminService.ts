@@ -10,10 +10,10 @@ import { AppointmentDocument } from "../../types/appointment";
 dotenv.config();
 
 export class AdminService implements IAdminService {
-  constructor(private readonly adminRepository: IAdminRepository) {}
+  constructor(private readonly _adminRepository: IAdminRepository) {}
 
   async login(email: string, password: string): Promise<{ token: string }> {
-    const admin = await this.adminRepository.findByEmail(email);
+    const admin = await this._adminRepository.findByEmail(email);
     if (!admin) throw new Error("User not found");
     const isMatch = await bcrypt.compare(password, admin.password);
     if (!isMatch) throw new Error("Invalid credentials");
@@ -85,27 +85,27 @@ export class AdminService implements IAdminService {
       date: new Date(),
     };
 
-    await this.adminRepository.saveDoctor(doctorData);
+    await this._adminRepository.saveDoctor(doctorData);
     return "Doctor added successfully";
   }
 
   async getDoctors(): Promise<any[]> {
-    return await this.adminRepository.getAllDoctors();
+    return await this._adminRepository.getAllDoctors();
   }
 
   async getUsers(): Promise<any[]> {
-    return await this.adminRepository.getAllUsers();
+    return await this._adminRepository.getAllUsers();
   }
 
   async toggleUserBlock(userId: string): Promise<string> {
-    return await this.adminRepository.toggleUserBlock(userId);
+    return await this._adminRepository.toggleUserBlock(userId);
   }
 
   async listAppointments(): Promise<AppointmentDocument[]> {
-    return await this.adminRepository.getAllAppointments();
+    return await this._adminRepository.getAllAppointments();
   }
 
   async cancelAppointment(appointmentId: string): Promise<void> {
-    await this.adminRepository.cancelAppointment(appointmentId);
+    await this._adminRepository.cancelAppointment(appointmentId);
   }
 }

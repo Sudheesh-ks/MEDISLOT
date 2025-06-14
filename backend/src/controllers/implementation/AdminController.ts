@@ -1,12 +1,12 @@
 import { Request, Response } from "express";
 import { IAdminService } from "../../services/interface/IAdminService";
-import { IAdminController } from "../interface/adminController.interface";
+import { IAdminController } from "../interface/IadminController.interface";
 import { CustomRequest } from "../../types/customRequest";
 import { HttpStatus } from "../../constants/status.constants";
 import { DoctorDTO } from "../../types/doctor";
 
 export class AdminController implements IAdminController {
-  constructor(private adminService: IAdminService) {}
+  constructor(private _adminService: IAdminService) {}
 
   // For Admin login
   async loginAdmin(req: Request, res: Response): Promise<void> {
@@ -20,7 +20,7 @@ export class AdminController implements IAdminController {
         return;
       }
 
-      const { token } = await this.adminService.login(email, password);
+      const { token } = await this._adminService.login(email, password);
       res.status(HttpStatus.OK).json({ success: true, token });
     } catch (error) {
       res
@@ -58,7 +58,7 @@ export class AdminController implements IAdminController {
         address: JSON.parse(address),
         imagePath: imageFile?.path,
       };
-      const message = await this.adminService.addDoctor(doctorDTO);
+      const message = await this._adminService.addDoctor(doctorDTO);
       res.status(HttpStatus.CREATED).json({ success: true, message });
       return;
     } catch (error) {
@@ -71,7 +71,7 @@ export class AdminController implements IAdminController {
   // To get all the doctors
   async getDoctors(req: Request, res: Response): Promise<void> {
     try {
-      const doctors = await this.adminService.getDoctors();
+      const doctors = await this._adminService.getDoctors();
       res.status(HttpStatus.OK).json({ success: true, doctors });
     } catch (error) {
       res
@@ -83,7 +83,7 @@ export class AdminController implements IAdminController {
   // To get all users
   async getAllUsers(req: Request, res: Response): Promise<void> {
     try {
-      const users = await this.adminService.getUsers();
+      const users = await this._adminService.getUsers();
       res.status(HttpStatus.OK).json({ success: true, users });
     } catch (error) {
       res
@@ -106,7 +106,7 @@ export class AdminController implements IAdminController {
         return;
       }
 
-      const message = await this.adminService.toggleUserBlock(userId, block);
+      const message = await this._adminService.toggleUserBlock(userId, block);
       res.status(HttpStatus.OK).json({ success: true, message });
     } catch (error) {
       res
@@ -118,7 +118,7 @@ export class AdminController implements IAdminController {
   // For getting all the appointments
   async appointmentsList(req: Request, res: Response): Promise<void> {
     try {
-      const appointments = await this.adminService.listAppointments();
+      const appointments = await this._adminService.listAppointments();
       res.status(HttpStatus.OK).json({ success: true, appointments });
     } catch (error) {
       res
@@ -132,7 +132,7 @@ export class AdminController implements IAdminController {
     try {
       const { appointmentId } = req.params;
 
-      await this.adminService.cancelAppointment(appointmentId);
+      await this._adminService.cancelAppointment(appointmentId);
       res
         .status(HttpStatus.OK)
         .json({ success: true, message: "Appointment cancelled" });
@@ -146,9 +146,9 @@ export class AdminController implements IAdminController {
   // For admin dashboard
   async adminDashboard(req: Request, res: Response): Promise<void> {
     try {
-      const doctors = await this.adminService.getDoctors();
-      const users = await this.adminService.getUsers();
-      const appointments = await this.adminService.listAppointments();
+      const doctors = await this._adminService.getDoctors();
+      const users = await this._adminService.getUsers();
+      const appointments = await this._adminService.listAppointments();
 
       const dashData = {
         doctors: doctors.length,

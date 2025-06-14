@@ -6,7 +6,7 @@ export interface UserDocument extends userData {
   _id: string;
 }
 
-export interface userDataService {
+export interface IUserService {
   register(
     name: string,
     email: string,

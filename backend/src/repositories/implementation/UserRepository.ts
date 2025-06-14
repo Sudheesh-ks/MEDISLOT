@@ -1,5 +1,5 @@
 import {
-  userDataRepository,
+  IUserRepository,
   UserDocument,
 } from "../../repositories/interface/IUserRepository";
 import userModel from "../../models/userModel";
@@ -9,7 +9,7 @@ import { AppointmentDocument, AppointmentTypes } from "../../types/appointment";
 import appointmentModel from "../../models/appointmentModel";
 import { DoctorData } from "../../types/doctor";
 
-export class UserRepository implements userDataRepository {
+export class UserRepository implements IUserRepository {
   async create(user: Partial<userData>): Promise<UserDocument> {
     return (await new userModel(user).save()) as UserDocument;
   }

@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
-import { userDataService } from "../../services/interface/IUserService";
+import { IUserService } from "../../services/interface/IUserService";
 import { HttpStatus } from "../../constants/status.constants";
-import { IUserController } from "../interface/userController.interface";
+import { IUserController } from "../interface/IuserController.interface";
 import { otpStore } from "../../utils/otpStore";
 import { sendOTP } from "../../utils/mail.util";
 import { generateOTP } from "../../utils/otp.util";
@@ -17,8 +17,8 @@ import { PaymentService } from "../../services/implementation/PaymentService";
 export class UserController implements IUserController {
 
   constructor(
-    private userService: userDataService,
-    private paymentService: PaymentService
+    private _userService: IUserService,
+    private _paymentService: PaymentService
   ) {}
 
   // For registering new user
@@ -54,7 +54,7 @@ export class UserController implements IUserController {
       return;
     }
 
-    const existing = await this.userService.checkEmailExists(email);
+    const existing = await this._userService.checkEmailExists(email);
     if (existing) {
       res
         .status(HttpStatus.CONFLICT)
@@ -62,7 +62,7 @@ export class UserController implements IUserController {
       return;
     }
 
-    const hashed = await this.userService.hashPassword(password);
+    const hashed = await this._userService.hashPassword(password);
     const otp = generateOTP();
     console.log(otp);
 
@@ -92,8 +92,8 @@ export class UserController implements IUserController {
     }
 
     if (record.purpose === "register") {
-      const newUser = await this.userService.finalizeRegister(record.userData);
-      const token = this.userService.generateToken(newUser._id);
+      const newUser = await this._userService.finalizeRegister(record.userData);
+      const token = this._userService.generateToken(newUser._id);
       otpStore.delete(email);
       res
         .status(HttpStatus.CREATED)
@@ -143,7 +143,7 @@ export class UserController implements IUserController {
     const { email } = req.body;
 
     try {
-      const user = await this.userService.checkEmailExists(email);
+      const user = await this._userService.checkEmailExists(email);
       if (!user) {
         res.status(HttpStatus.NOT_FOUND).json({ success: false, message: "Email not found" });
         return;
@@ -188,8 +188,8 @@ export class UserController implements IUserController {
       return;
     }
 
-    const hashed = await this.userService.hashPassword(newPassword);
-    const updated = await this.userService.resetPassword(email, hashed);
+    const hashed = await this._userService.hashPassword(newPassword);
+    const updated = await this._userService.resetPassword(email, hashed);
 
     if (!updated) {
       res.status(HttpStatus.NOT_FOUND).json({ success: false, message: "User not found" });
@@ -231,7 +231,7 @@ export class UserController implements IUserController {
         return;
       }
 
-      const { token } = await this.userService.login(email, password);
+      const { token } = await this._userService.login(email, password);
       res.status(HttpStatus.OK).json({ success: true, token });
     } catch (error) {
       res
@@ -244,7 +244,7 @@ export class UserController implements IUserController {
   async getProfile(req: Request, res: Response): Promise<void> {
     try {
       const userId = (req as any).userId;
-      const userData = await this.userService.getProfile(userId);
+      const userData = await this._userService.getProfile(userId);
       if (!userData) {
         res.status(HttpStatus.NOT_FOUND).json({ success: false, message: "User not found" });
         return;
@@ -261,7 +261,7 @@ export class UserController implements IUserController {
   async updateProfile(req: Request, res: Response): Promise<void> {
     try {
       const userId = (req as any).userId;
-      await this.userService.updateProfile(userId, req.body, req.file);
+      await this._userService.updateProfile(userId, req.body, req.file);
       res.status(HttpStatus.OK).json({ success: true, message: "Profile updated" });
     } catch (error) {
       res
@@ -277,8 +277,8 @@ export class UserController implements IUserController {
     const { docId, slotDate, slotTime } = req.body;
     const userId = (req as any).userId;            
 
-    const user = await this.userService.getUserById(userId);
-    const doctor = await this.userService.getDoctorById(docId);
+    const user = await this._userService.getUserById(userId);
+    const doctor = await this._userService.getDoctorById(docId);
 
     const appointmentData = {
       userId,
@@ -298,7 +298,7 @@ export class UserController implements IUserController {
       date: Date.now(),
     };
 
-      await this.userService.bookAppointment(appointmentData);
+      await this._userService.bookAppointment(appointmentData);
       res.status(HttpStatus.OK).json({ success: true, message: "Appointment booked" });
     } catch (error) {
       res
@@ -313,7 +313,7 @@ export class UserController implements IUserController {
     try {
 
       const  userId  = (req as any).userId;
-      const appointments = await this.userService.listUserAppointments(userId)
+      const appointments = await this._userService.listUserAppointments(userId)
 
       res.status(HttpStatus.OK).json({success: true, appointments})
       
@@ -332,7 +332,7 @@ export class UserController implements IUserController {
     const userId = (req as any).userId;          
     const { appointmentId } = req.body;                  
 
-    await this.userService.cancelAppointment(userId, appointmentId);
+    await this._userService.cancelAppointment(userId, appointmentId);
     res.status(HttpStatus.OK).json({ success: true, message: "Appointment cancelled" });
       
     } catch (error) {
@@ -351,7 +351,7 @@ export class UserController implements IUserController {
     const userId = (req as any).userId;
     const { appointmentId } = req.body;
 
-    const { order } = await this.userService.startPayment(
+    const { order } = await this._userService.startPayment(
       userId,
       appointmentId
     );
@@ -374,7 +374,7 @@ export class UserController implements IUserController {
     const userId = (req as any).userId;
     const { appointmentId, razorpay_order_id } = req.body;
 
-    await this.userService.verifyPayment(userId, appointmentId, razorpay_order_id);
+    await this._userService.verifyPayment(userId, appointmentId, razorpay_order_id);
 
     res.status(HttpStatus.OK).json({ success: true, message: "Payment Successful" });
       

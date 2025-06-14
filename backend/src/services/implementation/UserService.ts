@@ -1,5 +1,5 @@
-import { userDataService } from "../interface/IUserService";
-import { userDataRepository } from "../../repositories/interface/IUserRepository";
+import { IUserService } from "../interface/IUserService";
+import { IUserRepository } from "../../repositories/interface/IUserRepository";
 import { userData } from "../../types/user";
 import bcrypt from "bcrypt";
 import Jwt from "jsonwebtoken";
@@ -14,10 +14,10 @@ export interface UserDocument extends userData {
   _id: string;
 }
 
-export class UserService implements userDataService {
+export class UserService implements IUserService {
   constructor(
-    private userRepository: userDataRepository,
-    private paymentService = new PaymentService()
+    private _userRepository: IUserRepository,
+    private _paymentService = new PaymentService()
   ) {}
 
   async register(
@@ -30,7 +30,7 @@ export class UserService implements userDataService {
     if (password.length < 8) throw new Error("Password too short");
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const user = (await this.userRepository.create({
+    const user = (await this._userRepository.create({
       name,
       email,
       password: hashedPassword,
@@ -40,7 +40,7 @@ export class UserService implements userDataService {
   }
 
   async login(email: string, password: string): Promise<{ token: string }> {
-    const user = await this.userRepository.findByEmail(email);
+    const user = await this._userRepository.findByEmail(email);
     if (!user) throw new Error("User not found");
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) throw new Error("Invalid credentials");
@@ -52,7 +52,7 @@ export class UserService implements userDataService {
   }
 
   async getProfile(userId: string): Promise<userData | null> {
-    return await this.userRepository.findById(userId);
+    return await this._userRepository.findById(userId);
   }
 
   async updateProfile(
@@ -85,11 +85,11 @@ export class UserService implements userDataService {
       data.image = imageUpload.secure_url;
     }
 
-    await this.userRepository.updateById(userId, data);
+    await this._userRepository.updateById(userId, data);
   }
 
   async checkEmailExists(email: string): Promise<boolean> {
-    const user = await this.userRepository.findByEmail(email);
+    const user = await this._userRepository.findByEmail(email);
     return !!user;
   }
 
@@ -98,7 +98,7 @@ export class UserService implements userDataService {
   }
 
   async finalizeRegister(userData: userData) {
-    return await this.userRepository.create(userData);
+    return await this._userRepository.create(userData);
   }
 
   generateToken(userId: string): string {
@@ -111,20 +111,20 @@ export class UserService implements userDataService {
     email: string,
     newHashedPassword: string
   ): Promise<boolean> {
-    return await this.userRepository.updatePasswordByEmail(
+    return await this._userRepository.updatePasswordByEmail(
       email,
       newHashedPassword
     );
   }
 
   async getUserById(id: string): Promise<UserDocument> {
-    const user = await this.userRepository.findById(id);
+    const user = await this._userRepository.findById(id);
     if (!user) throw new Error("User not found");
     return user;
   }
 
   async getDoctorById(id: string): Promise<DoctorData> {
-    const doctor = (await this.userRepository.findDoctorById(
+    const doctor = (await this._userRepository.findDoctorById(
       id
     )) as DoctorData | null;
     if (!doctor) throw new Error("Doctor not found");
@@ -132,35 +132,35 @@ export class UserService implements userDataService {
   }
 
   async bookAppointment(appointmentData: AppointmentTypes): Promise<void> {
-    await this.userRepository.bookAppointment(appointmentData);
+    await this._userRepository.bookAppointment(appointmentData);
   }
 
   async listUserAppointments(userId: string): Promise<AppointmentTypes[]> {
-    return await this.userRepository.getAppointmentsByUserId(userId);
+    return await this._userRepository.getAppointmentsByUserId(userId);
   }
 
   async cancelAppointment(
     userId: string,
     appointmentId: string
   ): Promise<void> {
-    await this.userRepository.cancelAppointment(userId, appointmentId);
+    await this._userRepository.cancelAppointment(userId, appointmentId);
   }
 
   async startPayment(
     userId: string,
     appointmentId: string
   ): Promise<{ order: any }> {
-    const appointment = await this.userRepository.findPayableAppointment(
+    const appointment = await this._userRepository.findPayableAppointment(
       userId,
       appointmentId
     );
 
-    const order = await this.paymentService.createOrder(
+    const order = await this._paymentService.createOrder(
       appointment.amount * 100,
       appointment._id.toString()
     );
 
-    // await this.userRepository.saveRazorpayOrderId(appointmentId, order.id);
+    // await this._userRepository.saveRazorpayOrderId(appointmentId, order.id);
 
     return { order };
   }
@@ -170,9 +170,9 @@ export class UserService implements userDataService {
     appointmentId: string,
     razorpay_order_id: string
   ): Promise<void> {
-    await this.userRepository.findPayableAppointment(userId, appointmentId);
+    await this._userRepository.findPayableAppointment(userId, appointmentId);
 
-    const orderInfo = await this.paymentService.fetchOrder(razorpay_order_id);
+    const orderInfo = await this._paymentService.fetchOrder(razorpay_order_id);
 
     if (orderInfo.status !== "paid") {
       throw new Error("Payment not completed");
@@ -182,6 +182,6 @@ export class UserService implements userDataService {
       throw new Error("Receipt / appointment mismatch");
     }
 
-    await this.userRepository.markAppointmentPaid(appointmentId);
+    await this._userRepository.markAppointmentPaid(appointmentId);
   }
 }

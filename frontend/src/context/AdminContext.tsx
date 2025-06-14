@@ -30,7 +30,7 @@ interface AdminContextType {
   setAppointments: React.Dispatch<React.SetStateAction<AppointmentTypes[]>>;
   getAllAppointments: () => Promise<void>;
   cancelAppointment: (appointmentId: string) => Promise<void>;
-  dashData: any; 
+  dashData: any;
   getDashData: () => Promise<void>;
 }
 
@@ -65,16 +65,19 @@ const AdminContextProvider = ({ children }: AdminContextProviderProps) => {
 
   const changeAvailability = async (docId: string) => {
     try {
-
       const doctor = doctors.find((doc) => doc._id === docId);
-    if (!doctor) {
-      toast.error("Doctor not found");
-      return;
-    }
+      if (!doctor) {
+        toast.error("Doctor not found");
+        return;
+      }
 
-    const newAvailability = !doctor.available;
+      const newAvailability = !doctor.available;
 
-      const { data } = await changeAvailabilityAPI(docId, newAvailability, aToken);
+      const { data } = await changeAvailabilityAPI(
+        docId,
+        newAvailability,
+        aToken
+      );
       if (data.success) {
         toast.success(data.message);
         getAllDoctors();
@@ -101,14 +104,13 @@ const AdminContextProvider = ({ children }: AdminContextProviderProps) => {
 
   const toggleBlockUser = async (userId: string) => {
     try {
-
       const user = users.find((u) => u._id === userId);
-    if (!user) {
-      toast.error("User not found");
-      return;
-    }
+      if (!user) {
+        toast.error("User not found");
+        return;
+      }
 
-    const newBlockStatus = !user.isBlocked;
+      const newBlockStatus = !user.isBlocked;
 
       const { data } = await toggleUserBlockAPI(userId, newBlockStatus, aToken);
       if (data.success) {
@@ -122,58 +124,48 @@ const AdminContextProvider = ({ children }: AdminContextProviderProps) => {
     }
   };
 
-
   const getAllAppointments = async () => {
-
     try {
-
       const { data } = await getAllAppointmentsAPI(aToken);
 
-      if(data.success){
+      if (data.success) {
         setAppointments(data.appointments.reverse());
       } else {
         toast.error(data.message);
       }
-      
     } catch (error) {
       showErrorToast(error);
     }
-  }
-
+  };
 
   const cancelAppointment = async (appointmentId: string) => {
-
     try {
+      const { data } = await adminCancelAppointmentAPI(appointmentId, aToken);
 
-      const { data } = await adminCancelAppointmentAPI(appointmentId,aToken);
-
-      if(data.success){
+      if (data.success) {
         toast.success(data.message);
         getAllAppointments();
-      }else{
+      } else {
         toast.error(data.message);
       }
-      
     } catch (error) {
       showErrorToast(error);
     }
-  }
+  };
 
   const getDashData = async () => {
     try {
-
       const { data } = await adminDashboardAPI(aToken);
 
-      if(data.success){
+      if (data.success) {
         setDashData(data.dashData);
-      }else{
+      } else {
         toast.error(data.message);
       }
-      
     } catch (error) {
       showErrorToast(error);
     }
-  }
+  };
 
   const value: AdminContextType = {
     aToken,
@@ -185,10 +177,12 @@ const AdminContextProvider = ({ children }: AdminContextProviderProps) => {
     users,
     getAllUsers,
     toggleBlockUser,
-    appointments, setAppointments,
+    appointments,
+    setAppointments,
     getAllAppointments,
     cancelAppointment,
-    dashData,getDashData
+    dashData,
+    getDashData,
   };
 
   return (

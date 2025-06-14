@@ -106,14 +106,30 @@ const AppContextProvider: React.FC<AppContextProviderProps> = ({
 
     let age = today.getFullYear() - birthDate.getFullYear();
     return age;
-  }
+  };
 
-      const months = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const months = [
+    "",
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
 
-      const slotDateFormat = (slotDate: string): string => {
-    const dateArray = slotDate.split('_');
-    return dateArray[0] + " " + months[Number(dateArray[1])] + " " + dateArray[2];
-  }
+  const slotDateFormat = (slotDate: string): string => {
+    const dateArray = slotDate.split("_");
+    return (
+      dateArray[0] + " " + months[Number(dateArray[1])] + " " + dateArray[2]
+    );
+  };
 
   const value: AppContextType = {
     doctors,
@@ -126,7 +142,7 @@ const AppContextProvider: React.FC<AppContextProviderProps> = ({
     setUserData,
     loadUserProfileData,
     calculateAge,
-    slotDateFormat
+    slotDateFormat,
   };
 
   useEffect(() => {
