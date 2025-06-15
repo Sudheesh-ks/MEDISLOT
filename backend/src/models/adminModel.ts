@@ -1,24 +1,13 @@
+// models/adminModel.ts
 import mongoose, { Schema, Model } from "mongoose";
-import { adminData } from "../types/admin";
+import { AdminDocument } from "../types/admin";
 
-interface adminDocument extends adminData {}
-
-const adminSchema: Schema<adminDocument> = new mongoose.Schema({
-  email: {
-    type: String,
-    required: true,
-    unique: true,
-  },
-
-  password: {
-    type: String,
-    required: true,
-  },
+const adminSchema = new Schema<AdminDocument>({
+  email: { type: String, required: true, unique: true },
+  password: { type: String, required: true },
+  // other fields
 });
 
-const adminModel: Model<adminDocument> = mongoose.model<adminDocument>(
-  "admin",
-  adminSchema
-);
+const adminModel: Model<AdminDocument> = mongoose.model("admin", adminSchema);
 
 export default adminModel;

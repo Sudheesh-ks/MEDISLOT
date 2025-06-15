@@ -4,6 +4,7 @@ import { IAdminController } from "../interface/IadminController.interface";
 import { CustomRequest } from "../../types/customRequest";
 import { HttpStatus } from "../../constants/status.constants";
 import { DoctorDTO } from "../../types/doctor";
+import { HttpResponse } from "../../constants/responseMessage.constants";
 
 export class AdminController implements IAdminController {
   constructor(private _adminService: IAdminService) {}
@@ -16,7 +17,7 @@ export class AdminController implements IAdminController {
       if (!email || !password) {
         res
           .status(HttpStatus.BAD_REQUEST)
-          .json({ success: false, message: "Email and password are required" });
+          .json({ success: false, message: HttpResponse.ADMIN_FIELDS_REQUIRED });
         return;
       }
 
@@ -101,7 +102,7 @@ export class AdminController implements IAdminController {
       if (typeof block !== "boolean") {
         res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
-          message: "Block status is required and must be a boolean",
+          message: HttpResponse.BLOCK_STATUS_INVALID,
         });
         return;
       }
@@ -135,7 +136,7 @@ export class AdminController implements IAdminController {
       await this._adminService.cancelAppointment(appointmentId);
       res
         .status(HttpStatus.OK)
-        .json({ success: true, message: "Appointment cancelled" });
+        .json({ success: true, message: HttpResponse.APPOINTMENT_CANCELLED });
     } catch (error) {
       res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)

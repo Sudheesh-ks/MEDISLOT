@@ -18,7 +18,7 @@ export class AdminService implements IAdminService {
     const isMatch = await bcrypt.compare(password, admin.password);
     if (!isMatch) throw new Error("Invalid credentials");
 
-    const token = jwt.sign({ id: admin._id }, process.env.JWT_SECRET!);
+    const token = jwt.sign({ id: (admin as any)._id }, process.env.JWT_SECRET!);
     return { token };
   }
 

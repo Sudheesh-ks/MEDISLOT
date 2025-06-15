@@ -15,3 +15,6 @@ export interface userData {
   isBlocked: boolean;
   googleId?: string;
 }
+
+
+export type UserDocument = HydratedDocument<userData>;

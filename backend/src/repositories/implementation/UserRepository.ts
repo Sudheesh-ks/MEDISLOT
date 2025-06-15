@@ -1,37 +1,24 @@
 import {
   IUserRepository,
-  UserDocument,
 } from "../../repositories/interface/IUserRepository";
 import userModel from "../../models/userModel";
-import { userData } from "../../types/user";
 import doctorModel from "../../models/doctorModel";
 import { AppointmentDocument, AppointmentTypes } from "../../types/appointment";
 import appointmentModel from "../../models/appointmentModel";
 import { DoctorData } from "../../types/doctor";
+import { BaseRepository } from "../BaseRepository";
+import { UserDocument } from "../../types/user";
 
-export class UserRepository implements IUserRepository {
-  async create(user: Partial<userData>): Promise<UserDocument> {
-    return (await new userModel(user).save()) as UserDocument;
+export class UserRepository extends BaseRepository<UserDocument> implements IUserRepository {
+  constructor() {
+    super(userModel);
   }
 
   async findByEmail(email: string): Promise<UserDocument | null> {
-    return (await userModel.findOne({ email })) as UserDocument | null;
+    return this.findOne({ email });
   }
 
-  async findById(id: string): Promise<UserDocument | null> {
-    return (await userModel
-      .findById(id)
-      .select("-password")) as UserDocument | null;
-  }
-
-  async updateById(id: string, data: Partial<userData>): Promise<void> {
-    await userModel.findByIdAndUpdate(id, data);
-  }
-
-  async updatePasswordByEmail(
-    email: string,
-    newHashedPassword: string
-  ): Promise<boolean> {
+  async updatePasswordByEmail(email: string, newHashedPassword: string): Promise<boolean> {
     const updatedUser = await userModel.findOneAndUpdate(
       { email },
       { $set: { password: newHashedPassword } }
@@ -72,15 +59,15 @@ export class UserRepository implements IUserRepository {
     await doctorModel.findByIdAndUpdate(docId, { slots_booked: slots });
   }
 
-  async findDoctorById(id: string): Promise<DoctorData | null> {
-    return (await doctorModel
-      .findById(id)
-      .select("-password")) as DoctorData | null;
-  }
 
   async getAppointmentsByUserId(userId: string): Promise<AppointmentTypes[]> {
-    return await appointmentModel.find({ userId }).sort({ date: -1 });
+    return appointmentModel.find({ userId }).sort({ date: -1 });
   }
+
+  async findDoctorById(id: string): Promise<DoctorData | null> {
+    return doctorModel.findById(id).select("-password") as any;
+  }
+
 
   async cancelAppointment(
     userId: string,
@@ -138,7 +125,6 @@ export class UserRepository implements IUserRepository {
   }
 
   async markAppointmentPaid(appointmentId: string): Promise<void> {
-    console.log(appointmentId);
     await appointmentModel.findByIdAndUpdate(appointmentId, { payment: true });
   }
 }

@@ -1,5 +1,11 @@
+import { Document } from "mongoose";
+
 export interface adminData {
-  _id: string;
   email: string;
   password: string;
+  // any other fields
+}
+
+export interface AdminDocument extends adminData, Document {
+  _id: string;
 }

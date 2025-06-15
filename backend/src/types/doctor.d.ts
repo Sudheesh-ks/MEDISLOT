@@ -38,3 +38,8 @@ export interface DoctorDTO {
   address: Address;
   imagePath?: string;
 }
+
+
+
+export type DoctorDocument = HydratedDocument<DoctorData>;
+

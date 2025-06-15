@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { IUserService } from "../../services/interface/IUserService";
 import { HttpStatus } from "../../constants/status.constants";
+import { HttpResponse } from "../../constants/responseMessage.constants";
 import { IUserController } from "../interface/IuserController.interface";
 import { otpStore } from "../../utils/otpStore";
 import { sendOTP } from "../../utils/mail.util";
@@ -12,53 +13,38 @@ import {
 } from "../../utils/validator";
 import { PaymentService } from "../../services/implementation/PaymentService";
 
-
-
 export class UserController implements IUserController {
-
   constructor(
     private _userService: IUserService,
     private _paymentService: PaymentService
   ) {}
 
-  // For registering new user
   async registerUser(req: Request, res: Response): Promise<void> {
     const { name, email, password } = req.body;
 
     if (!name || !email || !password) {
-      res
-        .status(HttpStatus.BAD_REQUEST)
-        .json({ success: false, message: "All fields are required" });
+      res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: HttpResponse.FIELDS_REQUIRED });
       return;
     }
 
     if (!isValidName(name)) {
-      res.status(HttpStatus.BAD_REQUEST).json({
-        success: false,
-        message: "Name must only contain atleast 4 characters",
-      });
+      res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: HttpResponse.INVALID_NAME });
       return;
     }
 
     if (!isValidEmail(email)) {
-      res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Invalid email format" });
+      res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: HttpResponse.INVALID_EMAIL });
       return;
     }
 
     if (!isValidPassword(password)) {
-      res.status(HttpStatus.BAD_REQUEST).json({
-        success: false,
-        message:
-          "Password must be at least 8 characters long, contain at least 1 letter, 1 number, and 1 special character",
-      });
+      res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: HttpResponse.INVALID_PASSWORD });
       return;
     }
 
     const existing = await this._userService.checkEmailExists(email);
     if (existing) {
-      res
-        .status(HttpStatus.CONFLICT)
-        .json({ success: false, message: "Email already registered" });
+      res.status(HttpStatus.CONFLICT).json({ success: false, message: HttpResponse.EMAIL_ALREADY_EXISTS });
       return;
     }
 
@@ -74,20 +60,19 @@ export class UserController implements IUserController {
 
     try {
       await sendOTP(email, otp);
-      res.status(HttpStatus.OK).json({ success: true, message: "OTP sent to email" });
+      res.status(HttpStatus.OK).json({ success: true, message: HttpResponse.OTP_SENT });
     } catch (err) {
       console.error("Email send failed:", err);
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: "OTP sent failed" });
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: HttpResponse.OTP_SEND_FAILED });
     }
   }
 
-  // For OTP verification
   async verifyOtp(req: Request, res: Response): Promise<void> {
     const { email, otp } = req.body;
 
     const record = otpStore.get(email);
     if (!record || record.otp !== otp) {
-      res.status(HttpStatus.UNAUTHORIZED).json({ success: false, message: "Invalid OTP" });
+      res.status(HttpStatus.UNAUTHORIZED).json({ success: false, message: HttpResponse.OTP_INVALID });
       return;
     }
 
@@ -95,32 +80,26 @@ export class UserController implements IUserController {
       const newUser = await this._userService.finalizeRegister(record.userData);
       const token = this._userService.generateToken(newUser._id);
       otpStore.delete(email);
-      res
-        .status(HttpStatus.CREATED)
-        .json({ success: true, token, message: "Registered Successfully" });
+      res.status(HttpStatus.CREATED).json({ success: true, token, message: HttpResponse.REGISTER_SUCCESS });
       return;
     }
 
     if (record.purpose === "reset-password") {
       otpStore.set(email, { ...record, otp: "VERIFIED" });
-      res.status(HttpStatus.OK).json({ success: true, message: "OTP verified" });
+      res.status(HttpStatus.OK).json({ success: true, message: HttpResponse.OTP_VERIFIED });
       return;
     }
 
-    res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: "Unknown OTP purpose" });
+    res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: HttpResponse.BAD_REQUEST });
   }
 
-  // For resenting OTP
   async resendOtp(req: Request, res: Response): Promise<void> {
     try {
       const { email } = req.body;
-
       const record = otpStore.get(email);
 
       if (!record) {
-        res
-          .status(HttpStatus.NOT_FOUND)
-          .json({ success: false, message: "No pending OTP found" });
+        res.status(HttpStatus.NOT_FOUND).json({ success: false, message: HttpResponse.OTP_NOT_FOUND });
         return;
       }
 
@@ -129,23 +108,20 @@ export class UserController implements IUserController {
       otpStore.set(email, { ...record, otp: newOtp });
 
       await sendOTP(email, newOtp);
-      res
-        .status(HttpStatus.OK)
-        .json({ success: true, message: "OTP resent successfully" });
+      res.status(HttpStatus.OK).json({ success: true, message: HttpResponse.OTP_RESENT });
     } catch (error) {
       console.error("Resend OTP error:", error);
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: "Failed to resend OTP" });
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: HttpResponse.OTP_SEND_FAILED });
     }
   }
 
-  // For forgot password request
   async forgotPasswordRequest(req: Request, res: Response): Promise<void> {
     const { email } = req.body;
 
     try {
       const user = await this._userService.checkEmailExists(email);
       if (!user) {
-        res.status(HttpStatus.NOT_FOUND).json({ success: false, message: "Email not found" });
+        res.status(HttpStatus.NOT_FOUND).json({ success: false, message: HttpResponse.USER_NOT_FOUND });
         return;
       }
 
@@ -154,37 +130,24 @@ export class UserController implements IUserController {
       otpStore.set(email, { otp, purpose: "reset-password", email });
 
       await sendOTP(email, otp);
-      res
-        .status(HttpStatus.OK)
-        .json({ success: true, message: "OTP sent to your email" });
+      res.status(HttpStatus.OK).json({ success: true, message: HttpResponse.RESET_EMAIL_SENT });
     } catch (err) {
       console.error("Error sending OTP:", err);
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: "Failed to send OTP" });
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: HttpResponse.OTP_SEND_FAILED });
     }
   }
 
-  // For reset password
   async resetPassword(req: Request, res: Response): Promise<void> {
     const { email, newPassword } = req.body;
 
     if (!isValidPassword(newPassword)) {
-      res.status(HttpStatus.BAD_REQUEST).json({
-        success: false,
-        message:
-          "Password must be at least 8 characters long, contain at least 1 letter, 1 number, and 1 special character",
-      });
+      res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: HttpResponse.INVALID_PASSWORD });
       return;
     }
 
     const record = otpStore.get(email);
-    if (
-      !record ||
-      record.purpose !== "reset-password" ||
-      record.otp !== "VERIFIED"
-    ) {
-      res
-        .status(HttpStatus.UNAUTHORIZED)
-        .json({ success: false, message: "OTP not verified or expired" });
+    if (!record || record.purpose !== "reset-password" || record.otp !== "VERIFIED") {
+      res.status(HttpStatus.UNAUTHORIZED).json({ success: false, message: HttpResponse.OTP_EXPIRED_OR_INVALID });
       return;
     }
 
@@ -192,196 +155,137 @@ export class UserController implements IUserController {
     const updated = await this._userService.resetPassword(email, hashed);
 
     if (!updated) {
-      res.status(HttpStatus.NOT_FOUND).json({ success: false, message: "User not found" });
+      res.status(HttpStatus.NOT_FOUND).json({ success: false, message: HttpResponse.USER_NOT_FOUND });
       return;
     }
 
     otpStore.delete(email);
-
-    res
-      .status(HttpStatus.OK)
-      .json({ success: true, message: "Password updated successfully" });
+    res.status(HttpStatus.OK).json({ success: true, message: HttpResponse.PASSWORD_UPDATED });
   }
 
-  // For user login
   async loginUser(req: Request, res: Response): Promise<void> {
     try {
       const { email, password } = req.body;
 
       if (!email || !password) {
-        res
-          .status(HttpStatus.BAD_REQUEST)
-          .json({ success: false, message: "Email and password are required" });
+        res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: HttpResponse.FIELDS_REQUIRED });
         return;
       }
 
       if (!isValidEmail(email)) {
-        res
-          .status(HttpStatus.BAD_REQUEST)
-          .json({ success: false, message: "Invalid email format" });
+        res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: HttpResponse.INVALID_EMAIL });
         return;
       }
 
       if (!isValidPassword(password)) {
-        res.status(HttpStatus.BAD_REQUEST).json({
-          success: false,
-          message:
-            "Password must be at least 8 characters long, contain at least 1 letter, 1 number, and 1 special character",
-        });
+        res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: HttpResponse.INVALID_PASSWORD });
         return;
       }
 
       const { token } = await this._userService.login(email, password);
-      res.status(HttpStatus.OK).json({ success: true, token });
+      res.status(HttpStatus.OK).json({ success: true, token, message: HttpResponse.LOGIN_SUCCESS });
     } catch (error) {
-      res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ success: false, message: (error as Error).message });
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: (error as Error).message });
     }
   }
 
-  // For getting user profile
   async getProfile(req: Request, res: Response): Promise<void> {
     try {
       const userId = (req as any).userId;
       const userData = await this._userService.getProfile(userId);
       if (!userData) {
-        res.status(HttpStatus.NOT_FOUND).json({ success: false, message: "User not found" });
+        res.status(HttpStatus.NOT_FOUND).json({ success: false, message: HttpResponse.USER_NOT_FOUND });
         return;
       }
       res.status(HttpStatus.OK).json({ success: true, userData });
     } catch (error) {
-      res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ success: false, message: (error as Error).message });
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: (error as Error).message });
     }
   }
 
-  // For updating user profile
   async updateProfile(req: Request, res: Response): Promise<void> {
     try {
       const userId = (req as any).userId;
       await this._userService.updateProfile(userId, req.body, req.file);
-      res.status(HttpStatus.OK).json({ success: true, message: "Profile updated" });
+      res.status(HttpStatus.OK).json({ success: true, message: HttpResponse.PROFILE_UPDATED });
     } catch (error) {
-      res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ success: false, message: (error as Error).message });
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: (error as Error).message });
     }
   }
 
-  // For Booking an appointment
   async bookAppointment(req: Request, res: Response): Promise<void> {
     try {
+      const { docId, slotDate, slotTime } = req.body;
+      const userId = (req as any).userId;
 
-    const { docId, slotDate, slotTime } = req.body;
-    const userId = (req as any).userId;            
+      const user = await this._userService.getUserById(userId);
+      const doctor = await this._userService.getDoctorById(docId);
 
-    const user = await this._userService.getUserById(userId);
-    const doctor = await this._userService.getDoctorById(docId);
-
-    const appointmentData = {
-      userId,
-      docId,
-      slotDate,
-      slotTime,
-      userData: {
-        name: user.name,
-        email: user.email,
-        phone: user.phone,
-      },
-      docData: {
-        name: doctor.name,
-        speciality: doctor.speciality,
-      },
-      amount: doctor.fees,
-      date: Date.now(),
-    };
+      const appointmentData = {
+        userId,
+        docId,
+        slotDate,
+        slotTime,
+        userData: {
+          name: user.name,
+          email: user.email,
+          phone: user.phone,
+        },
+        docData: {
+          name: doctor.name,
+          speciality: doctor.speciality,
+        },
+        amount: doctor.fees,
+        date: Date.now(),
+      };
 
       await this._userService.bookAppointment(appointmentData);
-      res.status(HttpStatus.OK).json({ success: true, message: "Appointment booked" });
+      res.status(HttpStatus.OK).json({ success: true, message: HttpResponse.APPOINTMENT_BOOKED });
     } catch (error) {
-      res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ success: false, message: (error as Error).message });
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: (error as Error).message });
     }
   }
 
-  // To list all the appointments
   async listAppointment(req: Request, res: Response): Promise<void> {
-
     try {
-
-      const  userId  = (req as any).userId;
-      const appointments = await this._userService.listUserAppointments(userId)
-
-      res.status(HttpStatus.OK).json({success: true, appointments})
-      
+      const userId = (req as any).userId;
+      const appointments = await this._userService.listUserAppointments(userId);
+      res.status(HttpStatus.OK).json({ success: true, appointments });
     } catch (error) {
-      res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ success: false, message: (error as Error).message });
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: (error as Error).message });
     }
   }
 
-// For cancelling the appointment
   async cancelAppointment(req: Request, res: Response): Promise<void> {
-
     try {
-
-    const userId = (req as any).userId;          
-    const { appointmentId } = req.body;                  
-
-    await this._userService.cancelAppointment(userId, appointmentId);
-    res.status(HttpStatus.OK).json({ success: true, message: "Appointment cancelled" });
-      
+      const userId = (req as any).userId;
+      const { appointmentId } = req.body;
+      await this._userService.cancelAppointment(userId, appointmentId);
+      res.status(HttpStatus.OK).json({ success: true, message: HttpResponse.APPOINTMENT_CANCELLED });
     } catch (error) {
-      res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ success: false, message: (error as Error).message });
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: (error as Error).message });
     }
   }
 
-
-  // For payment using razorpay
   async paymentRazorpay(req: Request, res: Response): Promise<void> {
-
     try {
-
-    const userId = (req as any).userId;
-    const { appointmentId } = req.body;
-
-    const { order } = await this._userService.startPayment(
-      userId,
-      appointmentId
-    );
-
-    res.status(HttpStatus.OK).json({ success: true, order });
-      
+      const userId = (req as any).userId;
+      const { appointmentId } = req.body;
+      const { order } = await this._userService.startPayment(userId, appointmentId);
+      res.status(HttpStatus.OK).json({ success: true, order });
     } catch (error) {
-      res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ success: false, message: (error as Error).message });
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: (error as Error).message });
     }
   }
 
-
-  // For verifying the razorpay payment
   async verifyRazorpay(req: Request, res: Response): Promise<void> {
-
     try {
-
-    const userId = (req as any).userId;
-    const { appointmentId, razorpay_order_id } = req.body;
-
-    await this._userService.verifyPayment(userId, appointmentId, razorpay_order_id);
-
-    res.status(HttpStatus.OK).json({ success: true, message: "Payment Successful" });
-      
+      const userId = (req as any).userId;
+      const { appointmentId, razorpay_order_id } = req.body;
+      await this._userService.verifyPayment(userId, appointmentId, razorpay_order_id);
+      res.status(HttpStatus.OK).json({ success: true, message: HttpResponse.PAYMENT_SUCCESS });
     } catch (error) {
-      res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ success: false, message: (error as Error).message });
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: (error as Error).message });
     }
-  } 
+  }
 }

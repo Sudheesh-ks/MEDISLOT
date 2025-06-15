@@ -1,16 +1,23 @@
+// repositories/impl/AdminRepository.ts
+
 import { IAdminRepository } from "../interface/IAdminRepository";
+import { BaseRepository } from "../BaseRepository";
+import adminModel from "../../models/adminModel";
 import doctorModel from "../../models/doctorModel";
+import userModel from "../../models/userModel";
+import appointmentModel from "../../models/appointmentModel";
 import { DoctorData } from "../../types/doctor";
 import { userData } from "../../types/user";
-import userModel from "../../models/userModel";
-import { adminData } from "../../types/admin";
-import adminModel from "../../models/adminModel";
+import { AdminDocument } from "../../types/admin";
 import { AppointmentDocument } from "../../types/appointment";
-import appointmentModel from "../../models/appointmentModel";
 
-export class AdminRepository implements IAdminRepository {
-  async findByEmail(email: string): Promise<adminData | null> {
-    return (await adminModel.findOne({ email })) as adminData | null;
+export class AdminRepository extends BaseRepository<AdminDocument> {
+  constructor() {
+    super(adminModel); // ✅ Now types match
+  }
+
+  async findByEmail(email: string): Promise<AdminDocument | null> {
+    return this.findOne({ email });
   }
 
   async saveDoctor(data: DoctorData): Promise<void> {
@@ -19,11 +26,11 @@ export class AdminRepository implements IAdminRepository {
   }
 
   async getAllDoctors(): Promise<Omit<DoctorData, "password">[]> {
-    return await doctorModel.find({}).select("-password");
+    return doctorModel.find({}).select("-password");
   }
 
   async getAllUsers(): Promise<Omit<userData, "password">[]> {
-    return await userModel.find({}).select("-password");
+    return userModel.find({}).select("-password");
   }
 
   async toggleUserBlock(userId: string): Promise<string> {
@@ -37,7 +44,7 @@ export class AdminRepository implements IAdminRepository {
   }
 
   async getAllAppointments(): Promise<AppointmentDocument[]> {
-    return await appointmentModel.find({});
+    return appointmentModel.find({});
   }
 
   async cancelAppointment(appointmentId: string): Promise<void> {

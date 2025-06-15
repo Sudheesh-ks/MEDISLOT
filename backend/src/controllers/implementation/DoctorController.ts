@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { DoctorService } from "../../services/implementation/DoctorService";
 import { IDoctorController } from "../interface/IdoctorController.interface";
 import { HttpStatus } from "../../constants/status.constants";
+import { HttpResponse } from "../../constants/responseMessage.constants";
 
 export class DoctorController implements IDoctorController {
   constructor(private _doctorService: DoctorService) {}
@@ -13,7 +14,7 @@ export class DoctorController implements IDoctorController {
       await this._doctorService.toggleAvailability(docId);
       res
         .status(HttpStatus.OK)
-        .json({ success: true, message: "Availability Changed" });
+        .json({ success: true, message: HttpResponse.DOCTOR_AVAILABILITY_CHANGE });
     } catch (error) {
       console.log(error as Error);
       res
@@ -43,7 +44,7 @@ export class DoctorController implements IDoctorController {
       if (!token) {
         res
           .status(HttpStatus.UNAUTHORIZED)
-          .json({ success: false, message: "Invalid credentials" });
+          .json({ success: false, message: HttpResponse.UNAUTHORIZED });
         return;
       }
 
@@ -80,7 +81,7 @@ export class DoctorController implements IDoctorController {
 
       res
         .status(HttpStatus.OK)
-        .json({ success: true, message: "Appointment Confirmed" });
+        .json({ success: true, message: HttpResponse.OK });
     } catch (error) {
       res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -98,7 +99,7 @@ export class DoctorController implements IDoctorController {
 
       res
         .status(HttpStatus.OK)
-        .json({ success: true, message: "Appointment Cancelled" });
+        .json({ success: true, message: HttpResponse.APPOINTMENT_CANCELLED });
     } catch (error) {
       res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
