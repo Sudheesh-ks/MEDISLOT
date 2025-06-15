@@ -5,6 +5,11 @@ export const getDoctorsAPI = async () => {
   return await api.get("/api/doctor");
 };
 
+// For doctor registration
+export const registerDoctorAPI = (formData: FormData) => {
+  return api.post("/api/doctor/register", formData);
+};
+
 // For doctor login
 export const doctorLoginAPI = async (email: string, password: string) => {
   return await api.post("/api/doctor/login", { email, password });

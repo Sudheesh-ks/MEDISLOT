@@ -3,9 +3,70 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import { IDoctorService } from "../interface/IDoctorService";
 import { AppointmentTypes } from "../../types/appointment";
-
+import { DoctorData, DoctorDTO } from "../../types/doctor";
+import { v2 as cloudinary } from "cloudinary";
 export class DoctorService implements IDoctorService {
   constructor(private _doctorRepository: IDoctorRepository) {}
+
+
+  async registerDoctor(data: DoctorDTO): Promise<void> {
+  const {
+    name,
+    email,
+    password,
+    speciality,
+    degree,
+    experience,
+    about,
+    fees,
+    address,
+    imagePath,
+  } = data;
+
+  if (
+    !name ||
+    !email ||
+    !password ||
+    !speciality ||
+    !degree ||
+    !experience ||
+    !about ||
+    !fees ||
+    !address
+  ) {
+    throw new Error("All Fields Required");
+  }
+
+  const existing = await this._doctorRepository.findByEmail(email);
+  if (existing) throw new Error("Email already registered");
+
+  const hashedPassword = await bcrypt.hash(password, 10);
+
+  let imageUrl = "";
+  if (imagePath) {
+    const uploadResult = await cloudinary.uploader.upload(imagePath, {
+      resource_type: "image",
+    });
+    imageUrl = uploadResult.secure_url;
+  }
+
+  const doctorData: DoctorData = {
+    name,
+    email,
+    password: hashedPassword,
+    speciality,
+    degree,
+    experience,
+    about,
+    fees,
+    address,
+    image: imageUrl,
+    date: new Date(),
+    status: "pending", // doctor requires admin approval
+  };
+
+  await this._doctorRepository.registerDoctor(doctorData);
+}
 
   async toggleAvailability(docId: string): Promise<void> {
     const doc = await this._doctorRepository.findById(docId);

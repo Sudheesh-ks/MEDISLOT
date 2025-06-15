@@ -5,6 +5,21 @@ export const adminLoginAPI = async (email: string, password: string) => {
   return await api.post("/api/admin/login", { email, password });
 };
 
+
+// Approve doctor
+export const approveDoctorAPI = async (doctorId: string, token: string) => {
+  return await api.patch(`/api/admin/doctors/${doctorId}/approve`, {}, {
+    headers: { aToken: token },
+  });
+};
+
+// Reject doctor
+export const rejectDoctorAPI = async (doctorId: string, token: string) => {
+  return await api.patch(`/api/admin/doctors/${doctorId}/reject`, {}, {
+    headers: { aToken: token },
+  });
+};
+
 // For adding doctors
 export const adminAddDoctorAPI = async (formData: FormData, token: string) => {
   return await api.post("/api/admin/doctors", formData, {

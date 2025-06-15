@@ -20,6 +20,7 @@ export interface DoctorData {
   available?: boolean;
   fees: number;
   address: Address;
+  status?: "pending" | "approved" | "rejected"; 
   date?: Date;
   slots_booked?: {
     [date: string]: string[]; 

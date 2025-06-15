@@ -3,9 +3,62 @@ import { DoctorService } from "../../services/implementation/DoctorService";
 import { IDoctorController } from "../interface/IdoctorController.interface";
 import { HttpStatus } from "../../constants/status.constants";
 import { HttpResponse } from "../../constants/responseMessage.constants";
+import { DoctorData, DoctorDTO } from "../../types/doctor";
 
 export class DoctorController implements IDoctorController {
   constructor(private _doctorService: DoctorService) {}
+
+  // For doctor registration
+  async registerDoctor(req: Request, res: Response): Promise<void> {
+  try {
+    const {
+      name,
+      email,
+      password,
+      experience,
+      about,
+      speciality,
+      degree,
+      fees,
+      address,
+    } = req.body;
+
+    const imageFile = req.file;
+
+    if (!imageFile) {
+      res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: "Doctor image is required",
+      });
+      return;
+    }
+
+    const doctorDTO: DoctorDTO = {
+      name,
+      email,
+      password,
+      experience,
+      about,
+      speciality,
+      degree,
+      fees: Number(fees),
+      address: JSON.parse(address),
+      imagePath: imageFile.path,
+    };
+
+    await this._doctorService.registerDoctor(doctorDTO);
+
+    res.status(HttpStatus.CREATED).json({
+      success: true,
+      message: HttpResponse.DOCTOR_REGISTER_SUCCESS,
+    });
+  } catch (error) {
+    res.status(HttpStatus.BAD_REQUEST).json({
+      success: false,
+      message: (error as Error).message,
+    });
+  }
+}
 
   // For updating doctor availability
   async changeAvailability(req: Request, res: Response): Promise<void> {

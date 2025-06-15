@@ -13,4 +13,6 @@ export interface IAdminService {
   toggleUserBlock(userId: string, block: boolean): Promise<string>;
   listAppointments(): Promise<AppointmentDocument[]>;
   cancelAppointment(appointmentId: string): Promise<void>;
+  approveDoctor(doctorId: string): Promise<string>;
+rejectDoctor(doctorId: string): Promise<string>;
 }

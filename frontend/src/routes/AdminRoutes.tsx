@@ -12,6 +12,7 @@ import AdminAddDoctor from "../pages/admin/AdminAddDoctor";
 import AdminUpdateDoctor from "../pages/admin/AdminUpdateDoctor";
 import AdminDoctorList from "../pages/admin/AdminDoctorList";
 import AdminInbox from "../pages/admin/AdminInbox";
+import AdminDoctorRequests from "../pages/admin/AdminDoctorRequests";
 
 const AdminRoutes = () => {
   return (
@@ -43,10 +44,10 @@ const AdminRoutes = () => {
         }
       />
       <Route
-        path="/admin/add-doctor"
+        path="/admin/doctor-requests"
         element={
           <AdminLayout>
-            <AdminAddDoctor />
+            <AdminDoctorRequests />
           </AdminLayout>
         }
       />

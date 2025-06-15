@@ -24,7 +24,9 @@ const TopDoctors = () => {
         Simply browse through our extensive list of trusted doctors.
       </p>
       <div className="w-full grid grid-cols-auto gap-4 pt-5 gap-y-6 px-3 sm:px-0">
-        {doctors.slice(0, 10).map((item: Doctor, index: number) => (
+        {doctors
+        .filter((doctor) => doctor.status === "approved")
+        .slice(0, 10).map((item: Doctor, index: number) => (
           <div
             onClick={() => {
               navigate(`/appointment/${item._id}`);

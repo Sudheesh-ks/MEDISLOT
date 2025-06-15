@@ -57,6 +57,7 @@ export interface Doctor {
     about: string;
     fees: number;
     address: Address;
+    status?: "pending" | "approved" | "rejected"; 
     slots_booked?: {
     [date: string]: string[]; 
     };

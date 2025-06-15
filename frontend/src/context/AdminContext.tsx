@@ -6,10 +6,12 @@ import type { userData } from "../types/user";
 import {
   adminCancelAppointmentAPI,
   adminDashboardAPI,
+  approveDoctorAPI,
   changeAvailabilityAPI,
   getAllAppointmentsAPI,
   getAllDoctorsAPI,
   getAllUsersAPI,
+  rejectDoctorAPI,
   toggleUserBlockAPI,
 } from "../services/adminServices";
 import { showErrorToast } from "../utils/errorHandler";
@@ -32,6 +34,8 @@ interface AdminContextType {
   cancelAppointment: (appointmentId: string) => Promise<void>;
   dashData: any;
   getDashData: () => Promise<void>;
+  approveDoctor: (doctorId: string) => Promise<void>;
+rejectDoctor: (doctorId: string) => Promise<void>;
 }
 
 export const AdminContext = createContext<AdminContextType | null>(null);
@@ -62,6 +66,36 @@ const AdminContextProvider = ({ children }: AdminContextProviderProps) => {
       showErrorToast(error);
     }
   };
+
+
+  const approveDoctor = async (doctorId: string) => {
+  try {
+    const { data } = await approveDoctorAPI(doctorId, aToken);
+    if (data.success) {
+      toast.success(data.message);
+      getAllDoctors(); // refresh list
+    } else {
+      toast.error(data.message);
+    }
+  } catch (error) {
+    showErrorToast(error);
+  }
+};
+
+const rejectDoctor = async (doctorId: string) => {
+  try {
+    const { data } = await rejectDoctorAPI(doctorId, aToken);
+    if (data.success) {
+      toast.success(data.message);
+      getAllDoctors(); // refresh list
+    } else {
+      toast.error(data.message);
+    }
+  } catch (error) {
+    showErrorToast(error);
+  }
+};
+
 
   const changeAvailability = async (docId: string) => {
     try {
@@ -183,6 +217,8 @@ const AdminContextProvider = ({ children }: AdminContextProviderProps) => {
     cancelAppointment,
     dashData,
     getDashData,
+    approveDoctor,
+    rejectDoctor,
   };
 
   return (

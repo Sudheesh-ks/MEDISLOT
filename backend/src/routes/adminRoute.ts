@@ -13,11 +13,11 @@ import { DoctorController } from "../controllers/implementation/DoctorController
 
 // Admin Layer
 const adminRepository = new AdminRepository();
-const adminService = new AdminService(adminRepository);
+const doctorRepository = new DoctorRepository();
+const adminService = new AdminService(adminRepository, doctorRepository);
 const adminController = new AdminController(adminService);
 
 // Doctor Layer
-const doctorRepository = new DoctorRepository();
 const doctorService = new DoctorService(doctorRepository);
 const doctorController = new DoctorController(doctorService);
 
@@ -45,6 +45,10 @@ adminRouter.get(
   authAdmin,
   adminController.getDoctors.bind(adminController)
 );
+
+adminRouter.patch("/doctors/:id/approve", authAdmin, adminController.approveDoctor.bind(adminController));
+adminRouter.patch("/doctors/:id/reject", authAdmin, adminController.rejectDoctor.bind(adminController));
+
 
 adminRouter.patch(
   "/doctors/:doctorId/availability",

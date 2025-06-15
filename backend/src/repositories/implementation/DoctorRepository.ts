@@ -10,8 +10,16 @@ export class DoctorRepository extends BaseRepository<DoctorDocument> implements 
     super(doctorModel);
   }
 
+    async registerDoctor(data: DoctorData): Promise<DoctorDocument> {
+    return doctorModel.create(data);
+  }
+
   async findByEmail(email: string): Promise<DoctorData | null> {
     return this.findOne({ email });
+  }
+
+  async save(doctor: DoctorDocument): Promise<void> {
+    await doctor.save();
   }
 
   async updateAvailability(id: string, available: boolean): Promise<void> {

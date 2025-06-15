@@ -127,7 +127,9 @@ const Doctors = () => {
           </p>
         </div>
         <div className="w-full grid grid-cols-auto gap-4 gap-y-6">
-          {filterDoc.map((item: Doctor, index: number) => (
+          {filterDoc
+          .filter((doctor) => doctor.status === "approved")
+          .map((item: Doctor, index: number) => (
             <div
               onClick={() => navigate(`/appointment/${item._id}`)}
               className="border border-blue-200 rounded-xl overflow-hidden cursor-pointer hover:translate-y-[-10px] transition-all duration-500"

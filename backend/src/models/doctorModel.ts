@@ -63,9 +63,15 @@ const doctorSchema: Schema<DoctorDocument> = new mongoose.Schema(
       required: true,
     },
 
+    status: {
+      type: String,
+      enum: ["pending", "approved", "rejected"],
+      default: "pending",
+    },
+
     date: {
       type: Date,
-      required: true,
+      required: Date.now,
     },
 
     slots_booked: {

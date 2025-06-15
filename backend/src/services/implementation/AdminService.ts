@@ -7,10 +7,14 @@ import { DoctorData, DoctorDTO } from "../../types/doctor";
 import { isValidEmail, isValidPassword } from "../../utils/validator";
 import dotenv from "dotenv";
 import { AppointmentDocument } from "../../types/appointment";
+import { IDoctorRepository } from "../../repositories/interface/IDoctorRepository";
 dotenv.config();
 
 export class AdminService implements IAdminService {
-  constructor(private readonly _adminRepository: IAdminRepository) {}
+  constructor(
+    private readonly _adminRepository: IAdminRepository,
+    private readonly _doctorRepository: IDoctorRepository
+  ) {}
 
   async login(email: string, password: string): Promise<{ token: string }> {
     const admin = await this._adminRepository.findByEmail(email);
@@ -85,9 +89,33 @@ export class AdminService implements IAdminService {
       date: new Date(),
     };
 
+
+    
+
     await this._adminRepository.saveDoctor(doctorData);
     return "Doctor added successfully";
   }
+
+  async approveDoctor(doctorId: string): Promise<string> {
+  const doctor = await this._doctorRepository.findById(doctorId);
+  if (!doctor) throw new Error("Doctor not found");
+  if (doctor.status === "approved") throw new Error("Doctor already approved");
+
+  doctor.status = "approved";
+  await this._doctorRepository.save(doctor);
+  return "Doctor approved successfully";
+}
+
+async rejectDoctor(doctorId: string): Promise<string> {
+  const doctor = await this._doctorRepository.findById(doctorId);
+  if (!doctor) throw new Error("Doctor not found");
+  if (doctor.status === "rejected") throw new Error("Doctor already rejected");
+
+  doctor.status = "rejected";
+  await this._doctorRepository.save(doctor);
+  return "Doctor rejected successfully";
+}
+
 
   async getDoctors(): Promise<any[]> {
     return await this._adminRepository.getAllDoctors();

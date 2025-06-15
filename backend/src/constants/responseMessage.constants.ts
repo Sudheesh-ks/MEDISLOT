@@ -25,6 +25,7 @@ export const HttpResponse = {
 
 
 //   Doctor related
+    DOCTOR_REGISTER_SUCCESS: "Doctor Registration Successful",
     DOCTOR_AVAILABILITY_CHANGE: "Availability Changed",
 
   // OTP
