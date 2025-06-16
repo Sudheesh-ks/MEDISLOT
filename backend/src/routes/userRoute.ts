@@ -25,6 +25,8 @@ userRouter.post(
   "/password/reset",
   userController.resetPassword.bind(userController)
 );
+userRouter.get("/refresh-token", userController.refreshToken.bind(userController));
+userRouter.post("/logout", userController.logout.bind(userController));
 userRouter.get(
   "/profile",
   authUser,

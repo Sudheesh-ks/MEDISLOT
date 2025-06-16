@@ -4,6 +4,8 @@ import { IDoctorController } from "../interface/IdoctorController.interface";
 import { HttpStatus } from "../../constants/status.constants";
 import { HttpResponse } from "../../constants/responseMessage.constants";
 import { DoctorData, DoctorDTO } from "../../types/doctor";
+import doctorModel from "../../models/doctorModel";
+import { Address } from "cluster";
 
 export class DoctorController implements IDoctorController {
   constructor(private _doctorService: DoctorService) {}
@@ -159,4 +161,54 @@ export class DoctorController implements IDoctorController {
         .json({ success: false, message: (error as Error).message });
     }
   }
+
+
+ async doctorProfile(req: Request, res: Response): Promise<void> {
+  try {
+    const doctId = (req as any).docId;
+    const profileData = await this._doctorService.getDoctorProfile(doctId);
+    res.json({ success: true, profileData });
+  } catch (error) {
+    res.status(500).json({ success: false, message: (error as Error).message });
+  }
+}
+
+async updateDoctorProfile(req: Request, res: Response): Promise<void> {
+  try {
+     const doctId = req.body.doctId;
+      const {
+        name,
+        speciality,
+        degree,
+        experience,
+        about,
+        fees,
+        address
+      } = req.body;
+
+      const imageFile = req.file;
+
+      const parsedAddress = JSON.parse(address);
+
+      await this._doctorService.updateDoctorProfile({
+        doctId,
+        name,
+        speciality,
+        degree,
+        experience,
+        about,
+        fees: Number(fees),
+        address: parsedAddress,
+        imagePath: imageFile?.path,
+      });
+
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: "Doctor profile updated successfully",
+      });
+  } catch (error) {
+    res.status(500).json({ success: false, message: (error as Error).message });
+  }
+}
+
 }

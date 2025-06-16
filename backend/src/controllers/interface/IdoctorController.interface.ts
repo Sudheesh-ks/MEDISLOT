@@ -6,4 +6,5 @@ export interface IDoctorController {
   appointmentsDoctor(req: Request, res: Response): Promise<void>;
   appointmentConfirm(req: Request, res: Response): Promise<void>;
   appointmentCancel(req: Request, res: Response): Promise<void>;
+  updateDoctorProfile(req: Request, res: Response): Promise<void>;
 }

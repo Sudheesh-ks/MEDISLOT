@@ -2,6 +2,7 @@ import { useContext, useState } from "react";
 import { assets } from "../../assets/user/assets";
 import { NavLink, useNavigate } from "react-router-dom";
 import { AppContext } from "../../context/AppContext";
+import { clearAccessToken } from "../../context/tokenManager";
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -17,8 +18,9 @@ const Navbar = () => {
   const [showMenu, setShowMenu] = useState(false);
 
   const logout = () => {
-    setToken(null);
-    localStorage.removeItem("token");
+  setToken(null);                      // Clear React context state
+  localStorage.removeItem("token");   // Clear persistent token
+  clearAccessToken();  
   };
 
   return (

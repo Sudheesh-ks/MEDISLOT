@@ -18,6 +18,9 @@ export const HttpResponse = {
   REGISTER_SUCCESS: 'Registered successfully',
   LOGIN_SUCCESS: 'User logged in successfully',
   PROFILE_UPDATED: 'Profile updated successfully',
+  REFRESH_TOKEN_MISSING: "No refresh token provided",
+  REFRESH_TOKEN_INVALID: "Invalid refresh token",
+  REFRESH_TOKEN_FAILED: "Token verification failed",
 
 //   Admin related
   ADMIN_FIELDS_REQUIRED: "Email and password are required",

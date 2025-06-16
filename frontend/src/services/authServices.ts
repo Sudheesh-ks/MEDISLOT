@@ -14,6 +14,10 @@ export const loginUserAPI = async (email: string, password: string) => {
   return await api.post("/api/user/login", { email, password });
 };
 
+export const refreshAccessTokenAPI = async () => {
+  return await api.get("/api/user/refresh-token"); // returns { token: string }
+};
+
 // OTP Verification
 export const verifyOtpAPI = async (email: string, otp: string) => {
   return api.post("/api/user/otp/verify", { email, otp });

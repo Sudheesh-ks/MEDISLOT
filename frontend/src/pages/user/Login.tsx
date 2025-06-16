@@ -63,8 +63,9 @@ const Login = () => {
       } else {
         const { data } = await loginUserAPI(email, password);
         if (data.success) {
-          localStorage.setItem("token", data.token);
           setToken(data.token);
+          toast.success("Login successful");
+          navigate("/");
         } else {
           toast.error(data?.message || "Something went wrong");
         }
@@ -78,7 +79,7 @@ const Login = () => {
     if (token) {
       navigate("/");
     }
-  });
+  }, [token, navigate]);
 
   return (
     <form

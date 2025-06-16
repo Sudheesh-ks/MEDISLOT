@@ -11,5 +11,14 @@ export interface IDoctorRepository {
   findAppointmentsByDoctorId(docId: string): Promise<AppointmentTypes[]>;
   findAppointmentById(id: string): Promise<AppointmentTypes | null>;
   markAppointmentAsConfirmed(id: string): Promise<void>;
-  cancelAppointment(id: string): Promise<void>
-}
+  cancelAppointment(id: string): Promise<void>;
+  getDoctorProfileById(id: string): Promise<DoctorData | null>;
+  updateDoctorProfile(
+  id: string,
+  updateData: Partial<
+    Pick<
+      DoctorData,
+      "name" | "speciality" | "degree" | "experience" | "about" | "fees" | "address" | "image"
+    >
+  >
+): Promise<void>}

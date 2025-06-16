@@ -12,7 +12,7 @@ export interface IUserService {
     email: string,
     password: string
   ): Promise<{ token: string }>;
-  login(email: string, password: string): Promise<{ token: string }>;
+  login(email: string, password: string): Promise<{ token: string; refreshToken: string }>;
   getProfile(userId: string): Promise<userData | null>;
   updateProfile(
     userId: string,
@@ -26,7 +26,6 @@ export interface IUserService {
     email: string;
     password: string;
   }): Promise<UserDocument>;
-  generateToken(userId: string): string;
   resetPassword(email: string, newHashedPassword: string): Promise<boolean>;
   getUserById(id: string): Promise<UserDocument>;
   getDoctorById(id: string): Promise<DoctorData>;

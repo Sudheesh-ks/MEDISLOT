@@ -43,4 +43,19 @@ doctorRouter.patch(
   doctorController.appointmentCancel.bind(doctorController)
 );
 
+doctorRouter.get(
+  "/profile",
+  authDoctor,
+  doctorController.doctorProfile.bind(doctorController)
+);
+
+doctorRouter.patch(
+  "/profile/update",
+  authDoctor,
+  upload.single("image"),
+  doctorController.updateDoctorProfile.bind(doctorController)
+);
+
+
+
 export default doctorRouter;

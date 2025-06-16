@@ -5,9 +5,11 @@ import {
   AppointmentCancelAPI,
   AppointmentConfirmAPI,
   getDoctorAppointmentsAPI,
+  getDoctorProfileAPI,
 } from "../services/doctorServices";
 import { toast } from "react-toastify";
 import type { AppointmentTypes } from "../types/appointment";
+import type { DoctorProfileType } from "../types/doctor";
 
 interface DoctorContextType {
   dToken: string;
@@ -18,6 +20,9 @@ interface DoctorContextType {
   getAppointments: () => Promise<void>;
   confirmAppointment: (appointmentId: string) => Promise<void>;
   cancelAppointment: (appointmentId: string) => Promise<void>;
+    profileData: DoctorProfileType | null;
+  setProfileData: React.Dispatch<React.SetStateAction<DoctorProfileType | null>>;
+  getProfileData: () => Promise<void>;
 }
 
 export const DoctorContext = createContext<DoctorContextType>(
@@ -33,6 +38,7 @@ const DoctorContextProvider = ({ children }: DoctorContextProviderProps) => {
 
   const [dToken, setDToken] = useState(localStorage.getItem("dToken") ?? "");
   const [appointments, setAppointments] = useState<AppointmentTypes[]>([]);
+  const [profileData, setProfileData] = useState<DoctorProfileType | null>(null);
 
   const getAppointments = async () => {
     try {
@@ -78,6 +84,20 @@ const DoctorContextProvider = ({ children }: DoctorContextProviderProps) => {
     }
   };
 
+
+  const getProfileData = async () => {
+    try {
+
+      const { data } = await getDoctorProfileAPI(dToken);
+      if(data.success){
+        setProfileData(data.profileData);
+      }
+      
+    } catch (error) {
+      showErrorToast(error);
+    }
+  }
+
   const value: DoctorContextType = {
     dToken,
     setDToken,
@@ -87,6 +107,8 @@ const DoctorContextProvider = ({ children }: DoctorContextProviderProps) => {
     getAppointments,
     confirmAppointment,
     cancelAppointment,
+    profileData, setProfileData,
+    getProfileData
   };
 
   return (

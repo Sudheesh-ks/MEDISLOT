@@ -1,3 +1,4 @@
+// context/AppContext.tsx
 import { createContext, useEffect, useState, type ReactNode } from "react";
 import type { Doctor } from "../assets/user/assets";
 import { assets } from "../assets/user/assets";
@@ -5,6 +6,8 @@ import { toast } from "react-toastify";
 import { getUserProfileAPI } from "../services/userProfileServices";
 import { getDoctorsAPI } from "../services/doctorServices";
 import { showErrorToast } from "../utils/errorHandler";
+import { updateAccessToken, clearAccessToken, getAccessToken } from "./tokenManager";
+import { refreshAccessTokenAPI } from "../services/authServices";
 
 interface userData {
   name: string;
@@ -39,17 +42,12 @@ interface AppContextProviderProps {
   children: ReactNode;
 }
 
-const AppContextProvider: React.FC<AppContextProviderProps> = ({
-  children,
-}) => {
+const AppContextProvider: React.FC<AppContextProviderProps> = ({ children }) => {
   const currencySymbol = "₹";
-
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
   const [doctors, setDoctors] = useState([]);
-  const [token, setToken] = useState<string | null>(
-    localStorage.getItem("token") ?? ""
-  );
+  const [token, setTokenState] = useState<string | null>(getAccessToken());
   const [userData, setUserData] = useState<null | userData>({
     name: "",
     email: "",
@@ -78,17 +76,17 @@ const AppContextProvider: React.FC<AppContextProviderProps> = ({
 
   const loadUserProfileData = async () => {
     try {
-      if (!token) {
+      const accessToken = getAccessToken();
+      if (!accessToken) {
         toast.error("Please login to continue...");
         return;
       }
 
-      const { data } = await getUserProfileAPI(token);
+      const { data } = await getUserProfileAPI(accessToken);
       if (data.success) {
         if (data.userData.isBlocked) {
           toast.error("Your account has been blocked. Logging out.");
-          localStorage.removeItem("token");
-          setToken(null);
+          clearToken();
           return;
         }
         setUserData(data.userData);
@@ -100,50 +98,59 @@ const AppContextProvider: React.FC<AppContextProviderProps> = ({
     }
   };
 
+  const setToken = (newToken: string | null) => {
+    setTokenState(newToken);
+    if (newToken) {
+      updateAccessToken(newToken);
+    } else {
+      clearAccessToken();
+    }
+  };
+
+  const clearToken = () => {
+    setTokenState(null);
+    clearAccessToken();
+  };
+
   const calculateAge = (dob: string): number => {
     const today = new Date();
     const birthDate = new Date(dob);
-
-    let age = today.getFullYear() - birthDate.getFullYear();
-    return age;
+    return today.getFullYear() - birthDate.getFullYear();
   };
 
-  const months = [
-    "",
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
-  ];
+  const months = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
   const slotDateFormat = (slotDate: string): string => {
     const dateArray = slotDate.split("_");
-    return (
-      dateArray[0] + " " + months[Number(dateArray[1])] + " " + dateArray[2]
-    );
+    return `${dateArray[0]} ${months[Number(dateArray[1])]} ${dateArray[2]}`;
   };
 
-  const value: AppContextType = {
-    doctors,
-    getDoctorsData,
-    currencySymbol,
-    token,
-    setToken,
-    backendUrl,
-    userData,
-    setUserData,
-    loadUserProfileData,
-    calculateAge,
-    slotDateFormat,
+
+ useEffect(() => {
+  const tryRefreshToken = async () => {
+    try {
+      const response = await refreshAccessTokenAPI(); // endpoint returns new accessToken
+      const newAccessToken = response.data?.token;
+
+      if (newAccessToken) {
+        setToken(newAccessToken); // this also updates tokenManager
+        await loadUserProfileData(); // important!
+      } else {
+        clearToken();
+      }
+    } catch (error) {
+      console.error("Auto refresh failed:", error);
+      clearToken();
+    }
   };
+
+  // ✅ Try refreshing only if token is missing on mount
+  if (!getAccessToken()) {
+    tryRefreshToken();
+  } else {
+    loadUserProfileData(); // already have token, load profile
+  }
+}, []);
 
   useEffect(() => {
     if (token) {
@@ -163,6 +170,20 @@ const AppContextProvider: React.FC<AppContextProviderProps> = ({
       });
     }
   }, [token]);
+
+  const value: AppContextType = {
+    doctors,
+    getDoctorsData,
+    currencySymbol,
+    backendUrl,
+    token,
+    setToken,
+    userData,
+    setUserData,
+    loadUserProfileData,
+    calculateAge,
+    slotDateFormat,
+  };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;
 };

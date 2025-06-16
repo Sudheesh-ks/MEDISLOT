@@ -12,6 +12,11 @@ import {
   isValidPassword,
 } from "../../utils/validator";
 import { PaymentService } from "../../services/implementation/PaymentService";
+import {
+  generateAccessToken,
+  generateRefreshToken,
+  verifyRefreshToken,
+} from "../../utils/jwt.utils"
 
 export class UserController implements IUserController {
   constructor(
@@ -78,7 +83,7 @@ export class UserController implements IUserController {
 
     if (record.purpose === "register") {
       const newUser = await this._userService.finalizeRegister(record.userData);
-      const token = this._userService.generateToken(newUser._id);
+      const token = generateAccessToken(newUser._id);
       otpStore.delete(email);
       res.status(HttpStatus.CREATED).json({ success: true, token, message: HttpResponse.REGISTER_SUCCESS });
       return;
@@ -164,30 +169,84 @@ export class UserController implements IUserController {
   }
 
   async loginUser(req: Request, res: Response): Promise<void> {
-    try {
-      const { email, password } = req.body;
+  try {
+    const { email, password } = req.body;
 
-      if (!email || !password) {
-        res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: HttpResponse.FIELDS_REQUIRED });
-        return;
-      }
-
-      if (!isValidEmail(email)) {
-        res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: HttpResponse.INVALID_EMAIL });
-        return;
-      }
-
-      if (!isValidPassword(password)) {
-        res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: HttpResponse.INVALID_PASSWORD });
-        return;
-      }
-
-      const { token } = await this._userService.login(email, password);
-      res.status(HttpStatus.OK).json({ success: true, token, message: HttpResponse.LOGIN_SUCCESS });
-    } catch (error) {
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: (error as Error).message });
+    if (!email || !password) {
+      res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: HttpResponse.FIELDS_REQUIRED });
+      return;
     }
+
+    if (!isValidEmail(email)) {
+      res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: HttpResponse.INVALID_EMAIL });
+      return;
+    }
+
+    if (!isValidPassword(password)) {
+      res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: HttpResponse.INVALID_PASSWORD });
+      return;
+    }
+
+    const { token, refreshToken } = await this._userService.login(email, password);
+
+    // Set refresh token in HTTP-only cookie
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+
+    res.status(HttpStatus.OK).json({ success: true, token, message: HttpResponse.LOGIN_SUCCESS });
+  } catch (error) {
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: (error as Error).message });
   }
+}
+
+
+  async refreshToken(req: Request, res: Response): Promise<void> {
+  try {
+    const refreshToken = req.cookies?.refreshToken;
+
+    if (!refreshToken) {
+      res.status(HttpStatus.UNAUTHORIZED).json({ success: false, message: HttpResponse.REFRESH_TOKEN_MISSING });
+      return;
+    }
+
+    const decoded = verifyRefreshToken(refreshToken);
+    if (!decoded || typeof decoded !== "object" || !("id" in decoded)) {
+      res.status(HttpStatus.UNAUTHORIZED).json({ success: false, message: HttpResponse.REFRESH_TOKEN_INVALID });
+      return;
+    }
+
+    const newAccessToken = generateAccessToken(decoded.id);
+    const newRefreshToken = generateRefreshToken(decoded.id);
+
+    res.cookie("refreshToken", newRefreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+
+    res.status(HttpStatus.OK).json({ success: true, token: newAccessToken });
+  } catch (error) {
+    res.status(HttpStatus.UNAUTHORIZED).json({ success: false, message: HttpResponse.REFRESH_TOKEN_FAILED });
+  }
+}
+
+
+
+  async logout(req: Request, res: Response): Promise<void> {
+  res.clearCookie("refreshToken", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "strict",
+  });
+  res.status(HttpStatus.OK).json({ success: true, message: "Logged out successfully" });
+}
+
+
 
   async getProfile(req: Request, res: Response): Promise<void> {
     try {

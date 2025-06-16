@@ -3,6 +3,18 @@ import { DoctorContext } from "../../context/DoctorContext";
 import { AppContext } from "../../context/AppContext";
 import { assets } from "../../assets/admin/assets";
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import type { Variants } from "framer-motion";
+
+// Animation variants
+const fadeInUp: Variants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: { delay: i * 0.05, type: "spring" as const, stiffness: 100 },
+  }),
+};
 
 const DoctorAppointments = () => {
   const context = useContext(DoctorContext);
@@ -46,20 +58,25 @@ const DoctorAppointments = () => {
       <p className="mb-3 text-lg font-medium">All Appointments</p>
 
       <div className="bg-white border rounded text-sm max-h-[80vh] min-h-[50vh] overflow-y-scroll">
-        <div className="max-sm:hidden grid grid-cols-[0.5fr_2fr_1fr_1fr_3fr_1fr_1fr] gap-1 py-3 px-6 border-b">
+        <div className="max-sm:hidden grid grid-cols-[0.5fr_2fr_1fr_1fr_3fr_1fr_1fr] gap-1 py-3 px-6 border-b bg-gray-50 font-medium text-gray-700">
           <p>#</p>
           <p>Patient</p>
           <p>Payment</p>
           <p>Age</p>
-          <p>Date & TIme</p>
+          <p>Date & Time</p>
           <p>Fees</p>
           <p>Action</p>
         </div>
 
         {appointments.map((item, index) => (
-          <div
-            className="flex flex-wrap justify-between max-sm:gap-5 max-sm:text-base sm:grid grid-cols-[0.5fr_2fr_1fr_1fr_3fr_1fr_1fr] items-center gap-1 text-gray-500 py-3 px-6 border-b hover:bg-gray-50"
+          <motion.div
             key={index}
+            custom={index}
+            initial="hidden"
+            animate="visible"
+            variants={fadeInUp}
+            whileHover={{ scale: 1.01 }}
+            className="flex flex-wrap justify-between max-sm:gap-5 max-sm:text-base sm:grid grid-cols-[0.5fr_2fr_1fr_1fr_3fr_1fr_1fr] items-center gap-1 text-gray-500 py-3 px-6 border-b hover:bg-gray-50 transition"
           >
             <p className="max-sm:hidden">{index + 1}</p>
             <div className="flex items-center gap-2">
@@ -67,7 +84,7 @@ const DoctorAppointments = () => {
                 className="w-12 h-12 rounded-full object-cover"
                 src={item.userData.image}
                 alt=""
-              />{" "}
+              />
               <p>{item.userData.name}</p>
             </div>
             <div>
@@ -77,14 +94,14 @@ const DoctorAppointments = () => {
             </div>
             <p className="max-sm:hidden">{calculateAge(item.userData.dob)}</p>
             <p>
-              {slotDateFormat(item.slotDate)},{item.slotTime}
+              {slotDateFormat(item.slotDate)}, {item.slotTime}
             </p>
             <p>
               {currencySymbol}
               {item.amount}
             </p>
             {item.cancelled ? (
-              <p className=" text-red-500">Cancelled</p>
+              <p className="text-red-500">Cancelled</p>
             ) : item.isConfirmed ? (
               <button
                 onClick={() => navigate("/doctor/consultation")}
@@ -93,22 +110,22 @@ const DoctorAppointments = () => {
                 Consultation
               </button>
             ) : (
-              <div className="flex">
+              <div className="flex gap-2">
                 <img
                   onClick={() => cancelAppointment(item._id!)}
-                  className="w-10 cursor-pointer"
+                  className="w-8 cursor-pointer"
                   src={assets.cancel_icon}
-                  alt=""
+                  alt="Cancel"
                 />
                 <img
                   onClick={() => confirmAppointment(item._id!)}
-                  className="w-10 cursor-pointer"
+                  className="w-8 cursor-pointer"
                   src={assets.tick_icon}
-                  alt=""
+                  alt="Confirm"
                 />
               </div>
             )}
-          </div>
+          </motion.div>
         ))}
       </div>
     </div>

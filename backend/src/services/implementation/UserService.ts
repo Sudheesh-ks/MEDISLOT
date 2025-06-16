@@ -2,13 +2,17 @@ import { IUserService } from "../interface/IUserService";
 import { IUserRepository } from "../../repositories/interface/IUserRepository";
 import { userData } from "../../types/user";
 import bcrypt from "bcrypt";
-import Jwt from "jsonwebtoken";
 import validator from "validator";
 import { v2 as cloudinary } from "cloudinary";
 import { AppointmentTypes } from "../../types/appointment";
 import { isValidDateOfBirth, isValidPhone } from "../../utils/validator";
 import { DoctorData } from "../../types/doctor";
 import { PaymentService } from "./PaymentService";
+import {
+  generateAccessToken,
+  generateRefreshToken,
+  verifyRefreshToken,
+} from "../../utils/jwt.utils"
 
 export interface UserDocument extends userData {
   _id: string;
@@ -24,7 +28,7 @@ export class UserService implements IUserService {
     name: string,
     email: string,
     password: string
-  ): Promise<{ token: string }> {
+  ): Promise<{ token: string; refreshToken: string }> {
     if (!name || !email || !password) throw new Error("Missing Details");
     if (!validator.isEmail(email)) throw new Error("Invalid email");
     if (password.length < 8) throw new Error("Password too short");
@@ -35,20 +39,24 @@ export class UserService implements IUserService {
       email,
       password: hashedPassword,
     })) as UserDocument;
-    const token = Jwt.sign({ id: user._id }, process.env.JWT_SECRET!);
-    return { token };
+
+    const token = generateAccessToken(user._id);
+    const refreshToken = generateRefreshToken(user._id);
+
+    return { token, refreshToken };
   }
 
-  async login(email: string, password: string): Promise<{ token: string }> {
+  async login(email: string, password: string): Promise<{ token: string; refreshToken: string }> {
     const user = await this._userRepository.findByEmail(email);
     if (!user) throw new Error("User not found");
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) throw new Error("Invalid credentials");
-    if (user.isBlocked)
-      throw new Error("Your account has been blocked by admin");
+    if (user.isBlocked) throw new Error("Your account has been blocked by admin");
 
-    const token = Jwt.sign({ id: user._id }, process.env.JWT_SECRET!);
-    return { token };
+    const token = generateAccessToken(user._id);
+    const refreshToken = generateRefreshToken(user._id);
+
+    return { token, refreshToken };
   }
 
   async getProfile(userId: string): Promise<userData | null> {
@@ -99,12 +107,6 @@ export class UserService implements IUserService {
 
   async finalizeRegister(userData: userData) {
     return await this._userRepository.create(userData);
-  }
-
-  generateToken(userId: string): string {
-    return Jwt.sign({ id: userId }, process.env.JWT_SECRET!, {
-      expiresIn: "1d",
-    });
   }
 
   async resetPassword(
@@ -159,8 +161,6 @@ export class UserService implements IUserService {
       appointment.amount * 100,
       appointment._id.toString()
     );
-
-    // await this._userRepository.saveRazorpayOrderId(appointmentId, order.id);
 
     return { order };
   }

@@ -125,4 +125,51 @@ export class DoctorService implements IDoctorService {
     }
     await this._doctorRepository.cancelAppointment(appointmentId);
   }
+
+
+  async getDoctorProfile(docId: string): Promise<DoctorData | null> {
+  const doctor = await this._doctorRepository.getDoctorProfileById(docId);
+  if (!doctor) throw new Error("Doctor not found");
+  return doctor;
+}
+
+async updateDoctorProfile(data: {
+  doctId: string;
+  name: string;
+  speciality: string;
+  degree: string;
+  experience: string;
+  about: string;
+  fees: number;
+  address: DoctorData["address"];
+  imagePath?: string;
+}): Promise<void> {
+  const doctor = await this._doctorRepository.findById(data.doctId);
+  if (!doctor) throw new Error("Doctor not found");
+
+  let imageUrl = doctor.image;
+
+  if (data.imagePath) {
+    const uploadResult = await cloudinary.uploader.upload(data.imagePath, {
+      resource_type: "image",
+    });
+    imageUrl = uploadResult.secure_url;
+
+    // Delete local file after Cloudinary upload
+    // fs.unlink(data.imagePath, (err) => {
+    //   if (err) console.error("Failed to delete local file:", err);
+    // });
+  }
+
+  await this._doctorRepository.updateDoctorProfile(data.doctId, {
+    name: data.name,
+    speciality: data.speciality,
+    degree: data.degree,
+    experience: data.experience,
+    about: data.about,
+    fees: data.fees,
+    address: data.address,
+    image: imageUrl,
+  });
+}
 }

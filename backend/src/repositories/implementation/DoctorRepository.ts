@@ -45,4 +45,21 @@ export class DoctorRepository extends BaseRepository<DoctorDocument> implements 
   async cancelAppointment(id: string): Promise<void> {
     await appointmentModel.findByIdAndUpdate(id, { cancelled: true });
   }
+
+  async getDoctorProfileById(id: string): Promise<DoctorData | null> {
+  return doctorModel.findById(id).select('-password');
+}
+
+async updateDoctorProfile(
+  id: string,
+  updateData: Partial<
+    Pick<
+      DoctorData,
+      "name" | "speciality" | "degree" | "experience" | "about" | "fees" | "address" | "image"
+    >
+  >
+): Promise<void> {
+  await this.updateById(id, updateData);
+}
+
 }

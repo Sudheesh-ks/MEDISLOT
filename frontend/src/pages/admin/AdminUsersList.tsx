@@ -1,6 +1,17 @@
 import { useEffect, useContext, useState } from "react";
 import { AdminContext } from "../../context/AdminContext";
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import type { Variants } from "framer-motion";
+
+const fadeInUp: Variants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: (i: number) => ({
+    opacity: 1,
+    y: 0,
+    transition: { delay: i * 0.05, type: "spring", stiffness: 100 },
+  }),
+};
 
 const AdminUsersList = () => {
   const navigate = useNavigate();
@@ -30,11 +41,11 @@ const AdminUsersList = () => {
 
   return (
     <div className="w-full max-w-6xl m-5">
-      <p className="mb-3 text-lg font-medium">All Users</p>
+      <p className="mb-3 text-lg font-semibold">👥 All Users</p>
 
-      <div className="bg-white border rounded min-h-[60vh] overflow-y-auto text-sm">
+      <div className="bg-white border rounded shadow-sm min-h-[60vh] overflow-y-auto text-sm transition-all duration-300">
         {/* Header */}
-        <div className="hidden sm:grid grid-cols-[0.5fr_2fr_2fr_3fr_1.5fr_1.5fr] items-center py-3 px-6 border-b font-medium text-gray-700">
+        <div className="hidden sm:grid grid-cols-[0.5fr_2fr_2fr_3fr_1.5fr_1.5fr] items-center py-3 px-6 border-b font-medium text-gray-700 bg-gray-50">
           <p>#</p>
           <p>Image</p>
           <p>Name</p>
@@ -43,15 +54,19 @@ const AdminUsersList = () => {
           <p className="text-right pr-10">Action</p>
         </div>
 
-        {/* User Rows */}
+        {/* User Rows with animation */}
         {paginatedUsers.map((user, index) => (
-          <div
+          <motion.div
             key={user._id}
-            className="flex flex-wrap justify-between max-sm:gap-3 sm:grid sm:grid-cols-[0.5fr_2fr_2fr_3fr_1.5fr_1.5fr] items-center text-gray-600 py-3 px-6 border-b hover:bg-gray-50"
+            custom={index}
+            initial="hidden"
+            animate="visible"
+            variants={fadeInUp}
+            whileHover={{ scale: 1.01 }}
+            className="flex flex-wrap justify-between max-sm:gap-3 sm:grid sm:grid-cols-[0.5fr_2fr_2fr_3fr_1.5fr_1.5fr] items-center text-gray-600 py-3 px-6 border-b hover:bg-gray-100 rounded transition"
           >
-            <p className="max-sm:hidden">{index + 1}</p>
+            <p className="max-sm:hidden">{(currentPage - 1) * itemsPerPage + index + 1}</p>
 
-            {/* User Image */}
             <div className="flex items-center gap-2">
               <img
                 src={user.image || "/default-avatar.png"}
@@ -64,7 +79,7 @@ const AdminUsersList = () => {
             <p className="text-sm text-gray-600 truncate">{user.email}</p>
 
             <span
-              className={`px-3 py-1 text-xs rounded-full font-semibold w-fit ${
+              className={`px-3 py-1 text-xs rounded-full font-semibold w-fit transition-colors duration-300 ${
                 user.isBlocked
                   ? "bg-red-100 text-red-600"
                   : "bg-green-100 text-green-600"
@@ -74,26 +89,28 @@ const AdminUsersList = () => {
             </span>
 
             <div className="text-right pr-4">
-              <button
+              <motion.button
+                whileTap={{ scale: 0.95 }}
                 onClick={() => toggleBlockUser(user._id)}
-                className={`px-4 py-1.5 text-sm rounded-lg font-medium text-white shadow transition duration-200 ${
+                className={`px-4 py-1.5 text-sm rounded-lg font-medium text-white shadow-sm transition duration-200 ${
                   user.isBlocked
                     ? "bg-green-500 hover:bg-green-600"
                     : "bg-red-500 hover:bg-red-600"
                 }`}
               >
                 {user.isBlocked ? "Unblock" : "Block"}
-              </button>
+              </motion.button>
             </div>
-          </div>
+          </motion.div>
         ))}
 
+        {/* Pagination */}
         {totalPages > 1 && (
           <div className="flex justify-center items-center gap-2 py-4">
             <button
               disabled={currentPage === 1}
               onClick={() => setCurrentPage((prev) => prev - 1)}
-              className={`px-3 py-1 border rounded-md ${
+              className={`px-3 py-1 border rounded-md transition ${
                 currentPage === 1
                   ? "bg-gray-200 text-gray-500 cursor-not-allowed"
                   : "hover:bg-gray-100"
@@ -106,7 +123,7 @@ const AdminUsersList = () => {
               <button
                 key={page}
                 onClick={() => setCurrentPage(page)}
-                className={`px-3 py-1 rounded-md border ${
+                className={`px-3 py-1 rounded-md border transition ${
                   currentPage === page
                     ? "bg-indigo-600 text-white"
                     : "hover:bg-gray-100"
@@ -119,7 +136,7 @@ const AdminUsersList = () => {
             <button
               disabled={currentPage === totalPages}
               onClick={() => setCurrentPage((prev) => prev + 1)}
-              className={`px-3 py-1 border rounded-md ${
+              className={`px-3 py-1 border rounded-md transition ${
                 currentPage === totalPages
                   ? "bg-gray-200 text-gray-500 cursor-not-allowed"
                   : "hover:bg-gray-100"

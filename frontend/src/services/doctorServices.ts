@@ -54,3 +54,48 @@ export const AppointmentCancelAPI = async (
     }
   );
 };
+
+
+export const getDoctorProfileAPI = async (token: string) => {
+  return api.get("/api/doctor/profile", {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
+
+export const updateDoctorProfileAPI = async (
+  token: string,
+  formData: any,
+  image: File | null
+) => {
+  const data = new FormData();
+
+  data.append("doctId", formData._id); // ✅ ensure doctId is passed
+
+  data.append("name", formData.name);
+  data.append("speciality", formData.speciality);
+  data.append("degree", formData.degree);
+  data.append("experience", String(formData.experience));
+  data.append("about", formData.about);
+  data.append("fees", String(formData.fees));
+
+  // ✅ Send address as a JSON string
+  data.append("address", JSON.stringify(formData.address));
+
+  if (image) {
+    data.append("image", image);
+  }
+
+  const response = await api.patch("/api/doctor/profile/update", data, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "multipart/form-data",
+    },
+  });
+
+  return response.data;
+};
+
+
