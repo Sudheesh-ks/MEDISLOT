@@ -190,9 +190,10 @@ export class UserController implements IUserController {
     const { token, refreshToken } = await this._userService.login(email, password);
 
     // Set refresh token in HTTP-only cookie
-    res.cookie("refreshToken", refreshToken, {
+    res.cookie("refreshToken_user", refreshToken, {
       httpOnly: true,
-      secure: true,
+      path: "/api/user/refresh-token",
+      secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
@@ -206,7 +207,7 @@ export class UserController implements IUserController {
 
   async refreshToken(req: Request, res: Response): Promise<void> {
   try {
-    const refreshToken = req.cookies?.refreshToken;
+    const refreshToken = req.cookies?.refreshToken_user;
 
     if (!refreshToken) {
       res.status(HttpStatus.UNAUTHORIZED).json({ success: false, message: HttpResponse.REFRESH_TOKEN_MISSING });
@@ -222,9 +223,10 @@ export class UserController implements IUserController {
     const newAccessToken = generateAccessToken(decoded.id);
     const newRefreshToken = generateRefreshToken(decoded.id);
 
-    res.cookie("refreshToken", newRefreshToken, {
+    res.cookie("refreshToken_user", newRefreshToken, {
       httpOnly: true,
-      secure: true,
+      path: "/api/user/refresh-token",
+      secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
@@ -238,9 +240,10 @@ export class UserController implements IUserController {
 
 
   async logout(req: Request, res: Response): Promise<void> {
-  res.clearCookie("refreshToken", {
+  res.clearCookie("refreshToken_user", {
     httpOnly: true,
     secure: true,
+    path: "/api/user/refresh-token",
     sameSite: "strict",
   });
   res.status(HttpStatus.OK).json({ success: true, message: "Logged out successfully" });
@@ -318,7 +321,7 @@ export class UserController implements IUserController {
   async cancelAppointment(req: Request, res: Response): Promise<void> {
     try {
       const userId = (req as any).userId;
-      const { appointmentId } = req.body;
+      const { appointmentId } = req.params;
       await this._userService.cancelAppointment(userId, appointmentId);
       res.status(HttpStatus.OK).json({ success: true, message: HttpResponse.APPOINTMENT_CANCELLED });
     } catch (error) {

@@ -53,8 +53,8 @@ const DoctorProfile = () => {
         return;
       }
 
-      const response = await updateDoctorProfileAPI(dToken, formData, image);
-      toast.success(response.message);
+      const response = await updateDoctorProfileAPI(formData, image);
+      toast.success(response.data.message);
       await getProfileData();
       setIsEdit(false);
       setImage(null);

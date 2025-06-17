@@ -3,113 +3,186 @@ import { DoctorService } from "../../services/implementation/DoctorService";
 import { IDoctorController } from "../interface/IdoctorController.interface";
 import { HttpStatus } from "../../constants/status.constants";
 import { HttpResponse } from "../../constants/responseMessage.constants";
-import { DoctorData, DoctorDTO } from "../../types/doctor";
-import doctorModel from "../../models/doctorModel";
-import { Address } from "cluster";
+import { DoctorDTO } from "../../types/doctor";
+import {
+  generateAccessToken,
+  generateRefreshToken,
+  verifyRefreshToken,
+} from "../../utils/jwt.utils";
 
 export class DoctorController implements IDoctorController {
   constructor(private _doctorService: DoctorService) {}
 
-  // For doctor registration
   async registerDoctor(req: Request, res: Response): Promise<void> {
-  try {
-    const {
-      name,
-      email,
-      password,
-      experience,
-      about,
-      speciality,
-      degree,
-      fees,
-      address,
-    } = req.body;
+    try {
+      const {
+        name,
+        email,
+        password,
+        experience,
+        about,
+        speciality,
+        degree,
+        fees,
+        address,
+      } = req.body;
 
-    const imageFile = req.file;
+      const imageFile = req.file;
 
-    if (!imageFile) {
+      if (!imageFile) {
+        res.status(HttpStatus.BAD_REQUEST).json({
+          success: false,
+          message: "Doctor image is required",
+        });
+        return;
+      }
+
+      const doctorDTO: DoctorDTO = {
+        name,
+        email,
+        password,
+        experience,
+        about,
+        speciality,
+        degree,
+        fees: Number(fees),
+        address: JSON.parse(address),
+        imagePath: imageFile.path,
+      };
+
+      await this._doctorService.registerDoctor(doctorDTO);
+
+      res.status(HttpStatus.CREATED).json({
+        success: true,
+        message: HttpResponse.DOCTOR_REGISTER_SUCCESS,
+      });
+    } catch (error) {
       res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
-        message: "Doctor image is required",
+        message: (error as Error).message,
       });
-      return;
     }
-
-    const doctorDTO: DoctorDTO = {
-      name,
-      email,
-      password,
-      experience,
-      about,
-      speciality,
-      degree,
-      fees: Number(fees),
-      address: JSON.parse(address),
-      imagePath: imageFile.path,
-    };
-
-    await this._doctorService.registerDoctor(doctorDTO);
-
-    res.status(HttpStatus.CREATED).json({
-      success: true,
-      message: HttpResponse.DOCTOR_REGISTER_SUCCESS,
-    });
-  } catch (error) {
-    res.status(HttpStatus.BAD_REQUEST).json({
-      success: false,
-      message: (error as Error).message,
-    });
   }
-}
 
-  // For updating doctor availability
   async changeAvailability(req: Request, res: Response): Promise<void> {
     try {
       const docId = (req as any).docId || req.params.doctorId || req.params.id;
       await this._doctorService.toggleAvailability(docId);
-      res
-        .status(HttpStatus.OK)
-        .json({ success: true, message: HttpResponse.DOCTOR_AVAILABILITY_CHANGE });
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: HttpResponse.DOCTOR_AVAILABILITY_CHANGE,
+      });
     } catch (error) {
-      console.log(error as Error);
-      res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ success: false, message: (error as Error).message });
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
     }
   }
 
-  // For getting all doctor profiles
   async doctorList(req: Request, res: Response): Promise<void> {
     try {
       const doctors = await this._doctorService.getAllDoctors();
       res.status(HttpStatus.OK).json({ success: true, doctors });
     } catch (error) {
-      res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ success: false, message: (error as Error).message });
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
     }
   }
 
-  // For doctor login
-  async loginDoctor(req: Request, res: Response): Promise<void> {
-    try {
-      const { email, password } = req.body;
+ async loginDoctor(req: Request, res: Response): Promise<void> {
+  try {
+    const { email, password } = req.body;
 
-      const token = await this._doctorService.loginDoctor(email, password);
-      if (!token) {
-        res
-          .status(HttpStatus.UNAUTHORIZED)
-          .json({ success: false, message: HttpResponse.UNAUTHORIZED });
+    // This gives you the tokens directly
+    const { token: accessToken, refreshToken } = await this._doctorService.loginDoctor(email, password);
+
+    // Set the refresh token as HTTP-only cookie
+    res.cookie("refreshToken_doctor", refreshToken, {
+      httpOnly: true,
+      path: "/api/doctor/refresh-token",
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+
+    // Send the access token in response
+    res.status(HttpStatus.OK).json({
+      success: true,
+      token: accessToken,
+      message: HttpResponse.LOGIN_SUCCESS,
+    });
+  } catch (error) {
+    res.status(HttpStatus.UNAUTHORIZED).json({
+      success: false,
+      message: HttpResponse.UNAUTHORIZED,
+    });
+  }
+}
+
+
+  async refreshDoctorToken(req: Request, res: Response): Promise<void> {
+    try {
+      const refreshToken = req.cookies?.refreshToken_doctor;
+
+      if (!refreshToken) {
+        res.status(HttpStatus.UNAUTHORIZED).json({
+          success: false,
+          message: HttpResponse.REFRESH_TOKEN_MISSING,
+        });
         return;
       }
 
-      res.status(HttpStatus.OK).json({ success: true, token });
+      const decoded = verifyRefreshToken(refreshToken);
+
+      if (!decoded || typeof decoded !== "object" || !("id" in decoded)) {
+        res.status(HttpStatus.UNAUTHORIZED).json({
+          success: false,
+          message: HttpResponse.REFRESH_TOKEN_INVALID,
+        });
+        return;
+      }
+
+      const newAccessToken = generateAccessToken(decoded.id);
+      const newRefreshToken = generateRefreshToken(decoded.id);
+
+      res.cookie("refreshToken_doctor", newRefreshToken, {
+        httpOnly: true,
+        path: "/api/doctor/refresh-token",
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
+
+      res.status(HttpStatus.OK).json({
+        success: true,
+        token: newAccessToken,
+      });
     } catch (error) {
-      res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ success: false, message: (error as Error).message });
+      res.status(HttpStatus.UNAUTHORIZED).json({
+        success: false,
+        message: HttpResponse.REFRESH_TOKEN_FAILED,
+      });
     }
   }
+
+  async logoutDoctor(req: Request, res: Response): Promise<void> {
+    res.clearCookie("refreshToken_doctor", {
+      httpOnly: true,
+      path: "/api/doctor/refresh-token",
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+    });
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: HttpResponse.LOGOUT_SUCCESS,
+    });
+  }
+
+
 
   // For getting doctor appointments
   async appointmentsDoctor(req: Request, res: Response): Promise<void> {
@@ -175,40 +248,56 @@ export class DoctorController implements IDoctorController {
 
 async updateDoctorProfile(req: Request, res: Response): Promise<void> {
   try {
-     const doctId = req.body.doctId;
-      const {
-        name,
-        speciality,
-        degree,
-        experience,
-        about,
-        fees,
-        address
-      } = req.body;
+    const doctId = req.body.doctId;
+    const {
+      name,
+      speciality,
+      degree,
+      experience,
+      about,
+      fees,
+      address,
+    } = req.body;
 
-      const imageFile = req.file;
+    const imageFile = req.file;
 
-      const parsedAddress = JSON.parse(address);
+    console.log("Received body:", req.body);
+    console.log("Received file:", imageFile);
 
-      await this._doctorService.updateDoctorProfile({
-        doctId,
-        name,
-        speciality,
-        degree,
-        experience,
-        about,
-        fees: Number(fees),
-        address: parsedAddress,
-        imagePath: imageFile?.path,
-      });
+    let parsedAddress;
+    try {
+      parsedAddress = JSON.parse(address);
+    } catch (err) {
+      console.error("Address parsing error:", err);
+      res.status(400).json({ success: false, message: "Invalid address format" });
+      return 
+    }
 
-      res.status(HttpStatus.OK).json({
-        success: true,
-        message: "Doctor profile updated successfully",
-      });
+    await this._doctorService.updateDoctorProfile({
+      doctId,
+      name,
+      speciality,
+      degree,
+      experience,
+      about,
+      fees: Number(fees),
+      address: parsedAddress,
+      imagePath: imageFile?.path,
+    });
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: "Doctor profile updated successfully",
+    });
   } catch (error) {
-    res.status(500).json({ success: false, message: (error as Error).message });
+    console.error("Doctor profile update failed:", error);
+    res.status(500).json({
+      success: false,
+      message: (error as Error).message,
+      error: (error as Error).stack,
+    });
   }
 }
+
 
 }

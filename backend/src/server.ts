@@ -3,6 +3,7 @@ import cors from "cors";
 import { connectDB } from "./config/mongodb";
 import connectCloudinary from "./config/cloudinary";
 import dotenv from "dotenv";
+import cookieParser from "cookie-parser";
 import adminRouter from "./routes/adminRoute";
 import doctorRouter from "./routes/doctorRoute";
 import userRouter from "./routes/userRoute";
@@ -20,6 +21,7 @@ connectCloudinary();
 
 // middlewares
 app.use(express.json());
+app.use(cookieParser());
 app.use(
   cors({
     origin: "http://localhost:5173",

@@ -4,7 +4,7 @@ import { Route } from "react-router-dom";
 import DoctorLayout from "../layouts/DoctorLayout";
 
 // Doctor Pages
-import DoctorLogin from "../pages/admin/AdminLogin";
+import DoctorLogin from "../pages/doctor/DoctorLogin";
 import DoctorDashboard from "../pages/doctor/DoctorDashboard";
 import DoctorAppointments from "../pages/doctor/DoctorAppointments";
 import DoctorProfile from "../pages/doctor/DoctorProfile";

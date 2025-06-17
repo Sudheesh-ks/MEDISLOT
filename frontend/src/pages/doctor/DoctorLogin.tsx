@@ -1,36 +1,38 @@
-// src/pages/admin/AdminLogin.tsx
+// src/pages/doctor/DoctorLogin.tsx
 import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { AdminContext } from "../../context/AdminContext";
-import { adminLoginAPI } from "../../services/adminServices";
+import { DoctorContext } from "../../context/DoctorContext";
+import { doctorLoginAPI } from "../../services/doctorServices";
 import { showErrorToast } from "../../utils/errorHandler";
 import { assets } from "../../assets/user/assets";
+import { updateDoctorAccessToken } from "../../context/tokenManagerDoctor";
 
-const AdminLogin = () => {
+
+const DoctorLogin = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
-  const context = useContext(AdminContext);
+  const context = useContext(DoctorContext);
 
   if (!context) {
-    throw new Error("AdminContext must be used within AdminContextProvider");
+    throw new Error("DoctorContext must be used within DoctorContextProvider");
   }
 
-  const { aToken, setAToken } = context;
+  const { dToken, setDToken } = context;
 
   useEffect(() => {
-    if (aToken) navigate("/admin/dashboard");
-  }, [aToken, navigate]);
+    if (dToken) navigate("/doctor/dashboard");
+  }, [dToken, navigate]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      const { data } = await adminLoginAPI(email, password);
+      const { data } = await doctorLoginAPI(email, password);
       if (data.success) {
-        localStorage.setItem("aToken", data.token);
-        setAToken(data.token);
-        navigate("/admin/dashboard");
+        updateDoctorAccessToken(data.token);
+        setDToken(data.token);
+        navigate("/doctor/dashboard");
       } else {
         toast.error(data.message);
       }
@@ -46,13 +48,13 @@ const AdminLogin = () => {
           <div className="hidden sm:block w-full sm:w-96">
             <img
               src={assets.about_image}
-              alt="Admin Login Visual"
+              alt="Doctor Login Visual"
               className="w-full h-full object-cover"
             />
           </div>
           <div className="flex flex-col gap-3 p-8 min-w-[340px] sm:min-w-96 text-[#5E5E5E] text-sm">
             <p className="text-2xl font-semibold m-auto text-primary">
-              Admin Login
+              Doctor Login
             </p>
 
             <div className="w-full">
@@ -87,4 +89,4 @@ const AdminLogin = () => {
   );
 };
 
-export default AdminLogin;
+export default DoctorLogin;

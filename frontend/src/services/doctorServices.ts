@@ -1,101 +1,73 @@
-import { api } from "../axios/axiosInstance";
+import { doctorApi as api } from "../axios/doctorAxiosInstance";
 
-// To list all doctors
-export const getDoctorsAPI = async () => {
-  return await api.get("/api/doctor");
+// Get list of all doctors (for admin/user maybe)
+export const getDoctorsAPI = () => {
+  return api.get("/api/doctor");
 };
 
-// For doctor registration
+// Doctor registration
 export const registerDoctorAPI = (formData: FormData) => {
   return api.post("/api/doctor/register", formData);
 };
 
-// For doctor login
-export const doctorLoginAPI = async (email: string, password: string) => {
-  return await api.post("/api/doctor/login", { email, password });
+// Doctor login
+export const doctorLoginAPI = (email: string, password: string) => {
+  return api.post("/api/doctor/login", { email, password });
 };
 
-// For getting all doctor appointments
-export const getDoctorAppointmentsAPI = async (token: string) => {
-  return api.get("/api/doctor/appointments", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-};
-// For marking a doctor appointment as confirmed
-export const AppointmentConfirmAPI = async (
-  appointmentId: string,
-  token: string
-) => {
-  return api.patch(
-    `/api/doctor/appointments/${appointmentId}/confirm`,
-    {},
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
+// Doctor logout
+export const logoutDoctorAPI = () => {
+  return api.post("/api/doctor/logout");
 };
 
-// For cancelling a doctor appointment (REST update)
-export const AppointmentCancelAPI = async (
-  appointmentId: string,
-  token: string
-) => {
-  return api.patch(
-    `/api/doctor/appointments/${appointmentId}/cancel`,
-    {},
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
+// Refresh doctor access token
+export const refreshDoctorAccessTokenAPI = () => {
+  return api.post("/api/doctor/refresh-token");
 };
 
-
-export const getDoctorProfileAPI = async (token: string) => {
-  return api.get("/api/doctor/profile", {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+// Get all appointments for doctor
+export const getDoctorAppointmentsAPI = () => {
+  return api.get("/api/doctor/appointments");
 };
 
+// Confirm appointment
+export const AppointmentConfirmAPI = (appointmentId: string) => {
+  return api.patch(`/api/doctor/appointments/${appointmentId}/confirm`);
+};
 
-export const updateDoctorProfileAPI = async (
-  token: string,
+// Cancel appointment
+export const AppointmentCancelAPI = (appointmentId: string) => {
+  return api.patch(`/api/doctor/appointments/${appointmentId}/cancel`);
+};
+
+// Get doctor profile
+export const getDoctorProfileAPI = () => {
+  return api.get("/api/doctor/profile");
+};
+
+// Update doctor profile
+export const updateDoctorProfileAPI = (
   formData: any,
   image: File | null
 ) => {
   const data = new FormData();
 
-  data.append("doctId", formData._id); // ✅ ensure doctId is passed
-
+  data.append("doctId", formData._id);
   data.append("name", formData.name);
   data.append("speciality", formData.speciality);
   data.append("degree", formData.degree);
   data.append("experience", String(formData.experience));
   data.append("about", formData.about);
   data.append("fees", String(formData.fees));
-
-  // ✅ Send address as a JSON string
   data.append("address", JSON.stringify(formData.address));
 
   if (image) {
     data.append("image", image);
   }
 
-  const response = await api.patch("/api/doctor/profile/update", data, {
+  return api.patch("/api/doctor/profile/update", data, {
     headers: {
-      Authorization: `Bearer ${token}`,
       "Content-Type": "multipart/form-data",
     },
   });
-
-  return response.data;
 };
-
-

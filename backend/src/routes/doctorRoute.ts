@@ -26,6 +26,17 @@ doctorRouter.post(
   "/login",
   doctorController.loginDoctor.bind(doctorController)
 );
+
+doctorRouter.post(
+  "/refresh-token",
+  doctorController.refreshDoctorToken.bind(doctorController)
+);
+
+doctorRouter.post(
+  "/logout",
+  doctorController.logoutDoctor.bind(doctorController)
+);
+
 doctorRouter.get(
   "/appointments",
   authDoctor,

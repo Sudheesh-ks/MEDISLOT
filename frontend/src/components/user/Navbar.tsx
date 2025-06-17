@@ -2,7 +2,9 @@ import { useContext, useState } from "react";
 import { assets } from "../../assets/user/assets";
 import { NavLink, useNavigate } from "react-router-dom";
 import { AppContext } from "../../context/AppContext";
-import { clearAccessToken } from "../../context/tokenManager";
+import { clearUserAccessToken } from "../../context/tokenManagerUser";
+import { logoutUserAPI } from "../../services/authServices";
+
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -13,15 +15,31 @@ const Navbar = () => {
     throw new Error("TopDoctors must be used within an AppContextProvider");
   }
 
-  const { token, setToken, userData } = context;
+  const { token, setToken, userData, setUserData } = context;
 
   const [showMenu, setShowMenu] = useState(false);
 
-  const logout = () => {
-  setToken(null);                      // Clear React context state
-  localStorage.removeItem("token");   // Clear persistent token
-  clearAccessToken();  
-  };
+const logout = async () => {
+  try {
+    // 1. Call backend first to clear the HTTP-only refresh token cookie
+    await logoutUserAPI(); // ✅ MUST BE /api/user/logout (POST)
+
+    // 2. Clear access token from memory
+    clearUserAccessToken(); // ✅ Removes it from your tokenManagerUser
+
+    // 3. Clear context state
+    setToken(null);        // ✅ Also calls updateUserAccessToken(null)
+    setUserData(null);     // Clear user profile from context
+
+    // 4. 🔥 Remove this — no longer using localStorage
+    // localStorage.removeItem("user_token"); ❌ REMOVE THIS
+
+    // 5. Navigate away
+    navigate("/login");
+  } catch (error) {
+    console.error("Logout failed", error);
+  }
+};
 
   return (
     <div className="flex item-center justify-between text-sm py-4 mb-5 border-b border-b-gray-400">

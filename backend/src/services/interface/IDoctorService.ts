@@ -5,7 +5,10 @@ export interface IDoctorService {
   registerDoctor(data: DoctorData): Promise<void>;
   toggleAvailability(docId: string): Promise<void>;
   getAllDoctors(): Promise<any[]>;
-  loginDoctor(email: string, plainPassword: string): Promise<string | null>;
+  loginDoctor(
+    email: string,
+    password: string
+  ): Promise<{ token: string; refreshToken: string }>;
   getDoctorAppointments(docId: string): Promise<AppointmentTypes[]>;
   confirmAppointment(docId: string, appointmentId: string): Promise<void>;
   cancelAppointment(docId: string, appointmentId: string): Promise<void>;

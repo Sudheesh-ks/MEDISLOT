@@ -30,6 +30,7 @@ export const HttpResponse = {
 //   Doctor related
     DOCTOR_REGISTER_SUCCESS: "Doctor Registration Successful",
     DOCTOR_AVAILABILITY_CHANGE: "Availability Changed",
+    LOGOUT_SUCCESS: "Logged out successfully",
 
   // OTP
   OTP_SENT: 'OTP sent to email',

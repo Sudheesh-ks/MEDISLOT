@@ -2,6 +2,9 @@ import { useContext } from "react";
 import { assets } from "../../assets/admin/assets";
 import { DoctorContext } from "../../context/DoctorContext";
 import { useNavigate } from "react-router-dom";
+import { logoutDoctorAPI } from "../../services/doctorServices";
+import { clearDoctorAccessToken } from "../../context/tokenManagerDoctor";
+
 
 const DoctorNavbar = () => {
   const context = useContext(DoctorContext);
@@ -14,11 +17,19 @@ const DoctorNavbar = () => {
 
   const navigate = useNavigate();
 
-  const logout = () => {
+const logout = async () => {
+  try {
+    await logoutDoctorAPI(); // ✅ call API to clear cookie
+
+    setDToken("");
+    localStorage.removeItem("dToken");
+    clearDoctorAccessToken();
+
     navigate("/doctor/login");
-    dToken && setDToken("");
-    dToken && localStorage.removeItem("dToken");
-  };
+  } catch (error) {
+    console.error("Doctor logout failed:", error);
+  }
+};
 
   return (
     <div className="flex justify-between items-center px-4 sm:px-10 py-3 border-b bg-white">

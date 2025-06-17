@@ -6,7 +6,11 @@ import { toast } from "react-toastify";
 import { getUserProfileAPI } from "../services/userProfileServices";
 import { getDoctorsAPI } from "../services/doctorServices";
 import { showErrorToast } from "../utils/errorHandler";
-import { updateAccessToken, clearAccessToken, getAccessToken } from "./tokenManager";
+import {
+  getUserAccessToken,
+  updateUserAccessToken,
+  clearUserAccessToken,
+} from "./tokenManagerUser";
 import { refreshAccessTokenAPI } from "../services/authServices";
 
 interface userData {
@@ -47,7 +51,7 @@ const AppContextProvider: React.FC<AppContextProviderProps> = ({ children }) => 
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
   const [doctors, setDoctors] = useState([]);
-  const [token, setTokenState] = useState<string | null>(getAccessToken());
+  const [token, setTokenState] = useState<string | null>(getUserAccessToken());
   const [userData, setUserData] = useState<null | userData>({
     name: "",
     email: "",
@@ -76,7 +80,7 @@ const AppContextProvider: React.FC<AppContextProviderProps> = ({ children }) => 
 
   const loadUserProfileData = async () => {
     try {
-      const accessToken = getAccessToken();
+      const accessToken = getUserAccessToken();
       if (!accessToken) {
         toast.error("Please login to continue...");
         return;
@@ -99,19 +103,18 @@ const AppContextProvider: React.FC<AppContextProviderProps> = ({ children }) => 
   };
 
   const setToken = (newToken: string | null) => {
-    setTokenState(newToken);
-    if (newToken) {
-      updateAccessToken(newToken);
-    } else {
-      clearAccessToken();
-    }
-  };
+  setTokenState(newToken);
+  if (newToken) {
+    updateUserAccessToken(newToken);
+  } else {
+    clearUserAccessToken();
+  }
+};
 
-  const clearToken = () => {
-    setTokenState(null);
-    clearAccessToken();
-  };
-
+const clearToken = () => {
+  setTokenState(null);
+  clearUserAccessToken();
+};
   const calculateAge = (dob: string): number => {
     const today = new Date();
     const birthDate = new Date(dob);
@@ -127,30 +130,30 @@ const AppContextProvider: React.FC<AppContextProviderProps> = ({ children }) => 
 
 
  useEffect(() => {
-  const tryRefreshToken = async () => {
+  const tryRefresh = async () => {
     try {
-      const response = await refreshAccessTokenAPI(); // endpoint returns new accessToken
-      const newAccessToken = response.data?.token;
+      const res = await refreshAccessTokenAPI(); // POST /api/user/refresh-token
+      const newToken = res.data?.token;
 
-      if (newAccessToken) {
-        setToken(newAccessToken); // this also updates tokenManager
-        await loadUserProfileData(); // important!
+      if (newToken) {
+        setToken(newToken); // 🔁 sets both state and tokenManager
+        await loadUserProfileData(); // 👤 loads profile after token refresh
       } else {
         clearToken();
       }
-    } catch (error) {
-      console.error("Auto refresh failed:", error);
+    } catch (err: any) {
+      console.warn("🔴 User token refresh failed", err.response?.data || err.message);
       clearToken();
     }
   };
 
-  // ✅ Try refreshing only if token is missing on mount
-  if (!getAccessToken()) {
-    tryRefreshToken();
+  if (!getUserAccessToken()) {
+    tryRefresh(); // 🔄 attempt refresh if no token in memory
   } else {
-    loadUserProfileData(); // already have token, load profile
+    loadUserProfileData(); // ✅ if access token already exists, fetch profile
   }
 }, []);
+
 
   useEffect(() => {
     if (token) {

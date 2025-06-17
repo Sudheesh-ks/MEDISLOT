@@ -1,72 +1,80 @@
 import { IDoctorRepository } from "../../repositories/interface/IDoctorRepository";
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
 import { IDoctorService } from "../interface/IDoctorService";
 import { AppointmentTypes } from "../../types/appointment";
 import { DoctorData, DoctorDTO } from "../../types/doctor";
 import { v2 as cloudinary } from "cloudinary";
+import fs from "fs";
+import {
+  generateAccessToken,
+  generateRefreshToken,
+} from "../../utils/jwt.utils";
+
+export interface DoctorDocument extends DoctorData {
+  _id: string;
+}
+
 export class DoctorService implements IDoctorService {
   constructor(private _doctorRepository: IDoctorRepository) {}
 
-
   async registerDoctor(data: DoctorDTO): Promise<void> {
-  const {
-    name,
-    email,
-    password,
-    speciality,
-    degree,
-    experience,
-    about,
-    fees,
-    address,
-    imagePath,
-  } = data;
+    const {
+      name,
+      email,
+      password,
+      speciality,
+      degree,
+      experience,
+      about,
+      fees,
+      address,
+      imagePath,
+    } = data;
 
-  if (
-    !name ||
-    !email ||
-    !password ||
-    !speciality ||
-    !degree ||
-    !experience ||
-    !about ||
-    !fees ||
-    !address
-  ) {
-    throw new Error("All Fields Required");
+    if (
+      !name ||
+      !email ||
+      !password ||
+      !speciality ||
+      !degree ||
+      !experience ||
+      !about ||
+      !fees ||
+      !address
+    ) {
+      throw new Error("All Fields Required");
+    }
+
+    const existing = await this._doctorRepository.findByEmail(email);
+    if (existing) throw new Error("Email already registered");
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    let imageUrl = "";
+    if (imagePath) {
+      const uploadResult = await cloudinary.uploader.upload(imagePath, {
+        resource_type: "image",
+      });
+      imageUrl = uploadResult.secure_url;
+    }
+
+    const doctorData: DoctorData = {
+      name,
+      email,
+      password: hashedPassword,
+      speciality,
+      degree,
+      experience,
+      about,
+      fees,
+      address,
+      image: imageUrl,
+      date: new Date(),
+      status: "pending", // pending approval
+    };
+
+    await this._doctorRepository.registerDoctor(doctorData);
   }
-
-  const existing = await this._doctorRepository.findByEmail(email);
-  if (existing) throw new Error("Email already registered");
-
-  const hashedPassword = await bcrypt.hash(password, 10);
-
-  let imageUrl = "";
-  if (imagePath) {
-    const uploadResult = await cloudinary.uploader.upload(imagePath, {
-      resource_type: "image",
-    });
-    imageUrl = uploadResult.secure_url;
-  }
-
-  const doctorData: DoctorData = {
-    name,
-    email,
-    password: hashedPassword,
-    speciality,
-    degree,
-    experience,
-    about,
-    fees,
-    address,
-    image: imageUrl,
-    date: new Date(),
-    status: "pending", // doctor requires admin approval
-  };
-
-  await this._doctorRepository.registerDoctor(doctorData);
-}
 
   async toggleAvailability(docId: string): Promise<void> {
     const doc = await this._doctorRepository.findById(docId);
@@ -81,17 +89,19 @@ export class DoctorService implements IDoctorService {
 
   async loginDoctor(
     email: string,
-    plainPassword: string
-  ): Promise<string | null> {
+    password: string
+  ): Promise<{ token: string; refreshToken: string }> {
     const doctor = await this._doctorRepository.findByEmail(email);
-    if (!doctor) return null;
+    if (!doctor) throw new Error("Doctor not found");
 
-    const match = await bcrypt.compare(plainPassword, doctor.password);
-    if (!match) return null;
+    const match = await bcrypt.compare(password, doctor.password);
+    if (!match) throw new Error("Incorrect password");
 
-    return jwt.sign({ id: doctor._id }, process.env.JWT_SECRET!, {
-      expiresIn: "1d",
-    });
+
+    const token = generateAccessToken(doctor._id!);
+    const refreshToken = generateRefreshToken(doctor._id!);
+
+    return { token, refreshToken };
   }
 
   async getDoctorAppointments(docId: string): Promise<AppointmentTypes[]> {
@@ -150,15 +160,21 @@ async updateDoctorProfile(data: {
   let imageUrl = doctor.image;
 
   if (data.imagePath) {
-    const uploadResult = await cloudinary.uploader.upload(data.imagePath, {
-      resource_type: "image",
-    });
-    imageUrl = uploadResult.secure_url;
+    try {
+      const uploadResult = await cloudinary.uploader.upload(data.imagePath, {
+        resource_type: "image",
+      });
+      imageUrl = uploadResult.secure_url;
 
-    // Delete local file after Cloudinary upload
-    // fs.unlink(data.imagePath, (err) => {
-    //   if (err) console.error("Failed to delete local file:", err);
-    // });
+      // Optionally delete the local file after upload
+      fs.unlink(data.imagePath, (err: any) => {
+        if (err) console.error("Failed to delete local file:", err);
+      });
+
+    } catch (uploadError) {
+      console.error("Cloudinary upload failed:", uploadError);
+      throw new Error("Image upload failed");
+    }
   }
 
   await this._doctorRepository.updateDoctorProfile(data.doctId, {
@@ -172,4 +188,5 @@ async updateDoctorProfile(data: {
     image: imageUrl,
   });
 }
+
 }
