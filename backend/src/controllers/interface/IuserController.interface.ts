@@ -13,7 +13,5 @@ export interface IUserController {
   listAppointment(req: Request, res: Response): Promise<void>;
   cancelAppointment(req: Request, res: Response): Promise<void>;
   refreshToken(req: Request, res: Response): Promise<void>;
-logout(req: Request, res: Response): Promise<void>;
-
-
+  logout(req: Request, res: Response): Promise<void>;
 }

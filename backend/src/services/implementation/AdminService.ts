@@ -89,33 +89,31 @@ export class AdminService implements IAdminService {
       date: new Date(),
     };
 
-
-    
-
     await this._adminRepository.saveDoctor(doctorData);
     return "Doctor added successfully";
   }
 
   async approveDoctor(doctorId: string): Promise<string> {
-  const doctor = await this._doctorRepository.findById(doctorId);
-  if (!doctor) throw new Error("Doctor not found");
-  if (doctor.status === "approved") throw new Error("Doctor already approved");
+    const doctor = await this._doctorRepository.findById(doctorId);
+    if (!doctor) throw new Error("Doctor not found");
+    if (doctor.status === "approved")
+      throw new Error("Doctor already approved");
 
-  doctor.status = "approved";
-  await this._doctorRepository.save(doctor);
-  return "Doctor approved successfully";
-}
+    doctor.status = "approved";
+    await this._doctorRepository.save(doctor);
+    return "Doctor approved successfully";
+  }
 
-async rejectDoctor(doctorId: string): Promise<string> {
-  const doctor = await this._doctorRepository.findById(doctorId);
-  if (!doctor) throw new Error("Doctor not found");
-  if (doctor.status === "rejected") throw new Error("Doctor already rejected");
+  async rejectDoctor(doctorId: string): Promise<string> {
+    const doctor = await this._doctorRepository.findById(doctorId);
+    if (!doctor) throw new Error("Doctor not found");
+    if (doctor.status === "rejected")
+      throw new Error("Doctor already rejected");
 
-  doctor.status = "rejected";
-  await this._doctorRepository.save(doctor);
-  return "Doctor rejected successfully";
-}
-
+    doctor.status = "rejected";
+    await this._doctorRepository.save(doctor);
+    return "Doctor rejected successfully";
+  }
 
   async getDoctors(): Promise<any[]> {
     return await this._adminRepository.getAllDoctors();

@@ -1,6 +1,4 @@
-import {
-  IUserRepository,
-} from "../../repositories/interface/IUserRepository";
+import { IUserRepository } from "../../repositories/interface/IUserRepository";
 import userModel from "../../models/userModel";
 import doctorModel from "../../models/doctorModel";
 import { AppointmentDocument, AppointmentTypes } from "../../types/appointment";
@@ -9,7 +7,10 @@ import { DoctorData } from "../../types/doctor";
 import { BaseRepository } from "../BaseRepository";
 import { UserDocument } from "../../types/user";
 
-export class UserRepository extends BaseRepository<UserDocument> implements IUserRepository {
+export class UserRepository
+  extends BaseRepository<UserDocument>
+  implements IUserRepository
+{
   constructor() {
     super(userModel);
   }
@@ -18,7 +19,10 @@ export class UserRepository extends BaseRepository<UserDocument> implements IUse
     return this.findOne({ email });
   }
 
-  async updatePasswordByEmail(email: string, newHashedPassword: string): Promise<boolean> {
+  async updatePasswordByEmail(
+    email: string,
+    newHashedPassword: string
+  ): Promise<boolean> {
     const updatedUser = await userModel.findOneAndUpdate(
       { email },
       { $set: { password: newHashedPassword } }
@@ -59,7 +63,6 @@ export class UserRepository extends BaseRepository<UserDocument> implements IUse
     await doctorModel.findByIdAndUpdate(docId, { slots_booked: slots });
   }
 
-
   async getAppointmentsByUserId(userId: string): Promise<AppointmentTypes[]> {
     return appointmentModel.find({ userId }).sort({ date: -1 });
   }
@@ -67,7 +70,6 @@ export class UserRepository extends BaseRepository<UserDocument> implements IUse
   async findDoctorById(id: string): Promise<DoctorData | null> {
     return doctorModel.findById(id).select("-password") as any;
   }
-
 
   async cancelAppointment(
     userId: string,

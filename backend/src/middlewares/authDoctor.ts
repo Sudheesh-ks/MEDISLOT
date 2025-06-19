@@ -21,7 +21,6 @@ const authDoctor = async (
 
     const decoded = verifyAccessToken(token);
 
-    // Attach doctor ID from decoded payload
     (req as any).docId = decoded.id;
 
     next();

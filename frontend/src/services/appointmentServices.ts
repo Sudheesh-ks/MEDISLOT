@@ -1,6 +1,7 @@
 import { api } from "../axios/axiosInstance";
+import { APPOINTMENT_API } from "../constants/apiRoutes";
 
-// Appointment Booking
+// Book an appointment
 export const appointmentBookingAPI = async (
   docId: string,
   slotDate: string,
@@ -8,15 +9,15 @@ export const appointmentBookingAPI = async (
   token: string
 ) => {
   return api.post(
-    "/api/user/appointments",
+    APPOINTMENT_API.BASE,
     { docId, slotDate, slotTime },
     { headers: { Authorization: `Bearer ${token}` } }
   );
 };
 
-// Get all appointments (unchanged)
+// Get all appointments
 export const getAppointmentsAPI = async (token: string) => {
-  return api.get("/api/user/appointments", {
+  return api.get(APPOINTMENT_API.BASE, {
     headers: { Authorization: `Bearer ${token}` },
   });
 };
@@ -27,7 +28,7 @@ export const cancelAppointmentAPI = async (
   token: string
 ) => {
   return api.patch(
-    `/api/user/appointments/${appointmentId}/cancel`,
+    APPOINTMENT_API.CANCEL(appointmentId),
     {},
     { headers: { Authorization: `Bearer ${token}` } }
   );

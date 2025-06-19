@@ -25,5 +25,5 @@ export const assets: {[key: string]: string} = {
     list_icon,
     tick_icon,
     appointments_icon,
-    earning_icon
+    earning_icon,
 }

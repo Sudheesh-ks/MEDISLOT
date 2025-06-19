@@ -46,9 +46,16 @@ adminRouter.get(
   adminController.getDoctors.bind(adminController)
 );
 
-adminRouter.patch("/doctors/:id/approve", authAdmin, adminController.approveDoctor.bind(adminController));
-adminRouter.patch("/doctors/:id/reject", authAdmin, adminController.rejectDoctor.bind(adminController));
-
+adminRouter.patch(
+  "/doctors/:id/approve",
+  authAdmin,
+  adminController.approveDoctor.bind(adminController)
+);
+adminRouter.patch(
+  "/doctors/:id/reject",
+  authAdmin,
+  adminController.rejectDoctor.bind(adminController)
+);
 
 adminRouter.patch(
   "/doctors/:doctorId/availability",

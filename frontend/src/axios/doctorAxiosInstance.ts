@@ -4,13 +4,11 @@ import {
   updateDoctorAccessToken,
 } from "../context/tokenManagerDoctor";
 
-// Create instance
 export const doctorApi = axios.create({
   baseURL: import.meta.env.VITE_BACKEND_URL,
-  withCredentials: true, // Include cookies (refreshToken)
+  withCredentials: true,
 });
 
-// Add access token to request headers
 doctorApi.interceptors.request.use(
   (config) => {
     const token = getDoctorAccessToken();
@@ -22,7 +20,6 @@ doctorApi.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Handle 401 errors (token expired)
 doctorApi.interceptors.response.use(
   (res) => res,
   async (err) => {

@@ -1,4 +1,3 @@
-// context/AppContext.tsx
 import { createContext, useEffect, useState, type ReactNode } from "react";
 import type { Doctor } from "../assets/user/assets";
 import { assets } from "../assets/user/assets";
@@ -46,7 +45,9 @@ interface AppContextProviderProps {
   children: ReactNode;
 }
 
-const AppContextProvider: React.FC<AppContextProviderProps> = ({ children }) => {
+const AppContextProvider: React.FC<AppContextProviderProps> = ({
+  children,
+}) => {
   const currencySymbol = "₹";
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
@@ -103,57 +104,72 @@ const AppContextProvider: React.FC<AppContextProviderProps> = ({ children }) => 
   };
 
   const setToken = (newToken: string | null) => {
-  setTokenState(newToken);
-  if (newToken) {
-    updateUserAccessToken(newToken);
-  } else {
-    clearUserAccessToken();
-  }
-};
+    setTokenState(newToken);
+    if (newToken) {
+      updateUserAccessToken(newToken);
+    } else {
+      clearUserAccessToken();
+    }
+  };
 
-const clearToken = () => {
-  setTokenState(null);
-  clearUserAccessToken();
-};
+  const clearToken = () => {
+    setTokenState(null);
+    clearUserAccessToken();
+  };
   const calculateAge = (dob: string): number => {
     const today = new Date();
     const birthDate = new Date(dob);
     return today.getFullYear() - birthDate.getFullYear();
   };
 
-  const months = ["", "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const months = [
+    "",
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
 
   const slotDateFormat = (slotDate: string): string => {
     const dateArray = slotDate.split("_");
     return `${dateArray[0]} ${months[Number(dateArray[1])]} ${dateArray[2]}`;
   };
 
+  useEffect(() => {
+    const tryRefresh = async () => {
+      try {
+        const res = await refreshAccessTokenAPI();
+        const newToken = res.data?.token;
 
- useEffect(() => {
-  const tryRefresh = async () => {
-    try {
-      const res = await refreshAccessTokenAPI(); // POST /api/user/refresh-token
-      const newToken = res.data?.token;
-
-      if (newToken) {
-        setToken(newToken); // 🔁 sets both state and tokenManager
-        await loadUserProfileData(); // 👤 loads profile after token refresh
-      } else {
+        if (newToken) {
+          setToken(newToken);
+          await loadUserProfileData();
+        } else {
+          clearToken();
+        }
+      } catch (err: any) {
+        console.warn(
+          "User token refresh failed",
+          err.response?.data || err.message
+        );
         clearToken();
       }
-    } catch (err: any) {
-      console.warn("🔴 User token refresh failed", err.response?.data || err.message);
-      clearToken();
+    };
+
+    if (!getUserAccessToken()) {
+      tryRefresh();
+    } else {
+      loadUserProfileData();
     }
-  };
-
-  if (!getUserAccessToken()) {
-    tryRefresh(); // 🔄 attempt refresh if no token in memory
-  } else {
-    loadUserProfileData(); // ✅ if access token already exists, fetch profile
-  }
-}, []);
-
+  }, []);
 
   useEffect(() => {
     if (token) {

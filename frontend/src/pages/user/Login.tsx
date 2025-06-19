@@ -9,9 +9,15 @@ import { showErrorToast } from "../../utils/errorHandler";
 import LoadingButton from "../../components/common/LoadingButton";
 
 const Login = () => {
-  const navigate = useNavigate();
 
+  const navigate = useNavigate();
   const context = useContext(AppContext);
+  const [state, setState] = useState("Sign Up");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   if (!context) {
     throw new Error("TopDoctors must be used within an AppContextProvider");
@@ -19,12 +25,7 @@ const Login = () => {
 
   const { backendUrl, token, setToken } = context;
 
-  const [state, setState] = useState("Sign Up");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [googleLoading, setGoogleLoading] = useState(false);
+
 
   const onSubmitHandler = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -65,7 +66,7 @@ const Login = () => {
         if (data.success) {
           setToken(data.token);
           toast.success("Login successful");
-          navigate("/");
+          navigate("/home");
         } else {
           toast.error(data?.message || "Something went wrong");
         }
@@ -77,7 +78,7 @@ const Login = () => {
 
   useEffect(() => {
     if (token) {
-      navigate("/");
+      navigate("/home");
     }
   }, [token, navigate]);
 
@@ -86,6 +87,13 @@ const Login = () => {
       onSubmit={onSubmitHandler}
       className="min-h-[80vh] flex items-center justify-center"
     >
+<div
+  className="absolute top-6 left-6 flex items-center gap-2 px-4 py-2 rounded-full bg-blue-100 text-blue-600 font-medium shadow-md hover:bg-blue-200 transition duration-300 cursor-pointer"
+  onClick={() => navigate("/")}
+>
+  <span className="text-lg">🏠</span>
+  <span className="text-sm sm:text-base">Back to Home</span>
+</div>
       <div className="flex flex-col mt-40 sm:flex-row bg-white shadow-lg rounded-xl overflow-hidden">
         {/* LEFT: Image section */}
         <div className="hidden sm:block w-full sm:w-96">

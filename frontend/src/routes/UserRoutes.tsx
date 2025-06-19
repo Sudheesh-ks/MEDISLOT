@@ -18,12 +18,19 @@ import NewPasswordPage from "../pages/user/SetNewPassword";
 import GoogleCallback from "../pages/user/GoogleCallback";
 import Consultation from "../pages/user/Consultation";
 import ChatPage from "../pages/user/ChatPage";
+import UserLandingPage from "../pages/user/LandingPage";
 
 const UserRoutes = () => {
   return (
     <>
       <Route
         path="/"
+        element={
+            <UserLandingPage />
+        }
+      />
+      <Route
+        path="/home"
         element={
           <UserLayout>
             <Home />

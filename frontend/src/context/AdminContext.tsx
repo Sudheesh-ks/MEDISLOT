@@ -73,7 +73,7 @@ const AdminContextProvider = ({ children }: AdminContextProviderProps) => {
     const { data } = await approveDoctorAPI(doctorId, aToken);
     if (data.success) {
       toast.success(data.message);
-      getAllDoctors(); // refresh list
+      getAllDoctors(); 
     } else {
       toast.error(data.message);
     }

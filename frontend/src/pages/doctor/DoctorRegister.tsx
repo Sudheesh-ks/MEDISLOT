@@ -1,9 +1,11 @@
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { assets } from "../../assets/admin/assets";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { registerDoctorAPI } from "../../services/doctorServices";
 import { showErrorToast } from "../../utils/errorHandler";
+import { isValidEmail, isValidName, isValidPassword } from "../../utils/validator";
+import { DoctorContext } from "../../context/DoctorContext";
 
 const DoctorRegister = () => {
   const [docImg, setDocImg] = useState<File | null>(null);
@@ -20,11 +22,36 @@ const DoctorRegister = () => {
 
   const navigate = useNavigate();
 
+
+    const context = useContext(DoctorContext);
+  
+    if (!context) {
+      throw new Error("DoctorContext must be used within DoctorContextProvider");
+    }
+  
+    const { dToken } = context;
+  
+    useEffect(() => {
+      if (dToken) navigate("/doctor/dashboard");
+    }, [dToken, navigate]);
+
   const onSubmitHandler = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
+    if (!docImg) return toast.error("Please upload a profile image.");
+    if (!name || !email || !password || !fees || !about || !degree || !address1) {
+      return toast.error("Please fill in all required fields.");
+    }
+    if (!isValidName(name)) return toast.error("Name must be at least 4 characters.");
+    if (!isValidEmail(email)) return toast.error("Please enter a valid email address.");
+    if (!isValidPassword(password)) {
+      return toast.error(
+        "Password must be at least 8 characters, include 1 number and 1 special character."
+      );
+    }
+
     try {
-      if (!docImg) return toast.error("Image Not Selected");
+      // if (!docImg) return toast.error("Image Not Selected");
 
       const formData = new FormData();
       formData.append("image", docImg);
@@ -52,7 +79,15 @@ const DoctorRegister = () => {
   };
 
   return (
+    
     <div className="flex items-center justify-center min-h-screen px-4">
+      <div
+  className="absolute top-6 left-6 flex items-center gap-2 px-4 py-2 rounded-full bg-blue-100 text-blue-600 font-medium shadow-md hover:bg-blue-200 transition duration-300 cursor-pointer"
+  onClick={() => navigate("/")}
+>
+  <span className="text-lg">🏠</span>
+  <span className="text-sm sm:text-base">Back to Home</span>
+</div>
       <div className="w-full max-w-5xl bg-white rounded-xl shadow-md p-4">
         <h2 className="text-2xl font-semibold text-center text-primary mb-3">Doctor Registration</h2>
 
@@ -125,6 +160,16 @@ const DoctorRegister = () => {
               Register
             </button>
           </div>
+          <div className="text-center pt-3 text-sm">
+  Already registered?{" "}
+  <span
+    onClick={() => navigate("/doctor/login")}
+    className="text-primary font-medium underline cursor-pointer hover:text-primary-dark transition"
+  >
+    Login here
+  </span>
+</div>
+
         </form>
       </div>
     </div>

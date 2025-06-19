@@ -1,48 +1,49 @@
 import { doctorApi as api } from "../axios/doctorAxiosInstance";
+import { DOCTOR_API } from "../constants/apiRoutes";
 
-// Get list of all doctors (for admin/user maybe)
+// Get all doctors
 export const getDoctorsAPI = () => {
-  return api.get("/api/doctor");
+  return api.get(DOCTOR_API.BASE);
 };
 
-// Doctor registration
+// Register doctor
 export const registerDoctorAPI = (formData: FormData) => {
-  return api.post("/api/doctor/register", formData);
+  return api.post(DOCTOR_API.REGISTER, formData);
 };
 
 // Doctor login
 export const doctorLoginAPI = (email: string, password: string) => {
-  return api.post("/api/doctor/login", { email, password });
+  return api.post(DOCTOR_API.LOGIN, { email, password });
 };
 
 // Doctor logout
 export const logoutDoctorAPI = () => {
-  return api.post("/api/doctor/logout");
+  return api.post(DOCTOR_API.LOGOUT);
 };
 
-// Refresh doctor access token
+// Refresh token
 export const refreshDoctorAccessTokenAPI = () => {
-  return api.post("/api/doctor/refresh-token");
+  return api.post(DOCTOR_API.REFRESH);
 };
 
-// Get all appointments for doctor
+// Get appointments for doctor
 export const getDoctorAppointmentsAPI = () => {
-  return api.get("/api/doctor/appointments");
+  return api.get(DOCTOR_API.APPOINTMENTS);
 };
 
 // Confirm appointment
 export const AppointmentConfirmAPI = (appointmentId: string) => {
-  return api.patch(`/api/doctor/appointments/${appointmentId}/confirm`);
+  return api.patch(DOCTOR_API.APPOINTMENT_CONFIRM(appointmentId));
 };
 
 // Cancel appointment
 export const AppointmentCancelAPI = (appointmentId: string) => {
-  return api.patch(`/api/doctor/appointments/${appointmentId}/cancel`);
+  return api.patch(DOCTOR_API.APPOINTMENT_CANCEL(appointmentId));
 };
 
 // Get doctor profile
 export const getDoctorProfileAPI = () => {
-  return api.get("/api/doctor/profile");
+  return api.get(DOCTOR_API.PROFILE);
 };
 
 // Update doctor profile
@@ -65,7 +66,7 @@ export const updateDoctorProfileAPI = (
     data.append("image", image);
   }
 
-  return api.patch("/api/doctor/profile/update", data, {
+  return api.patch(DOCTOR_API.PROFILE_UPDATE, data, {
     headers: {
       "Content-Type": "multipart/form-data",
     },

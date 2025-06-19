@@ -8,7 +8,7 @@ import {
   getDoctorAppointmentsAPI,
   getDoctorProfileAPI,
   refreshDoctorAccessTokenAPI,
-} from "../services/doctorServices"; // make sure this exists
+} from "../services/doctorServices";
 import type { AppointmentTypes } from "../types/appointment";
 import type { DoctorProfileType } from "../types/doctor";
 import {
@@ -27,12 +27,16 @@ interface DoctorContextType {
   confirmAppointment: (appointmentId: string) => Promise<void>;
   cancelAppointment: (appointmentId: string) => Promise<void>;
   profileData: DoctorProfileType | null;
-  setProfileData: React.Dispatch<React.SetStateAction<DoctorProfileType | null>>;
+  setProfileData: React.Dispatch<
+    React.SetStateAction<DoctorProfileType | null>
+  >;
   getProfileData: () => Promise<void>;
   loading: boolean;
 }
 
-export const DoctorContext = createContext<DoctorContextType>({} as DoctorContextType);
+export const DoctorContext = createContext<DoctorContextType>(
+  {} as DoctorContextType
+);
 
 interface DoctorContextProviderProps {
   children: ReactNode;
@@ -41,9 +45,11 @@ interface DoctorContextProviderProps {
 const DoctorContextProvider = ({ children }: DoctorContextProviderProps) => {
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
-  const [dToken, setDToken] = useState(""); ;
+  const [dToken, setDToken] = useState("");
   const [appointments, setAppointments] = useState<AppointmentTypes[]>([]);
-  const [profileData, setProfileData] = useState<DoctorProfileType | null>(null);
+  const [profileData, setProfileData] = useState<DoctorProfileType | null>(
+    null
+  );
   const [loading, setLoading] = useState(true);
 
   const setToken = (newToken: string | null) => {
@@ -109,38 +115,38 @@ const DoctorContextProvider = ({ children }: DoctorContextProviderProps) => {
     }
   };
 
-  // 🔁 Try refreshing token when context loads (first time)
   useEffect(() => {
-  const tryRefresh = async () => {
-    try {
-      const res = await refreshDoctorAccessTokenAPI();
-      const newToken = res.data?.token;
-      if (newToken) {
-        setToken(newToken);
-        await getProfileData();
-      } else {
+    const tryRefresh = async () => {
+      try {
+        const res = await refreshDoctorAccessTokenAPI();
+        const newToken = res.data?.token;
+        if (newToken) {
+          setToken(newToken);
+          await getProfileData();
+        } else {
+          setToken(null);
+        }
+      } catch (err: any) {
+        console.warn(
+          "Doctor token refresh failed",
+          err.response?.data || err.message
+        );
         setToken(null);
+      } finally {
+        setLoading(false);
       }
-    } catch (err: any) {
-        console.warn("🔴 Doctor token refresh failed", err.response?.data || err.message);
-  setToken(null);
-    } finally {
-      setLoading(false);
+    };
+
+    if (!getDoctorAccessToken()) {
+      tryRefresh();
+    } else {
+      getProfileData().finally(() => setLoading(false));
     }
-  };
-
-  if (!getDoctorAccessToken()) {
-    tryRefresh();
-  } else {
-    getProfileData().finally(() => setLoading(false));
-  }
-}, []);
-
-
+  }, []);
 
   const value: DoctorContextType = {
     dToken,
-    setDToken: setToken, // ✅ use our custom setter
+    setDToken: setToken,
     backendUrl,
     appointments,
     setAppointments,
@@ -154,9 +160,7 @@ const DoctorContextProvider = ({ children }: DoctorContextProviderProps) => {
   };
 
   return (
-    <DoctorContext.Provider value={value}>
-      {children}
-    </DoctorContext.Provider>
+    <DoctorContext.Provider value={value}>{children}</DoctorContext.Provider>
   );
 };
 

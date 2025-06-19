@@ -92,36 +92,33 @@ export class DoctorController implements IDoctorController {
     }
   }
 
- async loginDoctor(req: Request, res: Response): Promise<void> {
-  try {
-    const { email, password } = req.body;
+  async loginDoctor(req: Request, res: Response): Promise<void> {
+    try {
+      const { email, password } = req.body;
 
-    // This gives you the tokens directly
-    const { token: accessToken, refreshToken } = await this._doctorService.loginDoctor(email, password);
+      const { token: accessToken, refreshToken } =
+        await this._doctorService.loginDoctor(email, password);
 
-    // Set the refresh token as HTTP-only cookie
-    res.cookie("refreshToken_doctor", refreshToken, {
-      httpOnly: true,
-      path: "/api/doctor/refresh-token",
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    });
+      res.cookie("refreshToken_doctor", refreshToken, {
+        httpOnly: true,
+        path: "/api/doctor/refresh-token",
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      });
 
-    // Send the access token in response
-    res.status(HttpStatus.OK).json({
-      success: true,
-      token: accessToken,
-      message: HttpResponse.LOGIN_SUCCESS,
-    });
-  } catch (error) {
-    res.status(HttpStatus.UNAUTHORIZED).json({
-      success: false,
-      message: HttpResponse.UNAUTHORIZED,
-    });
+      res.status(HttpStatus.OK).json({
+        success: true,
+        token: accessToken,
+        message: HttpResponse.LOGIN_SUCCESS,
+      });
+    } catch (error) {
+      res.status(HttpStatus.UNAUTHORIZED).json({
+        success: false,
+        message: HttpResponse.UNAUTHORIZED,
+      });
+    }
   }
-}
-
 
   async refreshDoctorToken(req: Request, res: Response): Promise<void> {
     try {
@@ -182,14 +179,14 @@ export class DoctorController implements IDoctorController {
     });
   }
 
-
-
   // For getting doctor appointments
   async appointmentsDoctor(req: Request, res: Response): Promise<void> {
     try {
       const docId = (req as any).docId;
 
-      const appointments = await this._doctorService.getDoctorAppointments(docId);
+      const appointments = await this._doctorService.getDoctorAppointments(
+        docId
+      );
 
       res.status(HttpStatus.OK).json({ success: true, appointments });
     } catch (error) {
@@ -235,69 +232,63 @@ export class DoctorController implements IDoctorController {
     }
   }
 
-
- async doctorProfile(req: Request, res: Response): Promise<void> {
-  try {
-    const doctId = (req as any).docId;
-    const profileData = await this._doctorService.getDoctorProfile(doctId);
-    res.json({ success: true, profileData });
-  } catch (error) {
-    res.status(500).json({ success: false, message: (error as Error).message });
-  }
-}
-
-async updateDoctorProfile(req: Request, res: Response): Promise<void> {
-  try {
-    const doctId = req.body.doctId;
-    const {
-      name,
-      speciality,
-      degree,
-      experience,
-      about,
-      fees,
-      address,
-    } = req.body;
-
-    const imageFile = req.file;
-
-    console.log("Received body:", req.body);
-    console.log("Received file:", imageFile);
-
-    let parsedAddress;
+  async doctorProfile(req: Request, res: Response): Promise<void> {
     try {
-      parsedAddress = JSON.parse(address);
-    } catch (err) {
-      console.error("Address parsing error:", err);
-      res.status(400).json({ success: false, message: "Invalid address format" });
-      return 
+      const doctId = (req as any).docId;
+      const profileData = await this._doctorService.getDoctorProfile(doctId);
+      res.json({ success: true, profileData });
+    } catch (error) {
+      res
+        .status(500)
+        .json({ success: false, message: (error as Error).message });
     }
-
-    await this._doctorService.updateDoctorProfile({
-      doctId,
-      name,
-      speciality,
-      degree,
-      experience,
-      about,
-      fees: Number(fees),
-      address: parsedAddress,
-      imagePath: imageFile?.path,
-    });
-
-    res.status(HttpStatus.OK).json({
-      success: true,
-      message: "Doctor profile updated successfully",
-    });
-  } catch (error) {
-    console.error("Doctor profile update failed:", error);
-    res.status(500).json({
-      success: false,
-      message: (error as Error).message,
-      error: (error as Error).stack,
-    });
   }
-}
 
+  async updateDoctorProfile(req: Request, res: Response): Promise<void> {
+    try {
+      const doctId = req.body.doctId;
+      const { name, speciality, degree, experience, about, fees, address } =
+        req.body;
 
+      const imageFile = req.file;
+
+      console.log("Received body:", req.body);
+      console.log("Received file:", imageFile);
+
+      let parsedAddress;
+      try {
+        parsedAddress = JSON.parse(address);
+      } catch (err) {
+        console.error("Address parsing error:", err);
+        res
+          .status(400)
+          .json({ success: false, message: "Invalid address format" });
+        return;
+      }
+
+      await this._doctorService.updateDoctorProfile({
+        doctId,
+        name,
+        speciality,
+        degree,
+        experience,
+        about,
+        fees: Number(fees),
+        address: parsedAddress,
+        imagePath: imageFile?.path,
+      });
+
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: "Doctor profile updated successfully",
+      });
+    } catch (error) {
+      console.error("Doctor profile update failed:", error);
+      res.status(500).json({
+        success: false,
+        message: (error as Error).message,
+        error: (error as Error).stack,
+      });
+    }
+  }
 }

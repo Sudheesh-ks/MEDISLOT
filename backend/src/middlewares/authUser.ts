@@ -2,7 +2,6 @@ import { Request, Response, NextFunction } from "express";
 import { HttpStatus } from "../constants/status.constants";
 import { verifyAccessToken } from "../utils/jwt.utils";
 
-
 const authUser = async (
   req: Request,
   res: Response,
@@ -20,10 +19,8 @@ const authUser = async (
 
     const token = authHeader.split(" ")[1];
 
-    // 🔐 Use the utility to verify token
     const decoded = verifyAccessToken(token);
 
-    // Attach userId to request
     (req as any).userId = decoded.id;
 
     next();

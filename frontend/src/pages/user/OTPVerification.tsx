@@ -75,7 +75,7 @@ const OtpVerificationPage = () => {
           toast.success("Account created successfully");
           localStorage.removeItem("tempUserData");
           localStorage.setItem("token", data.token);
-          navigate("/");
+          navigate("/home");
         } else if (purpose === "reset-password") {
           toast.success("OTP verified successfully");
           navigate("/reset-password");
@@ -108,7 +108,7 @@ const OtpVerificationPage = () => {
 
   useEffect(() => {
     if (token) {
-      navigate("/");
+      navigate("/home");
     }
   });
 

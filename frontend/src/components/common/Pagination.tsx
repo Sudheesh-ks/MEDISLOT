@@ -11,46 +11,63 @@ const Pagination: React.FC<PaginationProps> = ({
   totalPages,
   onPageChange,
 }) => {
-  const pages = [];
+  const getPageNumbers = (): (number | string)[] => {
+    const visiblePages: (number | string)[] = [];
 
-  for (let i = 1; i <= totalPages; i++) {
-    pages.push(i);
-  }
+    if (totalPages <= 7) {
+      for (let i = 1; i <= totalPages; i++) visiblePages.push(i);
+    } else {
+      visiblePages.push(1);
+      if (currentPage > 4) visiblePages.push("...");
+
+      const start = Math.max(2, currentPage - 1);
+      const end = Math.min(totalPages - 1, currentPage + 1);
+
+      for (let i = start; i <= end; i++) visiblePages.push(i);
+
+      if (currentPage < totalPages - 3) visiblePages.push("...");
+      visiblePages.push(totalPages);
+    }
+
+    return visiblePages;
+  };
+
+  const pages = getPageNumbers();
 
   return (
-    <div className="flex items-center justify-center gap-2 mt-6">
+    <div className="flex justify-center items-center gap-2 mt-4">
       <button
-        disabled={currentPage === 1}
+        className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50"
         onClick={() => onPageChange(currentPage - 1)}
-        className={`px-3 py-1.5 rounded-md border ${
-          currentPage === 1
-            ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-            : "bg-white hover:bg-gray-100"
-        }`}
+        disabled={currentPage === 1}
       >
         Prev
       </button>
-      {pages.map((page) => (
-        <button
-          key={page}
-          onClick={() => onPageChange(page)}
-          className={`px-3 py-1.5 rounded-md border transition-all ${
-            currentPage === page
-              ? "bg-indigo-600 text-white"
-              : "bg-white hover:bg-gray-100"
-          }`}
-        >
-          {page}
-        </button>
-      ))}
+
+      {pages.map((page, index) =>
+        page === "..." ? (
+          <span key={`ellipsis-${index}`} className="px-3 py-1">
+            ...
+          </span>
+        ) : (
+          <button
+            key={page}
+            className={`px-3 py-1 rounded ${
+              page === currentPage
+                ? "bg-indigo-600 text-white"
+                : "bg-gray-200 hover:bg-gray-300"
+            }`}
+            onClick={() => onPageChange(Number(page))}
+          >
+            {page}
+          </button>
+        )
+      )}
+
       <button
-        disabled={currentPage === totalPages}
+        className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50"
         onClick={() => onPageChange(currentPage + 1)}
-        className={`px-3 py-1.5 rounded-md border ${
-          currentPage === totalPages
-            ? "bg-gray-200 text-gray-500 cursor-not-allowed"
-            : "bg-white hover:bg-gray-100"
-        }`}
+        disabled={currentPage === totalPages}
       >
         Next
       </button>

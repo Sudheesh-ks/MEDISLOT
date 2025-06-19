@@ -12,7 +12,10 @@ export interface IUserService {
     email: string,
     password: string
   ): Promise<{ token: string }>;
-  login(email: string, password: string): Promise<{ token: string; refreshToken: string }>;
+  login(
+    email: string,
+    password: string
+  ): Promise<{ token: string; refreshToken: string }>;
   getProfile(userId: string): Promise<userData | null>;
   updateProfile(
     userId: string,
@@ -32,6 +35,10 @@ export interface IUserService {
   bookAppointment(appointmentData: AppointmentTypes): Promise<void>;
   listUserAppointments(userId: string): Promise<AppointmentTypes[]>;
   cancelAppointment(userId: string, appointmentId: string): Promise<void>;
-  startPayment(userId: string,appointmentId: string): Promise<{ order: any }>
-  verifyPayment(userId: string,appointmentId: string,razorpay_order_id: string): Promise<void>;
+  startPayment(userId: string, appointmentId: string): Promise<{ order: any }>;
+  verifyPayment(
+    userId: string,
+    appointmentId: string,
+    razorpay_order_id: string
+  ): Promise<void>;
 }

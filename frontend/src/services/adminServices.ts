@@ -1,28 +1,24 @@
 import { api } from "../axios/axiosInstance";
+import { ADMIN_API } from "../constants/apiRoutes";
 
-// For admin login
 export const adminLoginAPI = async (email: string, password: string) => {
-  return await api.post("/api/admin/login", { email, password });
+  return await api.post(ADMIN_API.LOGIN, { email, password });
 };
 
-
-// Approve doctor
 export const approveDoctorAPI = async (doctorId: string, token: string) => {
-  return await api.patch(`/api/admin/doctors/${doctorId}/approve`, {}, {
+  return await api.patch(ADMIN_API.APPROVE_DOCTOR(doctorId), {}, {
     headers: { aToken: token },
   });
 };
 
-// Reject doctor
 export const rejectDoctorAPI = async (doctorId: string, token: string) => {
-  return await api.patch(`/api/admin/doctors/${doctorId}/reject`, {}, {
+  return await api.patch(ADMIN_API.REJECT_DOCTOR(doctorId), {}, {
     headers: { aToken: token },
   });
 };
 
-// For adding doctors
 export const adminAddDoctorAPI = async (formData: FormData, token: string) => {
-  return await api.post("/api/admin/doctors", formData, {
+  return await api.post(ADMIN_API.DOCTORS, formData, {
     headers: {
       aToken: token,
       "Content-Type": "multipart/form-data",
@@ -30,74 +26,55 @@ export const adminAddDoctorAPI = async (formData: FormData, token: string) => {
   });
 };
 
-// Get all doctors
 export const getAllDoctorsAPI = async (token: string) => {
-  return await api.get("/api/admin/doctors", {
+  return await api.get(ADMIN_API.DOCTORS, {
     headers: { aToken: token },
   });
 };
 
-// Change doctor availability
 export const changeAvailabilityAPI = async (
   docId: string,
   isAvailable: boolean,
   token: string
 ) => {
-  return await api.patch(
-    `/api/admin/doctors/${docId}/availability`,
-    { isAvailable },
-    {
-      headers: { aToken: token },
-    }
-  );
-};
-
-// Get all users
-export const getAllUsersAPI = async (token: string) => {
-  return await api.get("/api/admin/users", {
+  return await api.patch(ADMIN_API.CHANGE_AVAILABILITY(docId), { isAvailable }, {
     headers: { aToken: token },
   });
 };
 
-// Toggle user block/unblock
+export const getAllUsersAPI = async (token: string) => {
+  return await api.get(ADMIN_API.USERS, {
+    headers: { aToken: token },
+  });
+};
+
 export const toggleUserBlockAPI = async (
   userId: string,
   block: boolean,
   token: string
 ) => {
-  return await api.patch(
-    `/api/admin/users/${userId}/block`,
-    { block },
-    {
-      headers: { aToken: token },
-    }
-  );
-};
-
-// To get all the appointments
-export const getAllAppointmentsAPI = async (token: string) => {
-  return await api.get("/api/admin/appointments", {
+  return await api.patch(ADMIN_API.BLOCK_USER(userId), { block }, {
     headers: { aToken: token },
   });
 };
 
-// To cancel the appointments
+export const getAllAppointmentsAPI = async (token: string) => {
+  return await api.get(ADMIN_API.APPOINTMENTS, {
+    headers: { aToken: token },
+  });
+};
+
 export const adminCancelAppointmentAPI = async (
   appointmentId: string,
   token: string
 ) => {
-  return await api.patch(
-    `/api/admin/appointments/${appointmentId}/cancel`,
-    {},
-    {
-      headers: { aToken: token },
-    }
-  );
+  return await api.patch(ADMIN_API.CANCEL_APPOINTMENT(appointmentId), {}, {
+    headers: { aToken: token },
+  });
 };
 
-// To get the dashboard data
 export const adminDashboardAPI = async (token: string) => {
-  return await api.get("/api/admin/dashboard", {
+  return await api.get(ADMIN_API.DASHBOARD, {
     headers: { aToken: token },
   });
 };

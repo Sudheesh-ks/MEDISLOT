@@ -67,6 +67,4 @@ doctorRouter.patch(
   doctorController.updateDoctorProfile.bind(doctorController)
 );
 
-
-
 export default doctorRouter;

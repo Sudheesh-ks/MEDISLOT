@@ -1,14 +1,15 @@
 import { api } from "../axios/axiosInstance";
 import { showErrorToast } from "../utils/errorHandler";
+import { USER_PROFILE_API } from "../constants/apiRoutes";
 
-// To get user profile
+// Get user profile
 export const getUserProfileAPI = async (token: string) => {
-  return api.get("/api/user/profile", {
+  return api.get(USER_PROFILE_API.GET, {
     headers: { Authorization: `Bearer ${token}` },
   });
 };
 
-// Update profile
+// Update user profile
 export const updateUserProfileAPI = async (
   token: string,
   data: any,
@@ -24,7 +25,7 @@ export const updateUserProfileAPI = async (
     formData.append("address[line2]", data.address.line2);
     if (image) formData.append("image", image);
 
-    const res = await api.put("/api/user/profile", formData, {
+    const res = await api.put(USER_PROFILE_API.UPDATE, formData, {
       headers: {
         Authorization: `Bearer ${token}`,
         "Content-Type": "multipart/form-data",

@@ -5,12 +5,15 @@ import { AppointmentTypes } from "../../types/appointment";
 import { DoctorData, DoctorDocument } from "../../types/doctor";
 import { IDoctorRepository } from "../interface/IDoctorRepository";
 
-export class DoctorRepository extends BaseRepository<DoctorDocument> implements IDoctorRepository {
+export class DoctorRepository
+  extends BaseRepository<DoctorDocument>
+  implements IDoctorRepository
+{
   constructor() {
     super(doctorModel);
   }
 
-    async registerDoctor(data: DoctorData): Promise<DoctorDocument> {
+  async registerDoctor(data: DoctorData): Promise<DoctorDocument> {
     return doctorModel.create(data);
   }
 
@@ -47,19 +50,25 @@ export class DoctorRepository extends BaseRepository<DoctorDocument> implements 
   }
 
   async getDoctorProfileById(id: string): Promise<DoctorData | null> {
-  return doctorModel.findById(id).select('-password');
-}
+    return doctorModel.findById(id).select("-password");
+  }
 
-async updateDoctorProfile(
-  id: string,
-  updateData: Partial<
-    Pick<
-      DoctorData,
-      "name" | "speciality" | "degree" | "experience" | "about" | "fees" | "address" | "image"
+  async updateDoctorProfile(
+    id: string,
+    updateData: Partial<
+      Pick<
+        DoctorData,
+        | "name"
+        | "speciality"
+        | "degree"
+        | "experience"
+        | "about"
+        | "fees"
+        | "address"
+        | "image"
+      >
     >
-  >
-): Promise<void> {
-  await this.updateById(id, updateData);
-}
-
+  ): Promise<void> {
+    await this.updateById(id, updateData);
+  }
 }

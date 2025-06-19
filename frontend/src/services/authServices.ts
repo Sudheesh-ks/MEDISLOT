@@ -1,43 +1,49 @@
 import { api } from "../axios/axiosInstance";
+import { AUTH_API } from "../constants/apiRoutes";
 
-// Register User
+// Register
 export const registerUserAPI = async (
   name: string,
   email: string,
   password: string
 ) => {
-  return await api.post("/api/user/register", { name, email, password });
+  return await api.post(AUTH_API.REGISTER, { name, email, password });
 };
 
-// Login User
+// Login
 export const loginUserAPI = async (email: string, password: string) => {
-  return await api.post("/api/user/login", { email, password });
+  return await api.post(AUTH_API.LOGIN, { email, password });
 };
 
+// Logout
 export const logoutUserAPI = () => {
-  return api.post("/api/user/logout");
+  return api.post(AUTH_API.LOGOUT);
 };
 
+// Refresh token
 export const refreshAccessTokenAPI = async () => {
-  return await api.post("/api/user/refresh-token"); // returns { token: string }
+  return await api.post(AUTH_API.REFRESH); 
 };
 
 // OTP Verification
 export const verifyOtpAPI = async (email: string, otp: string) => {
-  return api.post("/api/user/otp/verify", { email, otp });
+  return api.post(AUTH_API.OTP_VERIFY, { email, otp });
 };
 
-// OTP – resend
+// Resend OTP
 export const resendOtpAPI = async (email: string) => {
-  return api.post("/api/user/otp/resend", { email });
+  return api.post(AUTH_API.OTP_RESEND, { email });
 };
 
-// Forgot-password request
+// Forgot password
 export const verifyEmailAPI = async (email: string) => {
-  return api.post("/api/user/password/forgot", { email });
+  return api.post(AUTH_API.FORGOT_PASSWORD, { email });
 };
 
 // Reset password
-export const resetPasswordAPI = async (email: string, newPassword: string) => {
-  return api.post("/api/user/password/reset", { email, newPassword });
+export const resetPasswordAPI = async (
+  email: string,
+  newPassword: string
+) => {
+  return api.post(AUTH_API.RESET_PASSWORD, { email, newPassword });
 };

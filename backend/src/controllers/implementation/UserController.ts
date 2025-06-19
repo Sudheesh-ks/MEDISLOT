@@ -16,7 +16,7 @@ import {
   generateAccessToken,
   generateRefreshToken,
   verifyRefreshToken,
-} from "../../utils/jwt.utils"
+} from "../../utils/jwt.utils";
 
 export class UserController implements IUserController {
   constructor(
@@ -28,28 +28,38 @@ export class UserController implements IUserController {
     const { name, email, password } = req.body;
 
     if (!name || !email || !password) {
-      res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: HttpResponse.FIELDS_REQUIRED });
+      res
+        .status(HttpStatus.BAD_REQUEST)
+        .json({ success: false, message: HttpResponse.FIELDS_REQUIRED });
       return;
     }
 
     if (!isValidName(name)) {
-      res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: HttpResponse.INVALID_NAME });
+      res
+        .status(HttpStatus.BAD_REQUEST)
+        .json({ success: false, message: HttpResponse.INVALID_NAME });
       return;
     }
 
     if (!isValidEmail(email)) {
-      res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: HttpResponse.INVALID_EMAIL });
+      res
+        .status(HttpStatus.BAD_REQUEST)
+        .json({ success: false, message: HttpResponse.INVALID_EMAIL });
       return;
     }
 
     if (!isValidPassword(password)) {
-      res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: HttpResponse.INVALID_PASSWORD });
+      res
+        .status(HttpStatus.BAD_REQUEST)
+        .json({ success: false, message: HttpResponse.INVALID_PASSWORD });
       return;
     }
 
     const existing = await this._userService.checkEmailExists(email);
     if (existing) {
-      res.status(HttpStatus.CONFLICT).json({ success: false, message: HttpResponse.EMAIL_ALREADY_EXISTS });
+      res
+        .status(HttpStatus.CONFLICT)
+        .json({ success: false, message: HttpResponse.EMAIL_ALREADY_EXISTS });
       return;
     }
 
@@ -65,10 +75,14 @@ export class UserController implements IUserController {
 
     try {
       await sendOTP(email, otp);
-      res.status(HttpStatus.OK).json({ success: true, message: HttpResponse.OTP_SENT });
+      res
+        .status(HttpStatus.OK)
+        .json({ success: true, message: HttpResponse.OTP_SENT });
     } catch (err) {
       console.error("Email send failed:", err);
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: HttpResponse.OTP_SEND_FAILED });
+      res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ success: false, message: HttpResponse.OTP_SEND_FAILED });
     }
   }
 
@@ -77,7 +91,9 @@ export class UserController implements IUserController {
 
     const record = otpStore.get(email);
     if (!record || record.otp !== otp) {
-      res.status(HttpStatus.UNAUTHORIZED).json({ success: false, message: HttpResponse.OTP_INVALID });
+      res
+        .status(HttpStatus.UNAUTHORIZED)
+        .json({ success: false, message: HttpResponse.OTP_INVALID });
       return;
     }
 
@@ -85,17 +101,23 @@ export class UserController implements IUserController {
       const newUser = await this._userService.finalizeRegister(record.userData);
       const token = generateAccessToken(newUser._id);
       otpStore.delete(email);
-      res.status(HttpStatus.CREATED).json({ success: true, token, message: HttpResponse.REGISTER_SUCCESS });
+      res
+        .status(HttpStatus.CREATED)
+        .json({ success: true, token, message: HttpResponse.REGISTER_SUCCESS });
       return;
     }
 
     if (record.purpose === "reset-password") {
       otpStore.set(email, { ...record, otp: "VERIFIED" });
-      res.status(HttpStatus.OK).json({ success: true, message: HttpResponse.OTP_VERIFIED });
+      res
+        .status(HttpStatus.OK)
+        .json({ success: true, message: HttpResponse.OTP_VERIFIED });
       return;
     }
 
-    res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: HttpResponse.BAD_REQUEST });
+    res
+      .status(HttpStatus.BAD_REQUEST)
+      .json({ success: false, message: HttpResponse.BAD_REQUEST });
   }
 
   async resendOtp(req: Request, res: Response): Promise<void> {
@@ -104,7 +126,9 @@ export class UserController implements IUserController {
       const record = otpStore.get(email);
 
       if (!record) {
-        res.status(HttpStatus.NOT_FOUND).json({ success: false, message: HttpResponse.OTP_NOT_FOUND });
+        res
+          .status(HttpStatus.NOT_FOUND)
+          .json({ success: false, message: HttpResponse.OTP_NOT_FOUND });
         return;
       }
 
@@ -113,10 +137,14 @@ export class UserController implements IUserController {
       otpStore.set(email, { ...record, otp: newOtp });
 
       await sendOTP(email, newOtp);
-      res.status(HttpStatus.OK).json({ success: true, message: HttpResponse.OTP_RESENT });
+      res
+        .status(HttpStatus.OK)
+        .json({ success: true, message: HttpResponse.OTP_RESENT });
     } catch (error) {
       console.error("Resend OTP error:", error);
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: HttpResponse.OTP_SEND_FAILED });
+      res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ success: false, message: HttpResponse.OTP_SEND_FAILED });
     }
   }
 
@@ -126,7 +154,9 @@ export class UserController implements IUserController {
     try {
       const user = await this._userService.checkEmailExists(email);
       if (!user) {
-        res.status(HttpStatus.NOT_FOUND).json({ success: false, message: HttpResponse.USER_NOT_FOUND });
+        res
+          .status(HttpStatus.NOT_FOUND)
+          .json({ success: false, message: HttpResponse.USER_NOT_FOUND });
         return;
       }
 
@@ -135,10 +165,14 @@ export class UserController implements IUserController {
       otpStore.set(email, { otp, purpose: "reset-password", email });
 
       await sendOTP(email, otp);
-      res.status(HttpStatus.OK).json({ success: true, message: HttpResponse.RESET_EMAIL_SENT });
+      res
+        .status(HttpStatus.OK)
+        .json({ success: true, message: HttpResponse.RESET_EMAIL_SENT });
     } catch (err) {
       console.error("Error sending OTP:", err);
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: HttpResponse.OTP_SEND_FAILED });
+      res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ success: false, message: HttpResponse.OTP_SEND_FAILED });
     }
   }
 
@@ -146,13 +180,21 @@ export class UserController implements IUserController {
     const { email, newPassword } = req.body;
 
     if (!isValidPassword(newPassword)) {
-      res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: HttpResponse.INVALID_PASSWORD });
+      res
+        .status(HttpStatus.BAD_REQUEST)
+        .json({ success: false, message: HttpResponse.INVALID_PASSWORD });
       return;
     }
 
     const record = otpStore.get(email);
-    if (!record || record.purpose !== "reset-password" || record.otp !== "VERIFIED") {
-      res.status(HttpStatus.UNAUTHORIZED).json({ success: false, message: HttpResponse.OTP_EXPIRED_OR_INVALID });
+    if (
+      !record ||
+      record.purpose !== "reset-password" ||
+      record.otp !== "VERIFIED"
+    ) {
+      res
+        .status(HttpStatus.UNAUTHORIZED)
+        .json({ success: false, message: HttpResponse.OTP_EXPIRED_OR_INVALID });
       return;
     }
 
@@ -160,108 +202,137 @@ export class UserController implements IUserController {
     const updated = await this._userService.resetPassword(email, hashed);
 
     if (!updated) {
-      res.status(HttpStatus.NOT_FOUND).json({ success: false, message: HttpResponse.USER_NOT_FOUND });
+      res
+        .status(HttpStatus.NOT_FOUND)
+        .json({ success: false, message: HttpResponse.USER_NOT_FOUND });
       return;
     }
 
     otpStore.delete(email);
-    res.status(HttpStatus.OK).json({ success: true, message: HttpResponse.PASSWORD_UPDATED });
+    res
+      .status(HttpStatus.OK)
+      .json({ success: true, message: HttpResponse.PASSWORD_UPDATED });
   }
 
   async loginUser(req: Request, res: Response): Promise<void> {
-  try {
-    const { email, password } = req.body;
+    try {
+      const { email, password } = req.body;
 
-    if (!email || !password) {
-      res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: HttpResponse.FIELDS_REQUIRED });
-      return;
+      if (!email || !password) {
+        res
+          .status(HttpStatus.BAD_REQUEST)
+          .json({ success: false, message: HttpResponse.FIELDS_REQUIRED });
+        return;
+      }
+
+      if (!isValidEmail(email)) {
+        res
+          .status(HttpStatus.BAD_REQUEST)
+          .json({ success: false, message: HttpResponse.INVALID_EMAIL });
+        return;
+      }
+
+      if (!isValidPassword(password)) {
+        res
+          .status(HttpStatus.BAD_REQUEST)
+          .json({ success: false, message: HttpResponse.INVALID_PASSWORD });
+        return;
+      }
+
+      const { token, refreshToken } = await this._userService.login(
+        email,
+        password
+      );
+
+      res.cookie("refreshToken_user", refreshToken, {
+        httpOnly: true,
+        path: "/api/user/refresh-token",
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      });
+
+      res
+        .status(HttpStatus.OK)
+        .json({ success: true, token, message: HttpResponse.LOGIN_SUCCESS });
+    } catch (error) {
+      res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ success: false, message: (error as Error).message });
     }
-
-    if (!isValidEmail(email)) {
-      res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: HttpResponse.INVALID_EMAIL });
-      return;
-    }
-
-    if (!isValidPassword(password)) {
-      res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: HttpResponse.INVALID_PASSWORD });
-      return;
-    }
-
-    const { token, refreshToken } = await this._userService.login(email, password);
-
-    // Set refresh token in HTTP-only cookie
-    res.cookie("refreshToken_user", refreshToken, {
-      httpOnly: true,
-      path: "/api/user/refresh-token",
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    });
-
-    res.status(HttpStatus.OK).json({ success: true, token, message: HttpResponse.LOGIN_SUCCESS });
-  } catch (error) {
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: (error as Error).message });
   }
-}
-
 
   async refreshToken(req: Request, res: Response): Promise<void> {
-  try {
-    const refreshToken = req.cookies?.refreshToken_user;
+    try {
+      const refreshToken = req.cookies?.refreshToken_user;
 
-    if (!refreshToken) {
-      res.status(HttpStatus.UNAUTHORIZED).json({ success: false, message: HttpResponse.REFRESH_TOKEN_MISSING });
-      return;
+      if (!refreshToken) {
+        res
+          .status(HttpStatus.UNAUTHORIZED)
+          .json({
+            success: false,
+            message: HttpResponse.REFRESH_TOKEN_MISSING,
+          });
+        return;
+      }
+
+      const decoded = verifyRefreshToken(refreshToken);
+      if (!decoded || typeof decoded !== "object" || !("id" in decoded)) {
+        res
+          .status(HttpStatus.UNAUTHORIZED)
+          .json({
+            success: false,
+            message: HttpResponse.REFRESH_TOKEN_INVALID,
+          });
+        return;
+      }
+
+      const newAccessToken = generateAccessToken(decoded.id);
+      const newRefreshToken = generateRefreshToken(decoded.id);
+
+      res.cookie("refreshToken_user", newRefreshToken, {
+        httpOnly: true,
+        path: "/api/user/refresh-token",
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      });
+
+      res.status(HttpStatus.OK).json({ success: true, token: newAccessToken });
+    } catch (error) {
+      res
+        .status(HttpStatus.UNAUTHORIZED)
+        .json({ success: false, message: HttpResponse.REFRESH_TOKEN_FAILED });
     }
-
-    const decoded = verifyRefreshToken(refreshToken);
-    if (!decoded || typeof decoded !== "object" || !("id" in decoded)) {
-      res.status(HttpStatus.UNAUTHORIZED).json({ success: false, message: HttpResponse.REFRESH_TOKEN_INVALID });
-      return;
-    }
-
-    const newAccessToken = generateAccessToken(decoded.id);
-    const newRefreshToken = generateRefreshToken(decoded.id);
-
-    res.cookie("refreshToken_user", newRefreshToken, {
-      httpOnly: true,
-      path: "/api/user/refresh-token",
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    });
-
-    res.status(HttpStatus.OK).json({ success: true, token: newAccessToken });
-  } catch (error) {
-    res.status(HttpStatus.UNAUTHORIZED).json({ success: false, message: HttpResponse.REFRESH_TOKEN_FAILED });
   }
-}
-
-
 
   async logout(req: Request, res: Response): Promise<void> {
-  res.clearCookie("refreshToken_user", {
-    httpOnly: true,
-    secure: true,
-    path: "/api/user/refresh-token",
-    sameSite: "strict",
-  });
-  res.status(HttpStatus.OK).json({ success: true, message: "Logged out successfully" });
-}
-
-
+    res.clearCookie("refreshToken_user", {
+      httpOnly: true,
+      secure: true,
+      path: "/api/user/refresh-token",
+      sameSite: "strict",
+    });
+    res
+      .status(HttpStatus.OK)
+      .json({ success: true, message: "Logged out successfully" });
+  }
 
   async getProfile(req: Request, res: Response): Promise<void> {
     try {
       const userId = (req as any).userId;
       const userData = await this._userService.getProfile(userId);
       if (!userData) {
-        res.status(HttpStatus.NOT_FOUND).json({ success: false, message: HttpResponse.USER_NOT_FOUND });
+        res
+          .status(HttpStatus.NOT_FOUND)
+          .json({ success: false, message: HttpResponse.USER_NOT_FOUND });
         return;
       }
       res.status(HttpStatus.OK).json({ success: true, userData });
     } catch (error) {
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: (error as Error).message });
+      res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ success: false, message: (error as Error).message });
     }
   }
 
@@ -269,9 +340,13 @@ export class UserController implements IUserController {
     try {
       const userId = (req as any).userId;
       await this._userService.updateProfile(userId, req.body, req.file);
-      res.status(HttpStatus.OK).json({ success: true, message: HttpResponse.PROFILE_UPDATED });
+      res
+        .status(HttpStatus.OK)
+        .json({ success: true, message: HttpResponse.PROFILE_UPDATED });
     } catch (error) {
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: (error as Error).message });
+      res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ success: false, message: (error as Error).message });
     }
   }
 
@@ -302,9 +377,13 @@ export class UserController implements IUserController {
       };
 
       await this._userService.bookAppointment(appointmentData);
-      res.status(HttpStatus.OK).json({ success: true, message: HttpResponse.APPOINTMENT_BOOKED });
+      res
+        .status(HttpStatus.OK)
+        .json({ success: true, message: HttpResponse.APPOINTMENT_BOOKED });
     } catch (error) {
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: (error as Error).message });
+      res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ success: false, message: (error as Error).message });
     }
   }
 
@@ -314,7 +393,9 @@ export class UserController implements IUserController {
       const appointments = await this._userService.listUserAppointments(userId);
       res.status(HttpStatus.OK).json({ success: true, appointments });
     } catch (error) {
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: (error as Error).message });
+      res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ success: false, message: (error as Error).message });
     }
   }
 
@@ -323,9 +404,13 @@ export class UserController implements IUserController {
       const userId = (req as any).userId;
       const { appointmentId } = req.params;
       await this._userService.cancelAppointment(userId, appointmentId);
-      res.status(HttpStatus.OK).json({ success: true, message: HttpResponse.APPOINTMENT_CANCELLED });
+      res
+        .status(HttpStatus.OK)
+        .json({ success: true, message: HttpResponse.APPOINTMENT_CANCELLED });
     } catch (error) {
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: (error as Error).message });
+      res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ success: false, message: (error as Error).message });
     }
   }
 
@@ -333,10 +418,15 @@ export class UserController implements IUserController {
     try {
       const userId = (req as any).userId;
       const { appointmentId } = req.body;
-      const { order } = await this._userService.startPayment(userId, appointmentId);
+      const { order } = await this._userService.startPayment(
+        userId,
+        appointmentId
+      );
       res.status(HttpStatus.OK).json({ success: true, order });
     } catch (error) {
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: (error as Error).message });
+      res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ success: false, message: (error as Error).message });
     }
   }
 
@@ -344,10 +434,18 @@ export class UserController implements IUserController {
     try {
       const userId = (req as any).userId;
       const { appointmentId, razorpay_order_id } = req.body;
-      await this._userService.verifyPayment(userId, appointmentId, razorpay_order_id);
-      res.status(HttpStatus.OK).json({ success: true, message: HttpResponse.PAYMENT_SUCCESS });
+      await this._userService.verifyPayment(
+        userId,
+        appointmentId,
+        razorpay_order_id
+      );
+      res
+        .status(HttpStatus.OK)
+        .json({ success: true, message: HttpResponse.PAYMENT_SUCCESS });
     } catch (error) {
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: (error as Error).message });
+      res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ success: false, message: (error as Error).message });
     }
   }
 }

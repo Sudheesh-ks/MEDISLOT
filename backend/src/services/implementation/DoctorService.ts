@@ -70,7 +70,7 @@ export class DoctorService implements IDoctorService {
       address,
       image: imageUrl,
       date: new Date(),
-      status: "pending", // pending approval
+      status: "pending",
     };
 
     await this._doctorRepository.registerDoctor(doctorData);
@@ -96,7 +96,6 @@ export class DoctorService implements IDoctorService {
 
     const match = await bcrypt.compare(password, doctor.password);
     if (!match) throw new Error("Incorrect password");
-
 
     const token = generateAccessToken(doctor._id!);
     const refreshToken = generateRefreshToken(doctor._id!);
@@ -136,57 +135,53 @@ export class DoctorService implements IDoctorService {
     await this._doctorRepository.cancelAppointment(appointmentId);
   }
 
-
   async getDoctorProfile(docId: string): Promise<DoctorData | null> {
-  const doctor = await this._doctorRepository.getDoctorProfileById(docId);
-  if (!doctor) throw new Error("Doctor not found");
-  return doctor;
-}
-
-async updateDoctorProfile(data: {
-  doctId: string;
-  name: string;
-  speciality: string;
-  degree: string;
-  experience: string;
-  about: string;
-  fees: number;
-  address: DoctorData["address"];
-  imagePath?: string;
-}): Promise<void> {
-  const doctor = await this._doctorRepository.findById(data.doctId);
-  if (!doctor) throw new Error("Doctor not found");
-
-  let imageUrl = doctor.image;
-
-  if (data.imagePath) {
-    try {
-      const uploadResult = await cloudinary.uploader.upload(data.imagePath, {
-        resource_type: "image",
-      });
-      imageUrl = uploadResult.secure_url;
-
-      // Optionally delete the local file after upload
-      fs.unlink(data.imagePath, (err: any) => {
-        if (err) console.error("Failed to delete local file:", err);
-      });
-
-    } catch (uploadError) {
-      console.error("Cloudinary upload failed:", uploadError);
-      throw new Error("Image upload failed");
-    }
+    const doctor = await this._doctorRepository.getDoctorProfileById(docId);
+    if (!doctor) throw new Error("Doctor not found");
+    return doctor;
   }
 
-  await this._doctorRepository.updateDoctorProfile(data.doctId, {
-    name: data.name,
-    speciality: data.speciality,
-    degree: data.degree,
-    experience: data.experience,
-    about: data.about,
-    fees: data.fees,
-    address: data.address,
-    image: imageUrl,
-  });
-}
+  async updateDoctorProfile(data: {
+    doctId: string;
+    name: string;
+    speciality: string;
+    degree: string;
+    experience: string;
+    about: string;
+    fees: number;
+    address: DoctorData["address"];
+    imagePath?: string;
+  }): Promise<void> {
+    const doctor = await this._doctorRepository.findById(data.doctId);
+    if (!doctor) throw new Error("Doctor not found");
 
+    let imageUrl = doctor.image;
+
+    if (data.imagePath) {
+      try {
+        const uploadResult = await cloudinary.uploader.upload(data.imagePath, {
+          resource_type: "image",
+        });
+        imageUrl = uploadResult.secure_url;
+
+        fs.unlink(data.imagePath, (err: any) => {
+          if (err) console.error("Failed to delete local file:", err);
+        });
+      } catch (uploadError) {
+        console.error("Cloudinary upload failed:", uploadError);
+        throw new Error("Image upload failed");
+      }
+    }
+
+    await this._doctorRepository.updateDoctorProfile(data.doctId, {
+      name: data.name,
+      speciality: data.speciality,
+      degree: data.degree,
+      experience: data.experience,
+      about: data.about,
+      fees: data.fees,
+      address: data.address,
+      image: imageUrl,
+    });
+  }
 }

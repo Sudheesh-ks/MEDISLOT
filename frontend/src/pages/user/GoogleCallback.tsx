@@ -18,7 +18,7 @@ const GoogleCallback = () => {
     if (token) {
       localStorage.setItem("token", token);
       setToken(token);
-      navigate("/");
+      navigate("/home");
     } else {
       navigate("/login");
     }

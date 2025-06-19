@@ -10,13 +10,11 @@ import DoctorAppointments from "../pages/doctor/DoctorAppointments";
 import DoctorProfile from "../pages/doctor/DoctorProfile";
 import DoctorConsultation from "../pages/doctor/DoctorConsultation";
 import DocChatPage from "../pages/doctor/DocChatPage";
-import DoctorLandingPage from "../pages/doctor/DoctorLandingPage";
 import DoctorRegister from "../pages/doctor/DoctorRegister";
 
 const DoctorRoutes = () => {
   return (
     <>
-      <Route path="/doctor" element={<DoctorLandingPage />} />
       <Route path="/doctor/register" element={<DoctorRegister />} />
       <Route path="/doctor/login" element={<DoctorLogin />} />
       <Route

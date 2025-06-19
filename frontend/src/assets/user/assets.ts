@@ -89,8 +89,9 @@ export const assets: Record<string, string> = {
     stripe_logo,
     razorpay_logo,
     videocall_icon,
-    message_icon
+    message_icon,
 }
+
 
 export const specialityData: Speciality[] = [
     {

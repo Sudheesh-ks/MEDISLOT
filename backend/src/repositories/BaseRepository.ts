@@ -1,4 +1,3 @@
-// repositories/BaseRepository.ts
 import { Model, FilterQuery, UpdateQuery, Document } from "mongoose";
 
 export class BaseRepository<T extends Document> {

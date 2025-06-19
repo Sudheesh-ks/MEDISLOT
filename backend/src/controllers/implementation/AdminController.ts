@@ -17,7 +17,10 @@ export class AdminController implements IAdminController {
       if (!email || !password) {
         res
           .status(HttpStatus.BAD_REQUEST)
-          .json({ success: false, message: HttpResponse.ADMIN_FIELDS_REQUIRED });
+          .json({
+            success: false,
+            message: HttpResponse.ADMIN_FIELDS_REQUIRED,
+          });
         return;
       }
 
@@ -116,27 +119,29 @@ export class AdminController implements IAdminController {
     }
   }
 
-
   async approveDoctor(req: Request, res: Response): Promise<void> {
-  try {
-    const doctorId = req.params.id;
-    const message = await this._adminService.approveDoctor(doctorId);
-    res.status(HttpStatus.OK).json({ success: true, message });
-  } catch (error) {
-    res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: (error as Error).message });
+    try {
+      const doctorId = req.params.id;
+      const message = await this._adminService.approveDoctor(doctorId);
+      res.status(HttpStatus.OK).json({ success: true, message });
+    } catch (error) {
+      res
+        .status(HttpStatus.BAD_REQUEST)
+        .json({ success: false, message: (error as Error).message });
+    }
   }
-}
 
-async rejectDoctor(req: Request, res: Response): Promise<void> {
-  try {
-    const doctorId = req.params.id;
-    const message = await this._adminService.rejectDoctor(doctorId);
-    res.status(HttpStatus.OK).json({ success: true, message });
-  } catch (error) {
-    res.status(HttpStatus.BAD_REQUEST).json({ success: false, message: (error as Error).message });
+  async rejectDoctor(req: Request, res: Response): Promise<void> {
+    try {
+      const doctorId = req.params.id;
+      const message = await this._adminService.rejectDoctor(doctorId);
+      res.status(HttpStatus.OK).json({ success: true, message });
+    } catch (error) {
+      res
+        .status(HttpStatus.BAD_REQUEST)
+        .json({ success: false, message: (error as Error).message });
+    }
   }
-}
-
 
   // For getting all the appointments
   async appointmentsList(req: Request, res: Response): Promise<void> {

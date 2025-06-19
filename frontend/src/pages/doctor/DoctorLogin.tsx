@@ -44,6 +44,13 @@ const DoctorLogin = () => {
   return (
     <div className="min-h-[80vh] flex items-center justify-center">
       <form onSubmit={handleSubmit}>
+        <div
+  className="absolute top-6 left-6 flex items-center gap-2 px-4 py-2 rounded-full bg-blue-100 text-blue-600 font-medium shadow-md hover:bg-blue-200 transition duration-300 cursor-pointer"
+  onClick={() => navigate("/")}
+>
+  <span className="text-lg">🏠</span>
+  <span className="text-sm sm:text-base">Back to Home</span>
+</div>
         <div className="flex flex-col sm:flex-row bg-white shadow-lg rounded-xl overflow-hidden">
           <div className="hidden sm:block w-full sm:w-96">
             <img

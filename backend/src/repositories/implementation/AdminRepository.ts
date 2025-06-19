@@ -13,7 +13,7 @@ import { AppointmentDocument } from "../../types/appointment";
 
 export class AdminRepository extends BaseRepository<AdminDocument> {
   constructor() {
-    super(adminModel); // ✅ Now types match
+    super(adminModel);
   }
 
   async findByEmail(email: string): Promise<AdminDocument | null> {

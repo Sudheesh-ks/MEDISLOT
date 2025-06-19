@@ -12,7 +12,7 @@ import {
   generateAccessToken,
   generateRefreshToken,
   verifyRefreshToken,
-} from "../../utils/jwt.utils"
+} from "../../utils/jwt.utils";
 
 export interface UserDocument extends userData {
   _id: string;
@@ -46,12 +46,16 @@ export class UserService implements IUserService {
     return { token, refreshToken };
   }
 
-  async login(email: string, password: string): Promise<{ token: string; refreshToken: string }> {
+  async login(
+    email: string,
+    password: string
+  ): Promise<{ token: string; refreshToken: string }> {
     const user = await this._userRepository.findByEmail(email);
     if (!user) throw new Error("User not found");
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) throw new Error("Invalid credentials");
-    if (user.isBlocked) throw new Error("Your account has been blocked by admin");
+    if (user.isBlocked)
+      throw new Error("Your account has been blocked by admin");
 
     const token = generateAccessToken(user._id);
     const refreshToken = generateRefreshToken(user._id);

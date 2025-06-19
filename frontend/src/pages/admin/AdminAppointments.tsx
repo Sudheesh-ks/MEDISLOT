@@ -6,6 +6,7 @@ import { assets } from "../../assets/admin/assets";
 import { motion } from "framer-motion";
 import type { Variants } from "framer-motion";
 import SearchBar from "../../components/common/SearchBar";
+import Pagination from "../../components/common/Pagination";
 
 const fadeInUp: Variants = {
   hidden: { opacity: 0, y: 20 },
@@ -30,6 +31,8 @@ const AdminAppointments = () => {
   const { calculateAge, slotDateFormat, currencySymbol } = appContext;
 
   const [searchQuery, setSearchQuery] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 8;
 
   useEffect(() => {
     if (aToken) {
@@ -43,7 +46,10 @@ const AdminAppointments = () => {
     }
   }, [aToken, navigate]);
 
-  // Filtered appointments by user or doctor name
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [currentPage]);
+
   const filteredAppointments = appointments.filter((item) => {
     const q = searchQuery.toLowerCase();
     return (
@@ -52,16 +58,22 @@ const AdminAppointments = () => {
     );
   });
 
+  const totalPages = Math.ceil(filteredAppointments.length / itemsPerPage);
+  const paginatedAppointments = filteredAppointments.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
   return (
     <div className="w-full max-w-6xl m-5">
-
-<p className="mb-3 text-lg font-semibold">📅 All Appointments</p>
+      <p className="mb-3 text-lg font-semibold">📅 All Appointments</p>
 
       <div className="mb-4">
         <SearchBar
           placeholder="Search by name or email"
           onSearch={(query) => {
             setSearchQuery(query);
+            setCurrentPage(1);
           }}
         />
       </div>
@@ -78,8 +90,8 @@ const AdminAppointments = () => {
           <p>Actions</p>
         </div>
 
-        {filteredAppointments.length > 0 ? (
-          filteredAppointments.map((item, index) => (
+        {paginatedAppointments.length > 0 ? (
+          paginatedAppointments.map((item, index) => (
             <motion.div
               key={item._id}
               custom={index}
@@ -89,7 +101,9 @@ const AdminAppointments = () => {
               whileHover={{ scale: 1.01 }}
               className="flex flex-wrap justify-between max-sm:gap-2 sm:grid sm:grid-cols-[0.5fr_3fr_1fr_3fr_3fr_1fr_1fr] items-center text-gray-600 py-3 px-6 border-b hover:bg-gray-50 transition"
             >
-              <p className="max-sm:hidden">{index + 1}</p>
+              <p className="max-sm:hidden">
+                {(currentPage - 1) * itemsPerPage + index + 1}
+              </p>
 
               <div className="flex items-center gap-2">
                 <img
@@ -143,6 +157,14 @@ const AdminAppointments = () => {
           </div>
         )}
       </div>
+
+      {totalPages > 1 && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={(page) => setCurrentPage(page)}
+        />
+      )}
     </div>
   );
 };
