@@ -22,7 +22,7 @@ const logout = async () => {
     await logoutDoctorAPI(); // ✅ call API to clear cookie
 
     setDToken("");
-    localStorage.removeItem("dToken");
+        localStorage.setItem("isDoctorLoggedOut", "true");
     clearDoctorAccessToken();
 
     navigate("/doctor/login");

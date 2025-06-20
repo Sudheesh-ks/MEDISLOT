@@ -1,7 +1,7 @@
 import express from "express";
 import passport from "passport";
-import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
+import { generateAccessToken, generateRefreshToken } from "../utils/jwt.utils";
 
 dotenv.config();
 
@@ -24,14 +24,20 @@ authRouter.get(
   (req, res) => {
     const user = req.user as any;
 
-    const token = jwt.sign(
-      { id: user._id, email: user.email },
-      process.env.JWT_SECRET!,
-      { expiresIn: "1d" }
-    );
+ const accessToken = generateAccessToken(user._id);
+    const refreshToken = generateRefreshToken(user._id);
+
+    // Set refresh token as httpOnly cookie
+    res.cookie("refreshToken_user", refreshToken, {
+      httpOnly: true,
+      path: "/api/user/refresh-token",
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
 
     // Redirect to the frontend with token
-    res.redirect(`${process.env.GOOGLE_REDIRECT_URL}?token=${token}`);
+    res.redirect(`${process.env.GOOGLE_REDIRECT_URL}?token=${accessToken}`);
   }
 );
 

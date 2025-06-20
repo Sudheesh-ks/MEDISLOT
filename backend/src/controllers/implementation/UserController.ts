@@ -99,12 +99,26 @@ export class UserController implements IUserController {
 
     if (record.purpose === "register") {
       const newUser = await this._userService.finalizeRegister(record.userData);
-      const token = generateAccessToken(newUser._id);
-      otpStore.delete(email);
-      res
-        .status(HttpStatus.CREATED)
-        .json({ success: true, token, message: HttpResponse.REGISTER_SUCCESS });
-      return;
+
+  const token = generateAccessToken(newUser._id);
+  const refreshToken = generateRefreshToken(newUser._id);
+
+  res.cookie("refreshToken_user", refreshToken, {
+    httpOnly: true,
+    path: "/api/user/refresh-token",
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  });
+
+  otpStore.delete(email);
+
+  res.status(HttpStatus.CREATED).json({
+    success: true,
+    token,
+    message: HttpResponse.REGISTER_SUCCESS,
+  });
+  return;
     }
 
     if (record.purpose === "reset-password") {

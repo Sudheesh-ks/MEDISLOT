@@ -108,10 +108,22 @@ export class UserService implements IUserService {
   async hashPassword(password: string) {
     return await bcrypt.hash(password, 10);
   }
+async finalizeRegister(userData: {
+  name: string;
+  email: string;
+  password: string;
+}): Promise<UserDocument> {
+  const existing = await this._userRepository.findByEmail(userData.email);
+  if (existing) throw new Error("User already exists");
 
-  async finalizeRegister(userData: userData) {
-    return await this._userRepository.create(userData);
-  }
+  const newUser = (await this._userRepository.create({
+    name: userData.name,
+    email: userData.email,
+    password: userData.password, // already hashed!
+  })) as UserDocument;
+
+  return newUser;
+}
 
   async resetPassword(
     email: string,

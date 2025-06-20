@@ -1,6 +1,7 @@
 import { useEffect, useContext } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { AppContext } from "../../context/AppContext";
+import { updateUserAccessToken } from "../../context/tokenManagerUser";
 
 const GoogleCallback = () => {
   const [params] = useSearchParams();
@@ -16,7 +17,7 @@ const GoogleCallback = () => {
   useEffect(() => {
     const token = params.get("token");
     if (token) {
-      localStorage.setItem("token", token);
+      updateUserAccessToken(token);
       setToken(token);
       navigate("/home");
     } else {

@@ -33,7 +33,7 @@ const logout = async () => {
 
     // 4. 🔥 Remove this — no longer using localStorage
     // localStorage.removeItem("user_token"); ❌ REMOVE THIS
-
+    localStorage.setItem("isUserLoggedOut", "true");
     // 5. Navigate away
     navigate("/login");
   } catch (error) {

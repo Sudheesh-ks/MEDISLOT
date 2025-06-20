@@ -164,11 +164,19 @@ const AppContextProvider: React.FC<AppContextProviderProps> = ({
       }
     };
 
+      const wasLoggedOut = localStorage.getItem("isUserLoggedOut") === "true";
+
     if (!getUserAccessToken()) {
+       if (!wasLoggedOut) {
       tryRefresh();
+    }
     } else {
       loadUserProfileData();
     }
+
+      if (getUserAccessToken()) {
+    localStorage.removeItem("isUserLoggedOut");
+  }
   }, []);
 
   useEffect(() => {

@@ -137,11 +137,19 @@ const DoctorContextProvider = ({ children }: DoctorContextProviderProps) => {
       }
     };
 
+    const wasLoggedOut = localStorage.getItem("isDoctorLoggedOut") === "true";
+
     if (!getDoctorAccessToken()) {
+       if (!wasLoggedOut) {
       tryRefresh();
+    }
     } else {
       getProfileData().finally(() => setLoading(false));
     }
+
+          if (getDoctorAccessToken()) {
+        localStorage.removeItem("isDoctorLoggedOut");
+      }
   }, []);
 
   const value: DoctorContextType = {

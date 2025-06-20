@@ -19,7 +19,7 @@ const OtpVerificationPage = () => {
     throw new Error("TopDoctors must be used within an AppContextProvider");
   }
 
-  const { token } = context;
+  const { token, setToken } = context;
 
   useEffect(() => {
     const tempUser = JSON.parse(localStorage.getItem("tempUserData") || "{}");
@@ -74,7 +74,7 @@ const OtpVerificationPage = () => {
         if (purpose === "register") {
           toast.success("Account created successfully");
           localStorage.removeItem("tempUserData");
-          localStorage.setItem("token", data.token);
+          setToken(data.token);
           navigate("/home");
         } else if (purpose === "reset-password") {
           toast.success("OTP verified successfully");
