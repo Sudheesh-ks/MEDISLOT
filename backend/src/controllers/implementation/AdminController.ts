@@ -5,33 +5,107 @@ import { CustomRequest } from "../../types/customRequest";
 import { HttpStatus } from "../../constants/status.constants";
 import { DoctorDTO } from "../../types/doctor";
 import { HttpResponse } from "../../constants/responseMessage.constants";
+import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from "../../utils/jwt.utils";
 
 export class AdminController implements IAdminController {
   constructor(private _adminService: IAdminService) {}
 
   // For Admin login
-  async loginAdmin(req: Request, res: Response): Promise<void> {
+ async loginAdmin(req: Request, res: Response): Promise<void> {
     try {
       const { email, password } = req.body;
-
       if (!email || !password) {
-        res
-          .status(HttpStatus.BAD_REQUEST)
-          .json({
-            success: false,
-            message: HttpResponse.ADMIN_FIELDS_REQUIRED,
-          });
+        res.status(HttpStatus.BAD_REQUEST).json({
+          success: false,
+          message: HttpResponse.ADMIN_FIELDS_REQUIRED,
+        });
         return;
       }
 
-      const { token } = await this._adminService.login(email, password);
-      res.status(HttpStatus.OK).json({ success: true, token });
-    } catch (error) {
+      const { accessToken, refreshToken } = await this._adminService.login(email, password);
+
       res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ success: false, message: (error as Error).message });
+        .cookie("refreshToken_admin", refreshToken, {
+          httpOnly: true,
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "strict",
+          path: "/api/admin/refresh-token",
+          maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        })
+        .status(HttpStatus.OK)
+        .json({
+          success: true,
+          token: accessToken,
+          message: HttpResponse.LOGIN_SUCCESS,
+        });
+    } catch (error) {
+      res.status(HttpStatus.UNAUTHORIZED).json({
+        success: false,
+        message: HttpResponse.UNAUTHORIZED,
+      });
     }
   }
+
+  // Admin Refresh Token
+  async refreshAdminToken(req: Request, res: Response): Promise<void> {
+    try {
+      const refreshToken = req.cookies?.refreshToken_admin;
+      if (!refreshToken) {
+        res.status(HttpStatus.UNAUTHORIZED).json({
+          success: false,
+          message: HttpResponse.REFRESH_TOKEN_MISSING,
+        });
+        return;
+      }
+
+      const decoded = verifyRefreshToken(refreshToken);
+
+      if (!decoded || typeof decoded !== "object" || !("id" in decoded)) {
+        res.status(HttpStatus.UNAUTHORIZED).json({
+          success: false,
+          message: HttpResponse.REFRESH_TOKEN_INVALID,
+        });
+        return;
+      }
+
+      const newAccessToken = generateAccessToken(decoded.id);
+      const newRefreshToken = generateRefreshToken(decoded.id);
+
+      res.cookie("refreshToken_admin", newRefreshToken, {
+        httpOnly: true,
+        path: "/api/admin/refresh-token",
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
+
+      res.status(HttpStatus.OK).json({
+        success: true,
+        token: newAccessToken,
+      });
+    } catch (error) {
+      res.status(HttpStatus.UNAUTHORIZED).json({
+        success: false,
+        message: HttpResponse.REFRESH_TOKEN_FAILED,
+      });
+    }
+  }
+
+  // Admin Logout
+  async logoutAdmin(req: Request, res: Response): Promise<void> {
+    res.clearCookie("refreshToken_admin", {
+      httpOnly: true,
+      path: "/api/admin/refresh-token",
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+    });
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: HttpResponse.LOGOUT_SUCCESS,
+    });
+  }
+
 
   // To add doctor
   async addDoctor(req: CustomRequest, res: Response): Promise<void> {

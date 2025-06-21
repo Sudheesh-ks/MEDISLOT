@@ -1,4 +1,4 @@
-import { createContext, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import { toast } from "react-toastify";
 import type { Doctor } from "../assets/user/assets";
@@ -11,12 +11,13 @@ import {
   getAllAppointmentsAPI,
   getAllDoctorsAPI,
   getAllUsersAPI,
+  refreshAdminAccessTokenAPI,
   rejectDoctorAPI,
   toggleUserBlockAPI,
 } from "../services/adminServices";
 import { showErrorToast } from "../utils/errorHandler";
 import type { AppointmentTypes } from "../types/appointment";
-import axios from "axios";
+import { clearAdminAccessToken, getAdminAccessToken, updateAdminAccessToken } from "./tokenManagerAdmin";
 
 interface AdminContextType {
   aToken: string;
@@ -36,6 +37,7 @@ interface AdminContextType {
   getDashData: () => Promise<void>;
   approveDoctor: (doctorId: string) => Promise<void>;
 rejectDoctor: (doctorId: string) => Promise<void>;
+  loading: boolean;
 }
 
 export const AdminContext = createContext<AdminContextType | null>(null);
@@ -45,13 +47,25 @@ interface AdminContextProviderProps {
 }
 
 const AdminContextProvider = ({ children }: AdminContextProviderProps) => {
-  const [aToken, setAToken] = useState(localStorage.getItem("aToken") ?? "");
+const [aToken, setAToken] = useState(getAdminAccessToken() ?? "");
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [users, setUsers] = useState<userData[]>([]);
   const [appointments, setAppointments] = useState<AppointmentTypes[]>([]);
   const [dashData, setDashData] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
+
+
+    const setToken = (newToken: string | null) => {
+      setAToken(newToken ?? "");
+      if (newToken) {
+        updateAdminAccessToken(newToken);
+      } else {
+        clearAdminAccessToken();
+      }
+    };
+  
 
   const getAllDoctors = async () => {
     try {
@@ -201,6 +215,42 @@ const rejectDoctor = async (doctorId: string) => {
     }
   };
 
+
+   useEffect(() => {
+      const tryRefresh = async () => {
+        try {
+          const res = await refreshAdminAccessTokenAPI();
+          const newToken = res.data?.token;
+          if (newToken) {
+            setToken(newToken);
+            await getDashData();
+          } else {
+            setToken(null);
+          }
+        } catch (err: any) {
+          console.warn(
+            "Admin token refresh failed",
+            err.response?.data || err.message
+          );
+          setToken(null);
+        } finally {
+          setLoading(false);
+        }
+      };
+  
+      const wasLoggedOut = localStorage.getItem("isAdminLoggedOut") === "true";
+  
+      if (!getAdminAccessToken()) {
+         if (!wasLoggedOut) {
+        tryRefresh();
+      }
+      } else {
+        getDashData().finally(() => setLoading(false));
+      }
+
+    }, []);
+
+
   const value: AdminContextType = {
     aToken,
     setAToken,
@@ -219,6 +269,7 @@ const rejectDoctor = async (doctorId: string) => {
     getDashData,
     approveDoctor,
     rejectDoctor,
+    loading,
   };
 
   return (

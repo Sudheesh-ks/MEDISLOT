@@ -8,6 +8,8 @@ import { isValidEmail, isValidPassword } from "../../utils/validator";
 import dotenv from "dotenv";
 import { AppointmentDocument } from "../../types/appointment";
 import { IDoctorRepository } from "../../repositories/interface/IDoctorRepository";
+import { adminData, AdminDocument } from "../../types/admin";
+import { generateAccessToken, generateRefreshToken } from "../../utils/jwt.utils";
 dotenv.config();
 
 export class AdminService implements IAdminService {
@@ -16,15 +18,29 @@ export class AdminService implements IAdminService {
     private readonly _doctorRepository: IDoctorRepository
   ) {}
 
-  async login(email: string, password: string): Promise<{ token: string }> {
-    const admin = await this._adminRepository.findByEmail(email);
-    if (!admin) throw new Error("User not found");
-    const isMatch = await bcrypt.compare(password, admin.password);
-    if (!isMatch) throw new Error("Invalid credentials");
+async login(email: string, password: string): Promise<{ accessToken: string, refreshToken: string }> {
+  const admin = await this._adminRepository.findByEmail(email);
+  if (!admin) throw new Error("User not found");
 
-    const token = jwt.sign({ id: (admin as any)._id }, process.env.JWT_SECRET!);
-    return { token };
-  }
+  const isMatch = await bcrypt.compare(password, admin.password);
+  if (!isMatch) throw new Error("Invalid credentials");
+
+  const accessToken = generateAccessToken(admin._id.toString());
+  const refreshToken = generateRefreshToken(admin._id.toString());
+
+  return { accessToken, refreshToken };
+}
+
+  async validateCredentials(email: string, password: string): Promise<adminData> {
+  const admin = await this._adminRepository.findByEmail(email);
+  if (!admin) throw new Error("Admin not found");
+
+  const isMatch = await bcrypt.compare(password, admin.password);
+  if (!isMatch) throw new Error("Invalid credentials");
+
+  return admin;
+}
+
 
   async addDoctor(data: DoctorDTO): Promise<string> {
     const {

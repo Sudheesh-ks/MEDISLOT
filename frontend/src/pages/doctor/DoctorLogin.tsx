@@ -32,6 +32,8 @@ const DoctorLogin = () => {
       if (data.success) {
         updateDoctorAccessToken(data.token);
         setDToken(data.token);
+                localStorage.removeItem("isDoctorLoggedOut");
+                toast.success("Login successfull")
         navigate("/doctor/dashboard");
       } else {
         toast.error(data.message);

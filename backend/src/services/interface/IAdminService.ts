@@ -1,3 +1,4 @@
+import { adminData, AdminDocument } from "../../types/admin";
 import { AppointmentDocument } from "../../types/appointment";
 import { DoctorData, DoctorDTO } from "../../types/doctor";
 
@@ -6,7 +7,8 @@ export interface DoctorInput extends DoctorData {
 }
 
 export interface IAdminService {
-  login(email: string, password: string): Promise<{ token: string }>;
+  login(email: string, password: string): Promise<{ accessToken: string, refreshToken: string }>;
+  validateCredentials(email: string, password: string): Promise<adminData>;
   addDoctor(data: DoctorDTO): Promise<string>;
   getDoctors(): Promise<any[]>;
   getUsers(): Promise<any[]>;

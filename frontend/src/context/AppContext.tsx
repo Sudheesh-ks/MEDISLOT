@@ -174,9 +174,6 @@ const AppContextProvider: React.FC<AppContextProviderProps> = ({
       loadUserProfileData();
     }
 
-      if (getUserAccessToken()) {
-    localStorage.removeItem("isUserLoggedOut");
-  }
   }, []);
 
   useEffect(() => {

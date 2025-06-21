@@ -5,6 +5,15 @@ export const adminLoginAPI = async (email: string, password: string) => {
   return await api.post(ADMIN_API.LOGIN, { email, password });
 };
 
+// Refresh token
+export const refreshAdminAccessTokenAPI = () => {
+  return api.post(ADMIN_API.REFRESH);
+};
+
+export const logoutAdminAPI = () => {
+  return api.post(ADMIN_API.LOGOUT);
+};
+
 export const approveDoctorAPI = async (doctorId: string, token: string) => {
   return await api.patch(ADMIN_API.APPROVE_DOCTOR(doctorId), {}, {
     headers: { aToken: token },

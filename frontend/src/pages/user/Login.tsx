@@ -65,6 +65,7 @@ const Login = () => {
         const { data } = await loginUserAPI(email, password);
         if (data.success) {
           setToken(data.token);
+              localStorage.removeItem("isUserLoggedOut");
           toast.success("Login successful");
           navigate("/home");
         } else {

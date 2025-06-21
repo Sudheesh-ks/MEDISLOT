@@ -6,6 +6,7 @@ import { AdminContext } from "../../context/AdminContext";
 import { adminLoginAPI } from "../../services/adminServices";
 import { showErrorToast } from "../../utils/errorHandler";
 import { assets } from "../../assets/user/assets";
+import { updateAdminAccessToken } from "../../context/tokenManagerAdmin";
 
 const AdminLogin = () => {
   const [email, setEmail] = useState("");
@@ -28,8 +29,10 @@ const AdminLogin = () => {
     try {
       const { data } = await adminLoginAPI(email, password);
       if (data.success) {
-        localStorage.setItem("aToken", data.token);
+        updateAdminAccessToken(data.token);
         setAToken(data.token);
+                  localStorage.removeItem("isAdminLoggedOut");
+                          toast.success("Login Successful");
         navigate("/admin/dashboard");
       } else {
         toast.error(data.message);

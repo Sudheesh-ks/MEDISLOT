@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
-import dotenv from "dotenv";
-dotenv.config();
+import { HttpStatus } from "../constants/status.constants";
+import { verifyAccessToken } from "../utils/jwt.utils";
 
 const authAdmin = async (
   req: Request,
@@ -9,28 +8,30 @@ const authAdmin = async (
   next: NextFunction
 ): Promise<void> => {
   try {
-    const atoken = req.headers.atoken as string;
+    const authHeader = req.headers.authorization;
 
-    if (!atoken) {
-      res.status(401).json({ success: false, message: "No token provided" });
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+      res.status(HttpStatus.UNAUTHORIZED).json({
+        success: false,
+        message: "Authentication Failed. Login Again",
+      });
       return;
     }
 
-    const decoded = jwt.verify(atoken, process.env.JWT_SECRET!) as {
-      id: string;
-    };
+    const token = authHeader.split(" ")[1];
 
-    if (!decoded?.id) {
-      res.status(403).json({ success: false, message: "Invalid token" });
-      return;
-    }
+    const decoded = verifyAccessToken(token);
 
+    // Attach decoded admin ID to the request
     (req as any).adminId = decoded.id;
 
     next();
   } catch (error: any) {
-    console.log("Auth error:", error);
-    res.status(403).json({ success: false, message: "Authentication failed" });
+    console.log("Auth Error:", error.message);
+    res.status(HttpStatus.UNAUTHORIZED).json({
+      success: false,
+      message: "Invalid or expired token",
+    });
   }
 };
 

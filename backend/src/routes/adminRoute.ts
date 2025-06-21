@@ -24,6 +24,15 @@ const doctorController = new DoctorController(doctorService);
 const adminRouter = express.Router();
 
 adminRouter.post("/login", adminController.loginAdmin.bind(adminController));
+adminRouter.post(
+  "/refresh-token",
+  adminController.refreshAdminToken.bind(adminController)
+);
+
+adminRouter.post(
+  "/logout",
+  adminController.logoutAdmin.bind(adminController)
+);
 adminRouter.get(
   "/users",
   authAdmin,

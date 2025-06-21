@@ -45,7 +45,7 @@ interface DoctorContextProviderProps {
 const DoctorContextProvider = ({ children }: DoctorContextProviderProps) => {
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
-  const [dToken, setDToken] = useState("");
+const [dToken, setDToken] = useState(getDoctorAccessToken() ?? "");
   const [appointments, setAppointments] = useState<AppointmentTypes[]>([]);
   const [profileData, setProfileData] = useState<DoctorProfileType | null>(
     null
@@ -146,10 +146,6 @@ const DoctorContextProvider = ({ children }: DoctorContextProviderProps) => {
     } else {
       getProfileData().finally(() => setLoading(false));
     }
-
-          if (getDoctorAccessToken()) {
-        localStorage.removeItem("isDoctorLoggedOut");
-      }
   }, []);
 
   const value: DoctorContextType = {

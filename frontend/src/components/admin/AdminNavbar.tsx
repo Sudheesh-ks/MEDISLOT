@@ -2,6 +2,8 @@ import { useContext } from "react";
 import { assets } from "../../assets/admin/assets";
 import { AdminContext } from "../../context/AdminContext";
 import { useNavigate } from "react-router-dom";
+import { clearAdminAccessToken } from "../../context/tokenManagerAdmin";
+import { logoutAdminAPI } from "../../services/adminServices";
 
 const AdminNavbar = () => {
   const context = useContext(AdminContext);
@@ -14,11 +16,19 @@ const AdminNavbar = () => {
 
   const navigate = useNavigate();
 
-  const logout = () => {
+const logout = async () => {
+  try {
+    await logoutAdminAPI(); // ✅ call API to clear cookie
+
+    setAToken("");
+        localStorage.setItem("isAdminLoggedOut", "true");
+    clearAdminAccessToken();
+
     navigate("/admin/login");
-    aToken && setAToken("");
-    aToken && localStorage.removeItem("aToken");
-  };
+  } catch (error) {
+    console.error("Admin logout failed:", error);
+  }
+};
 
   return (
     <div className="flex justify-between items-center px-4 sm:px-10 py-3 border-b bg-white">
