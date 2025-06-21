@@ -100,7 +100,7 @@ export class UserController implements IUserController {
     if (record.purpose === "register") {
       const newUser = await this._userService.finalizeRegister(record.userData);
 
-  const token = generateAccessToken(newUser._id);
+  const token = generateAccessToken(newUser._id, newUser.email, "user");
   const refreshToken = generateRefreshToken(newUser._id);
 
   res.cookie("refreshToken_user", refreshToken, {
@@ -154,7 +154,7 @@ export class UserController implements IUserController {
       res
         .status(HttpStatus.OK)
         .json({ success: true, message: HttpResponse.OTP_RESENT });
-    } catch (error) {
+    } catch (error) { 
       console.error("Resend OTP error:", error);
       res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -253,7 +253,7 @@ export class UserController implements IUserController {
         return;
       }
 
-      const { token, refreshToken } = await this._userService.login(
+      const { user, token, refreshToken } = await this._userService.login(
         email,
         password
       );
@@ -301,8 +301,9 @@ export class UserController implements IUserController {
         return;
       }
 
-      const newAccessToken = generateAccessToken(decoded.id);
-      const newRefreshToken = generateRefreshToken(decoded.id);
+const user = await this._userService.getUserById(decoded.id);
+const newAccessToken = generateAccessToken(user._id, user.email, "user");
+const newRefreshToken = generateRefreshToken(user._id);
 
       res.cookie("refreshToken_user", newRefreshToken, {
         httpOnly: true,
@@ -415,7 +416,7 @@ export class UserController implements IUserController {
 
   async cancelAppointment(req: Request, res: Response): Promise<void> {
     try {
-      const userId = (req as any).userId;
+      const userId = (req as any).user?.id;
       const { appointmentId } = req.params;
       await this._userService.cancelAppointment(userId, appointmentId);
       res
@@ -430,7 +431,7 @@ export class UserController implements IUserController {
 
   async paymentRazorpay(req: Request, res: Response): Promise<void> {
     try {
-      const userId = (req as any).userId;
+      const userId = (req as any).user?.id;
       const { appointmentId } = req.body;
       const { order } = await this._userService.startPayment(
         userId,
@@ -446,7 +447,7 @@ export class UserController implements IUserController {
 
   async verifyRazorpay(req: Request, res: Response): Promise<void> {
     try {
-      const userId = (req as any).userId;
+      const userId = (req as any).user?.id;
       const { appointmentId, razorpay_order_id } = req.body;
       await this._userService.verifyPayment(
         userId,

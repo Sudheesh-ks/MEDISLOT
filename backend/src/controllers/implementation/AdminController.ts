@@ -22,7 +22,7 @@ export class AdminController implements IAdminController {
         return;
       }
 
-      const { accessToken, refreshToken } = await this._adminService.login(email, password);
+      const { admin, accessToken, refreshToken } = await this._adminService.login(email, password);
 
       res
         .cookie("refreshToken_admin", refreshToken, {
@@ -67,9 +67,11 @@ export class AdminController implements IAdminController {
         });
         return;
       }
+    const admin = await this._adminService.getAdminById(decoded.id); // ✅ REPO layer abstraction
+    if (!admin) throw new Error("Admin not found");
 
-      const newAccessToken = generateAccessToken(decoded.id);
-      const newRefreshToken = generateRefreshToken(decoded.id);
+    const newAccessToken = generateAccessToken(admin._id, admin.email, "admin");
+    const newRefreshToken = generateRefreshToken(admin._id);
 
       res.cookie("refreshToken_admin", newRefreshToken, {
         httpOnly: true,
@@ -158,11 +160,41 @@ export class AdminController implements IAdminController {
     }
   }
 
+  // To get paginated doctors
+  async getDoctorsPaginated(req: Request, res: Response): Promise<void> {
+    try {
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 8;
+      
+      const result = await this._adminService.getDoctorsPaginated(page, limit);
+      res.status(HttpStatus.OK).json({ success: true, ...result });
+    } catch (error) {
+      res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ success: false, message: (error as Error).message });
+    }
+  }
+
   // To get all users
   async getAllUsers(req: Request, res: Response): Promise<void> {
     try {
       const users = await this._adminService.getUsers();
       res.status(HttpStatus.OK).json({ success: true, users });
+    } catch (error) {
+      res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ success: false, message: (error as Error).message });
+    }
+  }
+
+  // To get paginated users
+  async getUsersPaginated(req: Request, res: Response): Promise<void> {
+    try {
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 8;
+      
+      const result = await this._adminService.getUsersPaginated(page, limit);
+      res.status(HttpStatus.OK).json({ success: true, ...result });
     } catch (error) {
       res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -222,6 +254,21 @@ export class AdminController implements IAdminController {
     try {
       const appointments = await this._adminService.listAppointments();
       res.status(HttpStatus.OK).json({ success: true, appointments });
+    } catch (error) {
+      res
+        .status(HttpStatus.BAD_REQUEST)
+        .json({ success: false, message: (error as Error).message });
+    }
+  }
+
+  // For getting paginated appointments
+  async appointmentsListPaginated(req: Request, res: Response): Promise<void> {
+    try {
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 8;
+      
+      const result = await this._adminService.listAppointmentsPaginated(page, limit);
+      res.status(HttpStatus.OK).json({ success: true, ...result });
     } catch (error) {
       res
         .status(HttpStatus.BAD_REQUEST)

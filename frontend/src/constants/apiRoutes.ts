@@ -3,14 +3,17 @@ export const ADMIN_API = {
   REFRESH: "/api/admin/refresh-token",
     LOGOUT: "/api/admin/logout",
   DOCTORS: "/api/admin/doctors",
+  DOCTORS_PAGINATED: "/api/admin/doctors/paginated",
   APPROVE_DOCTOR: (doctorId: string) =>
     `/api/admin/doctors/${doctorId}/approve`,
   REJECT_DOCTOR: (doctorId: string) => `/api/admin/doctors/${doctorId}/reject`,
   CHANGE_AVAILABILITY: (doctorId: string) =>
     `/api/admin/doctors/${doctorId}/availability`,
   USERS: "/api/admin/users",
+  USERS_PAGINATED: "/api/admin/users/paginated",
   BLOCK_USER: (userId: string) => `/api/admin/users/${userId}/block`,
   APPOINTMENTS: "/api/admin/appointments",
+  APPOINTMENTS_PAGINATED: "/api/admin/appointments/paginated",
   CANCEL_APPOINTMENT: (appointmentId: string) =>
     `/api/admin/appointments/${appointmentId}/cancel`,
   DASHBOARD: "/api/admin/dashboard",

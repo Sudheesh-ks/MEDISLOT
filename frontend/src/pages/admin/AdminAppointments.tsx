@@ -26,19 +26,22 @@ const AdminAppointments = () => {
     throw new Error("Contexts must be used within their providers");
   }
 
-  const { aToken, appointments, getAllAppointments, cancelAppointment } =
-    context;
+  const { aToken, getAppointmentsPaginated, cancelAppointment } = context;
   const { calculateAge, slotDateFormat, currencySymbol } = appContext;
 
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 8;
+  const [appointments, setAppointments] = useState<any[]>([]);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const itemsPerPage = 6;
 
   useEffect(() => {
     if (aToken) {
-      getAllAppointments();
+      fetchAppointments();
     }
-  }, [aToken]);
+  }, [aToken, currentPage]);
 
   useEffect(() => {
     if (!aToken) {
@@ -50,19 +53,37 @@ const AdminAppointments = () => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [currentPage]);
 
+  const fetchAppointments = async () => {
+    try {
+      setLoading(true);
+      const result = await getAppointmentsPaginated(currentPage, itemsPerPage);
+      setAppointments(result.data);
+      setTotalPages(result.totalPages);
+      setTotalCount(result.totalCount);
+    } catch (error) {
+      console.error("Failed to fetch appointments:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleCancelAppointment = async (appointmentId: string) => {
+    try {
+      await cancelAppointment(appointmentId);
+      // Refresh current page after cancellation
+      fetchAppointments();
+    } catch (error) {
+      console.error("Failed to cancel appointment:", error);
+    }
+  };
+
   const filteredAppointments = appointments.filter((item) => {
     const q = searchQuery.toLowerCase();
     return (
-      item.userData.name.toLowerCase().includes(q) ||
-      item.docData.name.toLowerCase().includes(q)
+      item.userData?.name?.toLowerCase().includes(q) ||
+      item.docData?.name?.toLowerCase().includes(q)
     );
   });
-
-  const totalPages = Math.ceil(filteredAppointments.length / itemsPerPage);
-  const paginatedAppointments = filteredAppointments.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
 
   return (
     <div className="w-full max-w-6xl m-5">
@@ -73,7 +94,6 @@ const AdminAppointments = () => {
           placeholder="Search by name or email"
           onSearch={(query) => {
             setSearchQuery(query);
-            setCurrentPage(1);
           }}
         />
       </div>
@@ -90,8 +110,12 @@ const AdminAppointments = () => {
           <p>Actions</p>
         </div>
 
-        {paginatedAppointments.length > 0 ? (
-          paginatedAppointments.map((item, index) => (
+        {loading ? (
+          <div className="text-center py-10 text-gray-500 text-sm">
+            Loading appointments...
+          </div>
+        ) : filteredAppointments.length > 0 ? (
+          filteredAppointments.map((item, index) => (
             <motion.div
               key={item._id}
               custom={index}
@@ -108,16 +132,16 @@ const AdminAppointments = () => {
               <div className="flex items-center gap-2">
                 <img
                   className="w-10 h-10 rounded-full object-cover border"
-                  src={item.userData.image || "/default-avatar.png"}
+                  src={item.userData?.image || "/default-avatar.png"}
                   alt="Patient"
                 />
                 <p className="font-medium text-gray-800 truncate">
-                  {item.userData.name}
+                  {item.userData?.name}
                 </p>
               </div>
 
               <p className="max-sm:hidden">
-                {calculateAge(item.userData.dob)}
+                {calculateAge(item.userData?.dob)}
               </p>
 
               <p className="truncate text-sm">
@@ -127,10 +151,10 @@ const AdminAppointments = () => {
               <div className="flex items-center gap-2">
                 <img
                   className="w-9 h-9 rounded-full object-cover border"
-                  src={item.docData.image || "/default-avatar.png"}
+                  src={item.docData?.image || "/default-avatar.png"}
                   alt="Doctor"
                 />
-                <p className="text-gray-800 truncate">{item.docData.name}</p>
+                <p className="text-gray-800 truncate">{item.docData?.name}</p>
               </div>
 
               <p>
@@ -143,7 +167,7 @@ const AdminAppointments = () => {
               ) : (
                 <motion.img
                   whileTap={{ scale: 0.9 }}
-                  onClick={() => cancelAppointment(item._id!)}
+                  onClick={() => handleCancelAppointment(item._id!)}
                   className="w-8 h-8 cursor-pointer hover:opacity-80 transition"
                   src={assets.cancel_icon}
                   alt="Cancel"

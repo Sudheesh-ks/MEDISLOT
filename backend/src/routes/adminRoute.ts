@@ -1,6 +1,6 @@
 import express from "express";
 import upload from "../middlewares/multer";
-import authAdmin from "../middlewares/authAdmin";
+import authRole from "../middlewares/authRole";
 
 // Dependency layers
 import { AdminRepository } from "../repositories/implementation/AdminRepository";
@@ -35,58 +35,73 @@ adminRouter.post(
 );
 adminRouter.get(
   "/users",
-  authAdmin,
+  authRole(["admin"]),
   adminController.getAllUsers.bind(adminController)
+);
+adminRouter.get(
+  "/users/paginated",
+  authRole(["admin"]),
+  adminController.getUsersPaginated.bind(adminController)
 );
 adminRouter.patch(
   "/users/:userId/block",
-  authAdmin,
+  authRole(["admin"]),
   adminController.toggleUserBlock.bind(adminController)
 );
 adminRouter.post(
   "/doctors",
-  authAdmin,
+  authRole(["admin"]),
   upload.single("image"),
   adminController.addDoctor.bind(adminController)
 );
 adminRouter.get(
   "/doctors",
-  authAdmin,
+  authRole(["admin"]),
   adminController.getDoctors.bind(adminController)
+);
+adminRouter.get(
+  "/doctors/paginated",
+  authRole(["admin"]),
+  adminController.getDoctorsPaginated.bind(adminController)
 );
 
 adminRouter.patch(
   "/doctors/:id/approve",
-  authAdmin,
+  authRole(["admin"]),
   adminController.approveDoctor.bind(adminController)
 );
 adminRouter.patch(
   "/doctors/:id/reject",
-  authAdmin,
+  authRole(["admin"]),
   adminController.rejectDoctor.bind(adminController)
 );
 
 adminRouter.patch(
   "/doctors/:doctorId/availability",
-  authAdmin,
+  authRole(["admin"]),
   doctorController.changeAvailability.bind(doctorController)
 );
 
 adminRouter.get(
   "/appointments",
-  authAdmin,
+  authRole(["admin"]),
   adminController.appointmentsList.bind(adminController)
+);
+adminRouter.get(
+  "/appointments/paginated",
+  authRole(["admin"]),
+  adminController.appointmentsListPaginated.bind(adminController)
 );
 
 adminRouter.patch(
   "/appointments/:appointmentId/cancel",
-  authAdmin,
+  authRole(["admin"]),
   adminController.adminCancelAppointment.bind(adminController)
 );
 
 adminRouter.get(
   "/dashboard",
-  authAdmin,
+  authRole(["admin"]),
   adminController.adminDashboard.bind(adminController)
 );
 

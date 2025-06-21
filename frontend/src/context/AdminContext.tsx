@@ -9,8 +9,11 @@ import {
   approveDoctorAPI,
   changeAvailabilityAPI,
   getAllAppointmentsAPI,
+  getAppointmentsPaginatedAPI,
   getAllDoctorsAPI,
+  getDoctorsPaginatedAPI,
   getAllUsersAPI,
+  getUsersPaginatedAPI,
   refreshAdminAccessTokenAPI,
   rejectDoctorAPI,
   toggleUserBlockAPI,
@@ -19,24 +22,36 @@ import { showErrorToast } from "../utils/errorHandler";
 import type { AppointmentTypes } from "../types/appointment";
 import { clearAdminAccessToken, getAdminAccessToken, updateAdminAccessToken } from "./tokenManagerAdmin";
 
+interface PaginationData {
+  data: any[];
+  totalCount: number;
+  currentPage: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
+}
+
 interface AdminContextType {
   aToken: string;
   setAToken: (token: string) => void;
   backendUrl: string;
   doctors: Doctor[];
   getAllDoctors: () => Promise<void>;
+  getDoctorsPaginated: (page: number, limit: number) => Promise<PaginationData>;
   changeAvailability: (docId: string) => Promise<void>;
   users: userData[];
   getAllUsers: () => Promise<void>;
+  getUsersPaginated: (page: number, limit: number) => Promise<PaginationData>;
   toggleBlockUser: (userId: string) => Promise<void>;
   appointments: AppointmentTypes[];
   setAppointments: React.Dispatch<React.SetStateAction<AppointmentTypes[]>>;
   getAllAppointments: () => Promise<void>;
+  getAppointmentsPaginated: (page: number, limit: number) => Promise<PaginationData>;
   cancelAppointment: (appointmentId: string) => Promise<void>;
   dashData: any;
   getDashData: () => Promise<void>;
   approveDoctor: (doctorId: string) => Promise<void>;
-rejectDoctor: (doctorId: string) => Promise<void>;
+  rejectDoctor: (doctorId: string) => Promise<void>;
   loading: boolean;
 }
 
@@ -81,6 +96,27 @@ const [aToken, setAToken] = useState(getAdminAccessToken() ?? "");
     }
   };
 
+  const getDoctorsPaginated = async (page: number, limit: number): Promise<PaginationData> => {
+    try {
+      const { data } = await getDoctorsPaginatedAPI(page, limit, aToken);
+      if (data.success) {
+        return {
+          data: data.data,
+          totalCount: data.totalCount,
+          currentPage: data.currentPage,
+          totalPages: data.totalPages,
+          hasNextPage: data.hasNextPage,
+          hasPrevPage: data.hasPrevPage
+        };
+      } else {
+        toast.error(data.message);
+        throw new Error(data.message);
+      }
+    } catch (error) {
+      showErrorToast(error);
+      throw error;
+    }
+  };
 
   const approveDoctor = async (doctorId: string) => {
   try {
@@ -150,6 +186,28 @@ const rejectDoctor = async (doctorId: string) => {
     }
   };
 
+  const getUsersPaginated = async (page: number, limit: number): Promise<PaginationData> => {
+    try {
+      const { data } = await getUsersPaginatedAPI(page, limit, aToken);
+      if (data.success) {
+        return {
+          data: data.data,
+          totalCount: data.totalCount,
+          currentPage: data.currentPage,
+          totalPages: data.totalPages,
+          hasNextPage: data.hasNextPage,
+          hasPrevPage: data.hasPrevPage
+        };
+      } else {
+        toast.error(data.message);
+        throw new Error(data.message);
+      }
+    } catch (error) {
+      showErrorToast(error);
+      throw error;
+    }
+  };
+
   const toggleBlockUser = async (userId: string) => {
     try {
       const user = users.find((u) => u._id === userId);
@@ -183,6 +241,28 @@ const rejectDoctor = async (doctorId: string) => {
       }
     } catch (error) {
       showErrorToast(error);
+    }
+  };
+
+  const getAppointmentsPaginated = async (page: number, limit: number): Promise<PaginationData> => {
+    try {
+      const { data } = await getAppointmentsPaginatedAPI(page, limit, aToken);
+      if (data.success) {
+        return {
+          data: data.data,
+          totalCount: data.totalCount,
+          currentPage: data.currentPage,
+          totalPages: data.totalPages,
+          hasNextPage: data.hasNextPage,
+          hasPrevPage: data.hasPrevPage
+        };
+      } else {
+        toast.error(data.message);
+        throw new Error(data.message);
+      }
+    } catch (error) {
+      showErrorToast(error);
+      throw error;
     }
   };
 
@@ -257,13 +337,16 @@ const rejectDoctor = async (doctorId: string) => {
     backendUrl,
     doctors,
     getAllDoctors,
+    getDoctorsPaginated,
     changeAvailability,
     users,
     getAllUsers,
+    getUsersPaginated,
     toggleBlockUser,
     appointments,
     setAppointments,
     getAllAppointments,
+    getAppointmentsPaginated,
     cancelAppointment,
     dashData,
     getDashData,

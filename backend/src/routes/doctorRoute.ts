@@ -2,8 +2,8 @@ import express from "express";
 import { DoctorController } from "../controllers/implementation/DoctorController";
 import { DoctorService } from "../services/implementation/DoctorService";
 import { DoctorRepository } from "../repositories/implementation/DoctorRepository";
-import authDoctor from "../middlewares/authDoctor";
 import upload from "../middlewares/multer";
+import authRole from "../middlewares/authRole";
 
 const doctorRepository = new DoctorRepository();
 const doctorService = new DoctorService(doctorRepository);
@@ -19,7 +19,7 @@ doctorRouter.post(
 );
 doctorRouter.patch(
   "/availability",
-  authDoctor,
+  authRole(["doctor"]),
   doctorController.changeAvailability.bind(doctorController)
 );
 doctorRouter.post(
@@ -39,30 +39,30 @@ doctorRouter.post(
 
 doctorRouter.get(
   "/appointments",
-  authDoctor,
+  authRole(["doctor"]),
   doctorController.appointmentsDoctor.bind(doctorController)
 );
 doctorRouter.patch(
   "/appointments/:appointmentId/confirm",
-  authDoctor,
+  authRole(["doctor"]),
   doctorController.appointmentConfirm.bind(doctorController)
 );
 
 doctorRouter.patch(
   "/appointments/:appointmentId/cancel",
-  authDoctor,
+  authRole(["doctor"]),
   doctorController.appointmentCancel.bind(doctorController)
 );
 
 doctorRouter.get(
   "/profile",
-  authDoctor,
+  authRole(["doctor"]),
   doctorController.doctorProfile.bind(doctorController)
 );
 
 doctorRouter.patch(
   "/profile/update",
-  authDoctor,
+  authRole(["doctor"]),
   upload.single("image"),
   doctorController.updateDoctorProfile.bind(doctorController)
 );

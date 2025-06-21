@@ -134,16 +134,16 @@ export class DoctorController implements IDoctorController {
 
       const decoded = verifyRefreshToken(refreshToken);
 
-      if (!decoded || typeof decoded !== "object" || !("id" in decoded)) {
-        res.status(HttpStatus.UNAUTHORIZED).json({
-          success: false,
-          message: HttpResponse.REFRESH_TOKEN_INVALID,
-        });
-        return;
-      }
-
-      const newAccessToken = generateAccessToken(decoded.id);
-      const newRefreshToken = generateRefreshToken(decoded.id);
+const doctor = await this._doctorService.getDoctorProfile(decoded.id);
+if (!doctor) {
+   res.status(HttpStatus.UNAUTHORIZED).json({
+    success: false,
+    message: "Doctor not found",
+  });
+  return
+}
+const newAccessToken = generateAccessToken(doctor._id!, doctor.email, "doctor");
+const newRefreshToken = generateRefreshToken(doctor._id!);
 
       res.cookie("refreshToken_doctor", newRefreshToken, {
         httpOnly: true,

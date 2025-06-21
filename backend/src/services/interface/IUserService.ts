@@ -15,7 +15,7 @@ export interface IUserService {
   login(
     email: string,
     password: string
-  ): Promise<{ token: string; refreshToken: string }>;
+  ): Promise<{ user: UserDocument, token: string; refreshToken: string }>;
   getProfile(userId: string): Promise<userData | null>;
   updateProfile(
     userId: string,

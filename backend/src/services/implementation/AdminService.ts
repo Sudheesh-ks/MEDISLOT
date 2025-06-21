@@ -6,10 +6,11 @@ import { v2 as cloudinary } from "cloudinary";
 import { DoctorData, DoctorDTO } from "../../types/doctor";
 import { isValidEmail, isValidPassword } from "../../utils/validator";
 import dotenv from "dotenv";
-import { AppointmentDocument } from "../../types/appointment";
+import { AppointmentDocument, AppointmentTypes } from "../../types/appointment";
 import { IDoctorRepository } from "../../repositories/interface/IDoctorRepository";
 import { adminData, AdminDocument } from "../../types/admin";
 import { generateAccessToken, generateRefreshToken } from "../../utils/jwt.utils";
+import { PaginationResult } from "../../repositories/interface/IAdminRepository";
 dotenv.config();
 
 export class AdminService implements IAdminService {
@@ -18,18 +19,23 @@ export class AdminService implements IAdminService {
     private readonly _doctorRepository: IDoctorRepository
   ) {}
 
-async login(email: string, password: string): Promise<{ accessToken: string, refreshToken: string }> {
+async login(email: string, password: string): Promise<{ admin: AdminDocument, accessToken: string, refreshToken: string }> {
   const admin = await this._adminRepository.findByEmail(email);
-  if (!admin) throw new Error("User not found");
+  if (!admin) throw new Error("Admin not found");
 
   const isMatch = await bcrypt.compare(password, admin.password);
   if (!isMatch) throw new Error("Invalid credentials");
 
-  const accessToken = generateAccessToken(admin._id.toString());
+  const accessToken = generateAccessToken(admin._id.toString(), admin.email, "admin");
   const refreshToken = generateRefreshToken(admin._id.toString());
 
-  return { accessToken, refreshToken };
+  return { admin, accessToken, refreshToken };
 }
+
+async getAdminById(id: string): Promise<AdminDocument | null> {
+  return this._adminRepository.findAdminById(id);
+}
+
 
   async validateCredentials(email: string, password: string): Promise<adminData> {
   const admin = await this._adminRepository.findByEmail(email);
@@ -135,16 +141,28 @@ async login(email: string, password: string): Promise<{ accessToken: string, ref
     return await this._adminRepository.getAllDoctors();
   }
 
+  async getDoctorsPaginated(page: number, limit: number): Promise<PaginationResult<any>> {
+    return await this._adminRepository.getDoctorsPaginated(page, limit);
+  }
+
   async getUsers(): Promise<any[]> {
     return await this._adminRepository.getAllUsers();
   }
 
-  async toggleUserBlock(userId: string): Promise<string> {
+  async getUsersPaginated(page: number, limit: number): Promise<PaginationResult<any>> {
+    return await this._adminRepository.getUsersPaginated(page, limit);
+  }
+
+  async toggleUserBlock(userId: string, block: boolean): Promise<string> {
     return await this._adminRepository.toggleUserBlock(userId);
   }
 
   async listAppointments(): Promise<AppointmentDocument[]> {
     return await this._adminRepository.getAllAppointments();
+  }
+
+  async listAppointmentsPaginated(page: number, limit: number): Promise<PaginationResult<AppointmentTypes>> {
+    return await this._adminRepository.getAppointmentsPaginated(page, limit);
   }
 
   async cancelAppointment(appointmentId: string): Promise<void> {

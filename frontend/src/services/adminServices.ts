@@ -1,4 +1,4 @@
-import { api } from "../axios/axiosInstance";
+import { adminApi as api } from "../axios/adminAxiosInstance";
 import { ADMIN_API } from "../constants/apiRoutes";
 
 export const adminLoginAPI = async (email: string, password: string) => {
@@ -16,20 +16,24 @@ export const logoutAdminAPI = () => {
 
 export const approveDoctorAPI = async (doctorId: string, token: string) => {
   return await api.patch(ADMIN_API.APPROVE_DOCTOR(doctorId), {}, {
-    headers: { aToken: token },
+    headers: {
+  Authorization: `Bearer ${token}`,
+},
   });
 };
 
 export const rejectDoctorAPI = async (doctorId: string, token: string) => {
   return await api.patch(ADMIN_API.REJECT_DOCTOR(doctorId), {}, {
-    headers: { aToken: token },
+    headers: {
+  Authorization: `Bearer ${token}`,
+},
   });
 };
 
 export const adminAddDoctorAPI = async (formData: FormData, token: string) => {
   return await api.post(ADMIN_API.DOCTORS, formData, {
-    headers: {
-      aToken: token,
+   headers: {
+  Authorization: `Bearer ${token}`,
       "Content-Type": "multipart/form-data",
     },
   });
@@ -37,7 +41,17 @@ export const adminAddDoctorAPI = async (formData: FormData, token: string) => {
 
 export const getAllDoctorsAPI = async (token: string) => {
   return await api.get(ADMIN_API.DOCTORS, {
-    headers: { aToken: token },
+    headers: {
+  Authorization: `Bearer ${token}`,
+},
+  });
+};
+
+export const getDoctorsPaginatedAPI = async (page: number, limit: number, token: string) => {
+  return await api.get(`${ADMIN_API.DOCTORS_PAGINATED}?page=${page}&limit=${limit}`, {
+    headers: {
+  Authorization: `Bearer ${token}`,
+},
   });
 };
 
@@ -47,13 +61,25 @@ export const changeAvailabilityAPI = async (
   token: string
 ) => {
   return await api.patch(ADMIN_API.CHANGE_AVAILABILITY(docId), { isAvailable }, {
-    headers: { aToken: token },
+    headers: {
+  Authorization: `Bearer ${token}`,
+},
   });
 };
 
 export const getAllUsersAPI = async (token: string) => {
   return await api.get(ADMIN_API.USERS, {
-    headers: { aToken: token },
+    headers: {
+  Authorization: `Bearer ${token}`,
+},
+  });
+};
+
+export const getUsersPaginatedAPI = async (page: number, limit: number, token: string) => {
+  return await api.get(`${ADMIN_API.USERS_PAGINATED}?page=${page}&limit=${limit}`, {
+    headers: {
+  Authorization: `Bearer ${token}`,
+},
   });
 };
 
@@ -63,13 +89,25 @@ export const toggleUserBlockAPI = async (
   token: string
 ) => {
   return await api.patch(ADMIN_API.BLOCK_USER(userId), { block }, {
-    headers: { aToken: token },
+    headers: {
+  Authorization: `Bearer ${token}`,
+},
   });
 };
 
 export const getAllAppointmentsAPI = async (token: string) => {
   return await api.get(ADMIN_API.APPOINTMENTS, {
-    headers: { aToken: token },
+    headers: {
+  Authorization: `Bearer ${token}`,
+},
+  });
+};
+
+export const getAppointmentsPaginatedAPI = async (page: number, limit: number, token: string) => {
+  return await api.get(`${ADMIN_API.APPOINTMENTS_PAGINATED}?page=${page}&limit=${limit}`, {
+    headers: {
+  Authorization: `Bearer ${token}`,
+},
   });
 };
 
@@ -78,12 +116,16 @@ export const adminCancelAppointmentAPI = async (
   token: string
 ) => {
   return await api.patch(ADMIN_API.CANCEL_APPOINTMENT(appointmentId), {}, {
-    headers: { aToken: token },
+    headers: {
+  Authorization: `Bearer ${token}`,
+},
   });
 };
 
 export const adminDashboardAPI = async (token: string) => {
   return await api.get(ADMIN_API.DASHBOARD, {
-    headers: { aToken: token },
+    headers: {
+  Authorization: `Bearer ${token}`,
+},
   });
 };

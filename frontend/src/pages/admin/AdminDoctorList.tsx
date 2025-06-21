@@ -2,7 +2,8 @@ import { useContext, useEffect, useState } from "react";
 import { AdminContext } from "../../context/AdminContext";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import SearchBar from "../../components/common/SearchBar"; // adjust path if needed
+import SearchBar from "../../components/common/SearchBar";
+import Pagination from "../../components/common/Pagination";
 
 const AdminDoctorList = () => {
   const navigate = useNavigate();
@@ -12,27 +13,61 @@ const AdminDoctorList = () => {
     throw new Error("AdminContext must be used within AdminContextProvider");
   }
 
-  const { doctors, aToken, getAllDoctors, changeAvailability } = context;
+  const { aToken, getDoctorsPaginated, changeAvailability } = context;
 
+  const [currentPage, setCurrentPage] = useState(1);
+  const [doctors, setDoctors] = useState<any[]>([]);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const itemsPerPage = 6;
   const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     if (aToken) {
-      getAllDoctors();
+      fetchDoctors();
     }
-  }, [aToken]);
+  }, [aToken, currentPage]);
 
   useEffect(() => {
     if (!aToken) {
       navigate("/admin/login");
     }
-  });
+  }, [aToken, navigate]);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [currentPage]);
+
+  const fetchDoctors = async () => {
+    try {
+      setLoading(true);
+      const result = await getDoctorsPaginated(currentPage, itemsPerPage);
+      setDoctors(result.data);
+      setTotalPages(result.totalPages);
+      setTotalCount(result.totalCount);
+    } catch (error) {
+      console.error("Failed to fetch doctors:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleChangeAvailability = async (docId: string) => {
+    try {
+      await changeAvailability(docId);
+      // Refresh current page after changing availability
+      fetchDoctors();
+    } catch (error) {
+      console.error("Failed to change availability:", error);
+    }
+  };
 
   const filteredDoctors = doctors
     .filter((doctor) => doctor.status === "approved")
     .filter((doctor) =>
-      doctor.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      doctor.speciality.toLowerCase().includes(searchQuery.toLowerCase())
+      doctor.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      doctor.speciality?.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
   return (
@@ -47,42 +82,56 @@ const AdminDoctorList = () => {
         />
       </div>
 
-      <div className="w-full flex flex-wrap gap-4 gap-y-6">
-        {filteredDoctors.length > 0 ? (
-          filteredDoctors.map((item, index) => (
-            <motion.div
-              className="border border-indigo-200 rounded-xl max-w-56 overflow-hidden cursor-pointer group transition-transform duration-300 hover:-translate-y-1"
-              key={index}
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: index * 0.1 }}
-              whileHover={{ scale: 1.02 }}
-            >
-              <img
-                className="bg-indigo-50 group-hover:bg-primary transition-all duration-500"
-                src={item.image}
-                alt=""
-              />
-              <div className="p-4">
-                <p className="text-neutral-800 text-lg font-medium">{item.name}</p>
-                <p className="text-zinc-600 text-sm">{item.speciality}</p>
-                <div className="mt-2 flex items-center gap-1 text-sm">
-                  <input
-                    onChange={() => changeAvailability(item._id)}
-                    type="checkbox"
-                    checked={item.available}
-                  />
-                  <p>Available</p>
+      {loading ? (
+        <div className="text-center py-10 text-gray-500 text-sm">
+          Loading doctors...
+        </div>
+      ) : filteredDoctors.length > 0 ? (
+        <>
+          <div className="w-full flex flex-wrap gap-4 gap-y-6">
+            {filteredDoctors.map((item, index) => (
+              <motion.div
+                className="border border-indigo-200 rounded-xl max-w-56 overflow-hidden cursor-pointer group transition-transform duration-300 hover:-translate-y-1"
+                key={index}
+                initial={{ opacity: 0, y: 30 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: index * 0.1 }}
+                whileHover={{ scale: 1.02 }}
+              >
+                <img
+                  className="bg-indigo-50 group-hover:bg-primary transition-all duration-500"
+                  src={item.image}
+                  alt=""
+                />
+                <div className="p-4">
+                  <p className="text-neutral-800 text-lg font-medium">{item.name}</p>
+                  <p className="text-zinc-600 text-sm">{item.speciality}</p>
+                  <div className="mt-2 flex items-center gap-1 text-sm">
+                    <input
+                      onChange={() => handleChangeAvailability(item._id)}
+                      type="checkbox"
+                      checked={item.available}
+                    />
+                    <p>Available</p>
+                  </div>
                 </div>
-              </div>
-            </motion.div>
-          ))
-        ) : (
-          <div className="text-center w-full text-gray-500 text-sm py-10">
-            No matching doctors found.
+              </motion.div>
+            ))}
           </div>
-        )}
-      </div>
+
+          {totalPages > 1 && (
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={(page) => setCurrentPage(page)}
+            />
+          )}
+        </>
+      ) : (
+        <div className="text-center w-full text-gray-500 text-sm py-10">
+          No matching doctors found.
+        </div>
+      )}
     </div>
   );
 };

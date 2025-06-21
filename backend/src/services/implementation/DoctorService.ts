@@ -97,7 +97,7 @@ export class DoctorService implements IDoctorService {
     const match = await bcrypt.compare(password, doctor.password);
     if (!match) throw new Error("Incorrect password");
 
-    const token = generateAccessToken(doctor._id!);
+    const token = generateAccessToken(doctor._id!, doctor.email, "doctor");
     const refreshToken = generateRefreshToken(doctor._id!);
 
     return { token, refreshToken };

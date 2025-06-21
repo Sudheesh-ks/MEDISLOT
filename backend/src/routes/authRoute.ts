@@ -24,7 +24,7 @@ authRouter.get(
   (req, res) => {
     const user = req.user as any;
 
- const accessToken = generateAccessToken(user._id);
+ const accessToken = generateAccessToken(user._id, user.email, "user");
     const refreshToken = generateRefreshToken(user._id);
 
     // Set refresh token as httpOnly cookie

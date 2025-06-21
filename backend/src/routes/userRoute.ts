@@ -2,9 +2,9 @@ import express from "express";
 import { UserController } from "../controllers/implementation/UserController";
 import { UserService } from "../services/implementation/UserService";
 import { UserRepository } from "../repositories/implementation/UserRepository";
-import authUser from "../middlewares/authUser";
 import upload from "../middlewares/multer";
 import { PaymentService } from "../services/implementation/PaymentService";
+import authRole from "../middlewares/authRole";
 
 const userRepository = new UserRepository();
 const paymentService = new PaymentService();
@@ -29,40 +29,40 @@ userRouter.post("/refresh-token", userController.refreshToken.bind(userControlle
 userRouter.post("/logout", userController.logout.bind(userController));
 userRouter.get(
   "/profile",
-  authUser,
+  authRole(["user"]),
   userController.getProfile.bind(userController)
 );
 userRouter.put(
   "/profile",
   upload.single("image"),
-  authUser,
+  authRole(["user"]),
   userController.updateProfile.bind(userController)
 );
 userRouter.post(
   "/appointments",
-  authUser,
+  authRole(["user"]),
   userController.bookAppointment.bind(userController)
 );
 userRouter.get(
   "/appointments",
-  authUser,
+  authRole(["user"]),
   userController.listAppointment.bind(userController)
 );
 
 userRouter.patch(
   "/appointments/:appointmentId/cancel",
-  authUser,
+  authRole(["user"]),
   userController.cancelAppointment.bind(userController)
 );
 
 userRouter.post(
   "/payments/razorpay",
-  authUser,
+  authRole(["user"]),
   userController.paymentRazorpay.bind(userController)
 );
 userRouter.post(
   "/payments/razorpay/verify",
-  authUser,
+  authRole(["user"]),
   userController.verifyRazorpay.bind(userController)
 );
 

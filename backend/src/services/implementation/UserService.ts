@@ -40,7 +40,7 @@ export class UserService implements IUserService {
       password: hashedPassword,
     })) as UserDocument;
 
-    const token = generateAccessToken(user._id);
+    const token = generateAccessToken(user._id, user.email, "user");
     const refreshToken = generateRefreshToken(user._id);
 
     return { token, refreshToken };
@@ -49,7 +49,7 @@ export class UserService implements IUserService {
   async login(
     email: string,
     password: string
-  ): Promise<{ token: string; refreshToken: string }> {
+  ): Promise<{ user: UserDocument, token: string; refreshToken: string }> {
     const user = await this._userRepository.findByEmail(email);
     if (!user) throw new Error("User not found");
     const isMatch = await bcrypt.compare(password, user.password);
@@ -57,10 +57,10 @@ export class UserService implements IUserService {
     if (user.isBlocked)
       throw new Error("Your account has been blocked by admin");
 
-    const token = generateAccessToken(user._id);
+    const token = generateAccessToken(user._id, user.email, "user");
     const refreshToken = generateRefreshToken(user._id);
 
-    return { token, refreshToken };
+    return { user, token, refreshToken };
   }
 
   async getProfile(userId: string): Promise<userData | null> {
