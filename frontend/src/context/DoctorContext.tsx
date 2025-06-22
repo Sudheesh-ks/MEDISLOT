@@ -6,6 +6,7 @@ import {
   AppointmentCancelAPI,
   AppointmentConfirmAPI,
   getDoctorAppointmentsAPI,
+  getDoctorAppointmentsPaginatedAPI,
   getDoctorProfileAPI,
   refreshDoctorAccessTokenAPI,
 } from "../services/doctorServices";
@@ -17,6 +18,15 @@ import {
   clearDoctorAccessToken,
 } from "./tokenManagerDoctor";
 
+interface PaginationData {
+  data: any[];
+  totalCount: number;
+  currentPage: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
+}
+
 interface DoctorContextType {
   dToken: string;
   setDToken: (token: string | null) => void;
@@ -24,6 +34,7 @@ interface DoctorContextType {
   appointments: AppointmentTypes[];
   setAppointments: React.Dispatch<React.SetStateAction<AppointmentTypes[]>>;
   getAppointments: () => Promise<void>;
+  getAppointmentsPaginated: (page: number, limit: number) => Promise<PaginationData>;
   confirmAppointment: (appointmentId: string) => Promise<void>;
   cancelAppointment: (appointmentId: string) => Promise<void>;
   profileData: DoctorProfileType | null;
@@ -73,6 +84,28 @@ const [dToken, setDToken] = useState(getDoctorAccessToken() ?? "");
       }
     } catch (error) {
       showErrorToast(error);
+    }
+  };
+
+  const getAppointmentsPaginated = async (page: number, limit: number): Promise<PaginationData> => {
+    try {
+      const { data } = await getDoctorAppointmentsPaginatedAPI(page, limit);
+      if (data.success) {
+        return {
+          data: data.data,
+          totalCount: data.totalCount,
+          currentPage: data.currentPage,
+          totalPages: data.totalPages,
+          hasNextPage: data.hasNextPage,
+          hasPrevPage: data.hasPrevPage
+        };
+      } else {
+        toast.error(data.message);
+        throw new Error(data.message);
+      }
+    } catch (error) {
+      showErrorToast(error);
+      throw error;
     }
   };
 
@@ -155,6 +188,7 @@ const [dToken, setDToken] = useState(getDoctorAccessToken() ?? "");
     appointments,
     setAppointments,
     getAppointments,
+    getAppointmentsPaginated,
     confirmAppointment,
     cancelAppointment,
     profileData,

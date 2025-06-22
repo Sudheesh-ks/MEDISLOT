@@ -3,7 +3,7 @@ import type { Doctor } from "../assets/user/assets";
 import { assets } from "../assets/user/assets";
 import { toast } from "react-toastify";
 import { getUserProfileAPI } from "../services/userProfileServices";
-import { getDoctorsAPI } from "../services/doctorServices";
+import { getDoctorsAPI, getDoctorsPaginatedAPI } from "../services/doctorServices";
 import { showErrorToast } from "../utils/errorHandler";
 import {
   getUserAccessToken,
@@ -25,9 +25,19 @@ interface userData {
   phone: string;
 }
 
+interface PaginationData {
+  data: any[];
+  totalCount: number;
+  currentPage: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPrevPage: boolean;
+}
+
 interface AppContextType {
   doctors: Doctor[];
   getDoctorsData: () => Promise<void>;
+  getDoctorsPaginated: (page: number, limit: number) => Promise<PaginationData>;
   currencySymbol: string;
   backendUrl: string;
   token: string | null;
@@ -76,6 +86,28 @@ const AppContextProvider: React.FC<AppContextProviderProps> = ({
       }
     } catch (error) {
       showErrorToast(error);
+    }
+  };
+
+  const getDoctorsPaginated = async (page: number, limit: number): Promise<PaginationData> => {
+    try {
+      const { data } = await getDoctorsPaginatedAPI(page, limit);
+      if (data.success) {
+        return {
+          data: data.data,
+          totalCount: data.totalCount,
+          currentPage: data.currentPage,
+          totalPages: data.totalPages,
+          hasNextPage: data.hasNextPage,
+          hasPrevPage: data.hasPrevPage
+        };
+      } else {
+        toast.error(data.message);
+        throw new Error(data.message);
+      }
+    } catch (error) {
+      showErrorToast(error);
+      throw error;
     }
   };
 
@@ -198,6 +230,7 @@ const AppContextProvider: React.FC<AppContextProviderProps> = ({
   const value: AppContextType = {
     doctors,
     getDoctorsData,
+    getDoctorsPaginated,
     currencySymbol,
     backendUrl,
     token,

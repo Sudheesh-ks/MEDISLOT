@@ -87,6 +87,10 @@ export class DoctorService implements IDoctorService {
     return await this._doctorRepository.findAllDoctors();
   }
 
+  async getDoctorsPaginated(page: number, limit: number): Promise<any> {
+    return await this._doctorRepository.getDoctorsPaginated(page, limit);
+  }
+
   async loginDoctor(
     email: string,
     password: string
@@ -110,6 +114,15 @@ export class DoctorService implements IDoctorService {
     }
 
     return await this._doctorRepository.findAppointmentsByDoctorId(docId);
+  }
+
+  async getDoctorAppointmentsPaginated(docId: string, page: number, limit: number): Promise<any> {
+    const doctor = await this._doctorRepository.findById(docId);
+    if (!doctor) {
+      throw new Error("Doctor not found");
+    }
+
+    return await this._doctorRepository.getAppointmentsPaginated(docId, page, limit);
   }
 
   async confirmAppointment(

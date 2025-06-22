@@ -51,7 +51,10 @@ export const DOCTOR_API = {
   LOGOUT: "/api/doctor/logout",
   REFRESH: "/api/doctor/refresh-token",
 
+  DOCTORS: "/api/doctor",
+  DOCTORS_PAGINATED: "/api/doctor/paginated",
   APPOINTMENTS: "/api/doctor/appointments",
+  APPOINTMENTS_PAGINATED: "/api/doctor/appointments/paginated",
   APPOINTMENT_CONFIRM: (appointmentId: string) =>
     `/api/doctor/appointments/${appointmentId}/confirm`,
   APPOINTMENT_CANCEL: (appointmentId: string) =>

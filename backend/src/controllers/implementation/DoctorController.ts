@@ -92,6 +92,21 @@ export class DoctorController implements IDoctorController {
     }
   }
 
+  async getDoctorsPaginated(req: Request, res: Response): Promise<void> {
+    try {
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 6;
+      
+      const result = await this._doctorService.getDoctorsPaginated(page, limit);
+      res.status(HttpStatus.OK).json({ success: true, ...result });
+    } catch (error) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
+    }
+  }
+
   async loginDoctor(req: Request, res: Response): Promise<void> {
     try {
       const { email, password } = req.body;
@@ -189,6 +204,27 @@ const newRefreshToken = generateRefreshToken(doctor._id!);
       );
 
       res.status(HttpStatus.OK).json({ success: true, appointments });
+    } catch (error) {
+      res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ success: false, message: (error as Error).message });
+    }
+  }
+
+  // For getting paginated doctor appointments
+  async appointmentsDoctorPaginated(req: Request, res: Response): Promise<void> {
+    try {
+      const docId = (req as any).docId;
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 6;
+
+      const result = await this._doctorService.getDoctorAppointmentsPaginated(
+        docId,
+        page,
+        limit
+      );
+
+      res.status(HttpStatus.OK).json({ success: true, ...result });
     } catch (error) {
       res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)

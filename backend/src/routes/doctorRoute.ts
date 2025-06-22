@@ -12,6 +12,7 @@ const doctorController = new DoctorController(doctorService);
 const doctorRouter = express.Router();
 
 doctorRouter.get("/", doctorController.doctorList.bind(doctorController));
+doctorRouter.get("/paginated", doctorController.getDoctorsPaginated.bind(doctorController));
 doctorRouter.post(
   "/register",
   upload.single("image"),
@@ -41,6 +42,11 @@ doctorRouter.get(
   "/appointments",
   authRole(["doctor"]),
   doctorController.appointmentsDoctor.bind(doctorController)
+);
+doctorRouter.get(
+  "/appointments/paginated",
+  authRole(["doctor"]),
+  doctorController.appointmentsDoctorPaginated.bind(doctorController)
 );
 doctorRouter.patch(
   "/appointments/:appointmentId/confirm",
