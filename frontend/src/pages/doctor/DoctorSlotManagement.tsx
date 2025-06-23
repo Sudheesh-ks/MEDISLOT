@@ -1,4 +1,6 @@
 import { useEffect, useState } from "react";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import { getDoctorSlotsAPI, addDoctorSlotsAPI } from "../../services/doctorServices";
 import { toast } from "react-toastify";
 
@@ -13,31 +15,27 @@ const generateTimeSlots = (): { label: string; value: string }[] => {
   for (let i = 0; i < 22; i++) {
     const startTime = new Date(start);
     startTime.setMinutes(startTime.getMinutes() + i * 30);
-
     const endTime = new Date(startTime.getTime() + 30 * 60 * 1000);
 
     const format = (time: Date) =>
-      time.toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: true,
-      });
+      time.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: true });
 
     slots.push({
       label: `${format(startTime)} - ${format(endTime)}`,
-      value: format(startTime), // Use value as key
+      value: format(startTime),
     });
   }
 
   return slots;
 };
 
-
 const DoctorSlotManager = () => {
   const [slotData, setSlotData] = useState<{ [date: string]: { slots: DaySlotMap; isCancelled: boolean } }>({});
   const [selectedDateIndex, setSelectedDateIndex] = useState(0);
   const [slots, setSlots] = useState<DaySlotMap>({});
   const [isCancelled, setIsCancelled] = useState(false);
+  const [showCustomDatePicker, setShowCustomDatePicker] = useState(false);
+  const [customDate, setCustomDate] = useState<Date | null>(null);
 
   const today = new Date();
   const weekDates = Array.from({ length: 7 }, (_, i) => {
@@ -49,9 +47,7 @@ const DoctorSlotManager = () => {
   const timeSlots = generateTimeSlots();
 
   const formatDate = (date: Date) =>
-    `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(
-      date.getDate()
-    ).padStart(2, "0")}`;
+    `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 
   const loadSlots = async () => {
     const year = today.getFullYear();
@@ -64,7 +60,7 @@ const DoctorSlotManager = () => {
       data.data.forEach((item: any) => {
         const slotMap: DaySlotMap = {};
         item.slots.forEach((slot: any) => {
-          slotMap[slot.start] = "available"; // assuming start is enough
+          slotMap[slot.start] = "available";
         });
 
         mapped[item.date] = {
@@ -79,10 +75,21 @@ const DoctorSlotManager = () => {
     }
   };
 
-  const handleDateChange = (index: number) => {
-    setSelectedDateIndex(index);
+  const handleDateChange = (indexOrDate: number | Date) => {
+    let date: Date;
 
-    const key = formatDate(weekDates[index]);
+    if (typeof indexOrDate === "number") {
+      setSelectedDateIndex(indexOrDate);
+      setCustomDate(null);
+      setShowCustomDatePicker(false);
+      date = weekDates[indexOrDate];
+    } else {
+      setCustomDate(indexOrDate);
+      setShowCustomDatePicker(true);
+      date = indexOrDate;
+    }
+
+    const key = formatDate(date);
     const existing = slotData[key];
 
     setSlots(existing?.slots || {});
@@ -97,7 +104,9 @@ const DoctorSlotManager = () => {
   };
 
   const saveSlots = async () => {
-    const date = formatDate(weekDates[selectedDateIndex]);
+    const currentDate = showCustomDatePicker && customDate ? customDate : weekDates[selectedDateIndex];
+    const date = formatDate(currentDate);
+
     const selectedSlots = Object.entries(slots)
       .filter(([_, status]) => status === "available")
       .map(([start]) => {
@@ -119,7 +128,9 @@ const DoctorSlotManager = () => {
   };
 
   const markLeave = async () => {
-    const date = formatDate(weekDates[selectedDateIndex]);
+    const currentDate = showCustomDatePicker && customDate ? customDate : weekDates[selectedDateIndex];
+    const date = formatDate(currentDate);
+
     try {
       await addDoctorSlotsAPI(date, [], true);
       toast.success("Marked as leave");
@@ -152,7 +163,7 @@ const DoctorSlotManager = () => {
             <div
               key={i}
               className={`text-center px-4 py-5 rounded-full min-w-16 cursor-pointer ${
-                selectedDateIndex === i
+                selectedDateIndex === i && !showCustomDatePicker
                   ? "bg-primary text-white"
                   : "border border-gray-300 text-gray-600"
               } ${slot?.isCancelled ? "bg-red-100" : Object.keys(slot?.slots || {}).length ? "bg-green-100" : ""}`}
@@ -163,47 +174,82 @@ const DoctorSlotManager = () => {
             </div>
           );
         })}
+
+        {/* 📅 Calendar bubble */}
+        <div
+          onClick={() => {
+            if (showCustomDatePicker) {
+              setShowCustomDatePicker(false);
+              setCustomDate(null);
+              handleDateChange(0); // reset to default
+            } else {
+              setShowCustomDatePicker(true);
+            }
+          }}
+          className={`text-center px-4 py-5 rounded-full min-w-16 cursor-pointer ${
+            showCustomDatePicker ? "bg-primary text-white" : "border border-gray-300 text-gray-600"
+          }`}
+        >
+          <p>📅</p>
+          <p className="text-xs">{showCustomDatePicker ? "Back" : "More"}</p>
+        </div>
       </div>
+
+      {/* Calendar picker UI */}
+      {showCustomDatePicker && (
+        <div className="mb-6">
+          <DatePicker
+            selected={customDate}
+            onChange={(date) => {
+              if (date) {
+                handleDateChange(date);
+              }
+            }}
+            minDate={new Date()}
+            className="border px-4 py-2 rounded"
+            placeholderText="Select a future date"
+          />
+        </div>
+      )}
 
       {/* Slot selection */}
       <div className="bg-white rounded-xl shadow p-6 space-y-4">
         {isCancelled ? (
           <p className="text-red-500 font-medium">Marked as Leave</p>
         ) : (
-        //   {/* Time Slot Editor */}
-<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-  {timeSlots.map(({ label, value }) => (
-    <div
-      key={value}
-      className="flex justify-between items-center border rounded-lg p-3"
-    >
-      <p className="text-gray-700 font-medium w-32">{label}</p>
-      <div className="flex gap-2">
-        <button
-          onClick={() => toggleSlotStatus(value, "available")}
-          className={`px-3 py-1 rounded-full text-sm transition ${
-            slots[value] === "available"
-              ? "bg-green-500 text-white"
-              : "border border-green-500 text-green-600 hover:bg-green-50"
-          }`}
-        >
-          Available
-        </button>
-        <button
-          onClick={() => toggleSlotStatus(value, "unavailable")}
-          className={`px-3 py-1 rounded-full text-sm transition ${
-            slots[value] === "unavailable"
-              ? "bg-red-500 text-white"
-              : "border border-red-500 text-red-600 hover:bg-red-50"
-          }`}
-        >
-          Unavailable
-        </button>
-      </div>
-    </div>
-  ))}
-</div>
-)}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {timeSlots.map(({ label, value }) => (
+              <div
+                key={value}
+                className="flex justify-between items-center border rounded-lg p-3"
+              >
+                <p className="text-gray-700 font-medium w-32">{label}</p>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => toggleSlotStatus(value, "available")}
+                    className={`px-3 py-1 rounded-full text-sm transition ${
+                      slots[value] === "available"
+                        ? "bg-green-500 text-white"
+                        : "border border-green-500 text-green-600 hover:bg-green-50"
+                    }`}
+                  >
+                    Available
+                  </button>
+                  <button
+                    onClick={() => toggleSlotStatus(value, "unavailable")}
+                    className={`px-3 py-1 rounded-full text-sm transition ${
+                      slots[value] === "unavailable"
+                        ? "bg-red-500 text-white"
+                        : "border border-red-500 text-red-600 hover:bg-red-50"
+                    }`}
+                  >
+                    Unavailable
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
 
         <div className="mt-6 flex gap-4">
           {!isCancelled && (
