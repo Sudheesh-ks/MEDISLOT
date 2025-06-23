@@ -122,7 +122,7 @@ const DoctorAppointments = () => {
       render: (item: any) => (
         <div>
           <p className="text-xs inline border border-primary px-2 rounded-full">
-            {item.payment ? "Online" : "Cash"}
+            {item.payment ? "Paid" : "Pending"}
           </p>
         </div>
       ),

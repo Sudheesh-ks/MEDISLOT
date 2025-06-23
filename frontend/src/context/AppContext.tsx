@@ -171,8 +171,14 @@ const AppContextProvider: React.FC<AppContextProviderProps> = ({
   ];
 
   const slotDateFormat = (slotDate: string): string => {
+    if (!slotDate) return "N/A";
     const dateArray = slotDate.split("_");
-    return `${dateArray[0]} ${months[Number(dateArray[1])]} ${dateArray[2]}`;
+    if (dateArray.length < 3) return "N/A";
+    const day = dateArray[0];
+    const monthIndex = Number(dateArray[1]);
+    const year = dateArray[2];
+    if (isNaN(monthIndex) || !months[monthIndex]) return "N/A";
+    return `${day} ${months[monthIndex]} ${year}`;
   };
 
   useEffect(() => {

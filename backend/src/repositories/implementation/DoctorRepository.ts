@@ -14,31 +14,42 @@ export class DoctorRepository
   }
 
   async registerDoctor(data: DoctorData): Promise<DoctorDocument> {
-    const newDoctor = new doctorModel(data);
-    return await newDoctor.save();
+    return doctorModel.create(data);
   }
 
-  async findById(id: string): Promise<DoctorData | null> {
-      const doctor = await super.findById(id);
-  if (!doctor) return null;
-
-  // Optional: sanitize the result (if needed)
-  const { password, ...rest } = doctor.toObject();
-  return rest as DoctorData;
+  async findByEmail(email: string): Promise<DoctorData | null> {
+    return this.findOne({ email });
   }
 
-  async updateAvailability(id: string, available: boolean): Promise<void> {
-    const doctor = await doctorModel.findById(id);
-    if (!doctor) throw new Error("Doctor not found");
-    doctor.available = available;
+  async save(doctor: DoctorDocument): Promise<void> {
     await doctor.save();
   }
 
-  async findAllDoctors(): Promise<Partial<DoctorData>[]> {
-    return doctorModel.find({}).select("-password");
+  async updateAvailability(id: string, available: boolean): Promise<void> {
+    await this.updateById(id, { available });
   }
 
-  async getDoctorsPaginated(page: number, limit: number): Promise<PaginationResult<Partial<DoctorData>>> {
+  async findAllDoctors(): Promise<Partial<DoctorData>[]> {
+    return doctorModel.find({}).select("-password -email");
+  }
+
+  async findAppointmentsByDoctorId(docId: string): Promise<AppointmentTypes[]> {
+    return appointmentModel.find({ docId });
+  }
+
+  async findAppointmentById(id: string): Promise<AppointmentTypes | null> {
+    return appointmentModel.findById(id);
+  }
+
+  async markAppointmentAsConfirmed(id: string): Promise<void> {
+    await appointmentModel.findByIdAndUpdate(id, { isConfirmed: true });
+  }
+
+  async cancelAppointment(id: string): Promise<void> {
+    await appointmentModel.findByIdAndUpdate(id, { cancelled: true });
+  }
+
+   async getDoctorsPaginated(page: number, limit: number): Promise<PaginationResult<Partial<DoctorData>>> {
     const skip = (page - 1) * limit;
     const totalCount = await doctorModel.countDocuments({ status: "approved" });
     const data = await doctorModel.find({ status: "approved" }).select("-password").skip(skip).limit(limit);
@@ -55,19 +66,8 @@ export class DoctorRepository
     };
   }
 
-  async findByEmail(email: string): Promise<DoctorData | null> {
-    return this.findOne({ email });
-  }
 
-  async save(doctor: DoctorDocument): Promise<void> {
-    await doctor.save();
-  }
-
-  async findAppointmentsByDoctorId(docId: string): Promise<AppointmentTypes[]> {
-    return appointmentModel.find({ docId });
-  }
-
-  async getAppointmentsPaginated(docId: string, page: number, limit: number): Promise<PaginationResult<AppointmentTypes>> {
+ async getAppointmentsPaginated(docId: string, page: number, limit: number): Promise<PaginationResult<AppointmentTypes>> {
     const skip = (page - 1) * limit;
     const totalCount = await appointmentModel.countDocuments({ docId });
     const data = await appointmentModel.find({ docId })
@@ -89,24 +89,6 @@ export class DoctorRepository
     };
   }
 
-  async findAppointmentById(id: string): Promise<AppointmentTypes | null> {
-    return appointmentModel.findById(id);
-  }
-
-  async markAppointmentAsConfirmed(id: string): Promise<void> {
-    const appointment = await appointmentModel.findById(id);
-    if (!appointment) throw new Error("Appointment not found");
-    appointment.isConfirmed = true;
-    await appointment.save();
-  }
-
-  async cancelAppointment(id: string): Promise<void> {
-    const appointment = await appointmentModel.findById(id);
-    if (!appointment) throw new Error("Appointment not found");
-    appointment.cancelled = true;
-    await appointment.save();
-  }
-
   async getDoctorProfileById(id: string): Promise<DoctorData | null> {
     return doctorModel.findById(id).select("-password");
   }
@@ -116,10 +98,17 @@ export class DoctorRepository
     updateData: Partial<
       Pick<
         DoctorData,
-        "name" | "speciality" | "degree" | "experience" | "about" | "fees" | "address" | "image"
+        | "name"
+        | "speciality"
+        | "degree"
+        | "experience"
+        | "about"
+        | "fees"
+        | "address"
+        | "image"
       >
     >
   ): Promise<void> {
-    await doctorModel.findByIdAndUpdate(id, updateData);
+    await this.updateById(id, updateData);
   }
 }

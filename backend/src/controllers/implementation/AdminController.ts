@@ -204,9 +204,13 @@ export class AdminController implements IAdminController {
 
   // To toggle the state of user
   async toggleUserBlock(req: Request, res: Response): Promise<void> {
+      console.log("🔔 toggleUserBlock hit");
     try {
-      const { userId } = req.params;
-      const { block } = req.body as { block?: boolean };
+    const { userId } = req.params; // ✅ This is correct now
+    const { block } = req.body as { block?: boolean };
+
+    console.log("PARAM userId:", userId);
+    console.log("BODY block:", block);
 
       if (typeof block !== "boolean") {
         res.status(HttpStatus.BAD_REQUEST).json({

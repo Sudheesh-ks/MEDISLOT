@@ -132,7 +132,9 @@ export class DoctorService implements IDoctorService {
     const appointment = await this._doctorRepository.findAppointmentById(
       appointmentId
     );
-    if (!appointment || appointment.docId !== docId) {
+    console.log(appointment?.docId);
+    console.log(docId)
+    if (!appointment || appointment.docId !== docId.toString()) {
       throw new Error("Mark Failed");
     }
     await this._doctorRepository.markAppointmentAsConfirmed(appointmentId);
@@ -142,7 +144,7 @@ export class DoctorService implements IDoctorService {
     const appointment = await this._doctorRepository.findAppointmentById(
       appointmentId
     );
-    if (!appointment || appointment.docId !== docId) {
+    if (!appointment || appointment.docId.toString() !== docId.toString()) {
       throw new Error("Cancellation Failed");
     }
     await this._doctorRepository.cancelAppointment(appointmentId);

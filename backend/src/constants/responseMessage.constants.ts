@@ -46,8 +46,9 @@ export const HttpResponse = {
   PASSWORD_UPDATED: "Password updated successfully",
 
   // Appointment
-  APPOINTMENT_BOOKED: "Appointment booked",
-  APPOINTMENT_CANCELLED: "Appointment cancelled",
+  APPOINTMENT_BOOKED: "Appointment Booked",
+  APPOINTMENT_CANCELLED: "Appointment Cancelled",
+  APPOINTMENT_CONFIRMED: "Appointment Confirmed",
 
   // Payment
   PAYMENT_SUCCESS: "Payment successful",

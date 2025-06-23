@@ -1,11 +1,17 @@
-let doctorAccessToken: string | null = null;
+const DOCTOR_ACCESS_TOKEN_KEY = 'doctorAccessToken';
 
-export const getDoctorAccessToken = () => doctorAccessToken;
+export const getDoctorAccessToken = () => {
+  return localStorage.getItem(DOCTOR_ACCESS_TOKEN_KEY);
+};
 
 export const updateDoctorAccessToken = (token: string | null) => {
-  doctorAccessToken = token;
+  if (token) {
+    localStorage.setItem(DOCTOR_ACCESS_TOKEN_KEY, token);
+  } else {
+    localStorage.removeItem(DOCTOR_ACCESS_TOKEN_KEY);
+  }
 };
 
 export const clearDoctorAccessToken = () => {
-  doctorAccessToken = null;
+  localStorage.removeItem(DOCTOR_ACCESS_TOKEN_KEY);
 };

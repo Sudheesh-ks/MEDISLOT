@@ -4,10 +4,14 @@ import { DoctorService } from "../services/implementation/DoctorService";
 import { DoctorRepository } from "../repositories/implementation/DoctorRepository";
 import upload from "../middlewares/multer";
 import authRole from "../middlewares/authRole";
+import { SlotRepository } from "../repositories/implementation/SlotRepository";
+import { DoctorSlotService } from "../services/implementation/SlotService";
 
 const doctorRepository = new DoctorRepository();
+const slotRepository = new SlotRepository();
 const doctorService = new DoctorService(doctorRepository);
-const doctorController = new DoctorController(doctorService);
+const slotService = new DoctorSlotService(slotRepository);
+const doctorController = new DoctorController(doctorService, slotService);
 
 const doctorRouter = express.Router();
 
@@ -71,6 +75,18 @@ doctorRouter.patch(
   authRole(["doctor"]),
   upload.single("image"),
   doctorController.updateDoctorProfile.bind(doctorController)
+);
+
+doctorRouter.get(
+  "/slots",
+  authRole(["doctor"]),
+  doctorController.getMonthlySlots.bind(doctorController)
+);
+
+doctorRouter.post(
+  "/slots",
+  authRole(["doctor"]),
+  doctorController.updateDaySlot.bind(doctorController)
 );
 
 export default doctorRouter;

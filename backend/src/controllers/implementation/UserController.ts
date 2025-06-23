@@ -17,6 +17,8 @@ import {
   generateRefreshToken,
   verifyRefreshToken,
 } from "../../utils/jwt.utils";
+import { log } from "console";
+import { use } from "passport";
 
 export class UserController implements IUserController {
   constructor(
@@ -387,7 +389,7 @@ const newRefreshToken = generateRefreshToken(user._id);
           name: doctor.name,
           speciality: doctor.speciality,
         },
-        amount: doctor.fees,
+        amount:doctor.fees,
         date: Date.now(),
       };
 
@@ -416,8 +418,10 @@ const newRefreshToken = generateRefreshToken(user._id);
 
   async cancelAppointment(req: Request, res: Response): Promise<void> {
     try {
-      const userId = (req as any).user?.id;
+      const userId = (req as any).userId;
+      // console.log(userId)
       const { appointmentId } = req.params;
+      // console.log(appointmentId);
       await this._userService.cancelAppointment(userId, appointmentId);
       res
         .status(HttpStatus.OK)
@@ -431,8 +435,19 @@ const newRefreshToken = generateRefreshToken(user._id);
 
   async paymentRazorpay(req: Request, res: Response): Promise<void> {
     try {
-      const userId = (req as any).user?.id;
+      const userId = (req as any).userId;
+      // console.log(userId)
+      if(!userId){
+        console.log("user id required")
+      }
       const { appointmentId } = req.body;
+      // console.log(appointmentId)
+          if (!appointmentId) {
+            console.log("Ap id reqrd")
+       res.status(400).json({ success: false, message: "Appointment ID is required" });
+       return
+    }
+
       const { order } = await this._userService.startPayment(
         userId,
         appointmentId
@@ -447,7 +462,7 @@ const newRefreshToken = generateRefreshToken(user._id);
 
   async verifyRazorpay(req: Request, res: Response): Promise<void> {
     try {
-      const userId = (req as any).user?.id;
+      const userId = (req as any).userId;
       const { appointmentId, razorpay_order_id } = req.body;
       await this._userService.verifyPayment(
         userId,
@@ -463,4 +478,34 @@ const newRefreshToken = generateRefreshToken(user._id);
         .json({ success: false, message: (error as Error).message });
     }
   }
+
+
+  async getAvailableSlotsForDoctor(req: Request, res: Response): Promise<void> {
+  try {
+    const { doctorId, year, month } = req.query;
+
+    if (!doctorId || !year || !month) {
+      res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: HttpResponse.FIELDS_REQUIRED,
+      });
+      return;
+    }
+
+    const slots = await this._userService.getAvailableSlotsForDoctor(
+      String(doctorId),
+      Number(year),
+      Number(month)
+    );
+
+    res.status(HttpStatus.OK).json({ success: true, data: slots });
+  } catch (error) {
+    console.error("getAvailableSlotsForDoctor error:", error);
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: "Failed to fetch available slots",
+    });
+  }
+}
+
 }

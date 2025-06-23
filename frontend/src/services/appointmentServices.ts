@@ -33,3 +33,15 @@ export const cancelAppointmentAPI = async (
     { headers: { Authorization: `Bearer ${token}` } }
   );
 };
+
+
+export const getAvailableSlotsAPI = async (
+  doctorId: string,
+  year: number,
+  month: number
+) => {
+  const response = await api.get(APPOINTMENT_API.AVAILABLE_FOR_USER, {
+    params: { doctorId, year, month },
+  });
+  return response.data.data;
+};

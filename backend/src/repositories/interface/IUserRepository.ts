@@ -22,6 +22,6 @@ export interface IUserRepository {
   findPayableAppointment(userId: string,appointmentId: string): Promise<AppointmentDocument>;
   saveRazorpayOrderId(appointmentId: string, orderId: string): Promise<void>;
   markAppointmentPaid(appointmentId: string): Promise<void>;
-
+  getAvailableSlotsByDoctorAndMonth(doctorId: string, year: number, month: number): Promise<any[]>;
 
 }

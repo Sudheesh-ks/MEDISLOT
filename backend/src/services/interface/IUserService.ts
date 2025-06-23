@@ -41,4 +41,5 @@ export interface IUserService {
     appointmentId: string,
     razorpay_order_id: string
   ): Promise<void>;
+  getAvailableSlotsForDoctor(doctorId: string, year: number, month: number): Promise<any[]>;
 }

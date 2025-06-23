@@ -173,6 +173,12 @@ async finalizeRegister(userData: {
       appointmentId
     );
 
+
+    console.log("Appointment:", appointment);
+console.log("Amount:", appointment.amount);
+console.log("hii");
+
+
     const order = await this._paymentService.createOrder(
       appointment.amount * 100,
       appointment._id.toString()
@@ -200,4 +206,8 @@ async finalizeRegister(userData: {
 
     await this._userRepository.markAppointmentPaid(appointmentId);
   }
+  async getAvailableSlotsForDoctor(doctorId: string, year: number, month: number): Promise<any[]> {
+  return this._userRepository.getAvailableSlotsByDoctorAndMonth(doctorId, year, month);
+}
+
 }

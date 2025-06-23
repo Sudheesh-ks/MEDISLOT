@@ -11,6 +11,7 @@ import DoctorProfile from "../pages/doctor/DoctorProfile";
 import DoctorConsultation from "../pages/doctor/DoctorConsultation";
 import DocChatPage from "../pages/doctor/DocChatPage";
 import DoctorRegister from "../pages/doctor/DoctorRegister";
+import DoctorSlotManager from "../pages/doctor/DoctorSlotManagement";
 
 const DoctorRoutes = () => {
   return (
@@ -38,6 +39,14 @@ const DoctorRoutes = () => {
         element={
           <DoctorLayout>
             <DoctorProfile />
+          </DoctorLayout>
+        }
+      />
+      <Route
+        path="/doctor/slot-management"
+        element={
+          <DoctorLayout>
+            <DoctorSlotManager />
           </DoctorLayout>
         }
       />

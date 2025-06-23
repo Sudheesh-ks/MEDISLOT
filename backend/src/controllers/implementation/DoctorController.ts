@@ -9,9 +9,13 @@ import {
   generateRefreshToken,
   verifyRefreshToken,
 } from "../../utils/jwt.utils";
+import { DoctorSlotService } from "../../services/implementation/SlotService";
 
 export class DoctorController implements IDoctorController {
-  constructor(private _doctorService: DoctorService) {}
+  constructor(
+    private _doctorService: DoctorService,
+    private _slotService: DoctorSlotService
+  ) {}
 
   async registerDoctor(req: Request, res: Response): Promise<void> {
     try {
@@ -242,7 +246,7 @@ const newRefreshToken = generateRefreshToken(doctor._id!);
 
       res
         .status(HttpStatus.OK)
-        .json({ success: true, message: HttpResponse.OK });
+        .json({ success: true, message: HttpResponse.APPOINTMENT_CONFIRMED });
     } catch (error) {
       res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -327,4 +331,29 @@ const newRefreshToken = generateRefreshToken(doctor._id!);
       });
     }
   }
+
+
+
+  async getMonthlySlots(req: Request, res: Response): Promise<void> {
+  try {
+    const doctorId = (req as any).docId;
+    const { year, month } = req.query;
+    const data = await this._slotService.getMonthlySlots(doctorId, +year!, +month!);
+    res.json({ success: true, data });
+  } catch (error) {
+    res.status(500).json({ success: false, message: (error as Error).message });
+  }
+}
+
+async updateDaySlot(req: Request, res: Response): Promise<void> {
+  try {
+    const doctorId = (req as any).docId;
+    const { date, slots, isCancelled } = req.body;
+    const data = await this._slotService.updateDaySlot(doctorId, date, slots, isCancelled);
+    res.json({ success: true, data });
+  } catch (error) {
+    res.status(500).json({ success: false, message: (error as Error).message });
+  }
+}
+
 }

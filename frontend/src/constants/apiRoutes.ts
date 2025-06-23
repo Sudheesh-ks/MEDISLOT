@@ -25,6 +25,7 @@ export const APPOINTMENT_API = {
   BASE: "/api/user/appointments",
   CANCEL: (appointmentId: string) =>
     `/api/user/appointments/${appointmentId}/cancel`,
+  AVAILABLE_FOR_USER: "/api/user/available-slots",
 };
 
 // src/constants/apiRoutes.ts
@@ -50,6 +51,7 @@ export const DOCTOR_API = {
   LOGIN: "/api/doctor/login",
   LOGOUT: "/api/doctor/logout",
   REFRESH: "/api/doctor/refresh-token",
+  SLOTS: "/api/doctor/slots",
 
   DOCTORS: "/api/doctor",
   DOCTORS_PAGINATED: "/api/doctor/paginated",

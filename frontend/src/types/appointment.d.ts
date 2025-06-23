@@ -7,7 +7,7 @@ export interface AppointmentTypes {
   userData: Record<string, any>;
   docData: Record<string, any>;
   amount: number;
-  date: number;
+  date: Date;
   cancelled?: boolean;
   payment?: boolean;
   isConfirmed?: boolean;

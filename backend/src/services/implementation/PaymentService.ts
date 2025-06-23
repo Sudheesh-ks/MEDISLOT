@@ -1,7 +1,7 @@
 import Razorpay from "razorpay";
 
 export interface RazorpayOrderPayload {
-  amount: number;
+  fees: number;
   currency: "INR";
   receipt: string;
 }

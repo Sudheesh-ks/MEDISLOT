@@ -82,3 +82,19 @@ export const updateDoctorProfileAPI = (
     },
   });
 };
+
+
+// Fetch slots for a month
+export const getDoctorSlotsAPI = (year: number, month: number) => {
+  return api.get(`api/doctor/slots?year=${year}&month=${month}`);
+};
+
+// Add/update slots for a date
+export const addDoctorSlotsAPI = (
+  date: string,
+  slots: { start: string; end: string }[],
+  isCancelled: boolean
+) => {
+  return api.post("api/doctor/slots", { date, slots, isCancelled });
+};
+

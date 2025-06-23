@@ -8,7 +8,8 @@ const AdminSidebar = () => {
     home_icon: "🏠",
     profile_icon: "👤",
     appointment_icon: "📅",
-    add_icon: "➕"
+    add_icon: "➕",
+    slot_icon: "⏰",
   };
 
   const menuItems = [
@@ -28,6 +29,12 @@ const AdminSidebar = () => {
       to: "/doctor/profile",
       icon: assets.profile_icon,
       label: "Profile",
+      gradient: "from-blue-500 to-primary"
+    },
+    {
+      to: "/doctor/slot-management",
+      icon: assets.slot_icon,
+      label: "Slot management",
       gradient: "from-blue-500 to-primary"
     },
   ];

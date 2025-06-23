@@ -1,11 +1,17 @@
-let userAccessToken: string | null = null;
+const USER_ACCESS_TOKEN_KEY = 'userAccessToken';
 
-export const getUserAccessToken = () => userAccessToken;
+export const getUserAccessToken = () => {
+  return localStorage.getItem(USER_ACCESS_TOKEN_KEY);
+};
 
 export const updateUserAccessToken = (token: string | null) => {
-  userAccessToken = token;
+  if (token) {
+    localStorage.setItem(USER_ACCESS_TOKEN_KEY, token);
+  } else {
+    localStorage.removeItem(USER_ACCESS_TOKEN_KEY);
+  }
 };
 
 export const clearUserAccessToken = () => {
-  userAccessToken = null;
+  localStorage.removeItem(USER_ACCESS_TOKEN_KEY);
 };

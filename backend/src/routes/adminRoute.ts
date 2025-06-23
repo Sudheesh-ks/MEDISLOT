@@ -10,16 +10,20 @@ import { AdminController } from "../controllers/implementation/AdminController";
 import { DoctorRepository } from "../repositories/implementation/DoctorRepository";
 import { DoctorService } from "../services/implementation/DoctorService";
 import { DoctorController } from "../controllers/implementation/DoctorController";
+import { DoctorSlotService } from "../services/implementation/SlotService";
+import { SlotRepository } from "../repositories/implementation/SlotRepository";
 
 // Admin Layer
 const adminRepository = new AdminRepository();
 const doctorRepository = new DoctorRepository();
+const slotRepository = new SlotRepository();
 const adminService = new AdminService(adminRepository, doctorRepository);
 const adminController = new AdminController(adminService);
 
 // Doctor Layer
 const doctorService = new DoctorService(doctorRepository);
-const doctorController = new DoctorController(doctorService);
+const SlotService = new DoctorSlotService(slotRepository);
+const doctorController = new DoctorController(doctorService, SlotService);
 
 const adminRouter = express.Router();
 
