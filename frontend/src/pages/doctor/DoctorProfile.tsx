@@ -22,6 +22,8 @@ const DoctorProfile = () => {
   const [isEdit, setIsEdit] = useState(false);
   const [formData, setFormData] = useState(profileData);
   const [image, setImage] = useState<File | null>(null);
+  const [available, setAvailable] = useState(profileData?.available ?? false);
+
 
   useEffect(() => {
     if (dToken) getProfileData();
@@ -53,7 +55,7 @@ const DoctorProfile = () => {
         return;
       }
 
-      const response = await updateDoctorProfileAPI(formData, image);
+      const response = await updateDoctorProfileAPI({ ...formData, available }, image);
       toast.success(response.data.message);
       await getProfileData();
       setIsEdit(false);
@@ -62,6 +64,30 @@ const DoctorProfile = () => {
       showErrorToast(error);
     }
   };
+
+  // 🔒 Handle pending status
+  if (profileData?.status === "pending") {
+    return (
+      <div className="m-5 text-center bg-yellow-100 border border-yellow-300 rounded-xl p-6 text-yellow-800 shadow-md">
+        <h2 className="text-xl font-semibold mb-2">⏳ Awaiting Approval</h2>
+        <p>Your registration is under review. The admin has not approved your account yet.</p>
+      </div>
+    );
+  }
+
+  // 🔒 Handle rejected status
+  if (profileData?.status === "rejected") {
+    return (
+      <div className="m-5 text-center bg-red-100 border border-red-300 rounded-xl p-6 text-red-700 shadow-md">
+        <h2 className="text-xl font-semibold mb-2">❌ Registration Rejected</h2>
+        <p>Your registration has been rejected by the admin.</p>
+        <p className="mt-2 text-sm">Please contact support or try registering again with updated details.</p>
+      </div>
+    );
+  }
+
+  // ✅ Show full dashboard only if approved
+  if (profileData?.status !== "approved") return null;
 
   return profileData && formData ? (
     <motion.div
@@ -216,11 +242,27 @@ const DoctorProfile = () => {
           )}
         </div>
 
-        {/* Availability (ReadOnly) */}
-        <div className="flex items-center gap-2">
-          <input type="checkbox" id="available" className="form-checkbox" checked readOnly />
-          <label htmlFor="available" className="text-sm text-gray-600">Available</label>
-        </div>
+       {/* Availability */}
+<div className="flex items-center gap-4">
+  <span className="text-sm font-medium text-gray-700">Available for Consultation</span>
+  {isEdit ? (
+    <label className="relative inline-flex items-center cursor-pointer">
+      <input
+        type="checkbox"
+        className="sr-only peer"
+        checked={available}
+        onChange={(e) => setAvailable(e.target.checked)}
+      />
+      <div className="w-11 h-6 bg-gray-300 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary rounded-full peer peer-checked:bg-green-500 transition-all"></div>
+      <div className="absolute left-0.5 top-0.5 bg-white w-5 h-5 rounded-full shadow-md transform transition-transform peer-checked:translate-x-full"></div>
+    </label>
+  ) : (
+    <span className={`ml-2 px-3 py-1 rounded-full text-xs font-semibold ${available ? 'bg-green-100 text-green-700' : 'bg-gray-200 text-gray-500'}`}>
+      {available ? 'Available' : 'Not Available'}
+    </span>
+  )}
+</div>
+
 
         {/* Edit / Save Button */}
         <motion.button

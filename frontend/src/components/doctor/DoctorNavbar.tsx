@@ -13,7 +13,7 @@ const DoctorNavbar = () => {
     throw new Error("DoctorContext must be used within DoctorContextProvider");
   }
 
-  const { dToken, setDToken } = context;
+  const { dToken, setDToken, profileData } = context;
 
   const navigate = useNavigate();
 
@@ -38,6 +38,18 @@ const logout = async () => {
         <p className="border px-2.5 py-0.5 rounded-full border-gray-500 text-gray-600">
           Doctor
         </p>
+         {profileData?.status === "pending" && (
+  <div className="bg-yellow-100 text-yellow-800 text-xs font-semibold px-3 py-1 rounded-full ml-3 animate-pulse border border-yellow-300 shadow-sm">
+    ⏳ Waiting for approval
+  </div>
+)}
+
+{profileData?.status === "rejected" && (
+  <div className="bg-red-100 text-red-700 text-xs font-semibold px-3 py-1 rounded-full ml-3 border border-red-300 shadow-sm">
+    ❌ Registration rejected
+  </div>
+)}
+
       </div>
       <button
         onClick={logout}

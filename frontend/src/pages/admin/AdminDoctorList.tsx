@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from "react";
 import { AdminContext } from "../../context/AdminContext";
-import { useNavigate } from "react-router-dom";
+import { data, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import SearchBar from "../../components/common/SearchBar";
 import Pagination from "../../components/common/Pagination";
@@ -13,7 +13,7 @@ const AdminDoctorList = () => {
     throw new Error("AdminContext must be used within AdminContextProvider");
   }
 
-  const { aToken, getDoctorsPaginated, changeAvailability } = context;
+  const { aToken, getDoctorsPaginated } = context;
 
   const [currentPage, setCurrentPage] = useState(1);
   const [doctors, setDoctors] = useState<any[]>([]);
@@ -50,16 +50,6 @@ const AdminDoctorList = () => {
       console.error("Failed to fetch doctors:", error);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleChangeAvailability = async (docId: string) => {
-    try {
-      await changeAvailability(docId);
-      // Refresh current page after changing availability
-      fetchDoctors();
-    } catch (error) {
-      console.error("Failed to change availability:", error);
     }
   };
 
@@ -106,14 +96,19 @@ const AdminDoctorList = () => {
                 <div className="p-4">
                   <p className="text-neutral-800 text-lg font-medium">{item.name}</p>
                   <p className="text-zinc-600 text-sm">{item.speciality}</p>
-                  <div className="mt-2 flex items-center gap-1 text-sm">
-                    <input
-                      onChange={() => handleChangeAvailability(item._id)}
-                      type="checkbox"
-                      checked={item.available}
-                    />
-                    <p>Available</p>
-                  </div>
+                    <p>
+                      {item.available ? (
+                          <div className="flex items-center gap-2 text-sm text-green-500">
+                            <p className="w-2 h-2 bg-green-500 rounded-full"></p>
+                            <p>Available</p>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2 text-sm text-red-500">
+                            <p className="w-2 h-2 bg-red-500 rounded-full"></p>
+                            <p>Not Available</p>
+                          </div>
+                        )}
+                    </p>
                 </div>
               </motion.div>
             ))}

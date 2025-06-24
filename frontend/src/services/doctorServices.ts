@@ -71,6 +71,7 @@ export const updateDoctorProfileAPI = (
   data.append("about", formData.about);
   data.append("fees", String(formData.fees));
   data.append("address", JSON.stringify(formData.address));
+data.append("available", (formData.available ?? false).toString());
 
   if (image) {
     data.append("image", image);

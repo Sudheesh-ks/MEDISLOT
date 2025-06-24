@@ -106,6 +106,7 @@ export class DoctorRepository
         | "fees"
         | "address"
         | "image"
+        | "available"
       >
     >
   ): Promise<void> {

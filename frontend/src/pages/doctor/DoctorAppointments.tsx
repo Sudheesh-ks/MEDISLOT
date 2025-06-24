@@ -36,6 +36,7 @@ const DoctorAppointments = () => {
     getAppointmentsPaginated,
     confirmAppointment,
     cancelAppointment,
+    profileData
   } = context;
 
   useEffect(() => {
@@ -199,6 +200,31 @@ const DoctorAppointments = () => {
       ),
     },
   ];
+
+
+  // 🔒 Handle pending status
+  if (profileData?.status === "pending") {
+    return (
+      <div className="m-5 text-center bg-yellow-100 border border-yellow-300 rounded-xl p-6 text-yellow-800 shadow-md">
+        <h2 className="text-xl font-semibold mb-2">⏳ Awaiting Approval</h2>
+        <p>Your registration is under review. The admin has not approved your account yet.</p>
+      </div>
+    );
+  }
+
+  // 🔒 Handle rejected status
+  if (profileData?.status === "rejected") {
+    return (
+      <div className="m-5 text-center bg-red-100 border border-red-300 rounded-xl p-6 text-red-700 shadow-md">
+        <h2 className="text-xl font-semibold mb-2">❌ Registration Rejected</h2>
+        <p>Your registration has been rejected by the admin.</p>
+        <p className="mt-2 text-sm">Please contact support or try registering again with updated details.</p>
+      </div>
+    );
+  }
+
+  // ✅ Show full dashboard only if approved
+  if (profileData?.status !== "approved") return null;
 
   return (
     <div className="w-full max-w-6xl m-5">

@@ -26,5 +26,6 @@ export interface IDoctorService {
     fees: number;
     address: DoctorData["address"];
     imagePath?: string;
+    available?: boolean;
   }): Promise<void>;
 }

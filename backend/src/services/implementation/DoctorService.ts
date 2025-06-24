@@ -166,6 +166,7 @@ export class DoctorService implements IDoctorService {
     fees: number;
     address: DoctorData["address"];
     imagePath?: string;
+    available?: boolean;
   }): Promise<void> {
     const doctor = await this._doctorRepository.findById(data.doctId);
     if (!doctor) throw new Error("Doctor not found");
@@ -197,6 +198,7 @@ export class DoctorService implements IDoctorService {
       fees: data.fees,
       address: data.address,
       image: imageUrl,
+      ...(data.available !== undefined && { available: data.available }),
     });
   }
 }

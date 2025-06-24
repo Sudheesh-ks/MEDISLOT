@@ -287,7 +287,7 @@ const newRefreshToken = generateRefreshToken(doctor._id!);
   async updateDoctorProfile(req: Request, res: Response): Promise<void> {
     try {
       const doctId = req.body.doctId;
-      const { name, speciality, degree, experience, about, fees, address } =
+      const { name, speciality, degree, experience, about, fees, address, available } =
         req.body;
 
       const imageFile = req.file;
@@ -316,6 +316,7 @@ const newRefreshToken = generateRefreshToken(doctor._id!);
         fees: Number(fees),
         address: parsedAddress,
         imagePath: imageFile?.path,
+        available: String(available) === "true",
       });
 
       res.status(HttpStatus.OK).json({

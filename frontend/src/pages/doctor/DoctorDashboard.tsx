@@ -2,10 +2,10 @@ import { useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { DoctorContext } from "../../context/DoctorContext";
 import { AppContext } from "../../context/AppContext";
-import { assets } from "../../assets/admin/assets"; // you should add doctor-specific icons here
+import { AdminContext } from "../../context/AdminContext";
+import { assets } from "../../assets/admin/assets";
 import type { AppointmentTypes } from "../../types/appointment";
 import { motion } from "framer-motion";
-import { AdminContext } from "../../context/AdminContext";
 
 const DoctorDashboard = () => {
   const navigate = useNavigate();
@@ -15,9 +15,9 @@ const DoctorDashboard = () => {
 
   if (!context) throw new Error("DoctorContext must be used within DoctorContextProvider");
   if (!appContext) throw new Error("AppContext must be used within AppContextProvider");
-  if(!adminContext) throw new Error("AdminContext must be used within AdminContextProvider");
+  if (!adminContext) throw new Error("AdminContext must be used within AdminContextProvider");
 
-  const { dToken, cancelAppointment } = context;
+  const { dToken, cancelAppointment, profileData } = context;
   const { dashData, getDashData } = adminContext;
   const { slotDateFormat } = appContext;
 
@@ -28,6 +28,30 @@ const DoctorDashboard = () => {
   useEffect(() => {
     if (!dToken) navigate("/doctor/login");
   }, [dToken]);
+
+  // 🔒 Handle pending status
+  if (profileData?.status === "pending") {
+    return (
+      <div className="m-5 text-center bg-yellow-100 border border-yellow-300 rounded-xl p-6 text-yellow-800 shadow-md">
+        <h2 className="text-xl font-semibold mb-2">⏳ Awaiting Approval</h2>
+        <p>Your registration is under review. The admin has not approved your account yet.</p>
+      </div>
+    );
+  }
+
+  // 🔒 Handle rejected status
+  if (profileData?.status === "rejected") {
+    return (
+      <div className="m-5 text-center bg-red-100 border border-red-300 rounded-xl p-6 text-red-700 shadow-md">
+        <h2 className="text-xl font-semibold mb-2">❌ Registration Rejected</h2>
+        <p>Your registration has been rejected by the admin.</p>
+        <p className="mt-2 text-sm">Please contact support or try registering again with updated details.</p>
+      </div>
+    );
+  }
+
+  // ✅ Show full dashboard only if approved
+  if (profileData?.status !== "approved") return null;
 
   return (
     dashData && (

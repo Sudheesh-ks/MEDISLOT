@@ -29,7 +29,7 @@ export interface IDoctorRepository {
   updateData: Partial<
     Pick<
       DoctorData,
-      "name" | "speciality" | "degree" | "experience" | "about" | "fees" | "address" | "image"
+      "name" | "speciality" | "degree" | "experience" | "about" | "fees" | "address" | "image" | "available"
     >
   >
 ): Promise<void>}

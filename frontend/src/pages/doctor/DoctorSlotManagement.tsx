@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { getDoctorSlotsAPI, addDoctorSlotsAPI } from "../../services/doctorServices";
 import { toast } from "react-toastify";
+import { DoctorContext } from "../../context/DoctorContext";
 
 type SlotStatus = "available" | "unavailable";
 type DaySlotMap = { [time: string]: SlotStatus };
@@ -30,6 +31,14 @@ const generateTimeSlots = (): { label: string; value: string }[] => {
 };
 
 const DoctorSlotManager = () => {
+
+  const context = useContext(DoctorContext);
+
+  if (!context) throw new Error("DoctorProfile must be used within DoctorContextProvider");
+
+  const { profileData } = context;
+
+
   const [slotData, setSlotData] = useState<{ [date: string]: { slots: DaySlotMap; isCancelled: boolean } }>({});
   const [selectedDateIndex, setSelectedDateIndex] = useState(0);
   const [slots, setSlots] = useState<DaySlotMap>({});
@@ -149,6 +158,31 @@ const DoctorSlotManager = () => {
   }, [slotData]);
 
   const daysOfWeek = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
+
+
+  // 🔒 Handle pending status
+  if (profileData?.status === "pending") {
+    return (
+      <div className="m-5 text-center bg-yellow-100 border border-yellow-300 rounded-xl p-6 text-yellow-800 shadow-md">
+        <h2 className="text-xl font-semibold mb-2">⏳ Awaiting Approval</h2>
+        <p>Your registration is under review. The admin has not approved your account yet.</p>
+      </div>
+    );
+  }
+
+  // 🔒 Handle rejected status
+  if (profileData?.status === "rejected") {
+    return (
+      <div className="m-5 text-center bg-red-100 border border-red-300 rounded-xl p-6 text-red-700 shadow-md">
+        <h2 className="text-xl font-semibold mb-2">❌ Registration Rejected</h2>
+        <p>Your registration has been rejected by the admin.</p>
+        <p className="mt-2 text-sm">Please contact support or try registering again with updated details.</p>
+      </div>
+    );
+  }
+
+  // ✅ Show full dashboard only if approved
+  if (profileData?.status !== "approved") return null;
 
   return (
     <div className="p-6 max-w-4xl mx-auto">
