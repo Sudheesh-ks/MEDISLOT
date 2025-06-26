@@ -1,7 +1,7 @@
 export const ADMIN_API = {
   LOGIN: "/api/admin/login",
   REFRESH: "/api/admin/refresh-token",
-    LOGOUT: "/api/admin/logout",
+  LOGOUT: "/api/admin/logout",
   DOCTORS: "/api/admin/doctors",
   DOCTORS_PAGINATED: "/api/admin/doctors/paginated",
   APPROVE_DOCTOR: (doctorId: string) =>

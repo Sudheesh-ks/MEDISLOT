@@ -152,7 +152,7 @@ const MyAppointments = () => {
             </div>
 
             <div>
-              {!item.cancelled && item.payment && (
+              {!item.cancelled && item.payment && item.isConfirmed && (
                 <button
                   onClick={() => navigate(`/consultation/${item.docData._id}`)}
                   className="text-sm text-white text-center bg-primary sm:min-w-48 py-2 border mt-28 rounded hover:bg-blue-500 transition-all duration-300"
@@ -160,6 +160,13 @@ const MyAppointments = () => {
                   Go to Consultation
                 </button>
               )}
+              {/* 👉 (2) payment done but doctor hasn’t confirmed yet */}
+{!item.cancelled && item.payment && !item.isConfirmed && (
+  <div className="bg-yellow-100 text-yellow-800 text-xs font-semibold px-3 py-1 rounded-full sm:min-w-48 mt-28 animate-pulse border border-yellow-300 shadow-sm text-center">
+    ⏳ Payment received – awaiting&nbsp;doctor&nbsp;confirmation
+  </div>
+)}
+
             </div>
             <div className="flex flex-col gap-2 justify-end">
               {!item.cancelled && item.payment && (

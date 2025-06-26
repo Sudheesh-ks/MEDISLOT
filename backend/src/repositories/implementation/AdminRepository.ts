@@ -1,5 +1,3 @@
-// repositories/impl/AdminRepository.ts
-
 import { IAdminRepository, PaginationResult } from "../interface/IAdminRepository";
 import { BaseRepository } from "../BaseRepository";
 import adminModel from "../../models/adminModel";

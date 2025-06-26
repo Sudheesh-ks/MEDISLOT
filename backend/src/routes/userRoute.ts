@@ -5,6 +5,7 @@ import { UserRepository } from "../repositories/implementation/UserRepository";
 import upload from "../middlewares/multer";
 import { PaymentService } from "../services/implementation/PaymentService";
 import authRole from "../middlewares/authRole";
+// import { ChatController } from '../controllers/implementation/ChatController';
 
 const userRepository = new UserRepository();
 const paymentService = new PaymentService();
@@ -71,5 +72,6 @@ userRouter.get(
   authRole(["user"]),
   userController.getAvailableSlotsForDoctor.bind(userController)
 );
+
 
 export default userRouter;

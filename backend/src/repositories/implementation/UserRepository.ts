@@ -34,25 +34,20 @@ export class UserRepository
   async bookAppointment(appointmentData: AppointmentTypes): Promise<void> {
     const { userId, docId, slotDate, slotTime } = appointmentData;
 
-    // Check doctor availability
     const doctor = await doctorModel.findById(docId);
     if (!doctor || !doctor.available) throw new Error("Doctor not available");
 
-    // Find slot document for the doctor and date
     const slotDoc = await slotModel.findOne({ doctorId: docId, date: slotDate });
     if (!slotDoc || slotDoc.isCancelled) throw new Error("No available slots for this date");
 
-    // Find the slot in the slots array
     const slotIndex = slotDoc.slots.findIndex(
       (slot) => slot.start === slotTime && !slot.booked
     );
     if (slotIndex === -1) throw new Error("Slot not available");
 
-    // Mark the slot as booked
     slotDoc.slots[slotIndex].booked = true;
     await slotDoc.save();
 
-    // Prepare user and doctor data
     const userData = await userModel.findById(userId).select("-password");
     const docData = await doctorModel.findById(docId).select("-password");
 
@@ -96,7 +91,6 @@ export class UserRepository
     appointment.cancelled = true;
     await appointment.save();
 
-    // Unmark the slot as booked in slotModel
     const { docId, slotDate, slotTime } = appointment;
     const slotDoc = await slotModel.findOne({ doctorId: docId, date: slotDate });
     if (slotDoc) {
@@ -146,13 +140,13 @@ async findPayableAppointment(
   month: number
 ): Promise<any[]> {
   const regexMonth = String(month).padStart(2, "0");
-  const regex = new RegExp(`^${year}-${regexMonth}`); // e.g., /^2025-06/
+  const regex = new RegExp(`^${year}-${regexMonth}`); 
 
   return slotModel.find({
     doctorId,
     date: { $regex: regex },
     isCancelled: false,
-    "slots.booked": false, // Only include if you want at least one unbooked slot
+    "slots.booked": false, 
   }).select("date slots");
 }
 

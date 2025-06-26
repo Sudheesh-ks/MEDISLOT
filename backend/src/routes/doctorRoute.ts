@@ -6,6 +6,7 @@ import upload from "../middlewares/multer";
 import authRole from "../middlewares/authRole";
 import { SlotRepository } from "../repositories/implementation/SlotRepository";
 import { DoctorSlotService } from "../services/implementation/SlotService";
+// import { ChatController } from '../controllers/implementation/ChatController';
 
 const doctorRepository = new DoctorRepository();
 const slotRepository = new SlotRepository();
@@ -88,5 +89,6 @@ doctorRouter.post(
   authRole(["doctor"]),
   doctorController.updateDaySlot.bind(doctorController)
 );
+
 
 export default doctorRouter;

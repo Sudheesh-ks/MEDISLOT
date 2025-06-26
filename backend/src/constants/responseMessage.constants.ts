@@ -54,9 +54,3 @@ export const HttpResponse = {
   PAYMENT_SUCCESS: "Payment successful",
   PAYMENT_FAILED: "Payment transaction failed",
 };
-
-
-
-// class Parent {
-//   c
-// }

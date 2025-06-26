@@ -17,7 +17,7 @@ export class BaseRepository<T extends Document> {
 
   async create(data: Partial<T>): Promise<T> {
     const created = new this.model(data);
-    return created.save(); // return the saved document
+    return created.save(); 
   }
 
   async updateById(id: string, update: UpdateQuery<T>): Promise<void> {

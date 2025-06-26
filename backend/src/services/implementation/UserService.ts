@@ -119,7 +119,7 @@ async finalizeRegister(userData: {
   const newUser = (await this._userRepository.create({
     name: userData.name,
     email: userData.email,
-    password: userData.password, // already hashed!
+    password: userData.password, 
   })) as UserDocument;
 
   return newUser;

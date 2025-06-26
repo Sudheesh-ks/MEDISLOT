@@ -27,7 +27,6 @@ authRouter.get(
  const accessToken = generateAccessToken(user._id, user.email, "user");
     const refreshToken = generateRefreshToken(user._id);
 
-    // Set refresh token as httpOnly cookie
     res.cookie("refreshToken_user", refreshToken, {
       httpOnly: true,
       path: "/api/user/refresh-token",

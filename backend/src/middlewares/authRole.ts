@@ -1,5 +1,3 @@
-// middleware/authRole.ts
-
 import { Request, Response, NextFunction } from "express";
 import { HttpStatus } from "../constants/status.constants";
 import { verifyAccessToken } from "../utils/jwt.utils";

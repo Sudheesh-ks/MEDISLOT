@@ -61,7 +61,6 @@ const AdminAppointments = () => {
   const handleCancelAppointment = async (appointmentId: string) => {
     try {
       await cancelAppointment(appointmentId);
-      // Refresh current page after cancellation
       fetchAppointments();
     } catch (error) {
       console.error("Failed to cancel appointment:", error);
@@ -156,7 +155,11 @@ const AdminAppointments = () => {
         <>
           {item.cancelled ? (
             <p className="text-xs font-semibold text-red-400">Cancelled</p>
-          ) : (
+          ) : item.isConfirmed ? (
+        <p className="text-xs font-semibold text-green-600">
+          Confirmed
+        </p>
+      ) : (
             <motion.img
               whileTap={{ scale: 0.9 }}
               onClick={(e) => {
@@ -187,7 +190,9 @@ const AdminAppointments = () => {
       </div>
 
       <DataTable
-        data={filteredAppointments}
+          data={[...filteredAppointments].sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  )}
         columns={columns}
         loading={loading}
         emptyMessage="No matching appointments found."

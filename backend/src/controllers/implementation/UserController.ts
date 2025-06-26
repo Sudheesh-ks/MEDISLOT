@@ -17,8 +17,8 @@ import {
   generateRefreshToken,
   verifyRefreshToken,
 } from "../../utils/jwt.utils";
-import { log } from "console";
-import { use } from "passport";
+// import { log } from "console";
+// import { use } from "passport";
 
 export class UserController implements IUserController {
   constructor(
@@ -102,25 +102,25 @@ export class UserController implements IUserController {
     if (record.purpose === "register") {
       const newUser = await this._userService.finalizeRegister(record.userData);
 
-  const token = generateAccessToken(newUser._id, newUser.email, "user");
-  const refreshToken = generateRefreshToken(newUser._id);
+      const token = generateAccessToken(newUser._id, newUser.email, "user");
+      const refreshToken = generateRefreshToken(newUser._id);
 
-  res.cookie("refreshToken_user", refreshToken, {
-    httpOnly: true,
-    path: "/api/user/refresh-token",
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
-    maxAge: 7 * 24 * 60 * 60 * 1000,
-  });
+      res.cookie("refreshToken_user", refreshToken, {
+        httpOnly: true,
+        path: "/api/user/refresh-token",
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
 
-  otpStore.delete(email);
+      otpStore.delete(email);
 
-  res.status(HttpStatus.CREATED).json({
-    success: true,
-    token,
-    message: HttpResponse.REGISTER_SUCCESS,
-  });
-  return;
+      res.status(HttpStatus.CREATED).json({
+        success: true,
+        token,
+        message: HttpResponse.REGISTER_SUCCESS,
+      });
+      return;
     }
 
     if (record.purpose === "reset-password") {
@@ -156,7 +156,7 @@ export class UserController implements IUserController {
       res
         .status(HttpStatus.OK)
         .json({ success: true, message: HttpResponse.OTP_RESENT });
-    } catch (error) { 
+    } catch (error) {
       console.error("Resend OTP error:", error);
       res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -283,29 +283,25 @@ export class UserController implements IUserController {
       const refreshToken = req.cookies?.refreshToken_user;
 
       if (!refreshToken) {
-        res
-          .status(HttpStatus.UNAUTHORIZED)
-          .json({
-            success: false,
-            message: HttpResponse.REFRESH_TOKEN_MISSING,
-          });
+        res.status(HttpStatus.UNAUTHORIZED).json({
+          success: false,
+          message: HttpResponse.REFRESH_TOKEN_MISSING,
+        });
         return;
       }
 
       const decoded = verifyRefreshToken(refreshToken);
       if (!decoded || typeof decoded !== "object" || !("id" in decoded)) {
-        res
-          .status(HttpStatus.UNAUTHORIZED)
-          .json({
-            success: false,
-            message: HttpResponse.REFRESH_TOKEN_INVALID,
-          });
+        res.status(HttpStatus.UNAUTHORIZED).json({
+          success: false,
+          message: HttpResponse.REFRESH_TOKEN_INVALID,
+        });
         return;
       }
 
-const user = await this._userService.getUserById(decoded.id);
-const newAccessToken = generateAccessToken(user._id, user.email, "user");
-const newRefreshToken = generateRefreshToken(user._id);
+      const user = await this._userService.getUserById(decoded.id);
+      const newAccessToken = generateAccessToken(user._id, user.email, "user");
+      const newRefreshToken = generateRefreshToken(user._id);
 
       res.cookie("refreshToken_user", newRefreshToken, {
         httpOnly: true,
@@ -389,7 +385,7 @@ const newRefreshToken = generateRefreshToken(user._id);
           name: doctor.name,
           speciality: doctor.speciality,
         },
-        amount:doctor.fees,
+        amount: doctor.fees,
         date: Date.now(),
       };
 
@@ -437,16 +433,18 @@ const newRefreshToken = generateRefreshToken(user._id);
     try {
       const userId = (req as any).userId;
       // console.log(userId)
-      if(!userId){
-        console.log("user id required")
+      if (!userId) {
+        console.log("user id required");
       }
       const { appointmentId } = req.body;
       // console.log(appointmentId)
-          if (!appointmentId) {
-            console.log("Ap id reqrd")
-       res.status(400).json({ success: false, message: "Appointment ID is required" });
-       return
-    }
+      if (!appointmentId) {
+        console.log("Ap id reqrd");
+        res
+          .status(400)
+          .json({ success: false, message: "Appointment ID is required" });
+        return;
+      }
 
       const { order } = await this._userService.startPayment(
         userId,
@@ -479,33 +477,31 @@ const newRefreshToken = generateRefreshToken(user._id);
     }
   }
 
-
   async getAvailableSlotsForDoctor(req: Request, res: Response): Promise<void> {
-  try {
-    const { doctorId, year, month } = req.query;
+    try {
+      const { doctorId, year, month } = req.query;
 
-    if (!doctorId || !year || !month) {
-      res.status(HttpStatus.BAD_REQUEST).json({
+      if (!doctorId || !year || !month) {
+        res.status(HttpStatus.BAD_REQUEST).json({
+          success: false,
+          message: HttpResponse.FIELDS_REQUIRED,
+        });
+        return;
+      }
+
+      const slots = await this._userService.getAvailableSlotsForDoctor(
+        String(doctorId),
+        Number(year),
+        Number(month)
+      );
+
+      res.status(HttpStatus.OK).json({ success: true, data: slots });
+    } catch (error) {
+      console.error("getAvailableSlotsForDoctor error:", error);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message: HttpResponse.FIELDS_REQUIRED,
+        message: "Failed to fetch available slots",
       });
-      return;
     }
-
-    const slots = await this._userService.getAvailableSlotsForDoctor(
-      String(doctorId),
-      Number(year),
-      Number(month)
-    );
-
-    res.status(HttpStatus.OK).json({ success: true, data: slots });
-  } catch (error) {
-    console.error("getAvailableSlotsForDoctor error:", error);
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: "Failed to fetch available slots",
-    });
   }
-}
-
 }

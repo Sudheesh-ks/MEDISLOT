@@ -1,6 +1,6 @@
 export const isValidName = (name: string): boolean => {
-  const nameRegex = /^[A-Za-z\s]{4,}$/;
-  return nameRegex.test(name);
+  const nameRegex = /^[\p{L}\p{M}\s.'\-(),]{4,}$/u;
+  return nameRegex.test(name.trim());
 };
 
 export const isValidEmail = (email: string): boolean => {

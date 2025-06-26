@@ -168,7 +168,7 @@ const DoctorAppointments = () => {
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                navigate("/doctor/consultation");
+                navigate(`/doctor/consultation/${item.userData._id}`);
               }}
               className="bg-primary px-4 py-1.5 text-sm rounded-lg font-medium text-white shadow transition duration-200"
             >
@@ -202,7 +202,6 @@ const DoctorAppointments = () => {
   ];
 
 
-  // 🔒 Handle pending status
   if (profileData?.status === "pending") {
     return (
       <div className="m-5 text-center bg-yellow-100 border border-yellow-300 rounded-xl p-6 text-yellow-800 shadow-md">
@@ -212,7 +211,6 @@ const DoctorAppointments = () => {
     );
   }
 
-  // 🔒 Handle rejected status
   if (profileData?.status === "rejected") {
     return (
       <div className="m-5 text-center bg-red-100 border border-red-300 rounded-xl p-6 text-red-700 shadow-md">
@@ -223,14 +221,12 @@ const DoctorAppointments = () => {
     );
   }
 
-  // ✅ Show full dashboard only if approved
   if (profileData?.status !== "approved") return null;
 
   return (
     <div className="w-full max-w-6xl m-5">
       <p className="mb-3 text-lg font-medium">All Appointments</p>
 
-      {/* 🔍 Left-aligned Search Bar */}
       <div className="mb-5 max-w-sm">
         <SearchBar
           placeholder="Search by patient name"

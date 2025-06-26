@@ -5,13 +5,17 @@ import { CustomRequest } from "../../types/customRequest";
 import { HttpStatus } from "../../constants/status.constants";
 import { DoctorDTO } from "../../types/doctor";
 import { HttpResponse } from "../../constants/responseMessage.constants";
-import { generateAccessToken, generateRefreshToken, verifyRefreshToken } from "../../utils/jwt.utils";
+import {
+  generateAccessToken,
+  generateRefreshToken,
+  verifyRefreshToken,
+} from "../../utils/jwt.utils";
 
 export class AdminController implements IAdminController {
   constructor(private _adminService: IAdminService) {}
 
   // For Admin login
- async loginAdmin(req: Request, res: Response): Promise<void> {
+  async loginAdmin(req: Request, res: Response): Promise<void> {
     try {
       const { email, password } = req.body;
       if (!email || !password) {
@@ -22,7 +26,8 @@ export class AdminController implements IAdminController {
         return;
       }
 
-      const { admin, accessToken, refreshToken } = await this._adminService.login(email, password);
+      const { admin, accessToken, refreshToken } =
+        await this._adminService.login(email, password);
 
       res
         .cookie("refreshToken_admin", refreshToken, {
@@ -67,11 +72,15 @@ export class AdminController implements IAdminController {
         });
         return;
       }
-    const admin = await this._adminService.getAdminById(decoded.id); // ✅ REPO layer abstraction
-    if (!admin) throw new Error("Admin not found");
+      const admin = await this._adminService.getAdminById(decoded.id);
+      if (!admin) throw new Error("Admin not found");
 
-    const newAccessToken = generateAccessToken(admin._id, admin.email, "admin");
-    const newRefreshToken = generateRefreshToken(admin._id);
+      const newAccessToken = generateAccessToken(
+        admin._id,
+        admin.email,
+        "admin"
+      );
+      const newRefreshToken = generateRefreshToken(admin._id);
 
       res.cookie("refreshToken_admin", newRefreshToken, {
         httpOnly: true,
@@ -107,7 +116,6 @@ export class AdminController implements IAdminController {
       message: HttpResponse.LOGOUT_SUCCESS,
     });
   }
-
 
   // To add doctor
   async addDoctor(req: CustomRequest, res: Response): Promise<void> {
@@ -165,7 +173,7 @@ export class AdminController implements IAdminController {
     try {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 8;
-      
+
       const result = await this._adminService.getDoctorsPaginated(page, limit);
       res.status(HttpStatus.OK).json({ success: true, ...result });
     } catch (error) {
@@ -192,7 +200,7 @@ export class AdminController implements IAdminController {
     try {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 8;
-      
+
       const result = await this._adminService.getUsersPaginated(page, limit);
       res.status(HttpStatus.OK).json({ success: true, ...result });
     } catch (error) {
@@ -204,13 +212,12 @@ export class AdminController implements IAdminController {
 
   // To toggle the state of user
   async toggleUserBlock(req: Request, res: Response): Promise<void> {
-      console.log("🔔 toggleUserBlock hit");
     try {
-    const { userId } = req.params; // ✅ This is correct now
-    const { block } = req.body as { block?: boolean };
+      const { userId } = req.params;
+      const { block } = req.body as { block?: boolean };
 
-    console.log("PARAM userId:", userId);
-    console.log("BODY block:", block);
+      console.log("PARAM userId:", userId);
+      console.log("BODY block:", block);
 
       if (typeof block !== "boolean") {
         res.status(HttpStatus.BAD_REQUEST).json({
@@ -270,8 +277,11 @@ export class AdminController implements IAdminController {
     try {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 8;
-      
-      const result = await this._adminService.listAppointmentsPaginated(page, limit);
+
+      const result = await this._adminService.listAppointmentsPaginated(
+        page,
+        limit
+      );
       res.status(HttpStatus.OK).json({ success: true, ...result });
     } catch (error) {
       res

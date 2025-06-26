@@ -51,14 +51,14 @@ const DoctorRoutes = () => {
         }
       />
       <Route
-        path="/doctor/consultation"
+        path="/doctor/consultation/:userId"
         element={
           <DoctorLayout>
             <DoctorConsultation />
           </DoctorLayout>
         }
       />
-      <Route path="/doctor/chats" element={<DocChatPage />} />
+      <Route path="/doctor/chats/:userId" element={<DocChatPage />} />
     </>
   );
 };

@@ -100,7 +100,7 @@ export class DoctorController implements IDoctorController {
     try {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 6;
-      
+
       const result = await this._doctorService.getDoctorsPaginated(page, limit);
       res.status(HttpStatus.OK).json({ success: true, ...result });
     } catch (error) {
@@ -153,16 +153,20 @@ export class DoctorController implements IDoctorController {
 
       const decoded = verifyRefreshToken(refreshToken);
 
-const doctor = await this._doctorService.getDoctorProfile(decoded.id);
-if (!doctor) {
-   res.status(HttpStatus.UNAUTHORIZED).json({
-    success: false,
-    message: "Doctor not found",
-  });
-  return
-}
-const newAccessToken = generateAccessToken(doctor._id!, doctor.email, "doctor");
-const newRefreshToken = generateRefreshToken(doctor._id!);
+      const doctor = await this._doctorService.getDoctorProfile(decoded.id);
+      if (!doctor) {
+        res.status(HttpStatus.UNAUTHORIZED).json({
+          success: false,
+          message: "Doctor not found",
+        });
+        return;
+      }
+      const newAccessToken = generateAccessToken(
+        doctor._id!,
+        doctor.email,
+        "doctor"
+      );
+      const newRefreshToken = generateRefreshToken(doctor._id!);
 
       res.cookie("refreshToken_doctor", newRefreshToken, {
         httpOnly: true,
@@ -216,7 +220,10 @@ const newRefreshToken = generateRefreshToken(doctor._id!);
   }
 
   // For getting paginated doctor appointments
-  async appointmentsDoctorPaginated(req: Request, res: Response): Promise<void> {
+  async appointmentsDoctorPaginated(
+    req: Request,
+    res: Response
+  ): Promise<void> {
     try {
       const docId = (req as any).docId;
       const page = parseInt(req.query.page as string) || 1;
@@ -287,8 +294,16 @@ const newRefreshToken = generateRefreshToken(doctor._id!);
   async updateDoctorProfile(req: Request, res: Response): Promise<void> {
     try {
       const doctId = req.body.doctId;
-      const { name, speciality, degree, experience, about, fees, address, available } =
-        req.body;
+      const {
+        name,
+        speciality,
+        degree,
+        experience,
+        about,
+        fees,
+        address,
+        available,
+      } = req.body;
 
       const imageFile = req.file;
 
@@ -333,28 +348,38 @@ const newRefreshToken = generateRefreshToken(doctor._id!);
     }
   }
 
-
-
   async getMonthlySlots(req: Request, res: Response): Promise<void> {
-  try {
-    const doctorId = (req as any).docId;
-    const { year, month } = req.query;
-    const data = await this._slotService.getMonthlySlots(doctorId, +year!, +month!);
-    res.json({ success: true, data });
-  } catch (error) {
-    res.status(500).json({ success: false, message: (error as Error).message });
+    try {
+      const doctorId = (req as any).docId;
+      const { year, month } = req.query;
+      const data = await this._slotService.getMonthlySlots(
+        doctorId,
+        +year!,
+        +month!
+      );
+      res.json({ success: true, data });
+    } catch (error) {
+      res
+        .status(500)
+        .json({ success: false, message: (error as Error).message });
+    }
   }
-}
 
-async updateDaySlot(req: Request, res: Response): Promise<void> {
-  try {
-    const doctorId = (req as any).docId;
-    const { date, slots, isCancelled } = req.body;
-    const data = await this._slotService.updateDaySlot(doctorId, date, slots, isCancelled);
-    res.json({ success: true, data });
-  } catch (error) {
-    res.status(500).json({ success: false, message: (error as Error).message });
+  async updateDaySlot(req: Request, res: Response): Promise<void> {
+    try {
+      const doctorId = (req as any).docId;
+      const { date, slots, isCancelled } = req.body;
+      const data = await this._slotService.updateDaySlot(
+        doctorId,
+        date,
+        slots,
+        isCancelled
+      );
+      res.json({ success: true, data });
+    } catch (error) {
+      res
+        .status(500)
+        .json({ success: false, message: (error as Error).message });
+    }
   }
-}
-
 }
