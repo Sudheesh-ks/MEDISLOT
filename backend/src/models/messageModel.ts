@@ -1,32 +1,91 @@
-import mongoose, { Schema, Document } from "mongoose";
+// import mongoose, { Schema, Document } from "mongoose";
+
+// export interface MessageDocument extends Document {
+//   chatId: string;
+//   senderId: string;
+//   receiverId: string;
+//   senderRole: "user" | "doctor";
+//   message: string;
+//   mediaUrl?: string;
+//   mediaType?: string;
+//   emoji?: string;
+//   replyTo?: string;
+//   createdAt: Date;
+//   updatedAt: Date;
+// }
+
+// const MessageSchema = new Schema<MessageDocument>(
+//   {
+//     chatId: { type: String, required: true, index: true },
+//     senderId: { type: String, required: true },
+//     receiverId: { type: String, required: true },
+//     senderRole: { type: String, enum: ["user", "doctor"], required: true },
+//     message: { type: String, default: "" },
+//     mediaUrl: { type: String },
+//     mediaType: { type: String },
+//     emoji: { type: String },
+//     replyTo: { type: String },
+//   },
+//   { timestamps: true }
+// );
+
+// export default mongoose.model<MessageDocument>("Message", MessageSchema);
+
+
+
+import { Schema, model, Types, Document } from "mongoose";
+
+export type MessageKind = "text" | "image" | "file" | "emoji";
+
+interface IStatus { userId: string; at: Date }
 
 export interface MessageDocument extends Document {
   chatId: string;
   senderId: string;
-  receiverId: string;
   senderRole: "user" | "doctor";
-  message: string;
+  receiverId?: string;          
+
+  kind: MessageKind;
+  text?: string;
+
   mediaUrl?: string;
   mediaType?: string;
-  emoji?: string;
-  replyTo?: string;
+
+  replyTo?: Types.ObjectId | string;
+
+  deliveredTo: IStatus[];
+  readBy:      IStatus[];
+
+  deleted:  boolean;
+  deletedAt?: Date;
+
   createdAt: Date;
   updatedAt: Date;
 }
 
 const MessageSchema = new Schema<MessageDocument>(
   {
-    chatId: { type: String, required: true, index: true },
-    senderId: { type: String, required: true },
-    receiverId: { type: String, required: true },
+    chatId:     { type: String, required: true, index: true },
+    senderId:   { type: String, required: true },
     senderRole: { type: String, enum: ["user", "doctor"], required: true },
-    message: { type: String, default: "" },
-    mediaUrl: { type: String },
-    mediaType: { type: String },
-    emoji: { type: String },
-    replyTo: { type: String },
+    receiverId: String,
+
+    kind:       { type: String, enum: ["text", "image", "file", "emoji"], default: "text" },
+    text:       String,
+    mediaUrl:   String,
+    mediaType:  String,
+
+    replyTo:    { type: Schema.Types.ObjectId, ref: "Message" },
+
+    deliveredTo:[{ userId: String, at: Date }],
+    readBy:     [{ userId: String, at: Date }],
+
+    deleted:    { type: Boolean, default: false },
+    deletedAt:  Date,
   },
   { timestamps: true }
 );
 
-export default mongoose.model<MessageDocument>("Message", MessageSchema);
+MessageSchema.index({ chatId: 1, createdAt: -1 });
+
+export default model<MessageDocument>("Message", MessageSchema);

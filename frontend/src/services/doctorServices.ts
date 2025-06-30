@@ -6,6 +6,10 @@ export const getDoctorsAPI = () => {
   return api.get(DOCTOR_API.BASE);
 };
 
+export const getDoctorsByIDAPI = (id: string) => {
+  return api.get(DOCTOR_API.DOCTOR_ID(id));
+}
+
 // Get paginated doctors
 export const getDoctorsPaginatedAPI = (page: number, limit: number) => {
   return api.get(`${DOCTOR_API.DOCTORS_PAGINATED}?page=${page}&limit=${limit}`);

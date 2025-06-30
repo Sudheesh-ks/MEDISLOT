@@ -6,68 +6,51 @@ interface PaginationProps {
   onPageChange: (page: number) => void;
 }
 
-const Pagination: React.FC<PaginationProps> = ({
-  currentPage,
-  totalPages,
-  onPageChange,
-}) => {
-  const getPageNumbers = (): (number | string)[] => {
-    const visiblePages: (number | string)[] = [];
-
+const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPageChange }) => {
+  const getPages = (): (number | string)[] => {
+    const pages: (number | string)[] = [];
     if (totalPages <= 7) {
-      for (let i = 1; i <= totalPages; i++) visiblePages.push(i);
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
     } else {
-      visiblePages.push(1);
-      if (currentPage > 4) visiblePages.push("...");
-
+      pages.push(1);
+      if (currentPage > 4) pages.push("…");
       const start = Math.max(2, currentPage - 1);
       const end = Math.min(totalPages - 1, currentPage + 1);
-
-      for (let i = start; i <= end; i++) visiblePages.push(i);
-
-      if (currentPage < totalPages - 3) visiblePages.push("...");
-      visiblePages.push(totalPages);
+      for (let i = start; i <= end; i++) pages.push(i);
+      if (currentPage < totalPages - 3) pages.push("…");
+      pages.push(totalPages);
     }
-
-    return visiblePages;
+    return pages;
   };
 
-  const pages = getPageNumbers();
-
   return (
-    <div className="flex justify-center items-center gap-2 mt-4">
+    <div className="flex justify-center items-center gap-2 mt-12">
       <button
-        className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50"
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
+        className="px-3 py-1 rounded-lg text-sm ring-1 ring-white/10 disabled:opacity-40 hover:bg-white/5"
       >
         Prev
       </button>
 
-      {pages.map((page, index) =>
-        page === "..." ? (
-          <span key={`ellipsis-${index}`} className="px-3 py-1">
-            ...
-          </span>
+      {getPages().map((p, idx) =>
+        p === "…" ? (
+          <span key={`ellipsis-${idx}`} className="px-2 text-slate-400">…</span>
         ) : (
           <button
-            key={page}
-            className={`px-3 py-1 rounded ${
-              page === currentPage
-                ? "bg-indigo-600 text-white"
-                : "bg-gray-200 hover:bg-gray-300"
-            }`}
-            onClick={() => onPageChange(Number(page))}
+            key={p}
+            onClick={() => onPageChange(Number(p))}
+            className={`px-3 py-1 rounded-lg text-sm ring-1 ring-white/10 hover:bg-white/5 ${p === currentPage ? "bg-cyan-500/20" : ""}`}
           >
-            {page}
+            {p}
           </button>
         )
       )}
 
       <button
-        className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 disabled:opacity-50"
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
+        className="px-3 py-1 rounded-lg text-sm ring-1 ring-white/10 disabled:opacity-40 hover:bg-white/5"
       >
         Next
       </button>

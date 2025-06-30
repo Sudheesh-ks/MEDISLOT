@@ -1,3 +1,4 @@
+// src/pages/admin/AdminDoctorRequests.tsx
 import { useContext, useEffect, useState } from "react";
 import { AdminContext } from "../../context/AdminContext";
 import { useNavigate } from "react-router-dom";
@@ -6,128 +7,121 @@ import SearchBar from "../../components/common/SearchBar";
 import Pagination from "../../components/common/Pagination";
 
 const AdminDoctorRequests = () => {
-  const navigate = useNavigate();
-  const context = useContext(AdminContext);
+  const nav = useNavigate();
+  const ctx = useContext(AdminContext);
+  if (!ctx) throw new Error("AdminContext missing");
 
-  if (!context) {
-    throw new Error("AdminContext must be used within AdminContextProvider");
-  }
+  const { aToken, getDoctorsPaginated, approveDoctor, rejectDoctor } = ctx;
 
-  const {
-    aToken,
-    getDoctorsPaginated,
-    approveDoctor,
-    rejectDoctor,
-  } = context;
+  /* ───────── local state ───────── */
+  const [page,   setPage]   = useState(1);
+  const [rows,   setRows]   = useState<any[]>([]);
+  const [pages,  setPages]  = useState(1);
+  const [count,  setCount]  = useState(0);
+  const [load,   setLoad]   = useState(false);
+  const [query,  setQuery]  = useState("");
+  const perPage = 6;
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const [doctors, setDoctors] = useState<any[]>([]);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalCount, setTotalCount] = useState(0);
-  const [loading, setLoading] = useState(false);
-  const itemsPerPage = 6;
-  const [searchQuery, setSearchQuery] = useState("");
+  /* ───────── effects ───────── */
+  useEffect(() => {
+    if (aToken) fetchRows();
+  }, [aToken, page]);
 
   useEffect(() => {
-    if (aToken) {
-      fetchDoctors();
-    }
-  }, [aToken, currentPage]);
+    if (!aToken) nav("/admin/login");
+  }, [aToken]);
 
-  useEffect(() => {
-    if (!aToken) {
-      navigate("/admin/login");
-    }
-  }, [aToken, navigate]);
+  useEffect(() => window.scrollTo({ top: 0, behavior: "smooth" }), [page]);
 
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [currentPage]);
-
-  const fetchDoctors = async () => {
+  /* ───────── fetch ───────── */
+  const fetchRows = async () => {
     try {
-      setLoading(true);
-      const result = await getDoctorsPaginated(currentPage, itemsPerPage);
-      setDoctors(result.data);
-      setTotalPages(result.totalPages);
-      setTotalCount(result.totalCount);
-    } catch (error) {
-      console.error("Failed to fetch doctors:", error);
+      setLoad(true);
+      const r = await getDoctorsPaginated(page, perPage);
+      setRows(r.data);
+      setPages(r.totalPages);
+      setCount(r.totalCount);
+    } catch (err) {
+      console.error("Failed to fetch doctors", err);
     } finally {
-      setLoading(false);
+      setLoad(false);
     }
   };
 
-  const handleApproveDoctor = async (doctorId: string) => {
-    try {
-      await approveDoctor(doctorId);
-      // Refresh current page after approval
-      fetchDoctors();
-    } catch (error) {
-      console.error("Failed to approve doctor:", error);
-    }
+  /* ───────── handlers ───────── */
+  const doApprove = async (id: string) => {
+    await approveDoctor(id);
+    fetchRows();
+  };
+  const doReject = async (id: string) => {
+    await rejectDoctor(id);
+    fetchRows();
   };
 
-  const handleRejectDoctor = async (doctorId: string) => {
-    try {
-      await rejectDoctor(doctorId);
-      // Refresh current page after rejection
-      fetchDoctors();
-    } catch (error) {
-      console.error("Failed to reject doctor:", error);
-    }
-  };
-
-  const pendingDoctors = doctors
-    .filter((doc) => doc.status === "pending")
-    .filter((doc) =>
-      doc.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      doc.speciality?.toLowerCase().includes(searchQuery.toLowerCase())
+  /* ───────── filtered list ───────── */
+  const pending = rows
+    .filter((d) => d.status === "pending")
+    .filter(
+      (d) =>
+        d.name?.toLowerCase().includes(query.toLowerCase()) ||
+        d.speciality?.toLowerCase().includes(query.toLowerCase())
     );
 
-  return (
-    <div className="m-5 max-h-[90vh] overflow-y-scroll">
-      <h1 className="text-lg font-medium mb-3">Doctor Requests</h1>
+  /* ───────── styles ───────── */
+  const glass = "bg-white/5 backdrop-blur ring-1 ring-white/10";
+  const pill  = "text-xs font-medium px-4 py-1.5 rounded-md shadow-lg hover:-translate-y-0.5 hover:scale-105 transition-all duration-300";
 
-      {/* 🔍 Left-aligned search bar */}
-      <div className="mb-5 max-w-sm">
+  /* ───────── render ───────── */
+  return (
+    <div className="m-5 text-slate-100 max-h-[90vh] overflow-y-auto">
+      <h1 className="text-lg font-medium mb-4">Doctor Requests</h1>
+
+      {/* search */}
+      <div className="mb-6 max-w-sm">
         <SearchBar
           placeholder="Search by name or speciality"
-          onSearch={(query) => setSearchQuery(query)}
+          onSearch={setQuery}
         />
       </div>
 
-      {loading ? (
-        <div className="text-center py-10 text-gray-500 text-sm">
-          Loading doctor requests...
+      {/* list */}
+      {load ? (
+        <div className="text-center py-10 text-slate-400 text-sm">
+          Loading doctor requests…
         </div>
-      ) : pendingDoctors.length > 0 ? (
+      ) : pending.length ? (
         <>
-          <div className="w-full flex flex-wrap gap-4 pt-2 gap-y-6">
-            {pendingDoctors.map((item, index) => (
+          <div className="w-full flex flex-wrap gap-6">
+            {pending.map((doc, i) => (
               <motion.div
-                className="border border-indigo-200 rounded-xl max-w-56 overflow-hidden transition-transform duration-300 hover:-translate-y-1"
-                key={index}
+                key={i}
+                className={`${glass} max-w-56 rounded-2xl overflow-hidden transition-transform hover:-translate-y-1`}
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: index * 0.1 }}
+                transition={{ duration: 0.4, delay: i * 0.08 }}
                 whileHover={{ scale: 1.02 }}
               >
-                <img className="bg-indigo-50" src={item.image} alt="" />
-                <div className="p-4">
-                  <p className="text-neutral-800 text-lg font-medium">{item.name}</p>
-                  <p className="text-zinc-600 text-sm">{item.speciality}</p>
+                <img
+                  src={doc.image}
+                  className="w-full h-40 object-cover"
+                />
+                <div className="p-4 space-y-1">
+                  <p className="text-base font-semibold truncate">{doc.name}</p>
+                  <p className="text-sm text-slate-400 truncate">
+                    {doc.speciality}
+                  </p>
 
+                  {/* buttons */}
                   <div className="mt-4 flex justify-end gap-2">
                     <button
-                      onClick={() => handleApproveDoctor(item._id)}
-                      className="bg-gradient-to-r from-green-500 to-green-600 text-white text-sm font-medium px-4 py-1.5 rounded-md shadow-md hover:shadow-lg transform hover:-translate-y-0.5 hover:scale-105 transition-all duration-300"
+                      onClick={() => doApprove(doc._id)}
+                      className={`${pill} bg-gradient-to-r from-emerald-500 to-emerald-600 text-white`}
                     >
                       Approve
                     </button>
                     <button
-                      onClick={() => handleRejectDoctor(item._id)}
-                      className="bg-gradient-to-r from-red-500 to-red-600 text-white text-sm font-medium px-4 py-1.5 rounded-md shadow-md hover:shadow-lg transform hover:-translate-y-0.5 hover:scale-105 transition-all duration-300"
+                      onClick={() => doReject(doc._id)}
+                      className={`${pill} bg-gradient-to-r from-red-500 to-red-600 text-white`}
                     >
                       Reject
                     </button>
@@ -137,16 +131,17 @@ const AdminDoctorRequests = () => {
             ))}
           </div>
 
-          {totalPages > 1 && (
+          {/* pagination */}
+          {pages > 1 && (
             <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={(page) => setCurrentPage(page)}
+              currentPage={page}
+              totalPages={pages}
+              onPageChange={setPage}
             />
           )}
         </>
       ) : (
-        <div className="text-gray-500 mt-6 text-center w-full">
+        <div className="text-center py-10 text-slate-400 text-sm">
           No matching doctor requests found.
         </div>
       )}

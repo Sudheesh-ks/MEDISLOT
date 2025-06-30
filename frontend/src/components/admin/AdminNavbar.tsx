@@ -1,3 +1,4 @@
+// src/components/admin/AdminNavbar.tsx
 import { useContext } from "react";
 import { assets } from "../../assets/admin/assets";
 import { AdminContext } from "../../context/AdminContext";
@@ -6,45 +7,49 @@ import { clearAdminAccessToken } from "../../context/tokenManagerAdmin";
 import { logoutAdminAPI } from "../../services/adminServices";
 
 const AdminNavbar = () => {
-  const context = useContext(AdminContext);
+  const ctx = useContext(AdminContext);
+  if (!ctx) throw new Error("AdminContext must be used within AdminContextProvider");
 
-  if (!context) {
-    throw new Error("AdminContext must be used within AdminContextProvider");
-  }
+  const { aToken, setAToken } = ctx;
+  const nav = useNavigate();
 
-  const { aToken, setAToken } = context;
+  const logout = async () => {
+    try {
+      await logoutAdminAPI();            // clear cookie on server
+      setAToken("");
+      localStorage.setItem("isAdminLoggedOut", "true");
+      clearAdminAccessToken();
+      nav("/admin/login");
+    } catch (err) {
+      console.error("Admin logout failed:", err);
+    }
+  };
 
-  const navigate = useNavigate();
-
-const logout = async () => {
-  try {
-    await logoutAdminAPI(); // ✅ call API to clear cookie
-
-    setAToken("");
-        localStorage.setItem("isAdminLoggedOut", "true");
-    clearAdminAccessToken();
-
-    navigate("/admin/login");
-  } catch (error) {
-    console.error("Admin logout failed:", error);
-  }
-};
-
+  /* ───────── RENDER ───────── */
   return (
-    <div className="flex justify-between items-center px-4 sm:px-10 py-3 border-b bg-white">
-      <div className="flex items-center gap-2 text-xs">
-        <img className="w-36 sm:w-40 cursor-pointer" src={assets.logo} alt="" />
-        <p className="border px-2.5 py-0.5 rounded-full border-gray-500 text-gray-600">
+    <header className="sticky top-0 z-50 flex justify-between items-center px-4 sm:px-10 py-3
+                       bg-white/5 backdrop-blur ring-1 ring-white/10 border-b border-white/10">
+      {/* logo + tag */}
+      <div className="flex items-center gap-3 text-xs">
+        <img
+          src={assets.logo}
+          className="w-32 sm:w-40 cursor-pointer"
+          onClick={() => nav("/admin/dashboard")}
+        />
+        <span className="px-3 py-0.5 rounded-full text-slate-200 bg-white/10 ring-1 ring-white/10">
           Admin
-        </p>
+        </span>
       </div>
+
+      {/* logout */}
       <button
         onClick={logout}
-        className="bg-primary text-white text-sm px-10 py-2 rounded-full"
+        className="bg-gradient-to-r from-cyan-500 to-fuchsia-600 text-white text-sm px-8 py-2 rounded-full
+                   hover:-translate-y-0.5 transition-transform shadow-lg"
       >
         Logout
       </button>
-    </div>
+    </header>
   );
 };
 

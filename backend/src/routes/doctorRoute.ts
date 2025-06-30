@@ -90,5 +90,6 @@ doctorRouter.post(
   doctorController.updateDaySlot.bind(doctorController)
 );
 
+doctorRouter.get("/:id", doctorController.getDoctorById.bind(doctorController));
 
 export default doctorRouter;

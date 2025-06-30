@@ -5,131 +5,122 @@ import { AppContext } from "../../context/AppContext";
 import { resendOtpAPI, verifyOtpAPI } from "../../services/authServices";
 
 const OtpVerificationPage = () => {
+  /* ---------------- context & nav ---------------- */
   const navigate = useNavigate();
-  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
+  const ctx = useContext(AppContext);
+  if (!ctx) throw new Error("OtpVerification must be within AppContext");
+  const { token, setToken } = ctx;
+
+  /* ---------------- local state ----------------- */
+  const [otp, setOtp] = useState<string[]>(["", "", "", "", "", ""]);
   const [email, setEmail] = useState("");
   const [purpose, setPurpose] = useState("");
   const [error, setError] = useState("");
   const [timer, setTimer] = useState(60);
   const [canResend, setCanResend] = useState(false);
 
-  const context = useContext(AppContext);
-
-  if (!context) {
-    throw new Error("TopDoctors must be used within an AppContextProvider");
-  }
-
-  const { token, setToken } = context;
-
+  /* pull temp data from localStorage */
   useEffect(() => {
-    const tempUser = JSON.parse(localStorage.getItem("tempUserData") || "{}");
-    if (!tempUser?.email || !tempUser?.purpose) {
-      navigate("/login");
-    } else {
-      setEmail(tempUser.email);
-      setPurpose(tempUser.purpose);
+    const temp = JSON.parse(localStorage.getItem("tempUserData") || "{}");
+    if (!temp.email || !temp.purpose) navigate("/login");
+    else {
+      setEmail(temp.email);
+      setPurpose(temp.purpose);
     }
   }, []);
 
+  /* resend countdown */
   useEffect(() => {
-    let interval: any;
-
-    if (timer > 0) {
-      interval = setInterval(() => {
-        setTimer((prev) => prev - 1);
-      }, 1000);
-    } else {
-      setCanResend(true);
-    }
-
-    return () => clearInterval(interval);
+    if (timer === 0) return setCanResend(true);
+    const id = setInterval(() => setTimer((t) => t - 1), 1000);
+    return () => clearInterval(id);
   }, [timer]);
 
-  const handleChange = (index: number, value: string) => {
-    if (/^\d?$/.test(value)) {
-      const newOtp = [...otp];
-      newOtp[index] = value;
-      setOtp(newOtp);
-      // Auto focus next
-      if (value && index < 5) {
-        const nextInput = document.getElementById(`otp-${index + 1}`);
-        nextInput?.focus();
-      }
+  /* handle OTP input */
+  const handleChange = (i: number, v: string) => {
+    if (/^\d?$/.test(v)) {
+      const next = [...otp];
+      next[i] = v;
+      setOtp(next);
+      if (v && i < 5) document.getElementById(`otp-${i + 1}`)?.focus();
     }
   };
 
+  /* submit */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const enteredOtp = otp.join("");
-    if (enteredOtp.length !== 6) {
-      setError("Please enter a 6-digit OTP");
-      return;
-    }
+    const code = otp.join("");
+    if (code.length !== 6) return setError("Enter the 6‑digit code");
 
     try {
-      const { data } = await verifyOtpAPI(email, enteredOtp);
+      const { data } = await verifyOtpAPI(email, code);
+      if (!data.success) return toast.error(data.message);
 
-      if (data.success) {
-        // toast.success("OTP verified successfully");
-        if (purpose === "register") {
-          toast.success("Account created successfully");
-          localStorage.removeItem("tempUserData");
-          setToken(data.token);
-          navigate("/home");
-        } else if (purpose === "reset-password") {
-          toast.success("OTP verified successfully");
-          navigate("/reset-password");
-        }
+      if (purpose === "register") {
+        toast.success("Account created successfully");
+        localStorage.removeItem("tempUserData");
+        setToken(data.token);
+        navigate("/home");
       } else {
-        toast.error(data.message);
+        toast.success("OTP verified");
+        navigate("/reset-password");
       }
-    } catch (err) {
+    } catch {
       toast.error("Failed to verify OTP");
     }
   };
 
+  /* resend */
   const resendOtp = async () => {
-    //   const tempUser = JSON.parse(localStorage.getItem("tempUserData") || '{}');
-
+    if (!canResend) return;
     try {
       const { data } = await resendOtpAPI(email);
-
       if (data.success) {
         toast.success("OTP resent to email");
-        setTimer(60); // restart timer
+        setTimer(60);
         setCanResend(false);
-      } else {
-        toast.error(data.message);
-      }
-    } catch (err) {
+      } else toast.error(data.message);
+    } catch {
       toast.error("Failed to resend OTP");
     }
   };
 
+  /* already logged in? */
   useEffect(() => {
-    if (token) {
-      navigate("/home");
-    }
-  });
+    if (token) navigate("/home");
+  }, [token, navigate]);
 
+  /* ---------------- styles ---------------- */
+  const inputBox =
+    "w-12 h-12 text-center text-xl bg-transparent ring-1 ring-white/10 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500";
+  const primaryBtn =
+    "w-full bg-gradient-to-r from-cyan-500 to-fuchsia-600 py-2 rounded-md text-base hover:-translate-y-0.5 transition-transform";
+
+  /* ---------------- render ---------------- */
   return (
-    <form className="min-h-[80vh] flex items-center" onSubmit={handleSubmit}>
-      <div className="flex flex-col gap-3 m-auto items-start p-8 min-w-[340px] sm:min-w-96 border rounded-xl text-zinc-600 text-sm shadow-lg">
-        <p className="text-2xl font-semibold">Enter Verification Code</p>
-        <p>We've sent a 6-digit code to {email}</p>
+    <form
+      onSubmit={handleSubmit}
+      className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center"
+    >
+      <div className="w-full max-w-sm bg-white/5 backdrop-blur ring-1 ring-white/10 p-8 rounded-3xl space-y-6 shadow-lg">
+        <h1 className="text-2xl font-semibold">Enter Verification Code</h1>
+        <p className="text-slate-400">
+          We’ve sent a 6‑digit code to{" "}
+          <span className="text-cyan-400">{email}</span>
+        </p>
 
-        <div className="mb-6">
-          <label className="block text-gray-700 mb-2">Verification Code</label>
-          <div className="flex items-center space-x-3 justify-center">
-            {otp.map((digit, i) => (
+        {/* OTP boxes */}
+        <div>
+          <label className="block mb-2 text-sm">Verification Code</label>
+          <div className="flex gap-3 justify-center">
+            {otp.map((d, i) => (
               <input
                 key={i}
                 id={`otp-${i}`}
-                type="text"
                 maxLength={1}
-                className="w-12 h-12 text-center text-xl border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={digit}
+                value={d}
                 onChange={(e) => handleChange(i, e.target.value)}
+                className={inputBox}
               />
             ))}
           </div>
@@ -138,19 +129,19 @@ const OtpVerificationPage = () => {
           )}
         </div>
 
-        <button
-          type="submit"
-          className="bg-primary text-white w-full py-2 rounded-md text-base"
-        >
+        <button type="submit" className={primaryBtn}>
           Verify Code
         </button>
-        <p>
-          Didn't receive a code?
+
+        <p className="text-center text-sm">
+          Didn’t receive a code?{" "}
           <span
-            className={`text-blue-500 cursor-pointer ${
-              !canResend ? "opacity-50 cursor-not-allowed" : ""
-            }`}
-            onClick={canResend ? resendOtp : undefined}
+            className={
+              canResend
+                ? "text-cyan-400 cursor-pointer"
+                : "opacity-50 cursor-not-allowed"
+            }
+            onClick={resendOtp}
           >
             Resend {canResend ? "" : `in ${timer}s`}
           </span>

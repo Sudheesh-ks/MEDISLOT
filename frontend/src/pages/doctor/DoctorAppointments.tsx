@@ -3,266 +3,207 @@ import { DoctorContext } from "../../context/DoctorContext";
 import { AppContext } from "../../context/AppContext";
 import { assets } from "../../assets/admin/assets";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
 import SearchBar from "../../components/common/SearchBar";
 import DataTable from "../../components/common/DataTable";
 import Pagination from "../../components/common/Pagination";
 
 const DoctorAppointments = () => {
-  const context = useContext(DoctorContext);
-  const appContext = useContext(AppContext);
+  const ctx = useContext(DoctorContext);
+  const app = useContext(AppContext);
   const navigate = useNavigate();
 
-  const [searchQuery, setSearchQuery] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [appointments, setAppointments] = useState<any[]>([]);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalCount, setTotalCount] = useState(0);
+  /* ------------ local state ------------ */
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [rows, setRows] = useState<any[]>([]);
+  const [pages, setPages] = useState(1);
+  const [count, setCount] = useState(0);
   const [loading, setLoading] = useState(false);
-  const itemsPerPage = 6;
+  const perPage = 6;
 
-  if (!appContext) {
-    throw new Error("AppContext must be used within AppContextProvider");
-  }
-
-  const { calculateAge, slotDateFormat, currencySymbol } = appContext;
-
-  if (!context) {
-    throw new Error("DoctorContext must be used within DoctorContextProvider");
-  }
-
+  /* ------------ guards ------------ */
+  if (!ctx) throw new Error("DoctorContext missing");
+  if (!app) throw new Error("AppContext missing");
   const {
     dToken,
     getAppointmentsPaginated,
     confirmAppointment,
     cancelAppointment,
-    profileData
-  } = context;
+    profileData,
+  } = ctx;
+  const { calculateAge, slotDateFormat, currencySymbol } = app;
+
+  /* ------------ effects ------------ */
+  useEffect(() => {
+    if (dToken) fetchRows();
+  }, [dToken, page]);
 
   useEffect(() => {
-    if (dToken) {
-      fetchAppointments();
-    }
-  }, [dToken, currentPage]);
-
-  useEffect(() => {
-    if (!dToken) {
-      navigate("/doctor/login");
-    }
+    if (!dToken) navigate("/doctor/login");
   });
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [currentPage]);
+  }, [page]);
 
-  const fetchAppointments = async () => {
+  const fetchRows = async () => {
     try {
       setLoading(true);
-      const result = await getAppointmentsPaginated(currentPage, itemsPerPage);
-      setAppointments(result.data);
-      setTotalPages(result.totalPages);
-      setTotalCount(result.totalCount);
-    } catch (error) {
-      console.error("Failed to fetch appointments:", error);
+      const r = await getAppointmentsPaginated(page, perPage);
+      setRows(r.data);
+      setPages(r.totalPages);
+      setCount(r.totalCount);
+    } catch (err) {
+      console.error("Failed to fetch appointments", err);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleConfirmAppointment = async (appointmentId: string) => {
-    try {
-      await confirmAppointment(appointmentId);
-      // Refresh current page after confirmation
-      fetchAppointments();
-    } catch (error) {
-      console.error("Failed to confirm appointment:", error);
-    }
+  /* ------------ handlers ------------ */
+  const doConfirm = async (id: string) => {
+    await confirmAppointment(id);
+    fetchRows();
+  };
+  const doCancel = async (id: string) => {
+    await cancelAppointment(id);
+    fetchRows();
   };
 
-  const handleCancelAppointment = async (appointmentId: string) => {
-    try {
-      await cancelAppointment(appointmentId);
-      // Refresh current page after cancellation
-      fetchAppointments();
-    } catch (error) {
-      console.error("Failed to cancel appointment:", error);
-    }
-  };
-
-  const filteredAppointments = appointments.filter((item) =>
-    item.userData.name.toLowerCase().includes(searchQuery.toLowerCase())
+  /* ------------ filtered data ------------ */
+  const filtered = rows.filter((r) =>
+    r.userData.name.toLowerCase().includes(search.toLowerCase())
   );
 
-  const columns = [
-    {
-      key: "index",
-      header: "#",
-      width: "0.5fr",
-      hideOnMobile: true,
-      render: (_: any, index: number) => <p>{index + 1}</p>,
-    },
+  /* ------------ columns ------------ */
+  const cols = [
+    { key: "#", header: "#", width: "0.5fr", hideOnMobile: true, render: (_: any, i: number) => i + 1 },
     {
       key: "patient",
       header: "Patient",
       width: "2fr",
-      render: (item: any) => (
+      render: (it: any) => (
         <div className="flex items-center gap-2">
-          <img
-            className="w-12 h-12 rounded-full object-cover"
-            src={item.userData.image}
-            alt="user"
-          />
-          <p>{item.userData.name}</p>
+          <img className="w-12 h-12 rounded-full object-cover" src={it.userData.image} />
+          <p>{it.userData.name}</p>
         </div>
       ),
     },
     {
-      key: "payment",
+      key: "pay",
       header: "Payment",
       width: "1fr",
-      render: (item: any) => (
-        <div>
-          <p className="text-xs inline border border-primary px-2 rounded-full">
-            {item.payment ? "Paid" : "Pending"}
-          </p>
-        </div>
+      render: (it: any) => (
+        <span className={`text-xs px-2 py-0.5 rounded-full ring-1 ${it.payment ? "ring-emerald-500 text-emerald-400" : "ring-yellow-500 text-yellow-400"}`}>
+          {it.payment ? "Paid" : "Pending"}
+        </span>
       ),
     },
+    { key: "age", header: "Age", width: "1fr", hideOnMobile: true, render: (it: any) => calculateAge(it.userData.dob) },
     {
-      key: "age",
-      header: "Age",
-      width: "1fr",
-      hideOnMobile: true,
-      render: (item: any) => <p>{calculateAge(item.userData.dob)}</p>,
-    },
-    {
-      key: "datetime",
+      key: "dt",
       header: "Date & Time",
       width: "3fr",
-      render: (item: any) => (
-        <p>
-          {slotDateFormat(item.slotDate)}, {item.slotTime}
-        </p>
-      ),
+      render: (it: any) => `${slotDateFormat(it.slotDate)}, ${it.slotTime}`,
     },
     {
       key: "fees",
       header: "Fees",
       width: "1fr",
-      render: (item: any) => (
-        <p>
+      render: (it: any) => (
+        <span>
           {currencySymbol}
-          {item.amount}
-        </p>
+          {it.amount}
+        </span>
       ),
     },
     {
-      key: "actions",
+      key: "act",
       header: "Action",
       width: "1fr",
-      render: (item: any) => (
-        <>
-          {item.cancelled ? (
-            <p className="text-red-500">Cancelled</p>
-          ) : item.isConfirmed ? (
-            <button
+      render: (it: any) => (
+        it.cancelled ? (
+          <span className="text-red-500">Cancelled</span>
+        ) : it.isConfirmed ? (
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(`/doctor/consultation/${it.userData._id}`);
+            }}
+            className="bg-gradient-to-r from-cyan-500 to-fuchsia-600 px-4 py-1.5 text-sm rounded-lg text-white shadow"
+          >
+            Consultation
+          </button>
+        ) : (
+          <div className="flex gap-3">
+            <img
               onClick={(e) => {
                 e.stopPropagation();
-                navigate(`/doctor/consultation/${item.userData._id}`);
+                doCancel(it._id!);
               }}
-              className="bg-primary px-4 py-1.5 text-sm rounded-lg font-medium text-white shadow transition duration-200"
-            >
-              Consultation
-            </button>
-          ) : (
-            <div className="flex gap-2">
-              <img
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleCancelAppointment(item._id!);
-                }}
-                className="w-8 cursor-pointer"
-                src={assets.cancel_icon}
-                alt="Cancel"
-              />
-              <img
-                onClick={(e) => {
-                  e.stopPropagation();
-                  handleConfirmAppointment(item._id!);
-                }}
-                className="w-8 cursor-pointer"
-                src={assets.tick_icon}
-                alt="Confirm"
-              />
-            </div>
-          )}
-        </>
+              src={assets.cancel_icon}
+              className="w-7 cursor-pointer opacity-80 hover:opacity-100"
+            />
+            <img
+              onClick={(e) => {
+                e.stopPropagation();
+                doConfirm(it._id!);
+              }}
+              src={assets.tick_icon}
+              className="w-7 cursor-pointer opacity-80 hover:opacity-100"
+            />
+          </div>
+        )
       ),
     },
   ];
 
-
-  if (profileData?.status === "pending") {
+  /* ------------ status gates ------------ */
+  if (profileData?.status === "pending")
     return (
-      <div className="m-5 text-center bg-yellow-100 border border-yellow-300 rounded-xl p-6 text-yellow-800 shadow-md">
+      <div className="m-5 text-center bg-yellow-900/30 border border-yellow-600 rounded-xl p-6 text-yellow-200 shadow-md">
         <h2 className="text-xl font-semibold mb-2">⏳ Awaiting Approval</h2>
         <p>Your registration is under review. The admin has not approved your account yet.</p>
       </div>
     );
-  }
-
-  if (profileData?.status === "rejected") {
+  if (profileData?.status === "rejected")
     return (
-      <div className="m-5 text-center bg-red-100 border border-red-300 rounded-xl p-6 text-red-700 shadow-md">
+      <div className="m-5 text-center bg-red-900/30 border border-red-600 rounded-xl p-6 text-red-300 shadow-md">
         <h2 className="text-xl font-semibold mb-2">❌ Registration Rejected</h2>
         <p>Your registration has been rejected by the admin.</p>
         <p className="mt-2 text-sm">Please contact support or try registering again with updated details.</p>
       </div>
     );
-  }
-
   if (profileData?.status !== "approved") return null;
 
+  /* ------------ main render ------------ */
   return (
-    <div className="w-full max-w-6xl m-5">
-      <p className="mb-3 text-lg font-medium">All Appointments</p>
+    <div className="w-full max-w-6xl m-5 text-slate-100">
+      <p className="mb-5 text-lg font-medium">All Appointments</p>
 
-      <div className="mb-5 max-w-sm">
-        <SearchBar
-          placeholder="Search by patient name"
-          onSearch={(query) => setSearchQuery(query)}
-        />
+      <div className="mb-6 max-w-sm bg-white/5 backdrop-blur ring-1 ring-white/10 rounded-xl p-3">
+        <SearchBar placeholder="Search by patient name" onSearch={setSearch} />
       </div>
 
       {loading ? (
         <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500"></div>
         </div>
-      ) : filteredAppointments.length > 0 ? (
+      ) : filtered.length ? (
         <>
           <DataTable
-            data={filteredAppointments}
-            columns={columns}
+            data={filtered}
+            columns={cols}
             emptyMessage="No matching appointments found."
             gridCols="grid-cols-[0.5fr_2fr_1fr_1fr_3fr_1fr_1fr]"
             containerClassName="max-h-[80vh] min-h-[50vh]"
           />
-
-          {totalPages > 1 && (
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={(page) => setCurrentPage(page)}
-            />
-          )}
+          {pages > 1 && <Pagination currentPage={page} totalPages={pages} onPageChange={setPage} />}
         </>
       ) : (
-        <div className="text-gray-500 mt-6 text-center w-full">
-          No appointments found.
-        </div>
+        <div className="text-slate-400 mt-10 text-center w-full">No appointments found.</div>
       )}
     </div>
   );
 };
-
 export default DoctorAppointments;

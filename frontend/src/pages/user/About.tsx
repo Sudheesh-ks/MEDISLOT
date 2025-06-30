@@ -1,77 +1,47 @@
 import { assets } from "../../assets/user/assets";
 
-const About = () => {
-  return (
-    <div>
-      <div className="text-center text-2xl pt-10 text-gray-500">
+const About = () => (
+  <main className="max-w-7xl mx-auto px-4 md:px-10 py-24 text-slate-100 animate-fade">
+    {/* Heading */}
+    <h1 className="text-center text-3xl md:text-4xl font-extrabold mb-16">
+      ABOUT <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-fuchsia-500 to-indigo-600">US</span>
+    </h1>
+
+    {/* Who we are */}
+    <section className="flex flex-col md:flex-row gap-12 mb-24">
+      <img src={assets.about_image} alt="About MediSlot" className="w-full md:max-w-sm rounded-3xl ring-1 ring-white/10 object-cover" />
+      <div className="flex flex-col justify-center gap-6 text-sm text-slate-400 md:w-2/3">
         <p>
-          ABOUT <span className="text-gray-700 font-medium">US</span>
+          Welcome to <span className="text-slate-100 font-semibold">MediSlot</span>, your trusted partner in managing healthcare needs conveniently and efficiently. We understand the challenges individuals face when it comes to scheduling doctor appointments and keeping track of medical records.
+        </p>
+        <p>
+          We are committed to excellence in healthcare technology. By continuously integrating the latest advancements, we deliver a superior user experience. Whether you're booking your first appointment or managing ongoing care, MediSlot is here for you.
+        </p>
+        <h2 className="text-lg font-semibold text-slate-100">Our Vision</h2>
+        <p>
+          To create a seamless healthcare experience: bridging the gap between patients and providers so you can access the care you need — when you need it.
         </p>
       </div>
+    </section>
 
-      <div className="my-10 flex flex-col md:flex-row gap-12">
-        <img
-          className="w-full md:max-w-[360px]"
-          src={assets.about_image}
-          alt=""
-        />
-        <div className="flex flex-col justify-center gap-6 md:w-2/4 text-sm text-gray-600">
-          <p>
-            Welcome to MediSlot, your trusted partner in managing your
-            healthcare needs conveniently and efficiently. At MediSlot, we
-            understand the challenges individuals face when it comes to
-            scheduling doctor appointments and managing their health records.
-          </p>
-          <p>
-            MediSlot is committed to excellence in healthcare technology. We
-            continuously strive to enhance our platform, integrating the latest
-            advancements to improve user experience and deliver superior
-            service. Whether you're booking your first appointment or managing
-            ongoing care, MediSlot is here to support you every step of the way.
-          </p>
-          <b className="text-gray-800">Our Vision</b>
-          <p>
-            Our vision at MediSlot is to create a seamless healthcare experience
-            for every user. We aim to bridge the gap between patients and
-            healthcare providers, making it easier for you to access the care
-            you need, when you need it.
-          </p>
+    {/* Why choose us */}
+    <h2 className="text-2xl font-extrabold mb-8 text-center">
+      WHY <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-fuchsia-500 to-indigo-600">CHOOSE US</span>
+    </h2>
+
+    <section className="grid gap-6 md:grid-cols-3 mb-32">
+      {[
+        { title: "Efficiency", text: "Streamlined appointment scheduling that fits your busy lifestyle." },
+        { title: "Convenience", text: "Access a network of trusted healthcare professionals in your area." },
+        { title: "Personalization", text: "Tailored recommendations and reminders to keep you on top of your health." },
+      ].map(({ title, text }) => (
+        <div key={title} className="bg-white/5 backdrop-blur ring-1 ring-white/10 px-8 py-14 rounded-3xl text-center hover:-translate-y-1 transition-transform cursor-default">
+          <h3 className="text-lg font-semibold text-slate-100 mb-3">{title}</h3>
+          <p className="text-sm text-slate-400 leading-relaxed">{text}</p>
         </div>
-      </div>
-
-      <div className="text-xl my-4">
-        <p>
-          WHY <span className="text-gray=700 font-semibold">CHOOSE US</span>
-        </p>
-      </div>
-
-      <div className="flex flex-col md:flex-row mb-20">
-        <div className="border px-10 md:px-16 py-8 sm:py-16 flex flex-col gap-5 text-[15px] hover:bg-primary hover:text-white transition-all duration-300 text-gray-600 cursor-pointer">
-          <b>Efficiency:</b>
-          <p>
-            Streamlined appointment scheduling that fits into your busy
-            lifestyle.
-          </p>
-        </div>
-
-        <div className="border px-10 md:px-16 py-8 sm:py-16 flex flex-col gap-5 text-[15px] hover:bg-primary hover:text-white transition-all duration-300 text-gray-600 cursor-pointer">
-          <b>Convenience</b>
-          <p>
-            Access to a network of trusted healthcare professionals in your
-            area.
-          </p>
-        </div>
-
-        <div className="border px-10 md:px-16 py-8 sm:py-16 flex flex-col gap-5 text-[15px] hover:bg-primary hover:text-white transition-all duration-300 text-gray-600 cursor-pointer">
-          <b>Personalization</b>
-          <p>
-            Tailored recommendations and reminders to help you stay on top of
-            your health.
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-};
+      ))}
+    </section>
+  </main>
+);
 
 export default About;

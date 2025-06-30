@@ -37,3 +37,8 @@ export const updateUserProfileAPI = async (
     showErrorToast(error);
   }
 };
+
+
+export const getUserByIDAPI = async(id: string) => {
+  return await api.get(USER_PROFILE_API.USERBY_ID(id));
+}

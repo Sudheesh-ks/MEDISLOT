@@ -7,68 +7,51 @@ import { showErrorToast } from "../../utils/errorHandler";
 
 const EmailVerificationPage = () => {
   const [email, setEmail] = useState("");
-  const navigate = useNavigate();
+  const nav = useNavigate();
+  const ctx = useContext(AppContext);
+  if (!ctx) throw new Error("EmailVerificationPage must be used within AppContextProvider");
+  const { token } = ctx;
 
-  const context = useContext(AppContext);
-
-  if (!context) {
-    throw new Error("TopDoctors must be used within an AppContextProvider");
-  }
-
-  const { token } = context;
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const send = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const { data } = await verifyEmailAPI(email);
       if (data.success) {
         toast.success("OTP sent to your email");
-        localStorage.setItem(
-          "tempUserData",
-          JSON.stringify({ email, purpose: "reset-password" })
-        );
-        navigate("/verify-otp");
-      } else {
-        toast.error(data.message);
-      }
-    } catch (error) {
-      showErrorToast(error);
-    }
+        localStorage.setItem("tempUserData", JSON.stringify({ email, purpose: "reset-password" }));
+        nav("/verify-otp");
+      } else toast.error(data.message);
+    } catch (err) { showErrorToast(err); }
   };
 
-  useEffect(() => {
-    if (token) {
-      navigate("/");
-    }
-  });
+  useEffect(() => { if (token) nav("/"); }, [token, nav]);
 
   return (
-    <form className="min-h-[80vh] flex items-center">
-      <div className="flex flex-col gap-3 m-auto items-start p-8 min-w-[340px] sm:min-w-96 border rounded-xl text-zinc-600 text-sm shadow-lg">
-        <p className="text-2xl font-semibold">Verify Your Email</p>
-        <p>Please enter your email to receive a verification code</p>
+    <main className="min-h-screen bg-slate-950 flex items-center justify-center text-slate-100 animate-fade">
+      <form onSubmit={send} className="w-full max-w-sm bg-white/5 backdrop-blur ring-1 ring-white/10 p-8 rounded-3xl space-y-6">
+        <header className="space-y-2">
+          <h1 className="text-2xl font-extrabold">Verify your email</h1>
+          <p className="text-sm text-slate-400">Enter your email to receive a verification code.</p>
+        </header>
 
-        <div className="w-full">
-          <p>Email</p>
+        <div className="space-y-1">
+          <label htmlFor="email" className="text-sm">Email</label>
           <input
-            onChange={(e) => setEmail(e.target.value)}
-            value={email}
-            className="border border-zinc-300 rounded w-full p-2 mt-1"
+            id="email"
             type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             required
+            className="w-full bg-transparent ring-1 ring-white/10 rounded-full px-4 py-2 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+            placeholder="you@example.com"
           />
         </div>
 
-        <button
-          onClick={handleSubmit}
-          type="submit"
-          className="bg-primary text-white w-full py-2 rounded-md text-base"
-        >
+        <button type="submit" className="w-full bg-gradient-to-r from-cyan-500 to-fuchsia-600 text-white py-3 rounded-full hover:-translate-y-0.5 transition-transform">
           Send Verification Code
         </button>
-      </div>
-    </form>
+      </form>
+    </main>
   );
 };
-
 export default EmailVerificationPage;

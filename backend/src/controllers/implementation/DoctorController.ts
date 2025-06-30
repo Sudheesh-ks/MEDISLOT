@@ -68,6 +68,27 @@ export class DoctorController implements IDoctorController {
     }
   }
 
+
+  async getDoctorById(req: Request, res: Response): Promise<void> {
+    try {
+      const doctor = await this._doctorService.getPublicDoctorById(req.params.id);
+
+      if (!doctor) {
+        res.status(HttpStatus.NOT_FOUND).json({ success: false, message: "Doctor not found" });
+        return;
+      }
+
+      const { _id, name, speciality, degree, experience, about, image, fees, available } = doctor;
+      res.json({ success: true, doctor: { _id, name, speciality, degree, experience, about, image, fees, available } });
+    } catch (err) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (err as Error).message,
+      });
+    }
+  }
+
+
   async changeAvailability(req: Request, res: Response): Promise<void> {
     try {
       const docId = (req as any).docId || req.params.doctorId || req.params.id;

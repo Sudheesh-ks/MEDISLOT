@@ -1,129 +1,135 @@
+// src/pages/admin/AdminDoctorList.tsx
 import { useContext, useEffect, useState } from "react";
 import { AdminContext } from "../../context/AdminContext";
-import { data, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import SearchBar from "../../components/common/SearchBar";
 import Pagination from "../../components/common/Pagination";
 
 const AdminDoctorList = () => {
-  const navigate = useNavigate();
-  const context = useContext(AdminContext);
+  const nav   = useNavigate();
+  const ctx   = useContext(AdminContext);
+  if (!ctx) throw new Error("AdminContext missing");
 
-  if (!context) {
-    throw new Error("AdminContext must be used within AdminContextProvider");
-  }
+  const { aToken, getDoctorsPaginated } = ctx;
 
-  const { aToken, getDoctorsPaginated } = context;
+  /* ───────── local state ───────── */
+  const [page,   setPage]   = useState(1);
+  const [rows,   setRows]   = useState<any[]>([]);
+  const [pages,  setPages]  = useState(1);
+  const [count,  setCount]  = useState(0);
+  const [load,   setLoad]   = useState(false);
+  const [query,  setQuery]  = useState("");
+  const perPage = 6;
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const [doctors, setDoctors] = useState<any[]>([]);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalCount, setTotalCount] = useState(0);
-  const [loading, setLoading] = useState(false);
-  const itemsPerPage = 6;
-  const [searchQuery, setSearchQuery] = useState("");
+  /* ───────── effects ───────── */
+  useEffect(() => {
+    if (aToken) fetchRows();
+  }, [aToken, page]);
 
   useEffect(() => {
-    if (aToken) {
-      fetchDoctors();
-    }
-  }, [aToken, currentPage]);
+    if (!aToken) nav("/admin/login");
+  }, [aToken]);
 
-  useEffect(() => {
-    if (!aToken) {
-      navigate("/admin/login");
-    }
-  }, [aToken, navigate]);
+  useEffect(() => window.scrollTo({ top: 0, behavior: "smooth" }), [page]);
 
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [currentPage]);
-
-  const fetchDoctors = async () => {
+  /* ───────── fetch ───────── */
+  const fetchRows = async () => {
     try {
-      setLoading(true);
-      const result = await getDoctorsPaginated(currentPage, itemsPerPage);
-      setDoctors(result.data);
-      setTotalPages(result.totalPages);
-      setTotalCount(result.totalCount);
-    } catch (error) {
-      console.error("Failed to fetch doctors:", error);
+      setLoad(true);
+      const r = await getDoctorsPaginated(page, perPage);
+      setRows(r.data);
+      setPages(r.totalPages);
+      setCount(r.totalCount);
+    } catch (err) {
+      console.error("Failed to fetch doctors", err);
     } finally {
-      setLoading(false);
+      setLoad(false);
     }
   };
 
-  const filteredDoctors = doctors
-    .filter((doctor) => doctor.status === "approved")
-    .filter((doctor) =>
-      doctor.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      doctor.speciality?.toLowerCase().includes(searchQuery.toLowerCase())
+  /* ───────── derived list ───────── */
+  const filtered = rows
+    .filter((d) => d.status === "approved")
+    .filter(
+      (d) =>
+        d.name?.toLowerCase().includes(query.toLowerCase()) ||
+        d.speciality?.toLowerCase().includes(query.toLowerCase())
     );
 
-  return (
-    <div className="m-5 max-h-[90vh] overflow-y-scroll">
-      <h1 className="text-lg font-medium mb-3">👨‍⚕️ All Doctors</h1>
+  /* ───────── styles ───────── */
+  const glass = "bg-white/5 backdrop-blur ring-1 ring-white/10";
+  const card  =
+    "max-w-56 overflow-hidden cursor-pointer group transition-transform hover:-translate-y-1";
 
-      {/* Left-aligned Search Bar */}
-      <div className="mb-5 max-w-sm">
+  /* ───────── render ───────── */
+  return (
+    <div className="m-5 text-slate-100 max-h-[90vh] overflow-y-auto">
+      <h1 className="text-lg font-medium mb-4">👨‍⚕️ All Doctors</h1>
+
+      {/* search */}
+      <div className="mb-6 max-w-sm">
         <SearchBar
           placeholder="Search by name or speciality"
-          onSearch={(query) => setSearchQuery(query)}
+          onSearch={setQuery}
         />
       </div>
 
-      {loading ? (
-        <div className="text-center py-10 text-gray-500 text-sm">
-          Loading doctors...
+      {/* grid / list */}
+      {load ? (
+        <div className="text-center py-10 text-slate-400 text-sm">
+          Loading doctors…
         </div>
-      ) : filteredDoctors.length > 0 ? (
+      ) : filtered.length ? (
         <>
-          <div className="w-full flex flex-wrap gap-4 gap-y-6">
-            {filteredDoctors.map((item, index) => (
+          <div className="w-full flex flex-wrap gap-6">
+            {filtered.map((doc, i) => (
               <motion.div
-                className="border border-indigo-200 rounded-xl max-w-56 overflow-hidden cursor-pointer group transition-transform duration-300 hover:-translate-y-1"
-                key={index}
+                key={i}
+                className={`${glass} ${card} rounded-2xl ring-white/10`}
                 initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.4, delay: index * 0.1 }}
+                transition={{ duration: 0.4, delay: i * 0.08 }}
                 whileHover={{ scale: 1.02 }}
               >
                 <img
-                  className="bg-indigo-50 group-hover:bg-primary transition-all duration-500"
-                  src={item.image}
-                  alt=""
+                  src={doc.image}
+                  className="w-full h-40 object-cover group-hover:scale-105 transition-transform duration-500"
                 />
-                <div className="p-4">
-                  <p className="text-neutral-800 text-lg font-medium">{item.name}</p>
-                  <p className="text-zinc-600 text-sm">{item.speciality}</p>
-                    <p>
-                      {item.available ? (
-                          <div className="flex items-center gap-2 text-sm text-green-500">
-                            <p className="w-2 h-2 bg-green-500 rounded-full"></p>
-                            <p>Available</p>
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-2 text-sm text-red-500">
-                            <p className="w-2 h-2 bg-red-500 rounded-full"></p>
-                            <p>Not Available</p>
-                          </div>
-                        )}
-                    </p>
+                <div className="p-4 space-y-1">
+                  <p className="text-base font-semibold truncate">{doc.name}</p>
+                  <p className="text-sm text-slate-400 truncate">
+                    {doc.speciality}
+                  </p>
+
+                  {/* availability pill */}
+                  {doc.available ? (
+                    <span className="inline-flex items-center gap-1 text-xs text-emerald-400">
+                      <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
+                      Available
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 text-xs text-red-400">
+                      <span className="w-2 h-2 bg-red-400 rounded-full" />
+                      Not&nbsp;Available
+                    </span>
+                  )}
                 </div>
               </motion.div>
             ))}
           </div>
 
-          {totalPages > 1 && (
+          {/* pagination */}
+          {pages > 1 && (
             <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={(page) => setCurrentPage(page)}
+              currentPage={page}
+              totalPages={pages}
+              onPageChange={setPage}
             />
           )}
         </>
       ) : (
-        <div className="text-center w-full text-gray-500 text-sm py-10">
+        <div className="text-center py-10 text-slate-400 text-sm">
           No matching doctors found.
         </div>
       )}

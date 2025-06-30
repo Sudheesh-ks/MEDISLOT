@@ -1,51 +1,39 @@
-import React, { useContext, useEffect, useState } from "react";
-import { AppContext } from "../../context/AppContext";
-import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+// src/pages/user/Login.tsx  –  Dark‑Neon Version
+import React, { useState, useEffect, useContext } from "react";
 import { assets } from "../../assets/user/assets";
+import Footer from "../../components/common/Footer";
+import { useNavigate } from "react-router-dom";
+import { AppContext } from "../../context/AppContext";
 import { isValidEmail, isValidPassword } from "../../utils/validator";
 import { loginUserAPI, registerUserAPI } from "../../services/authServices";
+import { toast } from "react-toastify";
 import { showErrorToast } from "../../utils/errorHandler";
 import LoadingButton from "../../components/common/LoadingButton";
 
-const Login = () => {
+const Login: React.FC = () => {
+  const nav = useNavigate();
+  const ctx = useContext(AppContext);
+  if (!ctx) throw new Error("Login must be used within AppContextProvider");
+  const { backendUrl, token, setToken } = ctx;
 
-  const navigate = useNavigate();
-  const context = useContext(AppContext);
-  const [state, setState] = useState("Sign Up");
+  const [state, setState] = useState<"Sign Up" | "Login">("Sign Up");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
 
-  if (!context) {
-    throw new Error("TopDoctors must be used within an AppContextProvider");
-  }
+  /* -------------------------------- submit -------------------------------- */
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email || !password || (state === "Sign Up" && !name))
+      return toast.error("Please fill in all required fields.");
 
-  const { backendUrl, token, setToken } = context;
-
-
-
-  const onSubmitHandler = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    if (!email || !password || (state === "Sign Up" && !name)) {
-      toast.error("Please fill in all required fields.");
-      return;
-    }
-
-    if (!isValidEmail(email)) {
-      toast.error("Please enter a valid email address.");
-      return;
-    }
-
-    if (!isValidPassword(password)) {
-      toast.error(
-        "Password must be at least 8 characters long, include 1 number and 1 special character."
+    if (!isValidEmail(email)) return toast.error("Enter a valid email.");
+    if (!isValidPassword(password))
+      return toast.error(
+        "Password must be ≥ 8 chars, incl. 1 number & 1 symbol."
       );
-      return;
-    }
 
     try {
       setLoading(true);
@@ -57,104 +45,110 @@ const Login = () => {
             JSON.stringify({ email, name, purpose: "register" })
           );
           toast.success("OTP sent to your email");
-          navigate("/verify-otp");
-        } else {
-          toast.error(data.message);
-        }
+          nav("/verify-otp");
+        } else toast.error(data.message);
       } else {
         const { data } = await loginUserAPI(email, password);
         if (data.success) {
           setToken(data.token);
-              localStorage.removeItem("isUserLoggedOut");
+          localStorage.removeItem("isUserLoggedOut");
           toast.success("Login successful");
-          navigate("/home");
-        } else {
-          toast.error(data?.message || "Something went wrong");
-        }
+          nav("/home");
+        } else toast.error(data.message);
       }
-    } catch (error) {
-      showErrorToast(error);
+    } catch (err) {
+      showErrorToast(err);
+    } finally {
+      setLoading(false);
     }
   };
 
+  /* redirect if already logged in */
   useEffect(() => {
-    if (token) {
-      navigate("/home");
-    }
-  }, [token, navigate]);
+    if (token) nav("/home");
+  }, [token, nav]);
+
+  /* -------------------------------- render -------------------------------- */
+  const inputStyle =
+    "w-full bg-transparent ring-1 ring-white/10 rounded px-4 py-2 mt-1 text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500";
+  const card =
+    "flex flex-col sm:flex-row bg-white/5 backdrop-blur ring-1 ring-white/10 rounded-xl overflow-hidden";
+  const gradientBtn =
+    "bg-gradient-to-r from-cyan-500 to-fuchsia-600 text-white w-full py-2 rounded-md text-base hover:-translate-y-0.5 transition-transform";
 
   return (
     <form
-      onSubmit={onSubmitHandler}
-      className="min-h-[80vh] flex items-center justify-center"
+      onSubmit={onSubmit}
+      className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center relative"
     >
-<div
-  className="absolute top-6 left-6 flex items-center gap-2 px-4 py-2 rounded-full bg-blue-100 text-blue-600 font-medium shadow-md hover:bg-blue-200 transition duration-300 cursor-pointer"
-  onClick={() => navigate("/")}
->
-  <span className="text-lg">🏠</span>
-  <span className="text-sm sm:text-base">Back to Home</span>
-</div>
-      <div className="flex flex-col mt-40 sm:flex-row bg-white shadow-lg rounded-xl overflow-hidden">
-        {/* LEFT: Image section */}
-        <div className="hidden sm:block w-full sm:w-96">
+      {/* back‑home */}
+      <button
+        type="button"
+        onClick={() => nav("/")}
+        className="absolute top-6 left-6 flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur ring-1 ring-white/10 hover:bg-white/20 transition"
+      >
+        🏠 <span className="text-sm hidden sm:inline">Back to Home</span>
+      </button>
+
+      <div className={card}>
+        {/* image */}
+        <div className="hidden sm:block w-96">
           <img
             src={assets.contact_image}
-            alt="Login Visual"
+            alt="login visual"
             className="w-full h-full object-cover"
           />
         </div>
 
-        {/* RIGHT: Form section */}
-        <div className="flex flex-col gap-3 p-8 min-w-[340px] sm:min-w-96 text-zinc-600 text-sm">
-          <p className="text-2xl font-semibold">
+        {/* form */}
+        <div className="flex flex-col gap-4 p-8 min-w-[320px] sm:min-w-96">
+          <h2 className="text-2xl font-semibold">
             {state === "Sign Up" ? "Create Account" : "Login"}
-          </p>
-          <p>
+          </h2>
+          <p className="text-slate-400">
             Please {state === "Sign Up" ? "sign up" : "login"} to book
             appointment
           </p>
 
           {state === "Sign Up" && (
-            <div className="w-full">
-              <p>Full Name</p>
+            <div>
+              <label className="text-sm">Full Name</label>
               <input
-                className="border border-zinc-300 rounded w-full p-2 mt-1"
-                type="text"
-                onChange={(e) => setName(e.target.value)}
+                className={inputStyle}
                 value={name}
+                onChange={(e) => setName(e.target.value)}
                 required
               />
             </div>
           )}
 
-          <div className="w-full">
-            <p>Email</p>
+          <div>
+            <label className="text-sm">Email</label>
             <input
-              className="border border-zinc-300 rounded w-full p-2 mt-1"
               type="email"
-              onChange={(e) => setEmail(e.target.value)}
+              className={inputStyle}
               value={email}
+              onChange={(e) => setEmail(e.target.value)}
               required
             />
           </div>
 
-          <div className="w-full">
-            <p>Password</p>
+          <div>
+            <label className="text-sm">Password</label>
             <input
-              className="border border-zinc-300 rounded w-full p-2 mt-1"
               type="password"
-              onChange={(e) => setPassword(e.target.value)}
+              className={inputStyle}
               value={password}
+              onChange={(e) => setPassword(e.target.value)}
               required
             />
           </div>
 
           {state === "Login" && (
-            <div className="w-full text-right text-sm mt-1">
+            <div className="text-right text-xs">
               <span
-                onClick={() => navigate("/verify-email")}
-                className="text-primary cursor-pointer hover:underline"
+                onClick={() => nav("/verify-email")}
+                className="text-cyan-400 cursor-pointer hover:underline"
               >
                 Forgot Password?
               </span>
@@ -162,51 +156,50 @@ const Login = () => {
           )}
 
           <LoadingButton
-  text={state === "Sign Up" ? "Create Account" : "Login"}
-  type="submit"
-  loading={loading}
-  className="w-full py-2 text-base"
-/>
+            text={state === "Sign Up" ? "Create Account" : "Login"}
+            type="submit"
+            loading={loading}
+            className={gradientBtn}
+          />
 
           <LoadingButton
-  text={
-    <span className="flex items-center gap-2">
-      <img
-        src="https://developers.google.com/identity/images/g-logo.png"
-        alt="Google"
-        className="w-5 h-5"
-      />
-      Continue with Google
-    </span>
-  }
-  type="button"
-  loading={googleLoading}
-  onClick={() => {
-    setGoogleLoading(true);
-    window.location.href = `${backendUrl}/api/auth/google`;
-  }}
-  className="border border-zinc-300 text-zinc-700 w-full py-2 rounded-md mt-2 hover:bg-zinc-100 bg-white"
-/>
+            text={
+              <span className="flex items-center gap-2">
+                <img
+                  src="https://developers.google.com/identity/images/g-logo.png"
+                  className="w-5 h-5"
+                />
+                Continue with Google
+              </span>
+            }
+            type="button"
+            loading={googleLoading}
+            onClick={() => {
+              setGoogleLoading(true);
+              window.location.href = `${backendUrl}/api/auth/google`;
+            }}
+            className="w-full bg-white/5 backdrop-blur ring-1 ring-white/10 text-slate-100 py-2 rounded-md hover:bg-white/10"
+          />
 
-          <p className="mt-2">
+          <p className="text-sm text-center mt-2">
             {state === "Sign Up" ? (
               <>
                 Already have an account?{" "}
                 <span
                   onClick={() => setState("Login")}
-                  className="text-primary underline cursor-pointer"
+                  className="text-cyan-400 cursor-pointer underline"
                 >
                   Login here
                 </span>
               </>
             ) : (
               <>
-                Create a new account?{" "}
+                New here?{" "}
                 <span
                   onClick={() => setState("Sign Up")}
-                  className="text-primary underline cursor-pointer"
+                  className="text-cyan-400 cursor-pointer underline"
                 >
-                  click here
+                  Create one
                 </span>
               </>
             )}

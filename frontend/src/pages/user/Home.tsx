@@ -1,3 +1,5 @@
+import Navbar from "../../components/user/Navbar";
+import Footer from "../../components/common/Footer";
 import Header from "../../components/user/Header";
 import SpecialityMenu from "../../components/user/SpecialityMenu";
 import TopDoctors from "../../components/user/TopDoctors";
@@ -7,25 +9,18 @@ import { AppContext } from "../../context/AppContext";
 import { useNavigate } from "react-router-dom";
 
 const Home = () => {
+  const navigate = useNavigate();
+  const ctx = useContext(AppContext);
+  if (!ctx) throw new Error("Home must be used within an AppContextProvider");
 
-      const context = useContext(AppContext);
-      const navigate = useNavigate();
-      
-        if (!context) {
-          throw new Error("LangingPage must be used within an AppContextProvider");
-        }
-      
-        const { token } = context;
+  const { token } = ctx;
 
-    useEffect(() => {
-      if (!token) {
-        navigate("/login");
-      }
-    }, [token, navigate]);
-
+  useEffect(() => {
+    if (!token) navigate("/login");
+  }, [token, navigate]);
 
   return (
-    <div>
+    <div className="min-h-screen bg-slate-950 text-slate-100">
       <Header />
       <SpecialityMenu />
       <TopDoctors />

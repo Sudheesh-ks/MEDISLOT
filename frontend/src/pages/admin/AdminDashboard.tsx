@@ -1,3 +1,4 @@
+// src/pages/admin/AdminDashboard.tsx
 import { useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AdminContext } from "../../context/AdminContext";
@@ -6,105 +7,127 @@ import { assets } from "../../assets/admin/assets";
 import type { AppointmentTypes } from "../../types/appointment";
 import { motion } from "framer-motion";
 
+/* quick helpers */
+const glass = "bg-white/5 backdrop-blur ring-1 ring-white/10";
+const cardBase =
+  "cursor-pointer text-white p-6 rounded-xl shadow-md flex items-center gap-4";
+
 const AdminDashboard = () => {
-  const navigate = useNavigate();
-  const context = useContext(AdminContext);
-  const appContext = useContext(AppContext);
+  const nav  = useNavigate();
+  const ctx  = useContext(AdminContext);
+  const app  = useContext(AppContext);
+  if (!ctx || !app) throw new Error("Missing contexts");
 
-  if (!context) throw new Error("AdminContext must be used within AdminContextProvider");
-  if (!appContext) throw new Error("AppContext must be used within AppContextProvider");
+  const { aToken, dashData, getDashData, cancelAppointment } = ctx;
+  const { slotDateFormat } = app;
 
-  const { aToken, dashData, getDashData, cancelAppointment } = context;
-  const { slotDateFormat } = appContext;
-
+  /* ───────────────── side‑effects ───────────────── */
   useEffect(() => {
     if (aToken) getDashData();
   }, [aToken]);
 
   useEffect(() => {
-    if (!aToken) navigate("/admin/login");
+    if (!aToken) nav("/admin/login");
   });
 
+  /* ───────────────── render ───────────────── */
+  if (!dashData) return null;
+
+  /* top‑stat card definitions */
+  const stats = [
+    {
+      count: dashData.doctors,
+      label: "Doctors",
+      icon: assets.doctor_icon,
+      grad: "from-cyan-500 to-fuchsia-600",
+      path: "/admin/all-doctors",
+    },
+    {
+      count: dashData.appointments,
+      label: "Appointments",
+      icon: assets.appointments_icon,
+      grad: "from-emerald-500 to-teal-500",
+      path: "/admin/appointments",
+    },
+    {
+      count: dashData.patients,
+      label: "Patients",
+      icon: assets.patients_icon,
+      grad: "from-indigo-500 to-violet-600",
+      path: "/admin/user-management",
+    },
+  ];
+
   return (
-    dashData && (
-      <div className="m-5 space-y-10">
-        {/* Top Stats */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[
-            {
-              count: dashData.doctors,
-              label: "Doctors",
-              icon: assets.doctor_icon,
-              color: "from-blue-400 to-indigo-500",
-              path: "/admin/all-doctors"
-            },
-            {
-              count: dashData.appointments,
-              label: "Appointments",
-              icon: assets.appointments_icon,
-              color: "from-green-400 to-emerald-500",
-              path: "/admin/appointments"
-            },
-            {
-              count: dashData.patients,
-              label: "Patients",
-              icon: assets.patients_icon,
-              color: "from-purple-400 to-fuchsia-500",
-              path: "/admin/user-management"
-            }
-          ].map((card, idx) => (
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              transition={{ type: "spring", stiffness: 300 }}
-              key={idx}
-              onClick={() => navigate(card.path)}
-              className={`cursor-pointer bg-gradient-to-r ${card.color} text-white p-6 rounded-xl shadow-md flex items-center gap-4`}
-            >
-              <img src={card.icon} alt="" className="w-12 h-12" />
-              <div>
-                <p className="text-2xl font-bold">{card.count}</p>
-                <p className="text-sm opacity-80">{card.label}</p>
-              </div>
-            </motion.div>
-          ))}
+    <div className="m-5 space-y-10 text-slate-100">
+      {/* ─────── TOP STATS ─────── */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {stats.map((c, i) => (
+          <motion.div
+            key={i}
+            whileHover={{ scale: 1.05 }}
+            transition={{ type: "spring", stiffness: 300 }}
+            onClick={() => nav(c.path)}
+            className={`${cardBase} bg-gradient-to-r ${c.grad}`}
+          >
+            <img src={c.icon} className="w-12 h-12" />
+            <div>
+              <p className="text-2xl font-bold">{c.count}</p>
+              <p className="text-sm opacity-80">{c.label}</p>
+            </div>
+          </motion.div>
+        ))}
+      </div>
+
+      {/* ─────── LATEST BOOKINGS ─────── */}
+      <div className={`${glass} rounded-xl overflow-hidden`}>
+        {/* header */}
+        <div className="flex items-center gap-2.5 px-6 py-4 border-b border-white/10">
+          <img src={assets.list_icon} className="w-6" />
+          <p className="font-semibold text-lg">Latest Bookings</p>
         </div>
 
-        {/* Latest Bookings */}
-        <div className="bg-white rounded-xl shadow-md overflow-hidden">
-          <div className="flex items-center gap-2.5 px-6 py-4 border-b">
-            <img src={assets.list_icon} alt="" className="w-6" />
-            <p className="font-semibold text-gray-700 text-lg">Latest Bookings</p>
-          </div>
-          <div className="divide-y">
-            {dashData.latestAppointments.map((item: AppointmentTypes, index: number) => (
+        {/* list */}
+        <div className="divide-y divide-white/10">
+          {dashData.latestAppointments.map(
+            (it: AppointmentTypes, idx: number) => (
               <motion.div
-                key={index}
+                key={idx}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-                className="flex items-center gap-4 px-6 py-4 hover:bg-gray-50"
+                transition={{ delay: idx * 0.1 }}
+                className="flex items-center gap-4 px-6 py-4 hover:bg-white/5"
               >
-                <img src={item.docData.image} className="w-10 h-10 rounded-full" alt="" />
+                <img
+                  src={it.docData.image}
+                  className="w-10 h-10 rounded-full object-cover ring-1 ring-white/10"
+                />
                 <div className="flex-1 text-sm">
-                  <p className="font-semibold text-gray-800">{item.docData.name}</p>
-                  <p className="text-gray-500 text-xs">{slotDateFormat(item.slotDate)}</p>
+                  <p className="font-semibold">{it.docData.name}</p>
+                  <p className="text-slate-400 text-xs">
+                    {slotDateFormat(it.slotDate)}
+                  </p>
                 </div>
-                {item.cancelled ? (
-                  <p className="text-red-500 text-sm font-semibold">Cancelled</p>
+
+                {/* status / cancel icon */}
+                {it.cancelled ? (
+                  <span className="text-sm font-semibold text-red-400">
+                    Cancelled
+                  </span>
                 ) : (
-                  <img
+                  <motion.img
+                    whileTap={{ scale: 0.9 }}
                     src={assets.cancel_icon}
-                    alt="cancel"
-                    onClick={() => cancelAppointment(item._id!)}
-                    className="w-6 cursor-pointer hover:scale-110 transition"
+                    className="w-6 cursor-pointer hover:opacity-80"
+                    onClick={() => cancelAppointment(it._id!)}
                   />
                 )}
               </motion.div>
-            ))}
-          </div>
+            )
+          )}
         </div>
       </div>
-    )
+    </div>
   );
 };
 

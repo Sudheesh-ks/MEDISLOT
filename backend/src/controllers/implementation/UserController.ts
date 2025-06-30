@@ -331,6 +331,25 @@ export class UserController implements IUserController {
       .json({ success: true, message: "Logged out successfully" });
   }
 
+   async getUserById(req: Request, res: Response): Promise<void> {
+    try {
+      const user = await this._userService.getUserById(req.params.id);
+
+      if (!user) {
+        res.status(HttpStatus.NOT_FOUND).json({ success: false, message: "User not found" });
+        return;
+      }
+
+      const { _id, name, image } = user;
+      res.json({ success: true, user: { _id, name, image } });
+    } catch (err) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (err as Error).message,
+      });
+    }
+  }
+
   async getProfile(req: Request, res: Response): Promise<void> {
     try {
       const userId = (req as any).userId;

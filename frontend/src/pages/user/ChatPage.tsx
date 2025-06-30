@@ -1,155 +1,389 @@
 import React, { useState, useRef, useEffect, useContext } from "react";
-import io from "socket.io-client";
+import io, { Socket } from "socket.io-client";
 import { useParams } from "react-router-dom";
 import { AppContext } from "../../context/AppContext";
-
-interface Message {
-  _id: string;
-  chatId: string;
-  senderId: string;
-  receiverId: string;
-  senderRole: "user" | "doctor";
-  message: string;
-  createdAt?: string;
-  mediaUrl?: string;
-  mediaType?: string;
-}
+import { getDoctorsByIDAPI } from "../../services/doctorServices";
+import { getPresence, uploadChatFile, userChat } from "../../services/chatService";
+import type { Message } from "../../types/message";
 
 const SOCKET_URL = "http://localhost:4000";
-const socket = io(SOCKET_URL, { withCredentials: true });
+const timeOf = (iso?: string) =>
+  iso
+    ? new Date(iso).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true })
+    : "";
+
+/* 🆕 util – extract a readable filename from any URL */
+const fileName = (url: string) => url.split("/").pop()?.split("?")[0] ?? "file";
 
 const ChatPage: React.FC = () => {
-  const context = useContext(AppContext);
-  if (!context) throw new Error("AppContext is missing");
+  const ctx = useContext(AppContext);
+  if (!ctx) throw new Error("AppContext missing");
+  const { userData } = ctx;
+  if (!userData) return null;
 
-  const { userData } = context;
   const { doctorId } = useParams<{ doctorId: string }>();
-  const userId = userData?._id;
-
+  const userId = userData._id;
   const chatId = `${userId}_${doctorId}`;
+
+  /* socket */
+  const socketRef = useRef<Socket | null>(null);
+  useEffect(() => {
+    const s = io(SOCKET_URL, { withCredentials: true, auth: { userId, role: "user" } });
+    socketRef.current = s;
+    return () => {
+      s.disconnect();
+      socketRef.current = null;
+    };
+  }, [userId]);
+
+  /* state */
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
+  const [isDoctorOnline, setIsDoctorOnline] = useState(false); 
+  const [pickedFile, setPickedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [doctorProfile, setDoctorProfile] = useState<{
+    name: string;
+    avatar: string;
+    speciality: string;
+    isOnline?: boolean;
+    lastSeen?: string;
+  } | null>(null);
+  
 
-  const formatTime = (iso?: string): string => {
-    if (!iso) return "";
-    const date = new Date(iso);
-    return date.toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: true,
-    });
+  const clearFileInput = () => {
+    if (fileInputRef.current) fileInputRef.current.value = "";
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    setPreviewUrl(null);
   };
 
+  /* load doctor */
   useEffect(() => {
-    if (!chatId) return;
-    socket.emit("join", chatId);
-
-    fetch(`/api/chat/${chatId}`)
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success) setMessages(data.messages);
-      });
-
-    socket.on("receiveMessage", (msg: Message) => {
-      setMessages((prev) => [...prev, msg]);
+    if (!doctorId) return;
+    getDoctorsByIDAPI(doctorId).then(({ data }) => {
+      if (data.success) {
+        setDoctorProfile({
+          name: data.doctor.name,
+          avatar: data.doctor.image || "/placeholder.png",
+          speciality: data.doctor.speciality,
+        });
+      }
     });
+    getPresence(doctorId).then(r => setIsDoctorOnline(r.data.online));
+  }, [doctorId]);
 
-    socket.on("typing", () => setIsTyping(true));
-    socket.on("stopTyping", () => setIsTyping(false));
+   /* ---------- socket open ---------- */
+  useEffect(() => {
+    const s = io(SOCKET_URL, {
+      withCredentials: true,
+      auth: { userId, role: "user" },
+    });
+    socketRef.current = s;
+
+    /* live presence */
+    s.on("presence", ({ userId: id, online }: { userId: string; online: boolean }) => { // ⭐ NEW
+      if (id === doctorId) setIsDoctorOnline(online);                                    // ⭐ NEW
+    });                                                                                  // ⭐ NEW
 
     return () => {
-      socket.off("receiveMessage");
-      socket.off("typing");
-      socket.off("stopTyping");
+      s.off("presence");                                                                 // ⭐ NEW
+      s.disconnect();
+      socketRef.current = null;
+    };
+  }, [userId, doctorId]);
+
+  /* join room & events */
+  useEffect(() => {
+    const s = socketRef.current;
+    if (!s || !chatId) return;
+    s.emit("join", chatId);
+    /* ⭐ listen for presence ------------------------------------ */
+  const onPresence = (p: { userId: string; online: boolean }) => {
+   if (p.userId === doctorId) {
+      setDoctorProfile(prev =>
+        prev ? { ...prev, isOnline: p.online, lastSeen: !p.online ? timeOf(new Date().toISOString()) : prev.lastSeen } : prev
+     );
+    }
+  };
+  s.on("presence", onPresence);
+    userChat.fetchHistory(chatId).then(({ data }) => {
+      if (data.success) setMessages(data.messages);
+    });
+    const onReceive = (m: Message) => setMessages((p) => [...p, m]);
+    const onDelivered = (d: any) =>
+    setMessages(p =>
+      p.map(m =>
+        m._id === d.messageId
+          ? { ...m,
+              deliveredTo:[...(m.deliveredTo ?? []), { userId:d.userId, at:d.at }] }
+          : m));
+
+  const onReadBy = (d: any) =>
+    setMessages(p =>
+      p.map(m =>
+        m.chatId === d.chatId
+          ? { ...m,
+              readBy:[...(m.readBy ?? []), { userId:d.userId, at:d.at }] }
+          : m));
+    const onTyping = () => setIsTyping(true);
+    const onStopTyping = () => setIsTyping(false);
+    s.on("receiveMessage", onReceive);
+      s.on("delivered", onDelivered);   // ⭐
+  s.on("readBy",    onReadBy); 
+    s.on("typing", onTyping);
+    s.on("stopTyping", onStopTyping);
+    return () => {
+      s.off("receiveMessage", onReceive);
+      s.off("presence", onPresence);
+          s.off("delivered", onDelivered); // ⭐
+    s.off("readBy",    onReadBy);
+      s.off("typing", onTyping);
+      s.off("stopTyping", onStopTyping);
     };
   }, [chatId]);
 
-  const handleSendMessage = (e: React.FormEvent | React.MouseEvent) => {
-    e.preventDefault();
-    if (!newMessage.trim() || !userId || !doctorId) return;
-
-    const msg = {
-      chatId,
-      senderId: userId,
-      receiverId: doctorId,
-      senderRole: "user",
-      message: newMessage,
-    };
-
-    socket.emit("sendMessage", msg);
-    setNewMessage("");
-    socket.emit("stopTyping", { chatId, senderId: userId });
-  };
-
-  const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  };
-
   useEffect(() => {
-    scrollToBottom();
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+  useEffect(() => {
+    socketRef.current?.emit("read", { chatId });
+  }, [chatId]);
+
+  const send = async (e: React.FormEvent | React.MouseEvent) => {
+    e.preventDefault();
+
+    if (pickedFile) {
+      try {
+        const { url, mime } = await uploadChatFile(pickedFile);
+        socketRef.current?.emit("sendMessage", {
+          chatId,
+          receiverId: doctorId,
+          kind: mime.startsWith("image/") ? "image" : "file",
+          mediaUrl: url,
+          mediaType: mime,
+        });
+        setPickedFile(null);
+        clearFileInput();
+      } catch (err) {
+        console.error("upload failed", err);
+      }
+      return;
+    }
+
+    if (!newMessage.trim()) return;
+    socketRef.current?.emit("sendMessage", {
+      chatId,
+      receiverId: doctorId,
+      kind: "text",
+      text: newMessage,
+    });
+    setNewMessage("");
+    socketRef.current?.emit("stopTyping", { chatId });
+  };
+
+  if (!doctorProfile)
+    return (
+      <div className="flex h-screen items-center justify-center text-slate-100">
+        Loading…
+      </div>
+    );
 
   return (
-    <div className="flex flex-col h-screen bg-gray-50">
-      {/* Chat Header */}
-      <div className="bg-white px-4 py-3 shadow border-b flex justify-between items-center">
-        <div>
-          <h2 className="text-lg font-semibold">Chat with Doctor</h2>
-          <p className="text-sm text-gray-500">Chat ID: {chatId}</p>
-        </div>
-      </div>
-
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-3 space-y-4">
-        {messages.map((msg) => {
-          const isUser = msg.senderRole === "user";
-          return (
-            <div key={msg._id} className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
-              <div
-                className={`max-w-xs px-4 py-2 rounded-2xl text-sm ${
-                  isUser
-                    ? "bg-blue-500 text-white rounded-br-none"
-                    : "bg-gray-200 text-gray-900 rounded-bl-none"
-                }`}
-              >
-                <p>{msg.message}</p>
-                <p className="text-xs mt-1 text-right opacity-70">
-                  {formatTime(msg.createdAt)}
-                </p>
-              </div>
-            </div>
-          );
-        })}
-        {isTyping && (
-          <div className="text-sm text-gray-500 italic">Doctor is typing...</div>
-        )}
-        <div ref={messagesEndRef} />
-      </div>
-
-      {/* Input */}
-      <form
-        onSubmit={handleSendMessage}
-        className="bg-white border-t px-4 py-3 flex gap-2 items-center"
-      >
-        <input
-          type="text"
-          className="flex-1 border border-gray-300 rounded-full px-4 py-2 text-sm focus:outline-none"
-          placeholder="Type your message..."
-          value={newMessage}
-          onChange={(e) => setNewMessage(e.target.value)}
-          onFocus={() => socket.emit("typing", { chatId, senderId: userId })}
-          onBlur={() => socket.emit("stopTyping", { chatId, senderId: userId })}
+    <div className="flex h-screen bg-slate-950 text-slate-100">
+      {/* Sidebar */}
+      <aside className="w-80 shrink-0 justify-center bg-white/5 backdrop-blur ring-1 ring-white/10 p-6 flex flex-col items-center text-center">
+        <img
+          src={doctorProfile.avatar}
+          alt={doctorProfile.name}
+          className="w-32 h-32 rounded-full object-cover mb-4 ring-1 ring-white/10"
         />
-        <button
-          type="submit"
-          disabled={!newMessage.trim()}
-          className="bg-blue-500 text-white px-4 py-2 rounded-full text-sm disabled:opacity-50"
+        <h2 className="text-xl font-semibold">{doctorProfile.name}</h2>
+        <p className="text-sm text-slate-400">{doctorProfile.speciality}</p>
+  <p className={`mt-2 text-xs font-medium ${isDoctorOnline ? "text-emerald-400" : "text-slate-500"}`}> {/* ⭐ CHANGED */}
+    {isDoctorOnline ? "Online" : "Offline"}                                                {/* ⭐ CHANGED */}
+  </p>
+      </aside>
+
+      {/* Chat pane */}
+      <main className="flex flex-col flex-1 h-full">
+        {/* Header */}
+        <header className="bg-white/5 backdrop-blur ring-1 ring-white/10 px-6 py-4 flex items-center gap-3">
+          <img
+            src={doctorProfile.avatar}
+            alt="avatar"
+            className="w-10 h-10 rounded-full object-cover ring-1 ring-white/10"
+          />
+          <div>
+            <h3 className="text-lg font-semibold text-slate-100">{doctorProfile.name}</h3>
+           <p className={`mt-2 text-xs font-medium ${isDoctorOnline ? "text-emerald-400" : "text-slate-500"}`}> {/* ⭐ CHANGED */}
+    {isDoctorOnline ? "Online" : "Offline"}                                                {/* ⭐ CHANGED */}
+  </p>
+          </div>
+        </header>
+
+        {/* Messages */}
+        <section className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+          {messages.map((m) => {
+            const isUser = m.senderRole === "user";
+            return (
+              <div key={m._id} className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
+                <div
+                  className={`flex max-w-xs items-end space-x-2 ${
+                    isUser ? "flex-row-reverse" : ""
+                  }`}
+                >
+                  {!isUser && (
+                    <img
+                      src={doctorProfile.avatar}
+                      className="w-8 h-8 rounded-full object-cover"
+                    />
+                  )}
+                  <div
+                    className={`px-4 py-2 rounded-2xl text-sm ${
+                      isUser
+                        ? "bg-cyan-600 text-white rounded-br-none"
+                        : "bg-white/10 ring-1 ring-white/10 text-slate-100 rounded-bl-none"
+                    }`}
+                  >
+                    {m.deleted ? (
+                      <em className="text-xs text-slate-400">message removed</em>
+                    ) : m.kind === "text" || m.kind === "emoji" ? (
+                      <p className="break-words">{m.text}</p>
+                    ) : m.kind === "image" ? (
+                      <img src={m.mediaUrl!} className="max-w-[200px] rounded" />
+                    ) : (
+                      /* 🆕 prettier file bubble */
+                      <a
+                        href={m.mediaUrl}
+                        download
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex items-center gap-2 hover:underline"
+                      >
+                        <svg
+                          className="w-5 h-5 shrink-0"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth={2}
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M12 4v4h4M16 20H8a2 2 0 01-2-2V6a2 2 0 012-2h6l4 4v10a2 2 0 01-2 2z"
+                          />
+                        </svg>
+                        <span className="max-w-[140px] truncate">
+                          {fileName(m.mediaUrl!)}
+                        </span>
+                      </a>
+                    )}
+                   <p
+  className={`text-[10px] mt-1 ${
+    isUser ? "text-slate-200" : "text-slate-400"
+  }`}
+>
+  {timeOf(m.createdAt)}{" "}
+  {/* ⭐ show ticks when *user* is the sender */}
+  {isUser && (m.readBy?.length ? "✓✓" : m.deliveredTo?.length ? "✓" : "")}
+</p>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+          {isTyping && (
+            <p className="text-xs text-slate-400 italic">Doctor is typing…</p>
+          )}
+          <div ref={messagesEndRef} />
+        </section>
+
+        {/* Input */}
+        <form
+          onSubmit={send}
+          className="bg-white/5 backdrop-blur ring-1 ring-white/10 px-6 py-4 flex items-center gap-3"
         >
-          Send
-        </button>
-      </form>
+          <input
+            type="file"
+            hidden
+            ref={fileInputRef}
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              if (f) {
+                setPickedFile(f);
+                setPreviewUrl(URL.createObjectURL(f));
+              }
+            }}
+          />
+
+          {/* attach‑button */}
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            className="p-2 rounded-full hover:bg-white/10 transition"
+            title="Attach file"
+          >
+             <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2"
+                 viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round"
+                    d="M21 12.79V8a5 5 0 00-9.9-1M3 12.79V17a5 5 0 009.9 1" />
+            </svg>
+          </button>
+
+          {/* preview chip */}
+          {pickedFile && (
+            <div className="flex items-center gap-2 bg-white/10 px-3 py-1 rounded-full">
+              {pickedFile.type.startsWith("image/") ? (
+                <img
+                  src={previewUrl!}
+                  alt={pickedFile.name}
+                  className="w-8 h-8 rounded object-cover"
+                />
+              ) : (
+                <svg className="w-5 h-5" fill="none" stroke="currentColor">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M18.364 5.636a4.5 4.5 0 010 6.364l-7.071 7.071a3 3 0 01-4.243-4.243L12.5 9.5"
+                  />
+                </svg>
+              )}
+              <span className="max-w-[120px] truncate text-xs">{pickedFile.name}</span>
+              <button
+                type="button"
+                onClick={() => {
+                  setPickedFile(null);
+                  clearFileInput();
+                }}
+                className="text-slate-400 hover:text-red-400 text-lg leading-none"
+              >
+                &times;
+              </button>
+            </div>
+          )}
+
+          <input
+            value={newMessage}
+            onChange={(e) => setNewMessage(e.target.value)}
+            onFocus={() => socketRef.current?.emit("typing", { chatId })}
+            onBlur={() => socketRef.current?.emit("stopTyping", { chatId })}
+            placeholder="Type a message…"
+            className="flex-1 bg-transparent ring-1 ring-white/10 rounded-full px-4 py-2 text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+          />
+          <button
+            type="submit"
+            disabled={!newMessage.trim() && !pickedFile}
+            className="p-3 rounded-full bg-gradient-to-r from-cyan-500 to-fuchsia-600 disabled:opacity-40 hover:-translate-y-0.5 transition-transform"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+            </svg>
+          </button>
+        </form>
+      </main>
     </div>
   );
 };

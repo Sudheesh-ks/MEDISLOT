@@ -1,3 +1,4 @@
+// src/pages/admin/AdminAppointments.tsx
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AdminContext } from "../../context/AdminContext";
@@ -8,97 +9,76 @@ import SearchBar from "../../components/common/SearchBar";
 import Pagination from "../../components/common/Pagination";
 import DataTable from "../../components/common/DataTable";
 
+/* glass & gradient helpers */
+const glass = "bg-white/5 backdrop-blur ring-1 ring-white/10";
+const grad  = "from-cyan-500 to-fuchsia-600";
+
 const AdminAppointments = () => {
-  const navigate = useNavigate();
-  const context = useContext(AdminContext);
-  const appContext = useContext(AppContext);
+  /* ——— contexts / hooks ——— */
+  const nav      = useNavigate();
+  const adminCtx = useContext(AdminContext);
+  const appCtx   = useContext(AppContext);
+  if (!adminCtx || !appCtx) throw new Error("Missing contexts");
 
-  if (!context || !appContext) {
-    throw new Error("Contexts must be used within their providers");
-  }
+  const { aToken, getAppointmentsPaginated, cancelAppointment } = adminCtx;
+  const { calculateAge, slotDateFormat, currencySymbol }        = appCtx;
 
-  const { aToken, getAppointmentsPaginated, cancelAppointment } = context;
-  const { calculateAge, slotDateFormat, currencySymbol } = appContext;
+  /* ——— local state ——— */
+  const [search, setSearch]       = useState("");
+  const [page,   setPage]         = useState(1);
+  const [rows,   setRows]         = useState<any[]>([]);
+  const [pages,  setPages]        = useState(1);
+  const [loading, setLoading]     = useState(false);
+  const perPage = 6;
 
-  const [searchQuery, setSearchQuery] = useState("");
-  const [currentPage, setCurrentPage] = useState(1);
-  const [appointments, setAppointments] = useState<any[]>([]);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalCount, setTotalCount] = useState(0);
-  const [loading, setLoading] = useState(false);
-  const itemsPerPage = 6;
-
+  /* ——— fetch ——— */
   useEffect(() => {
-    if (aToken) {
-      fetchAppointments();
-    }
-  }, [aToken, currentPage]);
+    if (aToken) fetchRows();
+  }, [aToken, page]);
 
-  useEffect(() => {
-    if (!aToken) {
-      navigate("/admin/login");
-    }
-  }, [aToken, navigate]);
-
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [currentPage]);
-
-  const fetchAppointments = async () => {
+  const fetchRows = async () => {
     try {
       setLoading(true);
-      const result = await getAppointmentsPaginated(currentPage, itemsPerPage);
-      setAppointments(result.data);
-      setTotalPages(result.totalPages);
-      setTotalCount(result.totalCount);
-    } catch (error) {
-      console.error("Failed to fetch appointments:", error);
+      const r = await getAppointmentsPaginated(page, perPage);
+      setRows(r.data);
+      setPages(r.totalPages);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleCancelAppointment = async (appointmentId: string) => {
-    try {
-      await cancelAppointment(appointmentId);
-      fetchAppointments();
-    } catch (error) {
-      console.error("Failed to cancel appointment:", error);
-    }
-  };
+  /* ——— auth guard ——— */
+  useEffect(() => {
+    if (!aToken) nav("/admin/login");
+  }, [aToken, nav]);
 
-  const filteredAppointments = appointments.filter((item) => {
-    const q = searchQuery.toLowerCase();
+  /* ——— filtered list ——— */
+  const filtered = rows.filter((it) => {
+    const q = search.toLowerCase();
     return (
-      item.userData?.name?.toLowerCase().includes(q) ||
-      item.docData?.name?.toLowerCase().includes(q)
+      it.userData?.name?.toLowerCase().includes(q) ||
+      it.docData?.name?.toLowerCase().includes(q)
     );
   });
 
+  /* ——— columns ——— */
   const columns = [
     {
-      key: "index",
+      key: "#",
       header: "#",
       width: "0.5fr",
       hideOnMobile: true,
-      render: (_: any, index: number) => (
-        <p>{(currentPage - 1) * itemsPerPage + index + 1}</p>
-      ),
+      render: (_: any, i: number) => <p>{(page - 1) * perPage + i + 1}</p>,
     },
     {
       key: "patient",
       header: "Patient",
       width: "3fr",
-      render: (item: any) => (
+      render: (it: any) => (
         <div className="flex items-center gap-2">
-          <img
-            className="w-10 h-10 rounded-full object-cover border"
-            src={item.userData?.image || "/default-avatar.png"}
-            alt="Patient"
-          />
-          <p className="font-medium text-gray-800 truncate">
-            {item.userData?.name}
-          </p>
+          <img className="w-10 h-10 rounded-full object-cover ring-1 ring-white/10"
+               src={it.userData?.image || "/default-avatar.png"} />
+          <p className="truncate">{it.userData?.name}</p>
         </div>
       ),
     },
@@ -107,17 +87,15 @@ const AdminAppointments = () => {
       header: "Age",
       width: "1fr",
       hideOnMobile: true,
-      render: (item: any) => (
-        <p>{calculateAge(item.userData?.dob)}</p>
-      ),
+      render: (it: any) => calculateAge(it.userData?.dob),
     },
     {
-      key: "datetime",
+      key: "dt",
       header: "Date & Time",
       width: "3fr",
-      render: (item: any) => (
-        <p className="truncate text-sm">
-          {slotDateFormat(item.slotDate)}, {item.slotTime}
+      render: (it: any) => (
+        <p className="truncate text-xs">
+          {slotDateFormat(it.slotDate)}, {it.slotTime}
         </p>
       ),
     },
@@ -125,14 +103,11 @@ const AdminAppointments = () => {
       key: "doctor",
       header: "Doctor",
       width: "3fr",
-      render: (item: any) => (
+      render: (it: any) => (
         <div className="flex items-center gap-2">
-          <img
-            className="w-9 h-9 rounded-full object-cover border"
-            src={item.docData?.image || "/default-avatar.png"}
-            alt="Doctor"
-          />
-          <p className="text-gray-800 truncate">{item.docData?.name}</p>
+          <img className="w-9 h-9 rounded-full object-cover ring-1 ring-white/10"
+               src={it.docData?.image || "/default-avatar.png"} />
+          <p className="truncate">{it.docData?.name}</p>
         </div>
       ),
     },
@@ -140,70 +115,72 @@ const AdminAppointments = () => {
       key: "fees",
       header: "Fees",
       width: "1fr",
-      render: (item: any) => (
-        <p>
+      render: (it: any) => (
+        <>
           {currencySymbol}
-          {item.amount}
-        </p>
+          {it.amount}
+        </>
       ),
     },
     {
       key: "actions",
       header: "Actions",
       width: "1fr",
-      render: (item: any) => (
-        <>
-          {item.cancelled ? (
-            <p className="text-xs font-semibold text-red-400">Cancelled</p>
-          ) : item.isConfirmed ? (
-        <p className="text-xs font-semibold text-green-600">
-          Confirmed
-        </p>
-      ) : (
-            <motion.img
-              whileTap={{ scale: 0.9 }}
-              onClick={(e) => {
-                e.stopPropagation();
-                handleCancelAppointment(item._id!);
-              }}
-              className="w-8 h-8 cursor-pointer hover:opacity-80 transition"
-              src={assets.cancel_icon}
-              alt="Cancel"
-            />
-          )}
-        </>
-      ),
+      render: (it: any) =>
+        it.cancelled ? (
+          <span className="text-xs font-semibold text-red-400">Cancelled</span>
+        ) : it.isConfirmed ? (
+          <span className="text-xs font-semibold text-emerald-400">
+            Confirmed
+          </span>
+        ) : (
+          <motion.img
+            whileTap={{ scale: 0.9 }}
+            src={assets.cancel_icon}
+            className="w-7 cursor-pointer hover:opacity-80"
+            onClick={(e) => {
+              e.stopPropagation();
+              cancelAppointment(it._id!).then(fetchRows);
+            }}
+          />
+        ),
     },
   ];
 
+  /* ——— render ——— */
   return (
-    <div className="w-full max-w-6xl m-5">
-      <p className="mb-3 text-lg font-semibold">📅 All Appointments</p>
+    <div className="max-w-6xl mx-auto m-5 text-slate-100">
+      <h2 className="mb-5 text-lg font-semibold flex items-center gap-2">
+        <span>📅</span> All Appointments
+      </h2>
 
-      <div className="mb-4">
+      {/* search */}
+      <div className={`${glass} rounded-xl p-3 mb-6`}>
         <SearchBar
-          placeholder="Search by name or email"
-          onSearch={(query) => {
-            setSearchQuery(query);
-          }}
+          placeholder="Search by patient or doctor name"
+          onSearch={setSearch}
         />
       </div>
 
+      {/* table */}
       <DataTable
-          data={[...filteredAppointments].sort(
-    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-  )}
+        data={[...filtered].sort(
+          (a, b) =>
+            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+        )}
         columns={columns}
         loading={loading}
         emptyMessage="No matching appointments found."
         gridCols="grid-cols-[0.5fr_3fr_1fr_3fr_3fr_1fr_1fr]"
+        containerClassName={`${glass} max-h-[80vh] min-h-[60vh]`}
+        className="hover:bg-white/5"
       />
 
-      {totalPages > 1 && (
+      {pages > 1 && (
         <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={(page) => setCurrentPage(page)}
+          currentPage={page}
+          totalPages={pages}
+          onPageChange={setPage}
         />
       )}
     </div>

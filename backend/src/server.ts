@@ -16,6 +16,13 @@ import MessageModel from "./models/messageModel";
 import chatRouter from "./routes/chatRoute";
 dotenv.config();
 
+/* chat layer */
+import { ChatRepository } from "./repositories/implementation/ChatRepository";
+import { ChatService } from "./services/implementation/ChatService";
+
+/* socket registration */
+import { registerChatSocket } from "./sockets/ChatSocket";
+
 // app config
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -47,38 +54,18 @@ app.get("/", (req, res) => {
   res.send("API WORKING");
 });
 
-// SOCKET.IO SETUP
+
+/* chat service singleton */
+const chatService = new ChatService(new ChatRepository());
+
+/* socket.io */
 const server = http.createServer(app);
 const io = new SocketIOServer(server, {
-  cors: {
-    origin: "http://localhost:5173",
-    credentials: true,
-  },
+  cors: { origin: "http://localhost:5173", credentials: true },
 });
 
-
-// for joining a chat room
-io.on("connection", (socket: any) => {
-  socket.on("join", (chatId: any) => {
-    socket.join(chatId);
-  });
-
-// For sending an recieving messages
-  socket.on("sendMessage", async (msg: any) => {
-    const saved = await MessageModel.create(msg);
-    io.to(msg.chatId).emit("receiveMessage", saved);
-  });
-
-  // For typing indicator
-  socket.on("typing", ({ chatId, senderId }: { chatId: string; senderId: string }) => {
-    socket.to(chatId).emit("typing", { senderId });
-  });
-
-  // For stop typing indicator
-  socket.on("stopTyping", ({ chatId, senderId }: { chatId: string; senderId: string }) => {
-    socket.to(chatId).emit("stopTyping", { senderId });
-  });
-});
+/* delegate all socket logic */
+registerChatSocket(io, chatService);
 
 server.listen(PORT, () => {
   console.log("Server Started", PORT);

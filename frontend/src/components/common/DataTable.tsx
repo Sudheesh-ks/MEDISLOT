@@ -1,3 +1,4 @@
+// src/components/common/DataTable.tsx
 import React from "react";
 import { motion } from "framer-motion";
 import type { Variants } from "framer-motion";
@@ -23,6 +24,7 @@ interface DataTableProps {
   containerClassName?: string;
 }
 
+/* ▾ same animation as before ▾ */
 const fadeInUp: Variants = {
   hidden: { opacity: 0, y: 20 },
   visible: (i: number) => ({
@@ -43,54 +45,72 @@ const DataTable: React.FC<DataTableProps> = ({
   showHeader = true,
   containerClassName = "",
 }) => {
-  const defaultGridCols = `grid-cols-[${columns.map(col => col.width || "1fr").join("_")}]`;
+  /* same responsive grid calc */
+  const defaultGrid =
+    `grid-cols-[${columns.map(c => c.width ?? "1fr").join("_")}]`;
+
+  /* glass style shortcuts */
+  const glass   = "bg-white/5 backdrop-blur ring-1 ring-white/10";
+  const divider = "border-white/10";
 
   return (
-    <div className={`bg-white border rounded shadow-sm text-sm max-h-[80vh] min-h-[60vh] overflow-y-scroll ${containerClassName}`}>
-      {/* Table Header */}
+    <div
+      className={`${glass} text-sm text-slate-200 max-h-[80vh] min-h-[60vh] overflow-y-auto ${containerClassName}`}
+    >
+      {/* ───────── header ───────── */}
       {showHeader && (
-        <div className={`hidden sm:grid ${gridCols || defaultGridCols} py-3 px-6 border-b bg-gray-50 font-medium text-gray-700`}>
-          {columns.map((column) => (
-            <p key={column.key} className={`${column.hideOnMobile ? "max-sm:hidden" : ""} ${column.className || ""}`}>
-              {column.header}
+        <div
+          className={`hidden sm:grid ${gridCols ?? defaultGrid} py-3 px-6 ${divider} border-b font-medium`}
+        >
+          {columns.map(col => (
+            <p
+              key={col.key}
+              className={`${col.hideOnMobile ? "max-sm:hidden" : ""} ${
+                col.className ?? ""
+              }`}
+            >
+              {col.header}
             </p>
           ))}
         </div>
       )}
 
-      {/* Table Body */}
+      {/* ───────── body ───────── */}
       {loading ? (
-        <div className="text-center py-10 text-gray-500 text-sm">
-          Loading...
-        </div>
-      ) : data.length > 0 ? (
-        data.map((item, index) => (
+        <div className="text-center py-10 text-slate-400">Loading…</div>
+      ) : data.length ? (
+        data.map((item, i) => (
           <motion.div
-            key={item._id || index}
-            custom={index}
+            key={item._id ?? i}
+            custom={i}
             initial="hidden"
             animate="visible"
             variants={fadeInUp}
-            whileHover={{ scale: 1.01 }}
+            whileHover={{ scale: 1.015 }}
             onClick={() => onRowClick?.(item)}
-            className={`flex flex-wrap justify-between max-sm:gap-2 sm:grid ${gridCols || defaultGridCols} items-center text-gray-600 py-3 px-6 border-b hover:bg-gray-50 transition ${
+            className={`flex flex-wrap justify-between max-sm:gap-2 sm:grid ${
+              gridCols ?? defaultGrid
+            } items-center py-3 px-6 ${divider} border-b hover:bg-white/5 transition ${
               onRowClick ? "cursor-pointer" : ""
             } ${className}`}
           >
-            {columns.map((column) => (
-              <div key={column.key} className={`${column.hideOnMobile ? "max-sm:hidden" : ""} ${column.className || ""}`}>
-                {column.render ? column.render(item, index) : item[column.key]}
+            {columns.map(col => (
+              <div
+                key={col.key}
+                className={`${col.hideOnMobile ? "max-sm:hidden" : ""} ${
+                  col.className ?? ""
+                }`}
+              >
+                {col.render ? col.render(item, i) : item[col.key]}
               </div>
             ))}
           </motion.div>
         ))
       ) : (
-        <div className="text-center py-10 text-gray-500 text-sm">
-          {emptyMessage}
-        </div>
+        <div className="text-center py-10 text-slate-400">{emptyMessage}</div>
       )}
     </div>
   );
 };
 
-export default DataTable; 
+export default DataTable;

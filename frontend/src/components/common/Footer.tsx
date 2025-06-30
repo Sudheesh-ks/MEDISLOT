@@ -1,50 +1,46 @@
 import { assets } from "../../assets/user/assets";
 
-const Footer = () => {
-  return (
-    <div className="md:mx-10">
-      <div className="flex flex-col sm:grid grid-cols-[3fr_1fr_1fr] gap-14 my-10 mt-40 text-sm">
-        {/* ------------ Left Side ------------*/}
-        <div>
-          <img className="mb-5 w-40" src={assets.logo} alt="" />
-          <p className="w-full md:w-2/3 text-gray-600 leading-6">
-            Lorem Ipsum is simply dummy text of the printing and typesetting
-            industry. Lorem Ipsum has been the industry's standard dummy text
-            ever since the 1500s, when an unknown printer took a galley of type
-            and scrambled it to make a type specimen book.
-          </p>
-        </div>
-
-        {/* ------------ Center Section ------------*/}
-        <div>
-          <p className="text-xl font-medium mb-5">Company</p>
-          <ul className="flex flex-col gap-2 text-gray-600">
-            <li>Home</li>
-            <li>About us</li>
-            <li>Contact us</li>
-            <li>Privacy policy</li>
-          </ul>
-        </div>
-
-        {/* ------------ Right Side ------------*/}
-        <div>
-          <p className="text-xl font-medium mb-5">GET IN TOUCH</p>
-          <ul className="flex flex-col gap-2 text-gray-600">
-            <li>+1-212-456-7890</li>
-            <li>medislot@gmail.com</li>
-          </ul>
-        </div>
-      </div>
-
-      {/* ------------ Copyright Text ------------ */}
+const Footer = () => (
+  <footer className="bg-slate-950 text-slate-400">
+    {/* upper grid */}
+    <div className="max-w-7xl mx-auto grid md:grid-cols-3 gap-12 px-6 md:px-10 py-16">
       <div>
-        <hr />
-        <p className="py-5 text-sm text-center">
-          Copyright © 2025 MediSlot - All Right Reserved.
+        <img
+          src={assets.logo_dark ?? assets.logo}
+          alt="logo"
+          className="w-40 mb-4"
+        />
+        <p className="max-w-sm leading-7">
+          MediSlot brings world‑class healthcare to your fingertips with instant
+          booking, secure video consults, and digital records — all wrapped in a
+          stunning experience.
         </p>
       </div>
+
+      <div>
+        <h4 className="text-white mb-4 font-semibold">Company</h4>
+        <ul className="space-y-2">
+          <li>Home</li>
+          <li>About</li>
+          <li>Contact</li>
+          <li>Privacy</li>
+        </ul>
+      </div>
+
+      <div>
+        <h4 className="text-white mb-4 font-semibold">Get in touch</h4>
+        <ul className="space-y-2">
+          <li>+1‑212‑456‑7890</li>
+          <li>support@medislot.com</li>
+        </ul>
+      </div>
     </div>
-  );
-};
+
+    {/* copyright strip */}
+    <p className="text-center text-xs py-6 border-t border-white/10">
+      © 2025 MediSlot • All rights reserved
+    </p>
+  </footer>
+);
 
 export default Footer;

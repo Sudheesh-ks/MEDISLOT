@@ -1,42 +1,28 @@
 import React, { useState, useEffect } from "react";
 import { Search } from "lucide-react";
 
-type SearchBarProps = {
-  placeholder?: string;
-  onSearch: (query: string) => void;
-  delay?: number; // debounce delay
-};
+type SearchBarProps = { placeholder?: string; onSearch: (query: string) => void; delay?: number };
 
-const SearchBar: React.FC<SearchBarProps> = ({
-  placeholder = "Search...",
-  onSearch,
-  delay = 400,
-}) => {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [debounced, setDebounced] = useState(searchTerm);
+const SearchBar: React.FC<SearchBarProps> = ({ placeholder = "Search…", onSearch, delay = 400 }) => {
+  const [value, setValue] = useState("");
+  const [debounced, setDebounced] = useState(value);
 
-  // Debounce logic
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebounced(searchTerm);
-    }, delay);
-
+    const timer = setTimeout(() => setDebounced(value), delay);
     return () => clearTimeout(timer);
-  }, [searchTerm, delay]);
+  }, [value, delay]);
 
-  useEffect(() => {
-    onSearch(debounced.trim());
-  }, [debounced, onSearch]);
+  useEffect(() => { onSearch(debounced.trim()); }, [debounced, onSearch]);
 
   return (
-    <div className="flex items-center w-full max-w-sm rounded-2xl border px-4 py-2 shadow-sm bg-white focus-within:ring-2 ring-blue-500">
-      <Search className="w-5 h-5 text-gray-500" />
+    <div className="flex items-center w-full max-w-sm rounded-2xl px-4 py-2 bg-white/5 backdrop-blur ring-1 ring-white/10 focus-within:ring-2 focus-within:ring-cyan-500">
+      <Search className="w-5 h-5 text-slate-400" />
       <input
         type="text"
-        className="ml-3 w-full outline-none text-sm"
         placeholder={placeholder}
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        className="ml-3 w-full bg-transparent outline-none text-sm placeholder:text-slate-500"
       />
     </div>
   );

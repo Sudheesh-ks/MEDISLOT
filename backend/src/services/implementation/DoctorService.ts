@@ -76,6 +76,10 @@ export class DoctorService implements IDoctorService {
     await this._doctorRepository.registerDoctor(doctorData);
   }
 
+    async getPublicDoctorById(id: string): Promise<DoctorData | null> {
+    return this._doctorRepository.getDoctorProfileById(id); 
+  }
+
   async toggleAvailability(docId: string): Promise<void> {
     const doc = await this._doctorRepository.findById(docId);
     if (!doc) throw new Error("Doctor not found");

@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 
 export interface IDoctorController {
+  getDoctorById(req: Request, res: Response): Promise<void>;
   changeAvailability(req: Request, res: Response): Promise<void>;
   doctorList(req: Request, res: Response): Promise<void>;
   getDoctorsPaginated(req: Request, res: Response): Promise<void>;

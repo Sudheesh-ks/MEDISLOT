@@ -5,139 +5,128 @@ import { AppContext } from "../../context/AppContext";
 import { clearUserAccessToken } from "../../context/tokenManagerUser";
 import { logoutUserAPI } from "../../services/authServices";
 
-
 const Navbar = () => {
   const navigate = useNavigate();
-
   const context = useContext(AppContext);
-
-  if (!context) {
-    throw new Error("TopDoctors must be used within an AppContextProvider");
-  }
-
+  if (!context) throw new Error("Navbar must be used within an AppContextProvider");
   const { token, setToken, userData, setUserData } = context;
+  const [open, setOpen] = useState(false);
 
-  const [showMenu, setShowMenu] = useState(false);
-
-const logout = async () => {
-  try {
-    // 1. Call backend first to clear the HTTP-only refresh token cookie
-    await logoutUserAPI(); // ✅ MUST BE /api/user/logout (POST)
-
-    // 2. Clear access token from memory
-    clearUserAccessToken(); // ✅ Removes it from your tokenManagerUser
-
-    // 3. Clear context state
-    setToken(null);        // ✅ Also calls updateUserAccessToken(null)
-    setUserData(null);     // Clear user profile from context
-
-    // 4. 🔥 Remove this — no longer using localStorage
-    // localStorage.removeItem("user_token"); ❌ REMOVE THIS
-    localStorage.setItem("isUserLoggedOut", "true");
-    // 5. Navigate away
-    navigate("/login");
-  } catch (error) {
-    console.error("Logout failed", error);
-  }
-};
+  const logout = async () => {
+    try {
+      await logoutUserAPI();
+      clearUserAccessToken();
+      setToken(null);
+      setUserData(null);
+      navigate("/login");
+    } catch (e) {
+      console.error(e);
+    }
+  };
 
   return (
-    <div className="flex item-center justify-between text-sm py-4 mb-5 border-b border-b-gray-400">
-      <img
-        onClick={() => navigate("/")}
-        className="w-44 cursor-pointer"
-        src={assets.logo}
-        alt=""
-      />
-      <ul className="hidden md:flex items-start gap-5 font-medium">
-        <NavLink to="/home">
-          <li className="py-1">HOME</li>
-          <hr className="border-none outline-none h-0.5 bg-primary w-3/5 m-auto hidden" />
-        </NavLink>
-        <NavLink to="/doctors">
-          <li className="py-1">ALL DOCTORS</li>
-          <hr className="border-none outline-none h-0.5 bg-primary w-3/5 m-auto hidden" />
-        </NavLink>
-        <NavLink to="/about">
-          <li className="py-1">ABOUT</li>
-          <hr className="border-none outline-none h-0.5 bg-primary w-3/5 m-auto hidden" />
-        </NavLink>
-        <NavLink to="/contact">
-          <li className="py-1">CONTACT</li>
-          <hr className="border-none outline-none h-0.5 bg-primary w-3/5 m-auto hidden" />
-        </NavLink>
-      </ul>
-      <div className="flex item-center gap-4">
+    <nav className="sticky top-0 z-50 bg-slate-950/80 backdrop-blur-sm ring-1 ring-white/10">
+      <div className="max-w-7xl mx-auto flex items-center justify-between px-4 md:px-10 py-4">
+        {/* Logo */}
+        <img
+          src={assets.logo_dark ?? assets.logo}
+          alt="logo"
+          className="w-36 cursor-pointer"
+          onClick={() => navigate("/")}
+        />
+
+        {/* Desktop links */}
+        <ul className="hidden md:flex items-center gap-6 text-sm font-medium text-slate-200">
+          {[
+            { to: "/home", label: "Home" },
+            { to: "/doctors", label: "Doctors" },
+            { to: "/about", label: "About" },
+            { to: "/contact", label: "Contact" },
+          ].map(({ to, label }) => (
+            <NavLink
+              key={to}
+              to={to}
+              className={({ isActive }) =>
+                `${isActive ? "text-white" : "text-slate-400 hover:text-white"} transition-colors`
+              }
+            >
+              {label}
+            </NavLink>
+          ))}
+        </ul>
+
+        {/* Right CTAs */}
         {token && userData ? (
-          <div className="flex item-center gap-2 cursor-pointer group relative">
-            <img className="w-8 rounded-full" src={userData.image} alt="" />
-            <img className="w-2.5" src={assets.dropdown_icon} alt="" />
-            <div className="absolute top-0 right-0 pt-14 text-base font-medium text-gray-600 z-20 hidden group-hover:block">
-              <div className="min-w-48 bg-stone-100 rounded flex flex-col gpa-4 p-4">
-                <p
-                  onClick={() => navigate("/my-profile")}
-                  className="hover:text-black cursor-pointer"
-                >
-                  My Profile
-                </p>
-                <p
-                  onClick={() => navigate("/my-appointments")}
-                  className="hover:text-black cursor-pointer"
-                >
-                  My Appointments
-                </p>
-                <p onClick={logout} className="hover:text-black cursor-pointer">
-                  Logout
-                </p>
+          <div className="relative">
+            <button
+              onClick={() => setOpen(!open)}
+              className="flex items-center gap-2 text-slate-200"
+            >
+              <img src={userData.image} alt="avatar" className="w-8 h-8 rounded-full" />
+              <svg
+                className={`w-3 transition-transform ${open ? "rotate-180" : "rotate-0"}`}
+                fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            {open && (
+              <div className="absolute right-0 mt-3 w-40 rounded-xl bg-slate-800/90 ring-1 ring-white/10 backdrop-blur p-3 space-y-2 animate-fade">
+                <NavLink to="/my-profile" className="block text-slate-200 hover:text-white">Profile</NavLink>
+                <NavLink to="/my-appointments" className="block text-slate-200 hover:text-white">Appointments</NavLink>
+                <button onClick={logout} className="block w-full text-left text-red-400 hover:text-red-300">Logout</button>
               </div>
-            </div>
+            )}
           </div>
         ) : (
           <button
             onClick={() => navigate("/login")}
-            className="bg-primary text-white px-8 py-3 rounded-full font-light hidden md:block"
+            className="hidden md:inline-flex items-center bg-gradient-to-r from-cyan-500 to-fuchsia-600 text-white px-5 py-2 rounded-full text-sm shadow-lg hover:-translate-y-0.5 transition-transform"
           >
-            Create account
+            Login
           </button>
         )}
-        <img
-          onClick={() => setShowMenu(true)}
-          className="w-6 md:hidden"
-          src={assets.menu_icon}
-          alt=""
-        />
-        {/* ------------ Mobile Menu ------------ */}
-        <div
-          className={` ${
-            showMenu ? "fixed w-full" : "h-0 w-0"
-          } md:hidden right-0 top-0 bottom-0 z-20 overflow-hidden bg-white transition-all`}
-        >
-          <div className="flex items-center justify-between px-5 py-6">
-            <img className="w-36" src={assets.logo} alt="" />
-            <img
-              className="w-7"
-              onClick={() => setShowMenu(false)}
-              src={assets.cross_icon}
-              alt=""
-            />
-          </div>
-          <ul className="flex flex-col items-center gap-2 mt-5 px-5 text-lg font-medium">
-            <NavLink onClick={() => setShowMenu(false)} to="/">
-              <p className="px-4 py-2 rounded inline-block">HOME</p>
-            </NavLink>
-            <NavLink onClick={() => setShowMenu(false)} to="/doctors">
-              <p className="px-4 py-2 rounded inline-block">ALL DOCTORS</p>
-            </NavLink>
-            <NavLink onClick={() => setShowMenu(false)} to="/about">
-              <p className="px-4 py-2 rounded inline-block">ABOUT</p>
-            </NavLink>
-            <NavLink onClick={() => setShowMenu(false)} to="/contact">
-              <p className="px-4 py-2 rounded inline-block">CONTACT</p>
-            </NavLink>
-          </ul>
-        </div>
+
+        {/* Mobile burger */}
+        <button className="md:hidden text-slate-200" onClick={() => setOpen(!open)}>
+          <svg className="w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button>
       </div>
-    </div>
+
+      {/* Mobile drawer */}
+      {open && (
+        <div className="md:hidden bg-slate-900/90 backdrop-blur-sm ring-1 ring-white/5 px-6 pb-6 space-y-4 animate-fade">
+          {[
+            { to: "/home", label: "Home" },
+            { to: "/doctors", label: "Doctors" },
+            { to: "/about", label: "About" },
+            { to: "/contact", label: "Contact" },
+          ].map(({ to, label }) => (
+            <NavLink
+              key={to}
+              to={to}
+              onClick={() => setOpen(false)}
+              className="block text-slate-200 py-1"
+            >
+              {label}
+            </NavLink>
+          ))}
+          {!token && (
+            <button
+              onClick={() => {
+                setOpen(false);
+                navigate("/login");
+              }}
+              className="w-full bg-gradient-to-r from-cyan-500 to-fuchsia-600 text-white py-2 rounded-full"
+            >
+              Login
+            </button>
+          )}
+        </div>
+      )}
+    </nav>
   );
 };
 

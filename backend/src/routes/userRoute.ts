@@ -74,4 +74,8 @@ userRouter.get(
 );
 
 
+userRouter.get("/:id", userController.getUserById.bind(userController));
+
+
+
 export default userRouter;

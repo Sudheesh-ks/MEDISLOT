@@ -1,45 +1,30 @@
-import React from "react";
 import { assets } from "../../assets/user/assets";
 import { useNavigate } from "react-router-dom";
 
-type ChatCardProps = {
-  doctorId?: string;
-};
+type ChatCardProps = { doctorId?: string };
 
 const ChatCard: React.FC<ChatCardProps> = ({ doctorId }) => {
-  const navigate = useNavigate();
-
+  const nav = useNavigate();
   return (
-    <div className="w-96 bg-white rounded-lg shadow-lg overflow-hidden">
-      {/* Card Header with Image */}
-      <div className="h-96 overflow-hidden">
-        <img
-          src={assets.contact_image}
-          alt="card-image"
-          className="h-full w-full object-cover"
-        />
+    <div className="flex flex-col bg-white/5 backdrop-blur ring-1 ring-white/10 rounded-3xl overflow-hidden h-full">
+      {/* Header image */}
+      <div className="h-72 overflow-hidden">
+        <img src={assets.contact_image} alt="Chat cover" className="w-full h-full object-cover" />
       </div>
 
-      {/* Card Body */}
-      <div className="p-6">
-        <div className="mb-2 flex items-center justify-between">
-          <h3 className="text-blue-gray-900 font-medium text-lg">
+      {/* Body */}
+      <div className="p-6 flex-1 flex flex-col justify-between">
+        <div>
+          <h3 className="text-lg font-semibold text-slate-100 mb-2 flex items-center gap-2">
             Start Messaging
+            <img src={assets.message_icon} alt="msg" className="h-5 w-5" />
           </h3>
-          <span className="text-blue-gray-900 font-medium text-lg">
-            <img className="h-10 w-10" src={assets.message_icon} alt="" />
-          </span>
+          <p className="text-sm text-slate-400">You have some new messages from the doctor.</p>
         </div>
-        <p className="text-gray-600 text-sm font-normal opacity-75 leading-relaxed">
-          You have some new messages from the doctor.
-        </p>
-      </div>
 
-      {/* Card Footer */}
-      <div className="px-6 pb-6 pt-0">
         <button
-          onClick={() => navigate(`/chats/${doctorId}`)}
-          className="w-full bg-primary hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-medium transition-all duration-200 hover:scale-105 focus:scale-105 active:scale-100 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+          onClick={() => nav(`/chats/${doctorId}`)}
+          className="mt-6 w-full bg-gradient-to-r from-cyan-500 to-fuchsia-600 text-white py-3 rounded-full hover:-translate-y-0.5 transition-transform"
         >
           Message
         </button>
@@ -47,5 +32,4 @@ const ChatCard: React.FC<ChatCardProps> = ({ doctorId }) => {
     </div>
   );
 };
-
 export default ChatCard;

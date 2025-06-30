@@ -7,7 +7,7 @@ const Consultation = () => {
   const { doctorId } = useParams();
 
   return (
-    <div className="flex place-items-center justify-center gap-6 p-8">
+    <div className="flex mt-28 place-items-center justify-center gap-6 p-8">
       <VideoCallCard />
       <ChatCard doctorId={doctorId} />
     </div>

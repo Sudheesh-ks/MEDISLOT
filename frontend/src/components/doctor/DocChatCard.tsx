@@ -1,51 +1,27 @@
-import React from "react";
 import { assets } from "../../assets/user/assets";
 import { useNavigate } from "react-router-dom";
 
-type ChatCardProps = {
-  userId?: string;
-};
-
-const DocChatCard: React.FC<ChatCardProps> = ({ userId }) => {
-  const navigate = useNavigate();
-
+type Props = { userId?: string };
+const DocChatCard: React.FC<Props> = ({ userId }) => {
+  const nav = useNavigate();
+  const glass = "bg-white/5 backdrop-blur ring-1 ring-white/10";
+  const btn   = "w-full bg-gradient-to-r from-cyan-500 to-fuchsia-600 py-3 rounded-lg font-medium hover:-translate-y-0.5 transition-transform shadow-lg";
   return (
-    <div className="w-96 bg-white rounded-lg shadow-lg overflow-hidden">
-      {/* Card Header with Image */}
+    <div className={`w-96 ${glass} rounded-3xl overflow-hidden`}>
+      {/* header image */}
       <div className="h-96 overflow-hidden">
-        <img
-          src={assets.contact_image}
-          alt="card-image"
-          className="h-full w-full object-cover"
-        />
+        <img src={assets.contact_image} className="w-full h-full object-cover" />
       </div>
-
-      {/* Card Body */}
-      <div className="p-6">
-        <div className="mb-2 flex items-center justify-between">
-          <h3 className="text-blue-gray-900 font-medium text-lg">
-            Start Messaging
-          </h3>
-          <span className="text-blue-gray-900 font-medium text-lg">
-            <img className="h-10 w-10" src={assets.message_icon} alt="" />
-          </span>
-        </div>
-        <p className="text-gray-600 text-sm font-normal opacity-75 leading-relaxed">
-          You have some new messages from the doctor.
-        </p>
+      <div className="p-6 space-y-2">
+        <h3 className="text-lg font-semibold">Start Messaging</h3>
+        <p className="text-slate-400 text-sm">Chat with the patient in real‑time.</p>
       </div>
-
-      {/* Card Footer */}
       <div className="px-6 pb-6 pt-0">
-        <button
-          onClick={() => navigate(`/doctor/chats/${userId}`)}
-          className="w-full bg-primary hover:bg-blue-700 text-white py-3 px-4 rounded-lg font-medium transition-all duration-200 hover:scale-105 focus:scale-105 active:scale-100 shadow-lg hover:shadow-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
-        >
+        <button onClick={() => nav(`/doctor/chats/${userId}`)} className={btn}>
           Message
         </button>
       </div>
     </div>
   );
 };
-
 export default DocChatCard;

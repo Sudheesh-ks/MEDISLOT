@@ -185,97 +185,107 @@ const DoctorSlotManager = () => {
   if (profileData?.status !== "approved") return null;
 
   return (
-    <div className="p-6 max-w-4xl mx-auto">
-      <h2 className="text-2xl font-semibold mb-4">Manage Your Slots</h2>
+    <div className="py-10 px-4 max-w-5xl mx-auto bg-slate-950 text-slate-100">
+      <h2 className="text-2xl font-semibold mb-8">Manage Your Slots</h2>
 
-      {/* Week selector */}
-      <div className="flex gap-3 overflow-x-auto mb-6">
+      {/* ── Week selector ── */}
+      <div className="flex gap-3 overflow-x-auto pb-6">
         {weekDates.map((date, i) => {
           const key = formatDate(date);
-          const slot = slotData[key];
+          const info = slotData[key];
+          const selected = selectedDateIndex === i && !showCustomDatePicker;
           return (
             <div
               key={i}
-              className={`text-center px-4 py-5 rounded-full min-w-16 cursor-pointer ${
-                selectedDateIndex === i && !showCustomDatePicker
-                  ? "bg-primary text-white"
-                  : "border border-gray-300 text-gray-600"
-              } ${slot?.isCancelled ? "bg-red-100" : Object.keys(slot?.slots || {}).length ? "bg-green-100" : ""}`}
               onClick={() => handleDateChange(i)}
+              className={`flex flex-col items-center justify-center min-w-16 px-4 py-5 rounded-full cursor-pointer transition
+                ${
+                  selected
+                    ? "bg-gradient-to-r from-cyan-500 to-fuchsia-600 text-white"
+                    : "ring-1 ring-white/10 text-slate-300 hover:bg-white/5"
+                }
+                ${
+                  info?.isCancelled
+                    ? "bg-red-600/20 text-red-300"
+                    : Object.keys(info?.slots || {}).length
+                    ? "bg-emerald-600/20 text-emerald-300"
+                    : ""
+                }`}
             >
-              <p>{daysOfWeek[date.getDay()]}</p>
-              <p>{date.getDate()}</p>
+              <span>{daysOfWeek[date.getDay()]}</span>
+              <span className="text-lg font-semibold">{date.getDate()}</span>
             </div>
           );
         })}
 
-        {/* 📅 Calendar bubble */}
+        {/* 📅 bubble */}
         <div
           onClick={() => {
             if (showCustomDatePicker) {
               setShowCustomDatePicker(false);
               setCustomDate(null);
-              handleDateChange(0); // reset to default
-            } else {
-              setShowCustomDatePicker(true);
-            }
+              handleDateChange(0);
+            } else setShowCustomDatePicker(true);
           }}
-          className={`text-center px-4 py-5 rounded-full min-w-16 cursor-pointer ${
-            showCustomDatePicker ? "bg-primary text-white" : "border border-gray-300 text-gray-600"
-          }`}
+          className={`flex flex-col items-center justify-center min-w-16 px-4 py-5 rounded-full cursor-pointer ring-1 ring-white/10 transition
+            ${
+              showCustomDatePicker
+                ? "bg-gradient-to-r from-cyan-500 to-fuchsia-600 text-white"
+                : "text-slate-300 hover:bg-white/5"
+            }`}
         >
-          <p>📅</p>
-          <p className="text-xs">{showCustomDatePicker ? "Back" : "More"}</p>
+          <span>📅</span>
+          <span className="text-[10px] mt-1">
+            {showCustomDatePicker ? "Back" : "More"}
+          </span>
         </div>
       </div>
 
-      {/* Calendar picker UI */}
+      {/* ── Date‑picker ── */}
       {showCustomDatePicker && (
         <div className="mb-6">
           <DatePicker
             selected={customDate}
-            onChange={(date) => {
-              if (date) {
-                handleDateChange(date);
-              }
-            }}
+            onChange={(d) => d && handleDateChange(d)}
             minDate={new Date()}
-            className="border px-4 py-2 rounded"
+            className="px-4 py-2 rounded bg-transparent ring-1 ring-white/10 text-slate-200 focus:outline-none focus:ring-2 focus:ring-cyan-500"
             placeholderText="Select a future date"
           />
         </div>
       )}
 
-      {/* Slot selection */}
-      <div className="bg-white rounded-xl shadow p-6 space-y-4">
+      {/* ── Slot grid / leave notice ── */}
+      <div className="bg-white/5 backdrop-blur ring-1 ring-white/10 rounded-3xl p-8 space-y-6">
         {isCancelled ? (
-          <p className="text-red-500 font-medium">Marked as Leave</p>
+          <p className="text-red-400 font-medium">Marked as Leave</p>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {timeSlots.map(({ label, value }) => (
               <div
                 key={value}
-                className="flex justify-between items-center border rounded-lg p-3"
+                className="flex justify-between items-center ring-1 ring-white/10 rounded-lg p-4"
               >
-                <p className="text-gray-700 font-medium w-32">{label}</p>
+                <p className="font-medium w-32">{label}</p>
                 <div className="flex gap-2">
                   <button
                     onClick={() => toggleSlotStatus(value, "available")}
-                    className={`px-3 py-1 rounded-full text-sm transition ${
-                      slots[value] === "available"
-                        ? "bg-green-500 text-white"
-                        : "border border-green-500 text-green-600 hover:bg-green-50"
-                    }`}
+                    className={`px-3 py-1 rounded-full text-xs transition
+                      ${
+                        slots[value] === "available"
+                          ? "bg-emerald-500 text-white"
+                          : "ring-1 ring-emerald-500 text-emerald-300 hover:bg-emerald-500/10"
+                      }`}
                   >
                     Available
                   </button>
                   <button
                     onClick={() => toggleSlotStatus(value, "unavailable")}
-                    className={`px-3 py-1 rounded-full text-sm transition ${
-                      slots[value] === "unavailable"
-                        ? "bg-red-500 text-white"
-                        : "border border-red-500 text-red-600 hover:bg-red-50"
-                    }`}
+                    className={`px-3 py-1 rounded-full text-xs transition
+                      ${
+                        slots[value] === "unavailable"
+                          ? "bg-red-500 text-white"
+                          : "ring-1 ring-red-500 text-red-300 hover:bg-red-500/10"
+                      }`}
                   >
                     Unavailable
                   </button>
@@ -285,15 +295,19 @@ const DoctorSlotManager = () => {
           </div>
         )}
 
-        <div className="mt-6 flex gap-4">
+        {/* ── Action buttons ── */}
+        <div className="flex gap-4 pt-4">
           {!isCancelled && (
-            <button onClick={saveSlots} className="bg-primary text-white px-6 py-2 rounded-full">
+            <button
+              onClick={saveSlots}
+              className="bg-gradient-to-r from-cyan-500 to-fuchsia-600 px-8 py-2 rounded-full hover:-translate-y-0.5 transition-transform shadow-lg"
+            >
               Save
             </button>
           )}
           <button
             onClick={markLeave}
-            className="border border-red-400 text-red-500 px-6 py-2 rounded-full"
+            className="px-8 py-2 rounded-full ring-1 ring-red-500 text-red-300 hover:bg-red-600/20 transition"
           >
             Mark Entire Day as Leave
           </button>

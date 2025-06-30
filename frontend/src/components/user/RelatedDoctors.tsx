@@ -10,61 +10,61 @@ interface RelatedDoctorsProps {
 
 const RelatedDoctors = ({ docId, speciality }: RelatedDoctorsProps) => {
   const context = useContext(AppContext);
-  if (!context) {
-    throw new Error("TopDoctors must be used within an AppContextProvider");
-  }
+  if (!context) throw new Error("RelatedDoctors must be used within an AppContextProvider");
   const { doctors } = context;
 
   const navigate = useNavigate();
   const [relDoc, setRelDoc] = useState<Doctor[]>([]);
 
   useEffect(() => {
-    if (doctors.length > 0 && speciality) {
-      const doctorsData = doctors.filter(
-        (doc) => doc.speciality === speciality && doc._id !== docId
-      );
-      setRelDoc(doctorsData);
+    if (doctors.length && speciality) {
+      const data = doctors.filter((d) => d.speciality === speciality && d._id !== docId);
+      setRelDoc(data);
     }
   }, [doctors, speciality, docId]);
 
   return (
-    <div className="flex flex-col items-center gap-4 my-16 text-gray-900 md:mx-10">
-      <h1 className="text-3xl font-medium">Related Doctors to Book</h1>
-      <p className="sm:w-1/3 text-center text-sm">
-        Simply browse through our extensive list of trusted doctors.
-      </p>
-      <div className="w-full grid grid-cols-auto gap-4 pt-5 gap-y-6 px-3 sm:px-0">
-        {relDoc.slice(0, 5).map((item: Doctor, index: number) => (
+    <section className="max-w-7xl mx-auto px-4 md:px-10 py-24 animate-fade">
+      <h2 className="text-center text-3xl md:text-4xl font-extrabold mb-10">Related Doctors</h2>
+      <p className="text-center text-slate-400 mb-10">Simply browse through our extensive list of trusted doctors.</p>
+
+      <div className="grid gap-10 grid-cols-[repeat(auto-fill,minmax(260px,1fr))]">
+        {relDoc.slice(0, 5).map((doc) => (
           <div
+            key={doc._id}
             onClick={() => {
-              navigate(`/appointment/${item._id}`);
-              scrollTo(0, 0);
+              navigate(`/appointment/${doc._id}`);
+              scrollTo({ top: 0, behavior: "smooth" });
             }}
-            className="border border-blue-200 rounded-xl overflow-hidden cursor-pointer hover:translate-y-[-10px] transition-all duration-500"
-            key={index}
+            className="group bg-white/5 backdrop-blur rounded-3xl ring-1 ring-white/10 overflow-hidden hover:-translate-y-1 transition-transform cursor-pointer"
           >
-            <img className="bg-blue-50" src={item.image} alt="" />
-            <div className="p-4">
-              <div className="flex item-center gap-2 text-sm text-center text-green-500">
-                <p className="w-2 h-2 bg-green-500 rounded-full"></p>
-                <p>Available</p>
-              </div>
-              <p className="text-gray-900 text-lg font-medium">{item.name}</p>
-              <p className="text-gray-600 text-sm">{item.speciality}</p>
+            <div className="h-72 flex items-end justify-center bg-white/5 overflow-hidden">
+              <img src={doc.image} alt={doc.name} className="h-full object-contain object-bottom group-hover:scale-105 transition-transform" />
+            </div>
+            <div className="p-6 space-y-2">
+              <span className={`inline-flex items-center gap-2 text-xs font-medium ${doc.available ? "text-emerald-400" : "text-rose-400"}`}>
+                <span className={`inline-block w-2 h-2 rounded-full ${doc.available ? "bg-emerald-400" : "bg-rose-400"}`} />
+                {doc.available ? "Available" : "Not Available"}
+              </span>
+              <h3 className="font-semibold text-lg text-white">{doc.name}</h3>
+              <p className="text-sm text-slate-400">{doc.speciality}</p>
             </div>
           </div>
         ))}
       </div>
-      <button
-        onClick={() => {
-          navigate("/doctors");
-          scrollTo(0, 0);
-        }}
-        className="bg-blue-50 text-gray-600 px-12 py-3 rounded-full mt-10"
-      >
-        more
-      </button>
-    </div>
+
+      <div className="flex justify-center">
+        <button
+          onClick={() => {
+            navigate("/doctors");
+            scrollTo({ top: 0, behavior: "smooth" });
+          }}
+          className="mt-14 bg-gradient-to-r from-cyan-500 to-fuchsia-600 text-white px-10 py-3 rounded-full hover:-translate-y-0.5 transition-transform"
+        >
+          More Doctors
+        </button>
+      </div>
+    </section>
   );
 };
 

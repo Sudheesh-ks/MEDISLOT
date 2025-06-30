@@ -6,24 +6,24 @@ import SearchBar from "../../components/common/SearchBar";
 import Pagination from "../../components/common/Pagination";
 
 const Doctors = () => {
-  const navigate = useNavigate();
+  const nav = useNavigate();
   const { speciality } = useParams();
-  const [filterDoc, setFilterDoc] = useState<Doctor[]>([]);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [showFilter, setShowFilter] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
+
   const [doctors, setDoctors] = useState<Doctor[]>([]);
+  const [filtered, setFiltered] = useState<Doctor[]>([]);
+
   const [totalPages, setTotalPages] = useState(1);
-  const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(false);
+
+  const ctx = useContext(AppContext);
+  if (!ctx) throw new Error("Doctors must be used within an AppContextProvider");
+  const { getDoctorsPaginated } = ctx;
+
   const itemsPerPage = 6;
-  const context = useContext(AppContext);
-
-  if (!context) {
-    throw new Error("TopDoctors must be used within an AppContextProvider");
-  }
-
-  const { getDoctorsPaginated } = context;
 
   useEffect(() => {
     fetchDoctors();
@@ -34,124 +34,100 @@ const Doctors = () => {
   }, [currentPage]);
 
   const fetchDoctors = async () => {
+    setLoading(true);
     try {
-      setLoading(true);
-      const result = await getDoctorsPaginated(currentPage, itemsPerPage);
-      setDoctors(result.data);
-      setTotalPages(result.totalPages);
-      setTotalCount(result.totalCount);
-    } catch (error) {
-      console.error("Failed to fetch doctors:", error);
+      const res = await getDoctorsPaginated(currentPage, itemsPerPage);
+      setDoctors(res.data);
+      setTotalPages(res.totalPages);
     } finally {
       setLoading(false);
     }
   };
 
-  const applyFilter = () => {
-    let filtered = speciality
-      ? doctors.filter((doc) => doc.speciality === speciality)
-      : doctors;
-
-    if (searchQuery.trim()) {
-      filtered = filtered.filter((doc) =>
-        doc.name.toLowerCase().includes(searchQuery.toLowerCase())
-      );
-    }
-
-    setFilterDoc(filtered);
-  };
-
+  /** filter logic */
   useEffect(() => {
-    applyFilter();
+    let list = speciality ? doctors.filter((d) => d.speciality === speciality) : doctors;
+    if (searchQuery.trim()) list = list.filter((d) => d.name.toLowerCase().includes(searchQuery.toLowerCase()));
+    setFiltered(list);
   }, [doctors, speciality, searchQuery]);
 
-  return (
-    <div>
-      <p className="text-gray-600">Browse through the doctors specialist.</p>
-      <div className="flex flex-col sm:flex-row items-start gap-5 mt-5">
-        <button
-          className={`py-1 px-3 border rounded text-sm transition-all sm:hidden ${
-            showFilter ? "bg-primary text-white" : ""
-          }`}
-          onClick={() => setShowFilter((prev) => !prev)}
-        >
-          Filters
-        </button>
-        <div
-          className={`flex-col gap-4 text-sm text-gray-600 ${
-            showFilter ? "flex" : "hidden sm:flex"
-          }`}
-        >
-          {[
-            "General physician",
-            "Gynecologist",
-            "Dermatologist",
-            "Pediatrician",
-            "Neurologist",
-            "Gastroenterologist",
-          ].map((spec) => (
-            <p
-              key={spec}
-              onClick={() =>
-                speciality === spec
-                  ? navigate("/doctors")
-                  : navigate(`/doctors/${spec}`)
-              }
-              className={`w-[94vw] sm:w-auto pl-3 py-1.5 pr-16 border border-gray-300 rounded transition-all cursor-pointer ${
-                speciality === spec ? "bg-indigo-100 text-black" : ""
-              }`}
-            >
-              {spec}
-            </p>
-          ))}
-        </div>
+  const specialities = [
+    "General physician",
+    "Gynecologist",
+    "Dermatologist",
+    "Pediatrician",
+    "Neurologist",
+    "Gastroenterologist",
+  ];
 
-        {/* Right side: Search bar + doctor cards */}
-        <div className="w-full flex flex-col gap-4">
-          {/* Search bar */}
-          <div className="mb-4 w-80">
-            <SearchBar
-              placeholder="Search by name or email"
-              onSearch={(query) => {
-                setSearchQuery(query);
-              }}
-            />
+  return (
+    <main className="max-w-7xl mx-auto px-4 md:px-10 py-24 text-slate-100 animate-fade">
+      <p className="mb-8 text-slate-400">Browse through the doctors specialist.</p>
+
+      <div className="flex flex-col sm:flex-row gap-8">
+        {/* Filters */}
+        <aside className="sm:w-56 space-y-4">
+          <button
+            className={`sm:hidden py-1.5 px-4 rounded-full ring-1 ring-white/20 text-sm ${showFilter ? "bg-white/10" : ""}`}
+            onClick={() => setShowFilter(!showFilter)}
+          >
+            {showFilter ? "Hide Filters" : "Filters"}
+          </button>
+
+          <div className={`${showFilter ? "flex" : "hidden sm:flex"} flex-col gap-3`}>
+            {specialities.map((spec) => (
+              <button
+                key={spec}
+                onClick={() => (speciality === spec ? nav("/doctors") : nav(`/doctors/${spec}`))}
+                className={`text-left px-4 py-2 rounded-lg text-sm ring-1 ring-white/10 hover:bg-white/5 transition-colors ${speciality === spec ? "bg-cyan-500/20 text-white" : ""}`}
+              >
+                {spec}
+              </button>
+            ))}
           </div>
+        </aside>
+
+        {/* Result list */}
+        <section className="flex-1 space-y-8">
+          <SearchBar placeholder="Search by name" onSearch={setSearchQuery} />
 
           {loading ? (
-            <div className="flex justify-center items-center h-64">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            <div className="flex justify-center items-center h-60">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500"></div>
             </div>
-          ) : filterDoc.filter((doctor) => doctor.status === "approved").length > 0 ? (
+          ) : filtered.filter((d) => d.status === "approved").length ? (
             <>
-              {/* Doctor cards */}
-              <div className="grid grid-cols-auto gap-4 gap-y-6">
-                {filterDoc
-                  .filter((doctor) => doctor.status === "approved")
-                  .map((item: Doctor, index: number) => (
+              <div className="grid gap-10 grid-cols-[repeat(auto-fill,minmax(260px,1fr))]">
+                {filtered
+                  .filter((d) => d.status === "approved")
+                  .map((doc) => (
                     <div
-                      onClick={() => navigate(`/appointment/${item._id}`)}
-                      className="border border-blue-200 rounded-xl overflow-hidden cursor-pointer hover:translate-y-[-10px] transition-all duration-500"
-                      key={index}
+                      key={doc._id}
+                      onClick={() => nav(`/appointment/${doc._id}`)}
+                      className="group cursor-pointer bg-white/5 backdrop-blur rounded-3xl ring-1 ring-white/10 overflow-hidden hover:-translate-y-1 transition-transform"
                     >
-                      <img className="bg-blue-50" src={item.image} alt="" />
-                      <div className="p-4">
-                        {item.available ? (
-                          <div className="flex items-center gap-2 text-sm text-green-500">
-                            <p className="w-2 h-2 bg-green-500 rounded-full"></p>
-                            <p>Available</p>
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-2 text-sm text-red-500">
-                            <p className="w-2 h-2 bg-red-500 rounded-full"></p>
-                            <p>Not Available</p>
-                          </div>
-                        )}
-
-                        <p className="text-gray-900 text-lg font-medium">
-                          {item.name}
-                        </p>
-                        <p className="text-gray-600 text-sm">{item.speciality}</p>
+                      <div className="h-72 flex items-end justify-center bg-white/5 overflow-hidden">
+                        <img
+                          src={doc.image}
+                          alt={doc.name}
+                          className="h-full object-contain object-bottom group-hover:scale-105 transition-transform"
+                        />
+                      </div>
+                      <div className="p-6 space-y-2">
+                        <span
+                          className={`inline-flex items-center gap-2 text-xs font-medium ${
+                            doc.available ? "text-emerald-400" : "text-rose-400"
+                          }`}
+                        >
+                          <span
+                            className={`inline-block w-2 h-2 rounded-full ${
+                              doc.available ? "bg-emerald-400" : "bg-rose-400"
+                            }`}
+                          />
+                          {doc.available ? "Available" : "Not Available"}
+                        </span>
+                        <h3 className="font-semibold text-lg text-white">{doc.name}</h3>
+                        <p className="text-sm text-slate-400">{doc.speciality}</p>
                       </div>
                     </div>
                   ))}
@@ -161,19 +137,16 @@ const Doctors = () => {
                 <Pagination
                   currentPage={currentPage}
                   totalPages={totalPages}
-                  onPageChange={(page) => setCurrentPage(page)}
+                  onPageChange={setCurrentPage}
                 />
               )}
             </>
           ) : (
-            <div className="text-gray-500 mt-6 text-center w-full">
-              No doctors found.
-            </div>
+            <div className="text-slate-400 mt-10 text-center w-full">No doctors found.</div>
           )}
-        </div>
+        </section>
       </div>
-    </div>
+    </main>
   );
 };
-
 export default Doctors;

@@ -1,149 +1,133 @@
-import React, { useState } from 'react';
-import { NavLink } from 'react-router-dom';
+// src/components/admin/AdminSidebar.tsx
+import { useState } from "react";
+import { NavLink } from "react-router-dom";
 
 const AdminSidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
+  /* ——— ascii‑icon placeholders (feel free to swap for svgs) ——— */
   const assets = {
     home_icon: "🏠",
     people_icon: "👥",
     appointment_icon: "📅",
-    add_icon: "➕",
     doctor_request: "⚠️",
     doctor_icon: "🧑🏻‍⚕️",
+    inbox_icon: "✉️",
   };
 
   const menuItems = [
-    {
-      to: "/admin/dashboard",
-      icon: assets.home_icon,
-      label: "Dashboard",
-      gradient: "from-blue-500 to-primary"
-    },
-    {
-      to: "/admin/user-management",
-      icon: assets.people_icon,
-      label: "Manage Users",
-      gradient: "from-blue-500 to-primary"
-    },
-    {
-      to: "/admin/appointments",
-      icon: assets.appointment_icon,
-      label: "Appointments",
-      gradient: "from-blue-500 to-primary"
-    },
-    {
-      to: "/admin/doctor-requests",
-      icon: assets.doctor_request,
-      label: "Doctor Requests",
-      gradient: "from-blue-500 to-primary"
-    },
-    // {
-    //   to: "/admin/update-doctor",
-    //   icon: assets.people_icon,
-    //   label: "Update Doctor",
-    //   gradient: "from-blue-500 to-primary"
-    // },
-    {
-      to: "/admin/all-doctors",
-      icon: assets.doctor_icon,
-      label: "Doctor List",
-      gradient: "from-blue-500 to-primary"
-    },
-    {
-      to: "/admin/inbox",
-      icon: assets.appointment_icon,
-      label: "Inbox",
-      gradient: "from-blue-500 to-primary"
-    }
+    { to: "/admin/dashboard",        icon: assets.home_icon,        label: "Dashboard"       },
+    { to: "/admin/user-management",  icon: assets.people_icon,      label: "Manage Users"    },
+    { to: "/admin/appointments",     icon: assets.appointment_icon, label: "Appointments"    },
+    { to: "/admin/doctor-requests",  icon: assets.doctor_request,   label: "Doctor Requests" },
+    { to: "/admin/all-doctors",      icon: assets.doctor_icon,      label: "Doctor List"     },
+    { to: "/admin/inbox",            icon: assets.inbox_icon,       label: "Inbox"           },
   ];
 
-  return (
-    <div className={`min-h-screen bg-gradient-to-b from-white to-gray-50 border-r border-gray-200 transition-all duration-300 ${isCollapsed ? 'w-20' : 'w-72'} relative group`}>
-      {/* Decorative Elements */}
-      <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-br from-blue-50 via-purple-50 to-transparent opacity-60"></div>
-      <div className="absolute top-10 right-4 w-8 h-8 bg-blue-100 rounded-full opacity-30 animate-pulse"></div>
-      <div className="absolute top-20 right-8 w-4 h-4 bg-purple-100 rounded-full opacity-40 animate-bounce"></div>
+  /* ---------- helpers ---------- */
+  const glass = "bg-white/5 backdrop-blur ring-1 ring-white/10";
+  const grad  = "from-cyan-500 to-fuchsia-600";
 
-      {/* Header Section */}
-      <div className="relative z-10 p-6 border-b border-gray-100">
+  /* ======================================================= */
+  return (
+    <aside
+      className={`min-h-screen ${glass} transition-all duration-300
+                  ${isCollapsed ? "w-20" : "w-72"} relative`}
+    >
+      {/* ✨ Floating decor */}
+      <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-br from-cyan-500/20 via-fuchsia-500/10 to-transparent" />
+      <div className="absolute top-10 right-4 w-8 h-8 bg-cyan-400/30 rounded-full animate-pulse" />
+      <div className="absolute top-20 right-8 w-4 h-4 bg-fuchsia-400/40 rounded-full animate-bounce" />
+
+      {/* ─── header ─── */}
+      <div className="relative z-10 p-6 border-b border-white/10">
         <div className="flex items-center justify-between">
+          {/* logo / title */}
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-primary rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-lg">
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-lg shadow-lg bg-gradient-to-r ${grad}`}>
               A
             </div>
             {!isCollapsed && (
               <div>
-                <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-primary bg-clip-text text-transparent">
-                  Admin Panel
+                <h1 className={`text-xl font-bold bg-gradient-to-r ${grad} bg-clip-text text-transparent`}>
+                  Admin&nbsp;Panel
                 </h1>
-                <p className="text-sm text-gray-500">MediSlot</p>
+                <p className="text-xs text-slate-400">MediSlot</p>
               </div>
             )}
           </div>
 
+          {/* collapse button */}
           <button
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            className="p-2 rounded-lg hover:bg-gray-100 transition-colors duration-200"
+            onClick={() => setIsCollapsed((p) => !p)}
+            className="p-2 rounded-lg hover:bg-white/5 transition-colors duration-200"
           >
-            <div className={`w-5 h-5 flex flex-col justify-center items-center transition-transform duration-300 ${isCollapsed ? 'rotate-180' : ''}`}>
-              <div className="w-3 h-0.5 bg-gray-600 mb-1"></div>
-              <div className="w-3 h-0.5 bg-gray-600 mb-1"></div>
-              <div className="w-3 h-0.5 bg-gray-600"></div>
+            <div
+              className={`w-5 h-5 flex flex-col justify-center items-center transition-transform duration-300
+                          ${isCollapsed ? "rotate-180" : ""}`}
+            >
+              <span className="w-3 h-0.5 bg-slate-300 mb-1" />
+              <span className="w-3 h-0.5 bg-slate-300 mb-1" />
+              <span className="w-3 h-0.5 bg-slate-300"   />
             </div>
           </button>
         </div>
       </div>
 
-      {/* Navigation Menu */}
+      {/* ─── nav items ─── */}
       <nav className="relative z-10 p-4">
         <ul className="space-y-2">
-          {menuItems.map((item, index) => (
-            <li key={index} className="group/item">
+          {menuItems.map((it) => (
+            <li key={it.to} className="group/item">
               <NavLink
-                to={item.to}
+                to={it.to}
                 className={({ isActive }) =>
-                  `relative flex items-center gap-4 p-3 rounded-xl transition-all duration-300 group-hover/item:transform group-hover/item:scale-105 overflow-hidden ${
-                    isActive
-                      ? 'bg-white shadow-lg border border-gray-200 text-gray-800'
-                      : 'text-gray-600 hover:bg-white/70 hover:shadow-md hover:text-gray-800'
-                  }`
+                  `relative flex items-center gap-4 p-3 rounded-xl overflow-hidden transition-all duration-300
+                   ${isActive ? "text-slate-100" : "text-slate-400 hover:text-slate-200"}
+                   ${isActive ? "bg-white/10 ring-1 ring-white/10" : "hover:bg-white/5"}`
                 }
               >
                 {({ isActive }) => (
                   <>
-                    <div className={`absolute inset-0 bg-gradient-to-r ${item.gradient} opacity-0 transition-opacity duration-300 ${isActive ? 'opacity-10' : 'group-hover/item:opacity-5'}`}></div>
-
+                    {/* subtle gradient wash */}
+                    <div
+                      className={`absolute inset-0 bg-gradient-to-r ${grad}
+                                  ${isActive ? "opacity-10" : "opacity-0 group-hover/item:opacity-5"}
+                                  transition-opacity duration-300`}
+                    />
+                    {/* left accent bar */}
                     {isActive && (
-                      <div className={`absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b ${item.gradient} rounded-r-full`}></div>
+                      <span className={`absolute left-0 top-0 bottom-0 w-1 bg-gradient-to-b ${grad} rounded-r-full`} />
                     )}
 
-                    <div className={`relative w-8 h-8 flex items-center justify-center rounded-lg transition-all duration-300 ${
-                      isActive 
-                        ? `bg-gradient-to-r ${item.gradient} shadow-lg` 
-                        : 'bg-gray-100 group-hover/item:bg-gradient-to-r group-hover/item:' + item.gradient
-                    }`}>
-                      <span className={`text-sm transition-all duration-300 ${
-                        isActive ? 'text-white' : 'text-gray-600 group-hover/item:text-white'
-                      }`}>
-                        {item.icon}
-                      </span>
+                    {/* icon bubble */}
+                    <div
+                      className={`relative w-8 h-8 flex items-center justify-center rounded-lg transition-colors duration-300
+                                  ${isActive ? `bg-gradient-to-r ${grad} shadow-lg` : "bg-white/10 group-hover/item:bg-gradient-to-r group-hover/item:" + grad}`}
+                    >
+                      <span className={`${isActive ? "text-white" : "group-hover/item:text-white"}`}>{it.icon}</span>
                     </div>
 
-                    {!isCollapsed && (
-                      <span className="font-medium text-sm transition-colors duration-300 group-hover/item:text-gray-800">
-                        {item.label}
+                    {/* label (hide when collapsed) */}
+                    {!isCollapsed && <span className="relative font-medium text-sm">{it.label}</span>}
+
+                    {/* tooltip when collapsed */}
+                    {isCollapsed && (
+                      <span
+                        className="absolute left-full ml-4 px-3 py-2 bg-slate-800 text-white text-xs rounded-lg shadow-lg
+                                   opacity-0 invisible group-hover/item:opacity-100 group-hover/item:visible
+                                   transition-all duration-300 whitespace-nowrap"
+                      >
+                        {it.label}
+                        <span className="absolute left-0 top-1/2 -translate-x-1 -translate-y-1/2 w-2 h-2 bg-slate-800 rotate-45" />
                       </span>
                     )}
 
-                    {isCollapsed && (
-                      <div className="absolute left-full ml-4 px-3 py-2 bg-gray-800 text-white text-sm rounded-lg shadow-lg opacity-0 invisible group-hover/item:opacity-100 group-hover/item:visible transition-all duration-300 whitespace-nowrap z-50">
-                        {item.label}
-                        <div className="absolute left-0 top-1/2 transform -translate-x-1 -translate-y-1/2 w-2 h-2 bg-gray-800 rotate-45"></div>
-                      </div>
-                    )}
-
-                    <div className={`absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r ${item.gradient} transform scale-x-0 group-hover/item:scale-x-100 transition-transform duration-300 origin-left`}></div>
+                    {/* bottom hover underline */}
+                    <span
+                      className={`absolute bottom-0 left-0 right-0 h-0.5 bg-gradient-to-r ${grad}
+                                  transform scale-x-0 group-hover/item:scale-x-100 transition-transform duration-300 origin-left`}
+                    />
                   </>
                 )}
               </NavLink>
@@ -152,31 +136,32 @@ const AdminSidebar = () => {
         </ul>
       </nav>
 
-      {!isCollapsed && (
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-100 bg-gradient-to-r from-blue-50 to-purple-50">
-          <div className="flex items-center gap-3 p-3 bg-white rounded-xl shadow-sm">
-            <div className="w-10 h-10 bg-gradient-to-r from-green-400 to-blue-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
-              <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+      {/* ─── status / bottom blob ─── */}
+      {!isCollapsed ? (
+        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-white/10">
+          <div className={`${glass} p-3 flex items-center gap-3 rounded-xl`}>
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold shadow-lg bg-gradient-to-r ${grad}`}>
+              <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
             </div>
             <div>
-              <p className="font-medium text-sm text-gray-800">System Status</p>
-              <p className="text-xs text-green-600 flex items-center gap-1">
-                <span className="w-1.5 h-1.5 bg-green-500 rounded-full"></span>
-                All Systems Operational
+              <p className="text-sm font-medium">System Status</p>
+              <p className="text-xs text-emerald-400 flex items-center gap-1">
+                <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full" /> All systems operational
               </p>
             </div>
           </div>
         </div>
-      )}
-
-      {isCollapsed && (
-        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
-          <button className="w-12 h-12 bg-gradient-to-r from-blue-500 to-primary rounded-full shadow-lg flex items-center justify-center text-white hover:shadow-xl transition-all duration-300 hover:scale-110">
-            <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+      ) : (
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2">
+          <button
+            className={`w-12 h-12 rounded-full shadow-lg hover:shadow-xl flex items-center justify-center
+                        bg-gradient-to-r ${grad} text-white hover:scale-110 transition-transform duration-300`}
+          >
+            <span className="w-2 h-2 bg-white rounded-full animate-pulse" />
           </button>
         </div>
       )}
-    </div>
+    </aside>
   );
 };
 

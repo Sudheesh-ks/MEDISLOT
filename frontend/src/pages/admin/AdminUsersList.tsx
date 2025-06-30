@@ -1,4 +1,5 @@
-import { useEffect, useContext, useState } from "react";
+// src/pages/admin/AdminUsersList.tsx
+import { useContext, useEffect, useState } from "react";
 import { AdminContext } from "../../context/AdminContext";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -7,174 +8,145 @@ import Pagination from "../../components/common/Pagination";
 import DataTable from "../../components/common/DataTable";
 
 const AdminUsersList = () => {
-  const navigate = useNavigate();
-  const context = useContext(AdminContext);
-  if (!context) throw new Error("AdminContext must be used inside provider");
+  const nav = useNavigate();
+  const ctx = useContext(AdminContext);
+  if (!ctx) throw new Error("AdminContext missing");
 
-  const { aToken, getUsersPaginated, toggleBlockUser } = context;
+  const { aToken, getUsersPaginated, toggleBlockUser } = ctx;
 
-  const [currentPage, setCurrentPage] = useState(1);
-  const [users, setUsers] = useState<any[]>([]);
-  const [totalPages, setTotalPages] = useState(1);
-  const [totalCount, setTotalCount] = useState(0);
+  /* ───────── local state ───────── */
+  const [page,  setPage]  = useState(1);
+  const [rows,  setRows]  = useState<any[]>([]);
+  const [pages, setPages] = useState(1);
+  const [cnt,   setCnt]   = useState(0);
   const [loading, setLoading] = useState(false);
-  const itemsPerPage = 6;
-  const [searchQuery, setSearchQuery] = useState("");
+  const perPage = 6;
+  const [q, setQ] = useState("");
+
+  /* ───────── data fetch ───────── */
+  useEffect(() => {
+    if (aToken) fetchRows();
+  }, [aToken, page]);
 
   useEffect(() => {
-    if (aToken) {
-      fetchUsers();
-    }
-  }, [aToken, currentPage]);
+    if (!aToken) nav("/admin/login");
+  }, [aToken]);
 
-  useEffect(() => {
-    if (!aToken) {
-      navigate("/admin/login");
-    }
-  }, [aToken, navigate]);
-
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, [currentPage]);
-
-  const fetchUsers = async () => {
+  const fetchRows = async () => {
     try {
       setLoading(true);
-      const result = await getUsersPaginated(currentPage, itemsPerPage);
-      setUsers(result.data);
-      setTotalPages(result.totalPages);
-      setTotalCount(result.totalCount);
-    } catch (error) {
-      console.error("Failed to fetch users:", error);
+      const res = await getUsersPaginated(page, perPage);
+      setRows(res.data);
+      setPages(res.totalPages);
+      setCnt(res.totalCount);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleToggleBlock = async (userId: string) => {
-    try {
-      await toggleBlockUser(userId);
-      // Refresh current page after blocking/unblocking
-      fetchUsers();
-    } catch (error) {
-      console.error("Failed to toggle user block:", error);
-    }
+  const doToggle = async (id: string) => {
+    await toggleBlockUser(id);
+    fetchRows();
   };
 
-  const filteredUsers = users.filter((user) => {
-    const q = searchQuery.toLowerCase();
-    return (
-      user.name?.toLowerCase().includes(q) ||
-      user.email?.toLowerCase().includes(q)
-    );
-  });
+  /* ───────── derived ───────── */
+  const filtered = rows.filter((u) =>
+    (u.name || "").toLowerCase().includes(q.toLowerCase()) ||
+    (u.email || "").toLowerCase().includes(q.toLowerCase())
+  );
 
-  const columns = [
+  /* ───────── columns ───────── */
+  const cols = [
+    { key: "#", header: "#", width: "0.5fr", hideOnMobile: true,
+      render: (_: any, i: number) => (page - 1) * perPage + i + 1 },
     {
-      key: "index",
-      header: "#",
-      width: "0.5fr",
-      hideOnMobile: true,
-      render: (_: any, index: number) => (
-        <p>{(currentPage - 1) * itemsPerPage + index + 1}</p>
-      ),
-    },
-    {
-      key: "image",
+      key: "img",
       header: "Image",
       width: "2fr",
-      render: (item: any) => (
-        <div className="flex items-center gap-2">
-          <img
-            src={item.image || "/default-avatar.png"}
-            alt="User"
-            className="w-10 h-10 rounded-full object-cover border"
-          />
-        </div>
+      render: (it: any) => (
+        <img
+          src={it.image || "/default-avatar.png"}
+          className="w-10 h-10 rounded-full object-cover ring-1 ring-white/10"
+        />
       ),
     },
     {
       key: "name",
       header: "Name",
       width: "2fr",
-      render: (item: any) => (
-        <p className="text-gray-800 font-medium truncate">{item.name}</p>
-      ),
+      render: (it: any) => <span className="font-medium">{it.name}</span>,
     },
     {
-      key: "email",
+      key: "mail",
       header: "Email",
       width: "3fr",
-      render: (item: any) => (
-        <p className="text-sm text-gray-600 truncate">{item.email}</p>
-      ),
+      render: (it: any) => <span className="text-slate-400 text-sm">{it.email}</span>,
     },
     {
-      key: "status",
+      key: "st",
       header: "Status",
       width: "1.5fr",
-      render: (item: any) => (
+      render: (it: any) => (
         <span
-          className={`px-3 py-1 text-xs rounded-full font-semibold w-fit transition-colors duration-300 ${
-            item.isBlocked
-              ? "bg-red-100 text-red-600"
-              : "bg-green-100 text-green-600"
-          }`}
+          className={`px-3 py-0.5 text-xs rounded-full font-semibold
+            ${it.isBlocked
+              ? "bg-red-500/20 text-red-400"
+              : "bg-emerald-500/20 text-emerald-400"}`}
         >
-          {item.isBlocked ? "Blocked" : "Active"}
+          {it.isBlocked ? "Blocked" : "Active"}
         </span>
       ),
     },
     {
-      key: "actions",
+      key: "act",
       header: "Action",
       width: "1.5fr",
       className: "text-right pr-4",
-      render: (item: any) => (
+      render: (it: any) => (
         <motion.button
-          whileTap={{ scale: 0.95 }}
+          whileTap={{ scale: 0.92 }}
           onClick={(e) => {
             e.stopPropagation();
-            handleToggleBlock(item._id);
+            doToggle(it._id);
           }}
-          className={`px-4 py-1.5 text-sm rounded-lg font-medium text-white shadow-sm transition duration-200 ${
-            item.isBlocked
-              ? "bg-green-500 hover:bg-green-600"
-              : "bg-red-500 hover:bg-red-600"
-          }`}
+          className={`px-4 py-1.5 text-xs rounded-lg font-medium shadow-md
+            ${it.isBlocked
+              ? "bg-gradient-to-r from-emerald-500 to-cyan-500 text-white"
+              : "bg-gradient-to-r from-red-500 to-fuchsia-500 text-white"}`}
         >
-          {item.isBlocked ? "Unblock" : "Block"}
+          {it.isBlocked ? "Unblock" : "Block"}
         </motion.button>
       ),
     },
   ];
 
+  /* ───────── render ───────── */
   return (
-    <div className="w-full max-w-6xl m-5">
-      <p className="mb-3 text-lg font-semibold">👥 All Users</p>
+    <div className="w-full max-w-6xl m-5 text-slate-100">
+      <h1 className="mb-4 text-lg font-semibold">👥 All Users</h1>
 
-      <div className="mb-4">
+      <div className="mb-6 max-w-sm">
         <SearchBar
           placeholder="Search by name or email"
-          onSearch={(query) => {
-            setSearchQuery(query);
-          }}
+          onSearch={setQ}
         />
       </div>
 
       <DataTable
-        data={filteredUsers}
-        columns={columns}
+        data={filtered}
+        columns={cols}
         loading={loading}
         emptyMessage="No matching users found."
         gridCols="grid-cols-[0.5fr_2fr_2fr_3fr_1.5fr_1.5fr]"
+        containerClassName="max-h-[80vh] min-h-[60vh] bg-white/5 backdrop-blur ring-1 ring-white/10"
+        className="hover:bg-white/5"
       />
 
-      {totalPages > 1 && (
+      {pages > 1 && (
         <Pagination
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={(page) => setCurrentPage(page)}
+          currentPage={page}
+          totalPages={pages}
+          onPageChange={setPage}
         />
       )}
     </div>

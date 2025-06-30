@@ -1,3 +1,4 @@
+// src/pages/doctor/DoctorRegister.tsx
 import React, { useContext, useEffect, useState } from "react";
 import { assets } from "../../assets/admin/assets";
 import { useNavigate } from "react-router-dom";
@@ -8,119 +9,114 @@ import { isValidEmail, isValidName, isValidPassword } from "../../utils/validato
 import { DoctorContext } from "../../context/DoctorContext";
 
 const DoctorRegister = () => {
-  const [docImg, setDocImg] = useState<File | null>(null);
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [experience, setExperience] = useState("1 Year");
-  const [fees, setFees] = useState("");
-  const [about, setAbout] = useState("");
-  const [speciality, setSpeciality] = useState("General physician");
-  const [degree, setDegree] = useState("");
-  const [address1, setAddress1] = useState("");
-  const [address2, setAddress2] = useState("");
+  /* ------------ form state ------------ */
+  const [docImg,      setDocImg]      = useState<File | null>(null);
+  const [name,        setName]        = useState("");
+  const [email,       setEmail]       = useState("");
+  const [password,    setPassword]    = useState("");
+  const [experience,  setExperience]  = useState("1 Year");
+  const [fees,        setFees]        = useState("");
+  const [about,       setAbout]       = useState("");
+  const [speciality,  setSpeciality]  = useState("General physician");
+  const [degree,      setDegree]      = useState("");
+  const [address1,    setAddress1]    = useState("");
+  const [address2,    setAddress2]    = useState("");
 
-  const navigate = useNavigate();
+  /* ------------ nav / context ------------ */
+  const nav  = useNavigate();
+  const ctx  = useContext(DoctorContext);
+  if (!ctx) throw new Error("DoctorContext required");
+  const { dToken } = ctx;
 
+  useEffect(() => { if (dToken) nav("/doctor/dashboard"); }, [dToken]);
 
-    const context = useContext(DoctorContext);
-  
-    if (!context) {
-      throw new Error("DoctorContext must be used within DoctorContextProvider");
-    }
-  
-    const { dToken } = context;
-  
-    useEffect(() => {
-      if (dToken) navigate("/doctor/dashboard");
-    }, [dToken, navigate]);
+  /* ------------ submit ------------ */
+  const onSubmitHandler = async (e: React.FormEvent) => {
+    e.preventDefault();
 
-  const onSubmitHandler = async (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    if (!docImg) return toast.error("Please upload a profile image.");
-    if (!name || !email || !password || !fees || !about || !degree || !address1) {
-      return toast.error("Please fill in all required fields.");
-    }
-    if (!isValidName(name)) return toast.error("Name must be at least 4 characters.");
-    if (!isValidEmail(email)) return toast.error("Please enter a valid email address.");
-    if (!isValidPassword(password)) {
-      return toast.error(
-        "Password must be at least 8 characters, include 1 number and 1 special character."
-      );
-    }
+    /* validations – same logic, different colours now handled by toast */
+    if (!docImg)          return toast.error("Please upload a profile image");
+    if (!name || !email || !password || !fees || !about || !degree || !address1)
+      return toast.error("Please fill in all required fields");
+    if (!isValidName(name))        return toast.error("Name must be ≥ 4 chars");
+    if (!isValidEmail(email))      return toast.error("Enter a valid email");
+    if (!isValidPassword(password))
+      return toast.error("Password must be ≥ 8 chars, incl. number & symbol");
 
     try {
-      // if (!docImg) return toast.error("Image Not Selected");
+      const fd = new FormData();
+      fd.append("image", docImg);
+      fd.append("name", name);
+      fd.append("email", email);
+      fd.append("password", password);
+      fd.append("experience", experience);
+      fd.append("fees", fees);
+      fd.append("about", about);
+      fd.append("speciality", speciality);
+      fd.append("degree", degree);
+      fd.append("address", JSON.stringify({ line1: address1, line2: address2 }));
 
-      const formData = new FormData();
-      formData.append("image", docImg);
-      formData.append("name", name);
-      formData.append("email", email);
-      formData.append("password", password);
-      formData.append("experience", experience);
-      formData.append("fees", fees);
-      formData.append("about", about);
-      formData.append("speciality", speciality);
-      formData.append("degree", degree);
-      formData.append("address", JSON.stringify({ line1: address1, line2: address2 }));
-
-      const { data } = await registerDoctorAPI(formData);
-
+      const { data } = await registerDoctorAPI(fd);
       if (data.success) {
         toast.success(data.message);
-        navigate("/doctor/login");
-      } else {
-        toast.error(data.message);
-      }
-    } catch (error) {
-      showErrorToast(error);
-    }
+        nav("/doctor/login");
+      } else toast.error(data.message);
+    } catch (err) { showErrorToast(err); }
   };
 
-  return (
-    
-    <div className="flex items-center justify-center min-h-screen px-4">
-      <div
-  className="absolute top-6 left-6 flex items-center gap-2 px-4 py-2 rounded-full bg-blue-100 text-blue-600 font-medium shadow-md hover:bg-blue-200 transition duration-300 cursor-pointer"
-  onClick={() => navigate("/")}
->
-  <span className="text-lg">🏠</span>
-  <span className="text-sm sm:text-base">Back to Home</span>
-</div>
-      <div className="w-full max-w-5xl bg-white rounded-xl shadow-md p-4">
-        <h2 className="text-2xl font-semibold text-center text-primary mb-3">Doctor Registration</h2>
+  /* ------------ UI helpers ------------ */
+  const glass = "bg-white/5 backdrop-blur ring-1 ring-white/10";
+  const input =
+    "w-full bg-transparent ring-1 ring-white/10 rounded px-3 py-1.5 text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500";
+  const label = "block mb-1 font-medium text-slate-300";
 
-        <form onSubmit={onSubmitHandler} className="space-y-3">
+  /* ============================================================ */
+  return (
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center px-4">
+      {/* back‑home pill */}
+      <div
+        onClick={() => nav("/")}
+        className="fixed top-6 left-6 flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-500/10 text-cyan-400 shadow hover:-translate-y-0.5 transition cursor-pointer"
+      >
+        🏠 <span className="hidden sm:inline">Back to Home</span>
+      </div>
+
+      {/* form card */}
+      <div className={`w-full max-w-5xl ${glass} rounded-3xl p-6 shadow-xl`}>
+        <h2 className="text-2xl font-semibold text-center mb-6">
+          Doctor Registration
+        </h2>
+
+        <form onSubmit={onSubmitHandler} className="space-y-6">
+          {/* photo upload */}
           <div className="flex items-center gap-4">
             <label htmlFor="doc-img" className="cursor-pointer">
               <img
-                className="w-14 h-14 rounded-full object-cover border border-gray-300"
+                className="w-16 h-16 rounded-full object-cover ring-1 ring-white/10"
                 src={docImg ? URL.createObjectURL(docImg) : assets.upload_area}
-                alt="Upload"
+              />
+              <input
+                id="doc-img"
+                type="file"
+                hidden
+                onChange={e => e.target.files && setDocImg(e.target.files[0])}
               />
             </label>
-            <input
-              type="file"
-              id="doc-img"
-              hidden
-              onChange={(e) => e.target.files && setDocImg(e.target.files[0])}
-            />
-            <div>
-              <p className="text-sm font-medium">Upload Profile Image</p>
-              <p className="text-xs text-gray-500">Click image to upload</p>
+            <div className="text-xs text-slate-400">
+              Click image to upload profile photo
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <InputField label="Full Name" value={name} setValue={setName} />
-            <InputField type="email" label="Email" value={email} setValue={setEmail} />
-            <InputField type="password" label="Password" value={password} setValue={setPassword} />
+          {/* inputs grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <InputField label="Full Name" value={name}    setValue={setName} />
+            <InputField label="Email"     value={email}   setValue={setEmail} type="email" />
+            <InputField label="Password"  value={password} setValue={setPassword} type="password" />
             <SelectField
               label="Experience"
               value={experience}
               setValue={setExperience}
-              options={Array.from({ length: 15 }, (_, i) => `${i + 1} Year${i > 0 ? "s" : ""}`)}
+              options={Array.from({ length: 15 }, (_, i) => `${i + 1} Year${i ? "s" : ""}`)}
             />
             <SelectField
               label="Speciality"
@@ -135,73 +131,95 @@ const DoctorRegister = () => {
                 "Gastroenterologist",
               ]}
             />
-            <InputField label="Degree" value={degree} setValue={setDegree} />
-            <InputField label="Fees (₹)" type="number" value={fees} setValue={setFees} />
+            <InputField label="Degree"   value={degree} setValue={setDegree} />
+            <InputField label="Fees (₹)" value={fees}   setValue={setFees} type="number" />
             <InputField label="Address Line 1" value={address1} setValue={setAddress1} />
             <InputField label="Address Line 2" value={address2} setValue={setAddress2} />
           </div>
 
+          {/* about */}
           <div>
-            <label className="block mb-1 font-medium">About You</label>
+            <label className={label}>About You</label>
             <textarea
+              className={`${input} h-24`}
               value={about}
-              onChange={(e) => setAbout(e.target.value)}
-              rows={2}
-              className="w-full border px-3 py-1.5 rounded focus:outline-none focus:ring-1 focus:border-primary"
+              onChange={e => setAbout(e.target.value)}
               placeholder="Write about your experience, certifications..."
             />
           </div>
 
-          <div className="pt-1 flex justify-end">
+          {/* buttons */}
+          <div className="flex justify-end">
             <button
               type="submit"
-              className="bg-primary text-white px-8 py-2 rounded-md hover:bg-primary-dark transition"
+              className="bg-gradient-to-r from-cyan-500 to-fuchsia-600 px-10 py-2 rounded-full hover:-translate-y-0.5 transition-transform shadow-lg"
             >
               Register
             </button>
           </div>
-          <div className="text-center pt-3 text-sm">
-  Already registered?{" "}
-  <span
-    onClick={() => navigate("/doctor/login")}
-    className="text-primary font-medium underline cursor-pointer hover:text-primary-dark transition"
-  >
-    Login here
-  </span>
-</div>
 
+          <p className="text-center text-sm">
+            Already registered?{" "}
+            <span
+              onClick={() => nav("/doctor/login")}
+              className="text-cyan-400 underline cursor-pointer hover:text-cyan-300"
+            >
+              Login here
+            </span>
+          </p>
         </form>
       </div>
     </div>
   );
+
+  /* ---------- helpers ---------- */
+  function InputField({
+    label,
+    value,
+    setValue,
+    type = "text",
+  }: {
+    label: string;
+    value: string;
+    setValue: (v: string) => void;
+    type?: string;
+  }) {
+    return (
+      <div>
+        <label className={label}>{label}</label>
+        <input
+          type={type}
+          value={value}
+          onChange={e => setValue(e.target.value)}
+          className={input}
+          placeholder={label}
+        />
+      </div>
+    );
+  }
+
+  function SelectField({
+    label,
+    value,
+    setValue,
+    options,
+  }: {
+    label: string;
+    value: string;
+    setValue: (v: string) => void;
+    options: string[];
+  }) {
+    return (
+      <div>
+        <label className={label}>{label}</label>
+        <select value={value} onChange={e => setValue(e.target.value)} className={input}>
+          {options.map((o, i) => (
+            <option key={i}>{o}</option>
+          ))}
+        </select>
+      </div>
+    );
+  }
 };
-
-const InputField = ({ label, value, setValue, type = "text" }: any) => (
-  <div>
-    <label className="block mb-1 font-medium">{label}</label>
-    <input
-      type={type}
-      value={value}
-      onChange={(e) => setValue(e.target.value)}
-      className="w-full border px-3 py-1.5 rounded focus:outline-none focus:ring-1 focus:border-primary"
-      placeholder={label}
-    />
-  </div>
-);
-
-const SelectField = ({ label, value, setValue, options }: any) => (
-  <div>
-    <label className="block mb-1 font-medium">{label}</label>
-    <select
-      value={value}
-      onChange={(e) => setValue(e.target.value)}
-      className="w-full border px-3 py-1.5 rounded focus:outline-none focus:ring-1 focus:border-primary"
-    >
-      {options.map((option: string, idx: number) => (
-        <option key={idx} value={option}>{option}</option>
-      ))}
-    </select>
-  </div>
-);
 
 export default DoctorRegister;

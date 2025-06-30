@@ -19,7 +19,6 @@ export const ADMIN_API = {
   DASHBOARD: "/api/admin/dashboard",
 };
 
-// src/constants/apiRoutes.ts
 
 export const APPOINTMENT_API = {
   BASE: "/api/user/appointments",
@@ -28,7 +27,6 @@ export const APPOINTMENT_API = {
   AVAILABLE_FOR_USER: "/api/user/available-slots",
 };
 
-// src/constants/apiRoutes.ts
 
 export const AUTH_API = {
   REGISTER: "/api/user/register",
@@ -43,10 +41,10 @@ export const AUTH_API = {
   RESET_PASSWORD: "/api/user/password/reset",
 };
 
-// src/constants/apiRoutes.ts
 
 export const DOCTOR_API = {
   BASE: "/api/doctor",
+  DOCTOR_ID: (id: string) => `/api/doctor/${id}`,
   REGISTER: "/api/doctor/register",
   LOGIN: "/api/doctor/login",
   LOGOUT: "/api/doctor/logout",
@@ -71,9 +69,18 @@ export const PAYMENT_API = {
   RAZORPAY_VERIFY: "/api/user/payments/razorpay/verify",
 };
 
-// src/constants/apiRoutes.ts
+
+export const CHAT_API = {
+  BASE: "/api/chat",
+  HISTORY: (chatId: string) => `/api/chat/${chatId}`,            // GET
+  DELETE_MESSAGE: (messageId: string) => `/api/chat/message/${messageId}`, // DELETE
+  MARK_READ: (chatId: string) => `/api/chat/${chatId}/read`,     // PATCH
+  UPLOAD:        "/api/chat/upload",
+};
+
 
 export const USER_PROFILE_API = {
   GET: "/api/user/profile",
   UPDATE: "/api/user/profile",
+  USERBY_ID:(id: string) => `/api/user/${id}`,
 };

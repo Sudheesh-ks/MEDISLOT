@@ -4,13 +4,11 @@ import DocChatCard from "../../components/doctor/DocChatCard";
 
 const DoctorConsultation = () => {
   const { userId } = useParams();
-
   return (
-    <div className="flex place-items-center justify-center gap-6 p-8">
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center gap-8 p-8">
       <DocVideoCallCard />
       <DocChatCard userId={userId} />
     </div>
   );
 };
-
 export default DoctorConsultation;

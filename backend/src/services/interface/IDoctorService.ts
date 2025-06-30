@@ -4,6 +4,7 @@ import { PaginationResult } from "../../repositories/interface/IDoctorRepository
 
 export interface IDoctorService {
   registerDoctor(data: DoctorData): Promise<void>;
+  getPublicDoctorById(id: string): Promise<DoctorData | null>;
   toggleAvailability(docId: string): Promise<void>;
   getAllDoctors(): Promise<any[]>;
   getDoctorsPaginated(page: number, limit: number): Promise<PaginationResult<any>>;

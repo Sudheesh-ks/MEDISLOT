@@ -137,7 +137,7 @@ const rejectDoctor = async (doctorId: string) => {
     const { data } = await rejectDoctorAPI(doctorId, aToken);
     if (data.success) {
       toast.success(data.message);
-      getAllDoctors(); // refresh list
+      getAllDoctors(); 
     } else {
       toast.error(data.message);
     }
