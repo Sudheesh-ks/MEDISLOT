@@ -1,5 +1,6 @@
 import { AppointmentTypes } from "../../types/appointment";
 import { DoctorData } from "../../types/doctor";
+import { SlotRange } from "../../types/slots";
 import { userData } from "../../types/user";
 
 export interface UserDocument extends userData {
@@ -41,5 +42,9 @@ export interface IUserService {
     appointmentId: string,
     razorpay_order_id: string
   ): Promise<void>;
+  getAvailableSlotsByDate(
+    doctorId: string,
+    date: string
+  ): Promise<SlotRange[]>
   getAvailableSlotsForDoctor(doctorId: string, year: number, month: number): Promise<any[]>;
 }

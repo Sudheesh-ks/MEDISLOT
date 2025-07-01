@@ -15,7 +15,7 @@ export class SlotRepository {
     }).exec();
   }
 
-  async upsertSlot(doctorId: string, date: string, slots: { start: string; end: string }[], isCancelled: boolean) {
+  async upsertSlot(doctorId: string, date: string, slots: { start: string; end: string; isAvailable?: boolean }[], isCancelled: boolean) {
     return slotModel.findOneAndUpdate(
       { doctorId, date },
       { slots, isCancelled },
@@ -25,5 +25,9 @@ export class SlotRepository {
 
   async deleteSlot(doctorId: string, date: string) {
     return slotModel.findOneAndDelete({ doctorId, date });
+  }
+
+    async getSlotByDate(doctorId: string, date: string) {
+    return slotModel.findOne({ doctorId, date }).exec();
   }
 }

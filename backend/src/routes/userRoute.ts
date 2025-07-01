@@ -70,7 +70,7 @@ userRouter.post(
 userRouter.get(
   "/available-slots",
   authRole(["user"]),
-  userController.getAvailableSlotsForDoctor.bind(userController)
+  userController.getAvailableSlotsByDate.bind(userController)
 );
 
 

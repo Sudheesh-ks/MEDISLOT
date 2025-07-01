@@ -17,6 +17,14 @@ import type {
   RazorpayPaymentResponse,
 } from "../../types/razorpay";
 import { useNavigate } from "react-router-dom";
+import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+dayjs.extend(customParseFormat);
+
+
+/** "23:00" → "11:00 pm" (needs the customParseFormat plugin) */
+const to12h = (t: string) => dayjs(t, "HH:mm").format("hh:mm A").toLowerCase();
+
 
 const MyAppointments = () => {
   const ctx = useContext(AppContext);
@@ -130,7 +138,7 @@ const MyAppointments = () => {
 
             <p className="text-xs">
               <span className="font-medium">Date & Time:</span>{" "}
-              {slotDateFormat(a.slotDate)} | {a.slotTime}
+              {slotDateFormat(a.slotDate)} | {to12h(a.slotTime)}
             </p>
           </div>
 

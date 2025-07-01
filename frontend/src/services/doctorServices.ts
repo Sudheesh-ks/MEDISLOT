@@ -88,18 +88,28 @@ data.append("available", (formData.available ?? false).toString());
   });
 };
 
+// Calendar dots (month view)
+export const getDoctorSlotsAPI = (year: number, month: number) =>
+  api.get(DOCTOR_API.SLOTS, { params: { year, month } });          // 🔧 CHANGED
 
-// Fetch slots for a month
-export const getDoctorSlotsAPI = (year: number, month: number) => {
-  return api.get(`api/doctor/slots?year=${year}&month=${month}`);
-};
-
-// Add/update slots for a date
-export const addDoctorSlotsAPI = (
+// ───────────────────────────────────────────────
+// Create / replace one day
+export const upsertDaySlotsAPI = (
   date: string,
-  slots: { start: string; end: string }[],
+  slots: { start: string; end: string; isAvailable: boolean }[],
   isCancelled: boolean
-) => {
-  return api.post("api/doctor/slots", { date, slots, isCancelled });
-};
+) => api.post(DOCTOR_API.SLOTS, { date, slots, isCancelled });     // 🔧 CHANGED
 
+// (alias kept for backward compatibility)
+export const addDoctorSlotsAPI = upsertDaySlotsAPI;
+
+// ───────────────────────────────────────────────
+// Fetch a single day for edit
+export const getDaySlotsAPI = async (date: string) => {
+  const res = await api.get(`${DOCTOR_API.SLOTS}/day`, { params: { date } }); // 🔧 CHANGED
+  return res.data.data as {
+    start: string;
+    end: string;
+    isAvailable: boolean;
+  }[];
+};

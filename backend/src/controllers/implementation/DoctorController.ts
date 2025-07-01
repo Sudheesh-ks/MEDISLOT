@@ -398,9 +398,27 @@ export class DoctorController implements IDoctorController {
       );
       res.json({ success: true, data });
     } catch (error) {
+      console.log(error)
       res
         .status(500)
         .json({ success: false, message: (error as Error).message });
     }
   }
+
+
+  async getDaySlot(req: Request, res: Response): Promise<void> {
+ try {
+   const doctorId = (req as any).docId;
+   const { date } = req.query;
+   const data = await this._slotService.getDayAvailability(
+     doctorId,
+     date as string
+   );
+   res.json({ success: true, data });
+ } catch (error) {
+   res
+     .status(500)
+     .json({ success: false, message: (error as Error).message });
+ }
+}
 }

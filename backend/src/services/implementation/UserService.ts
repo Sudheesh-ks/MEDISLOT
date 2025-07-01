@@ -13,6 +13,9 @@ import {
   generateRefreshToken,
   verifyRefreshToken,
 } from "../../utils/jwt.utils";
+import { SlotRepository } from "../../repositories/implementation/SlotRepository";
+import { SlotRange } from "../../types/slots";
+import { isoDate } from "../../utils/date.util";
 
 export interface UserDocument extends userData {
   _id: string;
@@ -21,7 +24,8 @@ export interface UserDocument extends userData {
 export class UserService implements IUserService {
   constructor(
     private _userRepository: IUserRepository,
-    private _paymentService = new PaymentService()
+    private _paymentService = new PaymentService(),
+    private _slotRepository = new SlotRepository(),
   ) {}
 
   async register(
@@ -205,6 +209,17 @@ console.log("hii");
     }
 
     await this._userRepository.markAppointmentPaid(appointmentId);
+  }
+
+    async getAvailableSlotsByDate(
+    doctorId: string,
+    date: string
+  ): Promise<SlotRange[]> {
+    const doc = await this._slotRepository.getSlotByDate(doctorId, isoDate(date));
+    // return only un‑booked & available ranges
+    return (
+      doc?.slots.filter((r) => r.isAvailable && !r.booked) ?? []
+    );
   }
   async getAvailableSlotsForDoctor(doctorId: string, year: number, month: number): Promise<any[]> {
   return this._userRepository.getAvailableSlotsByDoctorAndMonth(doctorId, year, month);

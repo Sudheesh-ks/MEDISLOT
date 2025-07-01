@@ -523,4 +523,22 @@ export class UserController implements IUserController {
       });
     }
   }
+
+
+  async getAvailableSlotsByDate(req: Request, res: Response): Promise<void> {
+  try {
+    const { doctorId, date } = req.query;
+    if (!doctorId || !date) {
+       res.status(400).json({ success: false, message: "doctorId & date required" });
+       return
+    }
+    const data = await this._userService.getAvailableSlotsByDate(
+      String(doctorId),
+      String(date)
+    );
+    res.json({ success: true, data });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Failed to fetch slots" });
+  }
+}
 }

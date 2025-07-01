@@ -37,11 +37,10 @@ export const cancelAppointmentAPI = async (
 
 export const getAvailableSlotsAPI = async (
   doctorId: string,
-  year: number,
-  month: number
+  date: string          // "YYYY-MM-DD"
 ) => {
-  const response = await api.get(APPOINTMENT_API.AVAILABLE_FOR_USER, {
-    params: { doctorId, year, month },
+  const { data } = await api.get("/api/user/available-slots", {
+    params: { doctorId, date },
   });
-  return response.data.data;
+  return data.data;     // server returns { success, data }
 };

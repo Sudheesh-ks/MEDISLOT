@@ -1,25 +1,17 @@
-/* -------------------------------------------------------------
-   Global styles for MediSlot – Dark‑Neon Theme
-   ------------------------------------------------------------- */
-
-/* Google fonts */
 @import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Outfit:wght@100..900&family=Poppins:wght@300;400;500;600&display=swap");
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* 1️⃣  Universal font family */
 * {
   font-family: "Outfit", sans-serif;
 }
 
-/* 2️⃣  Site‑wide backdrop + text colour + no side margin */
 body {
   @apply m-0 bg-slate-950 text-slate-100 overflow-x-hidden;
 }
 
-/* 3️⃣  Custom keyframe animation (matches tailwind.config) */
 @keyframes fade {
   0%   { opacity: 0; transform: translateY(8px); }
   100% { opacity: 1; transform: translateY(0); }
@@ -29,19 +21,36 @@ body {
   animation: fade 800ms ease-out both;
 }
 
-/* 4️⃣  Active link helper (you already use it) */
 .active hr {
   @apply block;
 }
 
-/* 5️⃣  Hide scrollbars (Chrome / Edge / Safari) */
 ::-webkit-scrollbar {
   @apply hidden;
 }
 
-/* 6️⃣  Mobile nav colour tweak (unchanged) */
 @media (max-width: 740px) {
   .active p {
     @apply text-white bg-primary;
   }
+}
+
+/* Dark theme for date picker */
+.react-datepicker__portal .react-datepicker,
+.react-datepicker {
+  @apply bg-gray-800 text-gray-100 border-gray-700;
+}
+
+.react-datepicker__header {
+  @apply bg-gray-800 border-b border-gray-700;
+}
+
+.react-datepicker__day,
+.react-datepicker__day-name {
+  @apply text-gray-200 hover:bg-gray-700;
+}
+
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected {
+  @apply bg-cyan-500 text-white hover:bg-cyan-600;
 }

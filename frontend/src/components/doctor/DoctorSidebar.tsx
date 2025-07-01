@@ -8,7 +8,7 @@ const AdminSidebar = () => {
   /* icons ‑ (kept as simple emoji placeholders) */
   const assets = {
     home_icon: "🏠",
-    profile_icon: "👤",
+    profile_icon: "🧑🏻‍⚕️",
     appointment_icon: "📅",
     slot_icon: "⏰",
   };

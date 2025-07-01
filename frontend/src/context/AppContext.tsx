@@ -173,7 +173,7 @@ const AppContextProvider: React.FC<AppContextProviderProps> = ({
 
   const slotDateFormat = (slotDate: string): string => {
     if (!slotDate) return "N/A";
-    const dateArray = slotDate.split("_");
+    const dateArray = slotDate.split("-");
     if (dateArray.length < 3) return "N/A";
     const day = dateArray[0];
     const monthIndex = Number(dateArray[1]);

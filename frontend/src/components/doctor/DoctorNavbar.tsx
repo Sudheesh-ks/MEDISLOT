@@ -18,6 +18,7 @@ const DoctorNavbar = () => {
     try {
       await logoutDoctorAPI();               // clear httpOnly cookie
       setDToken("");
+      localStorage.removeItem("doctorAccessToken")
       localStorage.setItem("isDoctorLoggedOut", "true");
       clearDoctorAccessToken();
       nav("/doctor/login");

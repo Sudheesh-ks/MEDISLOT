@@ -75,7 +75,7 @@ export class DoctorRepository
       .populate('docId', 'name image speciality')
       .skip(skip)
       .limit(limit)
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: 1 });
     
     const totalPages = Math.ceil(totalCount / limit);
     

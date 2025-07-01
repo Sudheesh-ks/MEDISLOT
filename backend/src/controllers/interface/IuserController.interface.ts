@@ -14,4 +14,5 @@ export interface IUserController {
   cancelAppointment(req: Request, res: Response): Promise<void>;
   refreshToken(req: Request, res: Response): Promise<void>;
   logout(req: Request, res: Response): Promise<void>;
+  getAvailableSlotsByDate(req: Request, res: Response): Promise<void>
 }
