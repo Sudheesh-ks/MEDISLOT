@@ -15,7 +15,7 @@ export interface PaginationResult<T> {
 export interface IAdminRepository {
   findByEmail(email: string): Promise<AdminDocument | null>;
   findAdminById(id: string): Promise<AdminDocument | null>;
-  saveDoctor(data: DoctorData): Promise<void>;
+  // saveDoctor(data: DoctorData): Promise<void>;
   getAllDoctors(): Promise<Omit<DoctorData, "password">[]>;
   getDoctorsPaginated(page: number, limit: number): Promise<PaginationResult<Omit<DoctorData, "password">>>;
   getAllUsers(): Promise<Omit<userData, "password">[]>;

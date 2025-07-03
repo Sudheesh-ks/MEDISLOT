@@ -5,7 +5,7 @@ import { CHAT_API } from "../constants/apiRoutes";
 
 /* ===== user side ===== */
 export const userChat = {
-  fetchHistory: (chatId: string, limit = 40, before?: string) =>
+  fetchHistory: (chatId: string, limit = 1000, before?: string) =>
     api.get(CHAT_API.HISTORY(chatId), { params: { limit, before } }),
 
   deleteMessage: (id: string) => api.delete(CHAT_API.DELETE_MESSAGE(id)),
@@ -16,7 +16,7 @@ export const userChat = {
 
 /* ===== doctor side ===== */
 export const doctorChat = {
-  fetchHistory: (chatId: string, limit = 40, before?: string) =>
+  fetchHistory: (chatId: string, limit = 1000, before?: string) =>
     doctorApi.get(CHAT_API.HISTORY(chatId), { params: { limit, before } }),
 
   deleteMessage: (id: string) =>

@@ -6,11 +6,13 @@ import { useNavigate } from "react-router-dom";
 import SearchBar from "../../components/common/SearchBar";
 import DataTable from "../../components/common/DataTable";
 import Pagination from "../../components/common/Pagination";
+import { NotifContext } from "../../context/NotificationContext";
 
 const DoctorAppointments = () => {
   const ctx = useContext(DoctorContext);
   const app = useContext(AppContext);
   const navigate = useNavigate();
+  const notif = useContext(NotifContext);
 
   /* ------------ local state ------------ */
   const [search, setSearch] = useState("");
@@ -130,9 +132,14 @@ const DoctorAppointments = () => {
               e.stopPropagation();
               navigate(`/doctor/consultation/${it.userData._id}`);
             }}
-            className="bg-gradient-to-r from-cyan-500 to-fuchsia-600 px-4 py-1.5 text-sm rounded-lg text-white shadow"
+            className="bg-gradient-to-r from-cyan-500 to-fuchsia-600 px-4 py-1.5 text-sm rounded-lg text-white shadow relative"
           >
             Consultation
+            {notif?.unread?.[`${it.userData._id}_${profileData._id}`] > 0 && (
+              <span className="absolute -top-2 -right-2 h-5 min-w-[20px] px-1 bg-red-500 text-xs rounded-full flex items-center justify-center">
+                {notif.unread[`${it.userData._id}_${profileData._id}`]}
+              </span>
+            )}
           </button>
         ) : (
           <div className="flex gap-3">

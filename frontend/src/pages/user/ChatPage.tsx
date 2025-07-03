@@ -1,48 +1,52 @@
-import React, { useState, useRef, useEffect, useContext } from "react";
-import io, { Socket } from "socket.io-client";
+// src/pages/user/ChatPage.tsx
+import React, { useContext, useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { AppContext } from "../../context/AppContext";
+import { NotifContext } from "../../context/NotificationContext";
 import { getDoctorsByIDAPI } from "../../services/doctorServices";
-import { getPresence, uploadChatFile, userChat } from "../../services/chatService";
+import {
+  getPresence,
+  uploadChatFile,
+  userChat,
+} from "../../services/chatService";
 import type { Message } from "../../types/message";
 
-const SOCKET_URL = "http://localhost:4000";
+
+/* ---------- small helpers ---------- */
 const timeOf = (iso?: string) =>
   iso
-    ? new Date(iso).toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: true })
+    ? new Date(iso).toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      })
     : "";
 
-/* 🆕 util – extract a readable filename from any URL */
-const fileName = (url: string) => url.split("/").pop()?.split("?")[0] ?? "file";
+const fileName = (url: string) =>
+  url.split("/").pop()?.split("?")[0] ?? "file";
+
+/* ============================================================= */
 
 const ChatPage: React.FC = () => {
-  const ctx = useContext(AppContext);
-  if (!ctx) throw new Error("AppContext missing");
-  const { userData } = ctx;
-  if (!userData) return null;
+  /* contexts */
+  const { userData } = useContext(AppContext)!;
+  const { socket, markRead } = useContext(NotifContext);
 
+  /* route params */
   const { doctorId } = useParams<{ doctorId: string }>();
-  const userId = userData._id;
+
+  /* IDs */
+  const userId = userData?._id;
   const chatId = `${userId}_${doctorId}`;
 
-  /* socket */
-  const socketRef = useRef<Socket | null>(null);
-  useEffect(() => {
-    const s = io(SOCKET_URL, { withCredentials: true, auth: { userId, role: "user" } });
-    socketRef.current = s;
-    return () => {
-      s.disconnect();
-      socketRef.current = null;
-    };
-  }, [userId]);
-
-  /* state */
+  /* ---------------- state ---------------- */
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
-  const [isDoctorOnline, setIsDoctorOnline] = useState(false); 
+  const [isDoctorOnline, setIsDoctorOnline] = useState(false);
   const [pickedFile, setPickedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isTyping, setIsTyping] = useState(false);
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [doctorProfile, setDoctorProfile] = useState<{
@@ -50,19 +54,19 @@ const ChatPage: React.FC = () => {
     avatar: string;
     speciality: string;
     isOnline?: boolean;
-    lastSeen?: string;
   } | null>(null);
-  
 
+  /* ---------- helper to clear file input ---------- */
   const clearFileInput = () => {
     if (fileInputRef.current) fileInputRef.current.value = "";
     if (previewUrl) URL.revokeObjectURL(previewUrl);
     setPreviewUrl(null);
   };
 
-  /* load doctor */
+  /* ---------- load doctor once ---------- */
   useEffect(() => {
     if (!doctorId) return;
+
     getDoctorsByIDAPI(doctorId).then(({ data }) => {
       if (data.success) {
         setDoctorProfile({
@@ -72,93 +76,101 @@ const ChatPage: React.FC = () => {
         });
       }
     });
-    getPresence(doctorId).then(r => setIsDoctorOnline(r.data.online));
+
+    getPresence(doctorId).then((r) => setIsDoctorOnline(r.data.online));
   }, [doctorId]);
 
-   /* ---------- socket open ---------- */
+  /* ---------- live presence updates ---------- */
   useEffect(() => {
-    const s = io(SOCKET_URL, {
-      withCredentials: true,
-      auth: { userId, role: "user" },
-    });
-    socketRef.current = s;
+    if (!socket) return;
 
-    /* live presence */
-    s.on("presence", ({ userId: id, online }: { userId: string; online: boolean }) => { // ⭐ NEW
-      if (id === doctorId) setIsDoctorOnline(online);                                    // ⭐ NEW
-    });                                                                                  // ⭐ NEW
-
-    return () => {
-      s.off("presence");                                                                 // ⭐ NEW
-      s.disconnect();
-      socketRef.current = null;
+    const onPresence = ({
+      userId: id,
+      online,
+    }: {
+      userId: string;
+      online: boolean;
+    }) => {
+      if (id === doctorId) setIsDoctorOnline(online);
     };
-  }, [userId, doctorId]);
 
-  /* join room & events */
+    socket.on("presence", onPresence);
+    return () => { socket.off("presence", onPresence); }
+  }, [socket, doctorId]);
+
+  /* ---------- join room, history, listeners ---------- */
   useEffect(() => {
-    const s = socketRef.current;
-    if (!s || !chatId) return;
-    s.emit("join", chatId);
-    /* ⭐ listen for presence ------------------------------------ */
-  const onPresence = (p: { userId: string; online: boolean }) => {
-   if (p.userId === doctorId) {
-      setDoctorProfile(prev =>
-        prev ? { ...prev, isOnline: p.online, lastSeen: !p.online ? timeOf(new Date().toISOString()) : prev.lastSeen } : prev
-     );
-    }
-  };
-  s.on("presence", onPresence);
-    userChat.fetchHistory(chatId).then(({ data }) => {
-      if (data.success) setMessages(data.messages);
-    });
+    if (!socket || !chatId) return;
+
+    socket.emit("join", chatId);
+    markRead(chatId);
+    socket.emit("read", { chatId });
+
+    userChat
+      .fetchHistory(chatId)
+      .then(({ data }) => data.success && setMessages(data.messages));
+
     const onReceive = (m: Message) => setMessages((p) => [...p, m]);
     const onDelivered = (d: any) =>
-    setMessages(p =>
-      p.map(m =>
-        m._id === d.messageId
-          ? { ...m,
-              deliveredTo:[...(m.deliveredTo ?? []), { userId:d.userId, at:d.at }] }
-          : m));
-
-  const onReadBy = (d: any) =>
-    setMessages(p =>
-      p.map(m =>
-        m.chatId === d.chatId
-          ? { ...m,
-              readBy:[...(m.readBy ?? []), { userId:d.userId, at:d.at }] }
-          : m));
+      setMessages((p) =>
+        p.map((m) =>
+          m._id === d.messageId
+            ? {
+                ...m,
+                deliveredTo: [
+                  ...(m.deliveredTo ?? []),
+                  { userId: d.userId, at: d.at },
+                ],
+              }
+            : m
+        )
+      );
+    const onReadBy = (d: any) =>
+      setMessages((p) =>
+        p.map((m) =>
+          m.chatId === d.chatId
+            ? {
+                ...m,
+                readBy: [
+                  ...(m.readBy ?? []),
+                  { userId: d.userId, at: d.at },
+                ],
+              }
+            : m
+        )
+      );
     const onTyping = () => setIsTyping(true);
     const onStopTyping = () => setIsTyping(false);
-    s.on("receiveMessage", onReceive);
-      s.on("delivered", onDelivered);   // ⭐
-  s.on("readBy",    onReadBy); 
-    s.on("typing", onTyping);
-    s.on("stopTyping", onStopTyping);
-    return () => {
-      s.off("receiveMessage", onReceive);
-      s.off("presence", onPresence);
-          s.off("delivered", onDelivered); // ⭐
-    s.off("readBy",    onReadBy);
-      s.off("typing", onTyping);
-      s.off("stopTyping", onStopTyping);
-    };
-  }, [chatId]);
 
+    socket.on("receiveMessage", onReceive);
+    socket.on("delivered", onDelivered);
+    socket.on("readBy", onReadBy);
+    socket.on("typing", onTyping);
+    socket.on("stopTyping", onStopTyping);
+
+    return () => {
+      socket.off("receiveMessage", onReceive);
+      socket.off("delivered", onDelivered);
+      socket.off("readBy", onReadBy);
+      socket.off("typing", onTyping);
+      socket.off("stopTyping", onStopTyping);
+    };
+  }, [socket, chatId, doctorId, markRead]);
+
+  /* autoscroll to newest msg */
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
-  useEffect(() => {
-    socketRef.current?.emit("read", { chatId });
-  }, [chatId]);
 
+  /* ---------- send handler ---------- */
   const send = async (e: React.FormEvent | React.MouseEvent) => {
     e.preventDefault();
+    if (!socket) return;
 
     if (pickedFile) {
       try {
         const { url, mime } = await uploadChatFile(pickedFile);
-        socketRef.current?.emit("sendMessage", {
+        socket.emit("sendMessage", {
           chatId,
           receiverId: doctorId,
           kind: mime.startsWith("image/") ? "image" : "file",
@@ -174,16 +186,17 @@ const ChatPage: React.FC = () => {
     }
 
     if (!newMessage.trim()) return;
-    socketRef.current?.emit("sendMessage", {
+    socket.emit("sendMessage", {
       chatId,
       receiverId: doctorId,
       kind: "text",
       text: newMessage,
     });
     setNewMessage("");
-    socketRef.current?.emit("stopTyping", { chatId });
+    socket.emit("stopTyping", { chatId });
   };
 
+  /* ---------- render ---------- */
   if (!doctorProfile)
     return (
       <div className="flex h-screen items-center justify-center text-slate-100">
@@ -193,7 +206,7 @@ const ChatPage: React.FC = () => {
 
   return (
     <div className="flex h-screen bg-slate-950 text-slate-100">
-      {/* Sidebar */}
+      {/* ====== Sidebar ====== */}
       <aside className="w-80 shrink-0 justify-center bg-white/5 backdrop-blur ring-1 ring-white/10 p-6 flex flex-col items-center text-center">
         <img
           src={doctorProfile.avatar}
@@ -202,12 +215,16 @@ const ChatPage: React.FC = () => {
         />
         <h2 className="text-xl font-semibold">{doctorProfile.name}</h2>
         <p className="text-sm text-slate-400">{doctorProfile.speciality}</p>
-  <p className={`mt-2 text-xs font-medium ${isDoctorOnline ? "text-emerald-400" : "text-slate-500"}`}> {/* ⭐ CHANGED */}
-    {isDoctorOnline ? "Online" : "Offline"}                                                {/* ⭐ CHANGED */}
-  </p>
+        <p
+          className={`mt-2 text-xs font-medium ${
+            isDoctorOnline ? "text-emerald-400" : "text-slate-500"
+          }`}
+        >
+          {isDoctorOnline ? "Online" : "Offline"}
+        </p>
       </aside>
 
-      {/* Chat pane */}
+      {/* ====== Chat pane ====== */}
       <main className="flex flex-col flex-1 h-full">
         {/* Header */}
         <header className="bg-white/5 backdrop-blur ring-1 ring-white/10 px-6 py-4 flex items-center gap-3">
@@ -217,10 +234,16 @@ const ChatPage: React.FC = () => {
             className="w-10 h-10 rounded-full object-cover ring-1 ring-white/10"
           />
           <div>
-            <h3 className="text-lg font-semibold text-slate-100">{doctorProfile.name}</h3>
-           <p className={`mt-2 text-xs font-medium ${isDoctorOnline ? "text-emerald-400" : "text-slate-500"}`}> {/* ⭐ CHANGED */}
-    {isDoctorOnline ? "Online" : "Offline"}                                                {/* ⭐ CHANGED */}
-  </p>
+            <h3 className="text-lg font-semibold text-slate-100">
+              {doctorProfile.name}
+            </h3>
+            <p
+              className={`mt-2 text-xs font-medium ${
+                isDoctorOnline ? "text-emerald-400" : "text-slate-500"
+              }`}
+            >
+              {isDoctorOnline ? "Online" : "Offline"}
+            </p>
           </div>
         </header>
 
@@ -229,7 +252,10 @@ const ChatPage: React.FC = () => {
           {messages.map((m) => {
             const isUser = m.senderRole === "user";
             return (
-              <div key={m._id} className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
+              <div
+                key={m._id}
+                className={`flex ${isUser ? "justify-end" : "justify-start"}`}
+              >
                 <div
                   className={`flex max-w-xs items-end space-x-2 ${
                     isUser ? "flex-row-reverse" : ""
@@ -248,6 +274,7 @@ const ChatPage: React.FC = () => {
                         : "bg-white/10 ring-1 ring-white/10 text-slate-100 rounded-bl-none"
                     }`}
                   >
+                    {/* bubble content */}
                     {m.deleted ? (
                       <em className="text-xs text-slate-400">message removed</em>
                     ) : m.kind === "text" || m.kind === "emoji" ? (
@@ -255,7 +282,6 @@ const ChatPage: React.FC = () => {
                     ) : m.kind === "image" ? (
                       <img src={m.mediaUrl!} className="max-w-[200px] rounded" />
                     ) : (
-                      /* 🆕 prettier file bubble */
                       <a
                         href={m.mediaUrl}
                         download
@@ -280,23 +306,33 @@ const ChatPage: React.FC = () => {
                         </span>
                       </a>
                     )}
-                   <p
-  className={`text-[10px] mt-1 ${
-    isUser ? "text-slate-200" : "text-slate-400"
-  }`}
->
-  {timeOf(m.createdAt)}{" "}
-  {/* ⭐ show ticks when *user* is the sender */}
-  {isUser && (m.readBy?.length ? "✓✓" : m.deliveredTo?.length ? "✓" : "")}
-</p>
+
+                    {/* time + ticks */}
+                    <p
+                      className={`text-[10px] mt-1 ${
+                        isUser ? "text-slate-200" : "text-slate-400"
+                      }`}
+                    >
+                      {timeOf(m.createdAt)}{" "}
+                      {isUser &&
+                        (m.readBy?.length
+                          ? "✓✓"
+                          : m.deliveredTo?.length
+                          ? "✓"
+                          : "")}
+                    </p>
                   </div>
                 </div>
               </div>
             );
           })}
+
           {isTyping && (
-            <p className="text-xs text-slate-400 italic">Doctor is typing…</p>
+            <p className="text-xs text-slate-400 italic">
+              Doctor is typing…
+            </p>
           )}
+
           <div ref={messagesEndRef} />
         </section>
 
@@ -305,6 +341,7 @@ const ChatPage: React.FC = () => {
           onSubmit={send}
           className="bg-white/5 backdrop-blur ring-1 ring-white/10 px-6 py-4 flex items-center gap-3"
         >
+          {/* hidden file input */}
           <input
             type="file"
             hidden
@@ -318,17 +355,25 @@ const ChatPage: React.FC = () => {
             }}
           />
 
-          {/* attach‑button */}
+          {/* attach button */}
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
             className="p-2 rounded-full hover:bg-white/10 transition"
             title="Attach file"
           >
-             <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2"
-                 viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round"
-                    d="M21 12.79V8a5 5 0 00-9.9-1M3 12.79V17a5 5 0 009.9 1" />
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M21 12.79V8a5 5 0 00-9.9-1M3 12.79V17a5 5 0 009.9 1"
+              />
             </svg>
           </button>
 
@@ -351,7 +396,9 @@ const ChatPage: React.FC = () => {
                   />
                 </svg>
               )}
-              <span className="max-w-[120px] truncate text-xs">{pickedFile.name}</span>
+              <span className="max-w-[120px] truncate text-xs">
+                {pickedFile.name}
+              </span>
               <button
                 type="button"
                 onClick={() => {
@@ -365,21 +412,33 @@ const ChatPage: React.FC = () => {
             </div>
           )}
 
+          {/* text input */}
           <input
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
-            onFocus={() => socketRef.current?.emit("typing", { chatId })}
-            onBlur={() => socketRef.current?.emit("stopTyping", { chatId })}
+            onFocus={() => socket?.emit("typing", { chatId })}
+            onBlur={() => socket?.emit("stopTyping", { chatId })}
             placeholder="Type a message…"
             className="flex-1 bg-transparent ring-1 ring-white/10 rounded-full px-4 py-2 text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
           />
+
+          {/* send button */}
           <button
             type="submit"
             disabled={!newMessage.trim() && !pickedFile}
             className="p-3 rounded-full bg-gradient-to-r from-cyan-500 to-fuchsia-600 disabled:opacity-40 hover:-translate-y-0.5 transition-transform"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="2">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+            <svg
+              className="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"
+              />
             </svg>
           </button>
         </form>

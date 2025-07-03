@@ -10,7 +10,7 @@ export class ChatService implements IChatService {
 
   fetchChatHistory(
     chatId: string,
-    limit = 40,
+    limit = 1000,
     before?: Date
   ): Promise<MessageDocument[]> {
     return this.repo.getMessagesByChatId(chatId, limit, before);

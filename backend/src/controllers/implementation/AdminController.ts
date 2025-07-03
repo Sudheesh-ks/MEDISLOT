@@ -1,9 +1,7 @@
 import { Request, Response } from "express";
 import { IAdminService } from "../../services/interface/IAdminService";
 import { IAdminController } from "../interface/IadminController.interface";
-import { CustomRequest } from "../../types/customRequest";
 import { HttpStatus } from "../../constants/status.constants";
-import { DoctorDTO } from "../../types/doctor";
 import { HttpResponse } from "../../constants/responseMessage.constants";
 import {
   generateAccessToken,
@@ -51,7 +49,7 @@ export class AdminController implements IAdminController {
     }
   }
 
-  // Admin Refresh Token
+  // For Admin Refresh Token
   async refreshAdminToken(req: Request, res: Response): Promise<void> {
     try {
       const refreshToken = req.cookies?.refreshToken_admin;
@@ -102,7 +100,7 @@ export class AdminController implements IAdminController {
     }
   }
 
-  // Admin Logout
+  // For Admin Logout
   async logoutAdmin(req: Request, res: Response): Promise<void> {
     res.clearCookie("refreshToken_admin", {
       httpOnly: true,
@@ -117,46 +115,46 @@ export class AdminController implements IAdminController {
     });
   }
 
-  // To add doctor
-  async addDoctor(req: CustomRequest, res: Response): Promise<void> {
-    try {
-      const {
-        name,
-        email,
-        password,
-        speciality,
-        degree,
-        experience,
-        about,
-        fees,
-        address,
-      } = req.body;
+  // // For adding a doctor
+  // async addDoctor(req: CustomRequest, res: Response): Promise<void> {
+  //   try {
+  //     const {
+  //       name,
+  //       email,
+  //       password,
+  //       speciality,
+  //       degree,
+  //       experience,
+  //       about,
+  //       fees,
+  //       address,
+  //     } = req.body;
 
-      const imageFile = req.file;
+  //     const imageFile = req.file;
 
-      const doctorDTO: DoctorDTO = {
-        name,
-        email,
-        password,
-        speciality,
-        degree,
-        experience,
-        about,
-        fees: Number(fees),
-        address: JSON.parse(address),
-        imagePath: imageFile?.path,
-      };
-      const message = await this._adminService.addDoctor(doctorDTO);
-      res.status(HttpStatus.CREATED).json({ success: true, message });
-      return;
-    } catch (error) {
-      res
-        .status(HttpStatus.BAD_REQUEST)
-        .json({ success: false, message: (error as Error).message });
-    }
-  }
+  //     const doctorDTO: DoctorDTO = {
+  //       name,
+  //       email,
+  //       password,
+  //       speciality,
+  //       degree,
+  //       experience,
+  //       about,
+  //       fees: Number(fees),
+  //       address: JSON.parse(address),
+  //       imagePath: imageFile?.path,
+  //     };
+  //     const message = await this._adminService.addDoctor(doctorDTO);
+  //     res.status(HttpStatus.CREATED).json({ success: true, message });
+  //     return;
+  //   } catch (error) {
+  //     res
+  //       .status(HttpStatus.BAD_REQUEST)
+  //       .json({ success: false, message: (error as Error).message });
+  //   }
+  // }
 
-  // To get all the doctors
+  // For getting all the doctors
   async getDoctors(req: Request, res: Response): Promise<void> {
     try {
       const doctors = await this._adminService.getDoctors();
@@ -168,7 +166,7 @@ export class AdminController implements IAdminController {
     }
   }
 
-  // To get paginated doctors
+  // For getting paginated doctors
   async getDoctorsPaginated(req: Request, res: Response): Promise<void> {
     try {
       const page = parseInt(req.query.page as string) || 1;
@@ -183,7 +181,7 @@ export class AdminController implements IAdminController {
     }
   }
 
-  // To get all users
+  // For getting all users
   async getAllUsers(req: Request, res: Response): Promise<void> {
     try {
       const users = await this._adminService.getUsers();
@@ -195,7 +193,7 @@ export class AdminController implements IAdminController {
     }
   }
 
-  // To get paginated users
+  // For getting paginated users
   async getUsersPaginated(req: Request, res: Response): Promise<void> {
     try {
       const page = parseInt(req.query.page as string) || 1;
@@ -210,7 +208,7 @@ export class AdminController implements IAdminController {
     }
   }
 
-  // To toggle the state of user
+  // For toggling the state of user
   async toggleUserBlock(req: Request, res: Response): Promise<void> {
     try {
       const { userId } = req.params;
@@ -236,6 +234,7 @@ export class AdminController implements IAdminController {
     }
   }
 
+  // For approving a doctor
   async approveDoctor(req: Request, res: Response): Promise<void> {
     try {
       const doctorId = req.params.id;
@@ -248,6 +247,7 @@ export class AdminController implements IAdminController {
     }
   }
 
+  // For rejecting a doctor
   async rejectDoctor(req: Request, res: Response): Promise<void> {
     try {
       const doctorId = req.params.id;

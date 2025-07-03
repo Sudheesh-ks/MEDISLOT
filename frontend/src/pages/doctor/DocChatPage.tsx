@@ -6,6 +6,7 @@ import { DoctorContext } from "../../context/DoctorContext";
 import { getUserByIDAPI } from "../../services/userProfileServices";
 import { doctorChat, getPresence, uploadChatFile } from "../../services/chatService";  // ⭐  add uploadChatFile
 import type { Message } from "../../types/message";
+import { NotifContext } from "../../context/NotificationContext";
 
 const SOCKET_URL = "http://localhost:4000";
 const timeOf = (iso?: string) =>
@@ -23,6 +24,7 @@ const fileName = (url: string) => url.split("/").pop()?.split("?")[0] ?? "file";
 const DocChatPage: React.FC = () => {
   /* ───────── context / params ───────── */
   const ctx = useContext(DoctorContext);
+  const notif = useContext(NotifContext);
   if (!ctx) throw new Error("DoctorContext missing");
   const doctorId = ctx.profileData?._id ?? null;
   const { userId } = useParams<"userId">();
@@ -160,6 +162,7 @@ const DocChatPage: React.FC = () => {
   /* mark read */
   useEffect(() => {
     if (chatId) socketRef.current?.emit("read", { chatId });
+    notif?.markRead?.(chatId);
   }, [chatId]);
 
   /* ───────── send ───────── */

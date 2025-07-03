@@ -11,7 +11,7 @@ export interface IAdminService {
   login(email: string, password: string): Promise<{ admin: AdminDocument, accessToken: string, refreshToken: string }>;
   getAdminById(id: string): Promise<AdminDocument | null>;
   validateCredentials(email: string, password: string): Promise<adminData>;
-  addDoctor(data: DoctorDTO): Promise<string>;
+  // addDoctor(data: DoctorDTO): Promise<string>;
   getDoctors(): Promise<any[]>;
   getDoctorsPaginated(page: number, limit: number): Promise<PaginationResult<any>>;
   getUsers(): Promise<any[]>;

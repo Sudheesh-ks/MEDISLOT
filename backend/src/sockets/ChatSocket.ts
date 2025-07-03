@@ -13,6 +13,8 @@ export function registerChatSocket(io: Server, chatService: ChatService) {
     };
     if (!userId || !role) return socket.disconnect();
 
+    socket.join(userId); 
+
     let set = onlineUsers.get(userId);
     if (!set) {
       set = new Set<string>();
@@ -55,6 +57,13 @@ export function registerChatSocket(io: Server, chatService: ChatService) {
             userId: msg.receiverId,
             at: new Date(),
           });
+
+          io.to(msg.receiverId).emit("dmNotice", {
+          chatId : saved.chatId,
+          from   : { id: userId, role },
+          preview: saved.text || (saved.kind === "image" ? "📷 image" : "📄 file"),
+        });
+
         } catch (err) {
           console.error("sendMessage error:", err);
         }

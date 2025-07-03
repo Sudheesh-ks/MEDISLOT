@@ -15,7 +15,7 @@ const AdminSidebar = () => {
 
   const menu = [
     { to: "/doctor/dashboard",       icon: assets.home_icon,        label: "Dashboard"      },
-    { to: "/doctor/appointments",    icon: assets.appointment_icon, label: "Appointments"   },
+    { to: "/doctor/appointments",    icon: assets.appointment_icon, label: "Appointments"    },
     { to: "/doctor/profile",         icon: assets.profile_icon,     label: "Profile"        },
     { to: "/doctor/slot-management", icon: assets.slot_icon,        label: "Slot management"},
   ];

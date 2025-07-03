@@ -13,7 +13,7 @@ import { IChatRepository } from "../interface/IChatRepository";
 export class ChatRepository implements IChatRepository {
   async getMessagesByChatId(
     chatId: string,
-    limit: number = 40,
+    limit: number = 1000,
     before?: Date
   ): Promise<MessageDocument[]> {
     const query: any = { chatId };

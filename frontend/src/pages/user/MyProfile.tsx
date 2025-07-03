@@ -9,9 +9,9 @@ import { showErrorToast } from "../../utils/errorHandler";
 
 const MyProfile = () => {
   const nav = useNavigate();
-  const ctx = useContext(AppContext);
-  if (!ctx) throw new Error("MyProfile must be within AppContext");
-  const { userData, setUserData, token, loadUserProfileData } = ctx;
+  const context = useContext(AppContext);
+  if (!context) throw new Error("MyProfile must be within AppContext");
+  const { userData, setUserData, token, loadUserProfileData } = context;
 
   const [isEdit, setEdit] = useState(false);
   const [image, setImage] = useState<File | null>(null);
@@ -68,6 +68,7 @@ const MyProfile = () => {
           <input
             id="avatar"
             type="file"
+            accept="image/*"
             hidden
             onChange={(e) => setImage(e.target.files?.[0] || null)}
           />

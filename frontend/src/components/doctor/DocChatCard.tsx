@@ -1,9 +1,17 @@
 import { assets } from "../../assets/user/assets";
 import { useNavigate } from "react-router-dom";
+import { useContext } from "react";
+import { NotifContext } from "../../context/NotificationContext";
+import { DoctorContext } from "../../context/DoctorContext";
 
 type Props = { userId?: string };
 const DocChatCard: React.FC<Props> = ({ userId }) => {
   const nav = useNavigate();
+  const { unread } = useContext(NotifContext);
+  const { profileData } = useContext(DoctorContext)!;
+  const doctorId = profileData?._id;
+  const chatKey = userId && doctorId ? `${userId}_${doctorId}` : "";
+  const unreadCount = chatKey ? unread[chatKey] ?? 0 : 0;
   const glass = "bg-white/5 backdrop-blur ring-1 ring-white/10";
   const btn   = "w-full bg-gradient-to-r from-cyan-500 to-fuchsia-600 py-3 rounded-lg font-medium hover:-translate-y-0.5 transition-transform shadow-lg";
   return (
@@ -17,8 +25,13 @@ const DocChatCard: React.FC<Props> = ({ userId }) => {
         <p className="text-slate-400 text-sm">Chat with the patient in real‑time.</p>
       </div>
       <div className="px-6 pb-6 pt-0">
-        <button onClick={() => nav(`/doctor/chats/${userId}`)} className={btn}>
+        <button onClick={() => nav(`/doctor/chats/${userId}`)} className="relative w-full bg-gradient-to-r from-cyan-500 to-fuchsia-600 py-3 rounded-lg font-medium hover:-translate-y-0.5 transition-transform shadow-lg">
           Message
+          {unreadCount > 0 && (
+            <span className="absolute -top-2 -right-2 h-5 min-w-[20px] px-1 bg-red-500 text-xs rounded-full flex items-center justify-center">
+              {unreadCount}
+            </span>
+          )}
         </button>
       </div>
     </div>

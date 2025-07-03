@@ -22,10 +22,10 @@ export class AdminRepository extends BaseRepository<AdminDocument> {
      return this.findById(id)
   }
 
-  async saveDoctor(data: DoctorData): Promise<void> {
-    const newDoctor = new doctorModel(data);
-    await newDoctor.save();
-  }
+  // async saveDoctor(data: DoctorData): Promise<void> {
+  //   const newDoctor = new doctorModel(data);
+  //   await newDoctor.save();
+  // }
 
   async getAllDoctors(): Promise<Omit<DoctorData, "password">[]> {
     return doctorModel.find({}).select("-password");

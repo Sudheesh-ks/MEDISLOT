@@ -12,8 +12,7 @@ export const HttpResponse = {
   FIELDS_REQUIRED: "All fields are required",
   INVALID_NAME: "Name must only contain at least 4 characters",
   INVALID_EMAIL: "Invalid email format",
-  INVALID_PASSWORD:
-    "Password must be at least 8 characters long, contain at least 1 letter, 1 number, and 1 special character",
+  INVALID_PASSWORD: "Password must be at least 8 characters long, contain at least 1 letter, 1 number, and 1 special character",
   EMAIL_ALREADY_EXISTS: "Email already registered",
   USER_NOT_FOUND: "User not found",
   REGISTER_SUCCESS: "Registered successfully",

@@ -19,6 +19,7 @@ import type {
 import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
+import { NotifContext } from "../../context/NotificationContext";
 dayjs.extend(customParseFormat);
 
 
@@ -29,7 +30,8 @@ const to12h = (t: string) => dayjs(t, "HH:mm").format("hh:mm A").toLowerCase();
 const MyAppointments = () => {
   const ctx = useContext(AppContext);
   if (!ctx) throw new Error("MyAppointments must be within AppContext");
-  const { token, getDoctorsData, slotDateFormat } = ctx;
+  const { token, getDoctorsData, slotDateFormat, userData } = ctx;
+  const notif = useContext(NotifContext);
 
   const [appointments, setAppointments] = useState<AppointmentTypes[]>([]);
   const nav = useNavigate();
@@ -148,9 +150,15 @@ const MyAppointments = () => {
             {!a.cancelled && a.payment && a.isConfirmed && (
               <button
                 onClick={() => nav(`/consultation/${a.docData._id}`)}
-                className={`${btn} bg-gradient-to-r from-cyan-500 to-fuchsia-600 text-white`}
+                className={`${btn} bg-gradient-to-r from-cyan-500 to-fuchsia-600 text-white relative`}
               >
                 Go to Consultation
+                {/* Badge for unread messages */}
+                {notif?.unread?.[`${userData!._id}_${a.docData._id}`] > 0 && (
+                  <span className="absolute -top-2 -right-2 h-5 min-w-[20px] px-1 bg-red-500 text-xs rounded-full flex items-center justify-center">
+                    {notif.unread[`${userData!._id}_${a.docData._id}`]}
+                  </span>
+                )}
               </button>
             )}
 

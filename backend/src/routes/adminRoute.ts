@@ -52,12 +52,12 @@ adminRouter.patch(
   authRole(["admin"]),
   adminController.toggleUserBlock.bind(adminController)
 );
-adminRouter.post(
-  "/doctors",
-  authRole(["admin"]),
-  upload.single("image"),
-  adminController.addDoctor.bind(adminController)
-);
+// adminRouter.post(
+//   "/doctors",
+//   authRole(["admin"]),
+//   upload.single("image"),
+//   adminController.addDoctor.bind(adminController)
+// );
 adminRouter.get(
   "/doctors",
   authRole(["admin"]),

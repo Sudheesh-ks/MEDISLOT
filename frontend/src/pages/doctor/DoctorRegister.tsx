@@ -36,6 +36,8 @@ const DoctorRegister = () => {
 
     /* validations – same logic, different colours now handled by toast */
     if (!docImg)          return toast.error("Please upload a profile image");
+    if (!docImg.type.startsWith("image/"))
+  return toast.error("Uploaded file must be an image (jpg, png, …)");
     if (!name || !email || !password || !fees || !about || !degree || !address1)
       return toast.error("Please fill in all required fields");
     if (!isValidName(name))        return toast.error("Name must be ≥ 4 chars");
@@ -98,6 +100,7 @@ const DoctorRegister = () => {
               <input
                 id="doc-img"
                 type="file"
+                accept="image/*"  
                 hidden
                 onChange={e => e.target.files && setDocImg(e.target.files[0])}
               />
