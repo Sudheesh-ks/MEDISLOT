@@ -1,4 +1,3 @@
-// src/pages/admin/AdminDashboard.tsx
 import { useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AdminContext } from "../../context/AdminContext";
@@ -7,21 +6,19 @@ import { assets } from "../../assets/admin/assets";
 import type { AppointmentTypes } from "../../types/appointment";
 import { motion } from "framer-motion";
 
-/* quick helpers */
 const glass = "bg-white/5 backdrop-blur ring-1 ring-white/10";
 const cardBase =
   "cursor-pointer text-white p-6 rounded-xl shadow-md flex items-center gap-4";
 
 const AdminDashboard = () => {
-  const nav  = useNavigate();
-  const ctx  = useContext(AdminContext);
-  const app  = useContext(AppContext);
+  const nav = useNavigate();
+  const ctx = useContext(AdminContext);
+  const app = useContext(AppContext);
   if (!ctx || !app) throw new Error("Missing contexts");
 
   const { aToken, dashData, getDashData, cancelAppointment } = ctx;
   const { slotDateFormat } = app;
 
-  /* ───────────────── side‑effects ───────────────── */
   useEffect(() => {
     if (aToken) getDashData();
   }, [aToken]);
@@ -30,10 +27,8 @@ const AdminDashboard = () => {
     if (!aToken) nav("/admin/login");
   });
 
-  /* ───────────────── render ───────────────── */
   if (!dashData) return null;
 
-  /* top‑stat card definitions */
   const stats = [
     {
       count: dashData.doctors,
@@ -60,7 +55,6 @@ const AdminDashboard = () => {
 
   return (
     <div className="m-5 space-y-10 text-slate-100">
-      {/* ─────── TOP STATS ─────── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {stats.map((c, i) => (
           <motion.div
@@ -79,15 +73,12 @@ const AdminDashboard = () => {
         ))}
       </div>
 
-      {/* ─────── LATEST BOOKINGS ─────── */}
       <div className={`${glass} rounded-xl overflow-hidden`}>
-        {/* header */}
         <div className="flex items-center gap-2.5 px-6 py-4 border-b border-white/10">
           <img src={assets.list_icon} className="w-6" />
           <p className="font-semibold text-lg">Latest Bookings</p>
         </div>
 
-        {/* list */}
         <div className="divide-y divide-white/10">
           {dashData.latestAppointments.map(
             (it: AppointmentTypes, idx: number) => (
@@ -109,7 +100,6 @@ const AdminDashboard = () => {
                   </p>
                 </div>
 
-                {/* status / cancel icon */}
                 {it.cancelled ? (
                   <span className="text-sm font-semibold text-red-400">
                     Cancelled

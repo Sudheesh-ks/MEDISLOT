@@ -1,35 +1,33 @@
 import { Server, Socket } from "socket.io";
 import { ChatService } from "../services/implementation/ChatService";
 
-/** in-memory presence (swap for Redis later) */
 const onlineUsers = new Map<string, Set<string>>();
 
 export function registerChatSocket(io: Server, chatService: ChatService) {
+  // For connection
   io.on("connection", (socket: Socket) => {
-    /* -------- 0. identify -------- */
     const { userId, role } = socket.handshake.auth as {
       userId?: string;
       role?: "user" | "doctor";
     };
     if (!userId || !role) return socket.disconnect();
-
-    socket.join(userId); 
+    // For joining 
+    socket.join(userId);
 
     let set = onlineUsers.get(userId);
     if (!set) {
       set = new Set<string>();
       onlineUsers.set(userId, set);
     }
-    const wasOffline = set.size === 0;      // ← first socket?
+    const wasOffline = set.size === 0;
     set.add(socket.id);
     if (wasOffline) {
-      io.emit("presence", { userId, online: true }); // broadcast only once
+      io.emit("presence", { userId, online: true });
     }
 
-    /* -------- 1. join room -------- */
     socket.on("join", (chatId: string) => socket.join(chatId));
 
-    /* -------- 2. send message ----- */
+    // For sending messages
     socket.on(
       "sendMessage",
       async (msg: {
@@ -51,46 +49,49 @@ export function registerChatSocket(io: Server, chatService: ChatService) {
 
           io.to(saved.chatId).emit("receiveMessage", saved);
 
-        await chatService.delivered(saved.id, msg.receiverId);
-           io.to(saved.chatId).emit("delivered", {
-           messageId: saved.id,
+          await chatService.delivered(saved.id, msg.receiverId);
+          io.to(saved.chatId).emit("delivered", {
+            messageId: saved.id,
             userId: msg.receiverId,
             at: new Date(),
           });
 
+          // For notifications
           io.to(msg.receiverId).emit("dmNotice", {
-          chatId : saved.chatId,
-          from   : { id: userId, role },
-          preview: saved.text || (saved.kind === "image" ? "📷 image" : "📄 file"),
-        });
-
+            chatId: saved.chatId,
+            from: { id: userId, role },
+            preview:
+              saved.text || (saved.kind === "image" ? "📷 image" : "📄 file"),
+          });
         } catch (err) {
           console.error("sendMessage error:", err);
         }
       }
     );
 
-    /* -------- 3. typing ------------ */
+    // For typing indicator
     socket.on("typing", ({ chatId }) =>
       socket.to(chatId).emit("typing", { userId })
     );
+
+    // For stopping type indicator
     socket.on("stopTyping", ({ chatId }) =>
       socket.to(chatId).emit("stopTyping", { userId })
     );
 
-    /* -------- 4. read -------------- */
+    // For marking as read
     socket.on("read", async ({ chatId }) => {
       await chatService.read(chatId, userId);
       socket.to(chatId).emit("readBy", { chatId, userId, at: new Date() });
     });
 
-    /* -------- 5. delete ------------ */
+    // For deleting message
     socket.on("deleteMessage", async ({ messageId, chatId }) => {
       await chatService.delete(messageId);
       io.to(chatId).emit("messageDeleted", { messageId });
     });
 
-    /* -------- 6. disconnect -------- */
+    // For stating offline
     socket.on("disconnect", () => {
       const set = onlineUsers.get(userId);
       if (set) {

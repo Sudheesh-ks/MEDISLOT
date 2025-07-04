@@ -14,7 +14,6 @@ const DoctorAppointments = () => {
   const navigate = useNavigate();
   const notif = useContext(NotifContext);
 
-  /* ------------ local state ------------ */
   const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
   const [rows, setRows] = useState<any[]>([]);
@@ -23,7 +22,6 @@ const DoctorAppointments = () => {
   const [loading, setLoading] = useState(false);
   const perPage = 6;
 
-  /* ------------ guards ------------ */
   if (!ctx) throw new Error("DoctorContext missing");
   if (!app) throw new Error("AppContext missing");
   const {
@@ -35,7 +33,6 @@ const DoctorAppointments = () => {
   } = ctx;
   const { calculateAge, slotDateFormat, currencySymbol } = app;
 
-  /* ------------ effects ------------ */
   useEffect(() => {
     if (dToken) fetchRows();
   }, [dToken, page]);
@@ -62,7 +59,6 @@ const DoctorAppointments = () => {
     }
   };
 
-  /* ------------ handlers ------------ */
   const doConfirm = async (id: string) => {
     await confirmAppointment(id);
     fetchRows();
@@ -72,21 +68,28 @@ const DoctorAppointments = () => {
     fetchRows();
   };
 
-  /* ------------ filtered data ------------ */
   const filtered = rows.filter((r) =>
     r.userData.name.toLowerCase().includes(search.toLowerCase())
   );
 
-  /* ------------ columns ------------ */
   const cols = [
-    { key: "#", header: "#", width: "0.5fr", hideOnMobile: true, render: (_: any, i: number) => i + 1 },
+    {
+      key: "#",
+      header: "#",
+      width: "0.5fr",
+      hideOnMobile: true,
+      render: (_: any, i: number) => i + 1,
+    },
     {
       key: "patient",
       header: "Patient",
       width: "2fr",
       render: (it: any) => (
         <div className="flex items-center gap-2">
-          <img className="w-12 h-12 rounded-full object-cover" src={it.userData.image} />
+          <img
+            className="w-12 h-12 rounded-full object-cover"
+            src={it.userData.image}
+          />
           <p>{it.userData.name}</p>
         </div>
       ),
@@ -96,12 +99,24 @@ const DoctorAppointments = () => {
       header: "Payment",
       width: "1fr",
       render: (it: any) => (
-        <span className={`text-xs px-2 py-0.5 rounded-full ring-1 ${it.payment ? "ring-emerald-500 text-emerald-400" : "ring-yellow-500 text-yellow-400"}`}>
+        <span
+          className={`text-xs px-2 py-0.5 rounded-full ring-1 ${
+            it.payment
+              ? "ring-emerald-500 text-emerald-400"
+              : "ring-yellow-500 text-yellow-400"
+          }`}
+        >
           {it.payment ? "Paid" : "Pending"}
         </span>
       ),
     },
-    { key: "age", header: "Age", width: "1fr", hideOnMobile: true, render: (it: any) => calculateAge(it.userData.dob) },
+    {
+      key: "age",
+      header: "Age",
+      width: "1fr",
+      hideOnMobile: true,
+      render: (it: any) => calculateAge(it.userData.dob),
+    },
     {
       key: "dt",
       header: "Date & Time",
@@ -123,7 +138,7 @@ const DoctorAppointments = () => {
       key: "act",
       header: "Action",
       width: "1fr",
-      render: (it: any) => (
+      render: (it: any) =>
         it.cancelled ? (
           <span className="text-red-500">Cancelled</span>
         ) : it.isConfirmed ? (
@@ -135,9 +150,9 @@ const DoctorAppointments = () => {
             className="bg-gradient-to-r from-cyan-500 to-fuchsia-600 px-4 py-1.5 text-sm rounded-lg text-white shadow relative"
           >
             Consultation
-            {notif?.unread?.[`${it.userData._id}_${profileData._id}`] > 0 && (
+            {notif?.unread?.[`${it.userData._id}_${profileData!._id}`] > 0 && (
               <span className="absolute -top-2 -right-2 h-5 min-w-[20px] px-1 bg-red-500 text-xs rounded-full flex items-center justify-center">
-                {notif.unread[`${it.userData._id}_${profileData._id}`]}
+                {notif.unread[`${it.userData._id}_${profileData!._id}`]}
               </span>
             )}
           </button>
@@ -160,17 +175,18 @@ const DoctorAppointments = () => {
               className="w-7 cursor-pointer opacity-80 hover:opacity-100"
             />
           </div>
-        )
-      ),
+        ),
     },
   ];
 
-  /* ------------ status gates ------------ */
   if (profileData?.status === "pending")
     return (
       <div className="m-5 text-center bg-yellow-900/30 border border-yellow-600 rounded-xl p-6 text-yellow-200 shadow-md">
         <h2 className="text-xl font-semibold mb-2">⏳ Awaiting Approval</h2>
-        <p>Your registration is under review. The admin has not approved your account yet.</p>
+        <p>
+          Your registration is under review. The admin has not approved your
+          account yet.
+        </p>
       </div>
     );
   if (profileData?.status === "rejected")
@@ -178,12 +194,13 @@ const DoctorAppointments = () => {
       <div className="m-5 text-center bg-red-900/30 border border-red-600 rounded-xl p-6 text-red-300 shadow-md">
         <h2 className="text-xl font-semibold mb-2">❌ Registration Rejected</h2>
         <p>Your registration has been rejected by the admin.</p>
-        <p className="mt-2 text-sm">Please contact support or try registering again with updated details.</p>
+        <p className="mt-2 text-sm">
+          Please contact support or try registering again with updated details.
+        </p>
       </div>
     );
   if (profileData?.status !== "approved") return null;
 
-  /* ------------ main render ------------ */
   return (
     <div className="w-full max-w-6xl m-5 text-slate-100">
       <p className="mb-5 text-lg font-medium">All Appointments</p>
@@ -205,10 +222,18 @@ const DoctorAppointments = () => {
             gridCols="grid-cols-[0.5fr_2fr_1fr_1fr_3fr_1fr_1fr]"
             containerClassName="max-h-[80vh] min-h-[50vh]"
           />
-          {pages > 1 && <Pagination currentPage={page} totalPages={pages} onPageChange={setPage} />}
+          {pages > 1 && (
+            <Pagination
+              currentPage={page}
+              totalPages={pages}
+              onPageChange={setPage}
+            />
+          )}
         </>
       ) : (
-        <div className="text-slate-400 mt-10 text-center w-full">No appointments found.</div>
+        <div className="text-slate-400 mt-10 text-center w-full">
+          No appointments found.
+        </div>
       )}
     </div>
   );

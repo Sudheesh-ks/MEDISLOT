@@ -44,7 +44,6 @@ const Doctors = () => {
     }
   };
 
-  /** filter logic */
   useEffect(() => {
     let list = speciality ? doctors.filter((d) => d.speciality === speciality) : doctors;
     if (searchQuery.trim()) list = list.filter((d) => d.name.toLowerCase().includes(searchQuery.toLowerCase()));
@@ -65,7 +64,6 @@ const Doctors = () => {
       <p className="mb-8 text-slate-400">Browse through the doctors specialist.</p>
 
       <div className="flex flex-col sm:flex-row gap-8">
-        {/* Filters */}
         <aside className="sm:w-56 space-y-4">
           <button
             className={`sm:hidden py-1.5 px-4 rounded-full ring-1 ring-white/20 text-sm ${showFilter ? "bg-white/10" : ""}`}
@@ -87,7 +85,6 @@ const Doctors = () => {
           </div>
         </aside>
 
-        {/* Result list */}
         <section className="flex-1 space-y-8">
           <SearchBar placeholder="Search by name" onSearch={setSearchQuery} />
 

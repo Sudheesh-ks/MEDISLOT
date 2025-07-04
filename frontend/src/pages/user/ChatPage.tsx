@@ -1,4 +1,3 @@
-// src/pages/user/ChatPage.tsx
 import React, { useContext, useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { AppContext } from "../../context/AppContext";
@@ -11,8 +10,6 @@ import {
 } from "../../services/chatService";
 import type { Message } from "../../types/message";
 
-
-/* ---------- small helpers ---------- */
 const timeOf = (iso?: string) =>
   iso
     ? new Date(iso).toLocaleTimeString("en-US", {
@@ -22,30 +19,24 @@ const timeOf = (iso?: string) =>
       })
     : "";
 
-const fileName = (url: string) =>
-  url.split("/").pop()?.split("?")[0] ?? "file";
-
-/* ============================================================= */
+const fileName = (url: string) => url.split("/").pop()?.split("?")[0] ?? "file";
 
 const ChatPage: React.FC = () => {
-  /* contexts */
   const { userData } = useContext(AppContext)!;
   const { socket, markRead } = useContext(NotifContext);
 
-  /* route params */
   const { doctorId } = useParams<{ doctorId: string }>();
 
-  /* IDs */
   const userId = userData?._id;
   const chatId = `${userId}_${doctorId}`;
 
-  /* ---------------- state ---------------- */
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [isDoctorOnline, setIsDoctorOnline] = useState(false);
   const [pickedFile, setPickedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isTyping, setIsTyping] = useState(false);
+  const [pendingId, setPendingId] = useState<string | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -56,14 +47,12 @@ const ChatPage: React.FC = () => {
     isOnline?: boolean;
   } | null>(null);
 
-  /* ---------- helper to clear file input ---------- */
   const clearFileInput = () => {
     if (fileInputRef.current) fileInputRef.current.value = "";
     if (previewUrl) URL.revokeObjectURL(previewUrl);
     setPreviewUrl(null);
   };
 
-  /* ---------- load doctor once ---------- */
   useEffect(() => {
     if (!doctorId) return;
 
@@ -80,7 +69,6 @@ const ChatPage: React.FC = () => {
     getPresence(doctorId).then((r) => setIsDoctorOnline(r.data.online));
   }, [doctorId]);
 
-  /* ---------- live presence updates ---------- */
   useEffect(() => {
     if (!socket) return;
 
@@ -95,10 +83,11 @@ const ChatPage: React.FC = () => {
     };
 
     socket.on("presence", onPresence);
-    return () => { socket.off("presence", onPresence); }
+    return () => {
+      socket.off("presence", onPresence);
+    };
   }, [socket, doctorId]);
 
-  /* ---------- join room, history, listeners ---------- */
   useEffect(() => {
     if (!socket || !chatId) return;
 
@@ -131,10 +120,7 @@ const ChatPage: React.FC = () => {
           m.chatId === d.chatId
             ? {
                 ...m,
-                readBy: [
-                  ...(m.readBy ?? []),
-                  { userId: d.userId, at: d.at },
-                ],
+                readBy: [...(m.readBy ?? []), { userId: d.userId, at: d.at }],
               }
             : m
         )
@@ -142,11 +128,17 @@ const ChatPage: React.FC = () => {
     const onTyping = () => setIsTyping(true);
     const onStopTyping = () => setIsTyping(false);
 
+    const onDeleted = (d: { messageId: string }) =>
+      setMessages((p) =>
+        p.map((m) => (m._id === d.messageId ? { ...m, deleted: true } : m))
+      );
+
     socket.on("receiveMessage", onReceive);
     socket.on("delivered", onDelivered);
     socket.on("readBy", onReadBy);
     socket.on("typing", onTyping);
     socket.on("stopTyping", onStopTyping);
+    socket.on("messageDeleted", onDeleted);
 
     return () => {
       socket.off("receiveMessage", onReceive);
@@ -154,15 +146,14 @@ const ChatPage: React.FC = () => {
       socket.off("readBy", onReadBy);
       socket.off("typing", onTyping);
       socket.off("stopTyping", onStopTyping);
+      socket.off("messageDeleted", onDeleted);
     };
   }, [socket, chatId, doctorId, markRead]);
 
-  /* autoscroll to newest msg */
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  /* ---------- send handler ---------- */
   const send = async (e: React.FormEvent | React.MouseEvent) => {
     e.preventDefault();
     if (!socket) return;
@@ -196,7 +187,13 @@ const ChatPage: React.FC = () => {
     socket.emit("stopTyping", { chatId });
   };
 
-  /* ---------- render ---------- */
+  const openConfirm = (id: string) => setPendingId(id);
+  const confirmDelete = () => {
+    if (pendingId && socket)
+      socket.emit("deleteMessage", { chatId, messageId: pendingId });
+    setPendingId(null);
+  };
+
   if (!doctorProfile)
     return (
       <div className="flex h-screen items-center justify-center text-slate-100">
@@ -206,7 +203,6 @@ const ChatPage: React.FC = () => {
 
   return (
     <div className="flex h-screen bg-slate-950 text-slate-100">
-      {/* ====== Sidebar ====== */}
       <aside className="w-80 shrink-0 justify-center bg-white/5 backdrop-blur ring-1 ring-white/10 p-6 flex flex-col items-center text-center">
         <img
           src={doctorProfile.avatar}
@@ -224,9 +220,7 @@ const ChatPage: React.FC = () => {
         </p>
       </aside>
 
-      {/* ====== Chat pane ====== */}
       <main className="flex flex-col flex-1 h-full">
-        {/* Header */}
         <header className="bg-white/5 backdrop-blur ring-1 ring-white/10 px-6 py-4 flex items-center gap-3">
           <img
             src={doctorProfile.avatar}
@@ -247,7 +241,6 @@ const ChatPage: React.FC = () => {
           </div>
         </header>
 
-        {/* Messages */}
         <section className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
           {messages.map((m) => {
             const isUser = m.senderRole === "user";
@@ -257,10 +250,22 @@ const ChatPage: React.FC = () => {
                 className={`flex ${isUser ? "justify-end" : "justify-start"}`}
               >
                 <div
-                  className={`flex max-w-xs items-end space-x-2 ${
+                  className={`relative group flex max-w-xs items-end space-x-2 ${
                     isUser ? "flex-row-reverse" : ""
                   }`}
                 >
+                  {isUser && !m.deleted && (
+                    <button
+                      onClick={() => openConfirm(m._id)}
+                      className="absolute -top-2 -right-2 p-1 rounded-full text-xs
+                                 bg-slate-800 hover:bg-red-600 opacity-0
+                                 group-hover:opacity-100 transition"
+                      title="Delete"
+                    >
+                      ✕
+                    </button>
+                  )}
+
                   {!isUser && (
                     <img
                       src={doctorProfile.avatar}
@@ -274,13 +279,17 @@ const ChatPage: React.FC = () => {
                         : "bg-white/10 ring-1 ring-white/10 text-slate-100 rounded-bl-none"
                     }`}
                   >
-                    {/* bubble content */}
                     {m.deleted ? (
-                      <em className="text-xs text-slate-400">message removed</em>
+                      <em className="text-xs text-slate-400">
+                        message removed
+                      </em>
                     ) : m.kind === "text" || m.kind === "emoji" ? (
                       <p className="break-words">{m.text}</p>
                     ) : m.kind === "image" ? (
-                      <img src={m.mediaUrl!} className="max-w-[200px] rounded" />
+                      <img
+                        src={m.mediaUrl!}
+                        className="max-w-[200px] rounded"
+                      />
                     ) : (
                       <a
                         href={m.mediaUrl}
@@ -307,7 +316,6 @@ const ChatPage: React.FC = () => {
                       </a>
                     )}
 
-                    {/* time + ticks */}
                     <p
                       className={`text-[10px] mt-1 ${
                         isUser ? "text-slate-200" : "text-slate-400"
@@ -328,20 +336,16 @@ const ChatPage: React.FC = () => {
           })}
 
           {isTyping && (
-            <p className="text-xs text-slate-400 italic">
-              Doctor is typing…
-            </p>
+            <p className="text-xs text-slate-400 italic">Doctor is typing…</p>
           )}
 
           <div ref={messagesEndRef} />
         </section>
 
-        {/* Input */}
         <form
           onSubmit={send}
           className="bg-white/5 backdrop-blur ring-1 ring-white/10 px-6 py-4 flex items-center gap-3"
         >
-          {/* hidden file input */}
           <input
             type="file"
             hidden
@@ -355,7 +359,6 @@ const ChatPage: React.FC = () => {
             }}
           />
 
-          {/* attach button */}
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
@@ -377,7 +380,6 @@ const ChatPage: React.FC = () => {
             </svg>
           </button>
 
-          {/* preview chip */}
           {pickedFile && (
             <div className="flex items-center gap-2 bg-white/10 px-3 py-1 rounded-full">
               {pickedFile.type.startsWith("image/") ? (
@@ -412,7 +414,6 @@ const ChatPage: React.FC = () => {
             </div>
           )}
 
-          {/* text input */}
           <input
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
@@ -422,7 +423,6 @@ const ChatPage: React.FC = () => {
             className="flex-1 bg-transparent ring-1 ring-white/10 rounded-full px-4 py-2 text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
           />
 
-          {/* send button */}
           <button
             type="submit"
             disabled={!newMessage.trim() && !pickedFile}
@@ -443,6 +443,37 @@ const ChatPage: React.FC = () => {
           </button>
         </form>
       </main>
+
+      {pendingId && (
+        <div className="fixed inset-0 z-40 flex items-center justify-center">
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => setPendingId(null)}
+          />
+          <div className="relative z-50 w-72 rounded-2xl bg-slate-900 p-6 text-center ring-1 ring-white/10 shadow-2xl">
+            <h4 className="mb-4 text-lg font-semibold text-slate-100">
+              Delete message?
+            </h4>
+            <p className="mb-6 text-sm text-slate-400">
+              This will remove the message for everyone.
+            </p>
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={() => setPendingId(null)}
+                className="px-4 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDelete}
+                className="px-4 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-white text-sm"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

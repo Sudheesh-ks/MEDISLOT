@@ -17,7 +17,6 @@ const MyProfile = () => {
   const [image, setImage] = useState<File | null>(null);
   if (!userData) return null;
 
-  /* save */
   const save = async () => {
     try {
       if (!token) return toast.error("Login to continue");
@@ -46,24 +45,29 @@ const MyProfile = () => {
     }
   };
 
-  /* redirect if logged‑out */
   useEffect(() => {
     if (!token) nav("/");
   }, [token, nav]);
 
-  const input = "bg-transparent ring-1 ring-white/10 rounded px-2 py-1 mt-1 text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500";
+  const input =
+    "bg-transparent ring-1 ring-white/10 rounded px-2 py-1 mt-1 text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500";
 
   return (
     <div className="max-w-lg mx-auto py-24 px-4 text-slate-200">
-      {/* avatar */}
       {isEdit ? (
-        <label htmlFor="avatar" className="inline-block cursor-pointer relative">
+        <label
+          htmlFor="avatar"
+          className="inline-block cursor-pointer relative"
+        >
           <img
             src={image ? URL.createObjectURL(image) : userData.image}
             className="w-36 h-36 object-cover rounded-xl ring-1 ring-white/10 opacity-80"
           />
           {!image && (
-            <img src={assets.upload_icon} className="w-10 absolute bottom-2 right-2" />
+            <img
+              src={assets.upload_icon}
+              className="w-10 absolute bottom-2 right-2"
+            />
           )}
           <input
             id="avatar"
@@ -74,10 +78,12 @@ const MyProfile = () => {
           />
         </label>
       ) : (
-        <img src={userData.image} className="w-36 h-36 object-cover rounded-xl ring-1 ring-white/10" />
+        <img
+          src={userData.image}
+          className="w-36 h-36 object-cover rounded-xl ring-1 ring-white/10"
+        />
       )}
 
-      {/* name */}
       {isEdit ? (
         <input
           className={"mt-4 text-3xl font-semibold " + input}
@@ -92,7 +98,6 @@ const MyProfile = () => {
 
       <hr className="my-6 border-white/10" />
 
-      {/* contact */}
       <section>
         <p className="text-cyan-400 mb-4">CONTACT INFORMATION</p>
         <div className="grid grid-cols-[120px_1fr] gap-y-3 text-sm">
@@ -106,7 +111,7 @@ const MyProfile = () => {
               value={userData.phone}
               onChange={(e) =>
                 setUserData((p) => (p ? { ...p, phone: e.target.value } : p))
-            }
+              }
             />
           ) : (
             <span className="text-cyan-300">{userData.phone}</span>
@@ -120,7 +125,12 @@ const MyProfile = () => {
                 value={userData.address.line1}
                 onChange={(e) =>
                   setUserData((p) =>
-                    p ? { ...p, address: { ...p.address, line1: e.target.value } } : p
+                    p
+                      ? {
+                          ...p,
+                          address: { ...p.address, line1: e.target.value },
+                        }
+                      : p
                   )
                 }
               />
@@ -129,7 +139,12 @@ const MyProfile = () => {
                 value={userData.address.line2}
                 onChange={(e) =>
                   setUserData((p) =>
-                    p ? { ...p, address: { ...p.address, line2: e.target.value } } : p
+                    p
+                      ? {
+                          ...p,
+                          address: { ...p.address, line2: e.target.value },
+                        }
+                      : p
                   )
                 }
               />
@@ -144,7 +159,6 @@ const MyProfile = () => {
         </div>
       </section>
 
-      {/* basic */}
       <section className="mt-8">
         <p className="text-cyan-400 mb-4">BASIC INFORMATION</p>
         <div className="grid grid-cols-[120px_1fr] gap-y-3 text-sm">
@@ -180,7 +194,6 @@ const MyProfile = () => {
         </div>
       </section>
 
-      {/* buttons */}
       <div className="mt-10 flex gap-4">
         {isEdit ? (
           <button
@@ -202,4 +215,3 @@ const MyProfile = () => {
   );
 };
 export default MyProfile;
-

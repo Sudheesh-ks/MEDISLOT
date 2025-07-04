@@ -17,8 +17,6 @@ import {
   generateRefreshToken,
   verifyRefreshToken,
 } from "../../utils/jwt.utils";
-// import { log } from "console";
-// import { use } from "passport";
 
 export class UserController implements IUserController {
   constructor(
@@ -331,12 +329,14 @@ export class UserController implements IUserController {
       .json({ success: true, message: "Logged out successfully" });
   }
 
-   async getUserById(req: Request, res: Response): Promise<void> {
+  async getUserById(req: Request, res: Response): Promise<void> {
     try {
       const user = await this._userService.getUserById(req.params.id);
 
       if (!user) {
-        res.status(HttpStatus.NOT_FOUND).json({ success: false, message: "User not found" });
+        res
+          .status(HttpStatus.NOT_FOUND)
+          .json({ success: false, message: "User not found" });
         return;
       }
 
@@ -524,21 +524,24 @@ export class UserController implements IUserController {
     }
   }
 
-
   async getAvailableSlotsByDate(req: Request, res: Response): Promise<void> {
-  try {
-    const { doctorId, date } = req.query;
-    if (!doctorId || !date) {
-       res.status(400).json({ success: false, message: "doctorId & date required" });
-       return
+    try {
+      const { doctorId, date } = req.query;
+      if (!doctorId || !date) {
+        res
+          .status(400)
+          .json({ success: false, message: "doctorId & date required" });
+        return;
+      }
+      const data = await this._userService.getAvailableSlotsByDate(
+        String(doctorId),
+        String(date)
+      );
+      res.json({ success: true, data });
+    } catch (err) {
+      res
+        .status(500)
+        .json({ success: false, message: "Failed to fetch slots" });
     }
-    const data = await this._userService.getAvailableSlotsByDate(
-      String(doctorId),
-      String(date)
-    );
-    res.json({ success: true, data });
-  } catch (err) {
-    res.status(500).json({ success: false, message: "Failed to fetch slots" });
   }
-}
 }

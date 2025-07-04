@@ -8,16 +8,11 @@ import React, {
 } from "react";
 import { useLocation } from "react-router-dom";
 import io, { Socket } from "socket.io-client";
-import { AppContext }    from "./AppContext";
+import { AppContext } from "./AppContext";
 import { DoctorContext } from "./DoctorContext";
-import { AdminContext }  from "./AdminContext";
+import { AdminContext } from "./AdminContext";
 
-const SOCKET_URL =
-  import.meta.env.VITE_SOCKET_URL ?? "http://localhost:4000";
-
-/* ──────────────────────────────────────────────────────────── */
-/* helpers & types                                              */
-/* ──────────────────────────────────────────────────────────── */
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL ?? "http://localhost:4000";
 
 type UnreadMap = Record<string, number>;
 
@@ -40,21 +35,17 @@ export const NotifContext = createContext<NotifCtx>({
 const storageKeyFor = (role: string, id?: string | null) =>
   id ? `unread_${role}_${id}` : null;
 
-/* ──────────────────────────────────────────────────────────── */
-/* provider                                                     */
-/* ──────────────────────────────────────────────────────────── */
 export const NotifProvider: React.FC<React.PropsWithChildren> = ({
   children,
 }) => {
-  /* who am I? — now based on URL first                        */
   const { pathname } = useLocation();
 
   const isDoctorRoute = pathname.startsWith("/doctor");
-  const isAdminRoute  = pathname.startsWith("/admin");
+  const isAdminRoute = pathname.startsWith("/admin");
 
-  const { userData   } = useContext(AppContext)!;
+  const { userData } = useContext(AppContext)!;
   const { profileData } = useContext(DoctorContext)!;
-  const { dashData    } = useContext(AdminContext)!;
+  const { dashData } = useContext(AdminContext)!;
 
   const myRole: "user" | "doctor" | "admin" = isAdminRoute
     ? "admin"
@@ -62,24 +53,18 @@ export const NotifProvider: React.FC<React.PropsWithChildren> = ({
     ? "doctor"
     : "user";
 
-  /* match ID purely to the route we’re on                     */
   const myId =
     myRole === "user"
       ? userData?._id
       : myRole === "doctor"
       ? profileData?._id
-      : dashData?._id; // admin
+      : dashData?._id;
 
-  /* unread badge state                                        */
   const [unread, setUnread] = useState<UnreadMap>({});
   const [socket, setSocket] = useState<Socket | null>(null);
 
-  const storageKey = useMemo(
-    () => storageKeyFor(myRole, myId),
-    [myRole, myId],
-  );
+  const storageKey = useMemo(() => storageKeyFor(myRole, myId), [myRole, myId]);
 
-  /* ── load persisted map once ─────────────────────────────── */
   useEffect(() => {
     if (!storageKey) {
       setUnread({});
@@ -93,14 +78,12 @@ export const NotifProvider: React.FC<React.PropsWithChildren> = ({
     }
   }, [storageKey]);
 
-  /* ── save on every change ───────────────────────────────── */
   useEffect(() => {
     if (storageKey) {
       localStorage.setItem(storageKey, JSON.stringify(unread));
     }
   }, [storageKey, unread]);
 
-  /* ── inc / markRead helpers ─────────────────────────────── */
   const inc = useCallback((chatId: string) => {
     setUnread((u) => ({ ...u, [chatId]: (u[chatId] ?? 0) + 1 }));
   }, []);
@@ -112,7 +95,6 @@ export const NotifProvider: React.FC<React.PropsWithChildren> = ({
     });
   }, []);
 
-  /* ── socket life‑cycle ──────────────────────────────────── */
   useEffect(() => {
     if (!myId) return;
 
@@ -127,9 +109,8 @@ export const NotifProvider: React.FC<React.PropsWithChildren> = ({
       from: { id: string; role: string };
       preview: string;
     }) => {
-      /* ignore if sender is me or same role, or I’m admin */
       if (myRole === "admin") return;
-      if (p.from.id === myId)  return;
+      if (p.from.id === myId) return;
       if (p.from.role === myRole) return;
       inc(p.chatId);
     };
@@ -143,11 +124,8 @@ export const NotifProvider: React.FC<React.PropsWithChildren> = ({
     };
   }, [myId, myRole, inc]);
 
-  /* ── expose context ─────────────────────────────────────── */
   return (
-    <NotifContext.Provider
-      value={{ unread, inc, markRead, socket, myRole }}
-    >
+    <NotifContext.Provider value={{ unread, inc, markRead, socket, myRole }}>
       {children}
     </NotifContext.Provider>
   );

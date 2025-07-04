@@ -10,9 +10,8 @@ export class DoctorSlotService {
     return this._slotRepo.getSlotsByMonth(doctorId, year, month);
   }
 
-  /** Ensure no overlaps and start < end */
   private validateRanges(
-    ranges: { start: string; end: string; isAvailable?: boolean }[] // 🔧 added isAvailable, optional
+    ranges: { start: string; end: string; isAvailable?: boolean }[] 
   ) {
     const fmt = (t: string) => dayjs(t, "HH:mm");
     const sorted = [...ranges].sort(
@@ -36,7 +35,6 @@ export class DoctorSlotService {
     return this._slotRepo.deleteSlot(doctorId, date);
   }
 
-    /** Public endpoint for user side */
   async getDayAvailability(doctorId: string, date: string) {
     const doc = await this._slotRepo.getSlotByDate(doctorId, date);
     return doc?.slots ?? [];

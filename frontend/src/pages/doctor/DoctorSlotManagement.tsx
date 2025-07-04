@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import dayjs, { Dayjs } from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 dayjs.extend(customParseFormat);
@@ -12,36 +12,38 @@ import {
   X,
   Calendar as CalendarIcon,
 } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "../../components/doctor/SlotCard";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../../components/doctor/SlotCard";
 import { Button } from "../../components/doctor/Button";
 import { Input } from "../../components/doctor/SlotInput";
-import { getDaySlotsAPI, upsertDaySlotsAPI } from "../../services/doctorServices";
+import {
+  getDaySlotsAPI,
+  upsertDaySlotsAPI,
+} from "../../services/doctorServices";
 import { toast } from "react-toastify";
+import { DoctorContext } from "../../context/DoctorContext";
 
-
-/** "23:00" -> "11:00 pm" */
 const to12h = (t: string) => dayjs(t, "HH:mm").format("hh:mm A").toLowerCase();
 
-
-/**
- * DoctorSlotManager – UI‑only component that lets a doctor
- * pick a day in a monthly calendar, add arbitrary [start,end]
- * ranges for that day, mark them available/unavailable, and save.
- *
- * Hook up your API calls inside the TODO comments.
- * Uses TailwindCSS, Framer Motion, shadcn/ui, lucide‑react.
- */
 export default function DoctorSlotManager() {
-  /* ---------------- state ---------------- */
+  const doctorContext = useContext(DoctorContext);
+
+  if (!doctorContext) throw new Error("context missing");
+
+  const { profileData } = doctorContext;
   const [month, setMonth] = useState<Dayjs>(dayjs().startOf("month"));
   const [selectedDate, setSelectedDate] = useState<Dayjs | null>(dayjs());
   const [ranges, setRanges] = useState<Range[]>([]);
   const [start, setStart] = useState("09:00");
   const [end, setEnd] = useState("17:00");
+  const [confirmLeave, setConfirmLeave] = useState(false);
 
-  /* --------- compute days for calendar --------- */
   const monthDays = useMemo(() => {
-    const startDay = month.startOf("week"); // locale aware (Sunday)
+    const startDay = month.startOf("week");
     const endDay = month.endOf("month").endOf("week");
 
     const days: Dayjs[] = [];
@@ -53,15 +55,11 @@ export default function DoctorSlotManager() {
     return days;
   }, [month]);
 
-  /* -------------- handlers -------------- */
   const addRange = () => {
-if (dayjs(end, "HH:mm").isBefore(dayjs(start, "HH:mm"))) {
-  return alert("End time must be after start time");
-}
-    setRanges((r) => [
-      ...r,
-      { start, end, isAvailable: true },
-    ]);
+    if (dayjs(end, "HH:mm").isBefore(dayjs(start, "HH:mm"))) {
+      return alert("End time must be after start time");
+    }
+    setRanges((r) => [...r, { start, end, isAvailable: true }]);
   };
 
   const toggleAvailability = (i: number) =>
@@ -74,35 +72,57 @@ if (dayjs(end, "HH:mm").isBefore(dayjs(start, "HH:mm"))) {
   const deleteRange = (i: number) =>
     setRanges((r) => r.filter((_, idx) => idx !== i));
 
-const saveSchedule = async () => {
- if (!selectedDate) return;
- try {
-   await upsertDaySlotsAPI(
-     selectedDate.format("YYYY-MM-DD"),
-     ranges,
-     false   // isCancelled
-   );
-   toast.success("Schedule saved");
- } catch {
-   toast.error("Failed to save schedule");
- }
-};
-
- useEffect(() => {
-  if (!selectedDate) return;
-  (async () => {
+  const saveSchedule = async () => {
+    if (!selectedDate) return;
     try {
-      const dayRanges = await getDaySlotsAPI(
-        selectedDate.format("YYYY-MM-DD")
-      );                           // ← this is already the array
-      setRanges(dayRanges ?? []);
+      await upsertDaySlotsAPI(selectedDate.format("YYYY-MM-DD"), ranges, false);
+      toast.success("Schedule saved");
     } catch {
-      toast.error("Failed to load day slots");
-      setRanges([]);
+      toast.error("Failed to save schedule");
     }
-  })();
-}, [selectedDate]);
-  /* ---------------- render ---------------- */
+  };
+
+  const markDayUnavailable = () => {
+    setRanges([{ start: "00:00", end: "23:59", isAvailable: false }]);
+    setConfirmLeave(false);
+  };
+
+  useEffect(() => {
+    if (!selectedDate) return;
+    (async () => {
+      try {
+        const dayRanges = await getDaySlotsAPI(
+          selectedDate.format("YYYY-MM-DD")
+        );
+        setRanges(dayRanges ?? []);
+      } catch {
+        toast.error("Failed to load day slots");
+        setRanges([]);
+      }
+    })();
+  }, [selectedDate]);
+
+  if (profileData?.status === "pending")
+    return (
+      <div className="m-5 text-center bg-yellow-900/30 border border-yellow-600 rounded-xl p-6 text-yellow-200 shadow-md">
+        <h2 className="text-xl font-semibold mb-2">⏳ Awaiting Approval</h2>
+        <p>
+          Your registration is under review. The admin has not approved your
+          account yet.
+        </p>
+      </div>
+    );
+  if (profileData?.status === "rejected")
+    return (
+      <div className="m-5 text-center bg-red-900/30 border border-red-600 rounded-xl p-6 text-red-300 shadow-md">
+        <h2 className="text-xl font-semibold mb-2">❌ Registration Rejected</h2>
+        <p>Your registration has been rejected by the admin.</p>
+        <p className="mt-2 text-sm">
+          Please contact support or try registering again with updated details.
+        </p>
+      </div>
+    );
+  if (profileData?.status !== "approved") return null;
   return (
     <motion.section
       initial={{ opacity: 0, y: 20 }}
@@ -114,7 +134,6 @@ const saveSchedule = async () => {
       </h1>
 
       <div className="grid md:grid-cols-2 gap-10">
-        {/* ---------- calendar ---------- */}
         <Card className="rounded-2xl shadow-lg">
           <CardHeader className="flex flex-row justify-between items-center border-b border-muted-foreground/10 pb-4">
             <Button
@@ -137,30 +156,30 @@ const saveSchedule = async () => {
           </CardHeader>
 
           <CardContent className="p-6">
-            {/* day names */}
             <div className="grid grid-cols-7 mb-2 text-center text-sm font-semibold text-muted-foreground">
               {"SUN MON TUE WED THU FRI SAT".split(" ").map((d) => (
                 <span key={d}>{d}</span>
               ))}
             </div>
 
-            {/* dates */}
             <div className="grid grid-cols-7 gap-1">
               {monthDays.map((d) => {
                 const isCurrentMonth = d.month() === month.month();
-                const isSelected = selectedDate && d.isSame(selectedDate, "day");
+                const isSelected =
+                  selectedDate && d.isSame(selectedDate, "day");
                 return (
                   <button
                     key={d.toString()}
                     onClick={() => setSelectedDate(d)}
                     className={`relative h-12 rounded-lg flex flex-col items-center justify-center transition
-                      ${isSelected ? "bg-[#5f6FFF] text-white" : "hover:bg-gray-700/50"}
+                      ${
+                        isSelected
+                          ? "bg-[#5f6FFF] text-white"
+                          : "hover:bg-gray-700/50"
+                      }
                       ${!isCurrentMonth ? "opacity-40" : ""}`}
                   >
-                    <span className="text-sm font-medium">
-                      {d.date()}
-                    </span>
-                    {/* Availability bubble – placeholder */}
+                    <span className="text-sm font-medium">{d.date()}</span>
                     <span className="w-2 h-2 rounded-full bg-emerald-400 mt-1" />
                   </button>
                 );
@@ -169,15 +188,15 @@ const saveSchedule = async () => {
           </CardContent>
         </Card>
 
-        {/* ---------- editor panel ---------- */}
         <Card className="rounded-2xl shadow-lg h-fit sticky top-24">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              {selectedDate ? selectedDate.format("DD MMM, YYYY") : "Pick a date"}
+              {selectedDate
+                ? selectedDate.format("DD MMM, YYYY")
+                : "Pick a date"}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
-            {/* time inputs */}
             <div className="flex gap-4 items-end">
               <div className="flex flex-col gap-1 w-full max-w-[128px]">
                 <label className="text-xs uppercase tracking-wide">Start</label>
@@ -195,13 +214,12 @@ const saveSchedule = async () => {
                   onChange={(e) => setEnd(e.target.value)}
                 />
               </div>
-              
+
               <Button variant="secondary" className="mt-6" onClick={addRange}>
                 <Plus className="w-4 h-4 mr-1" /> Add
               </Button>
             </div>
 
-            {/* ranges list */}
             <ul className="space-y-3 max-h-64 overflow-y-auto pr-2">
               {ranges.map((r, i) => (
                 <li
@@ -209,8 +227,8 @@ const saveSchedule = async () => {
                   className="flex items-center justify-between bg-muted p-3 rounded-xl"
                 >
                   <span className="text-sm font-medium">
-   {to12h(r.start)} – {to12h(r.end)}
- </span>
+                    {to12h(r.start)} – {to12h(r.end)}
+                  </span>
                   <div className="flex items-center gap-2">
                     <Button
                       size="icon"
@@ -240,7 +258,6 @@ const saveSchedule = async () => {
               )}
             </ul>
 
-            {/* save / mark day unavailable */}
             <div className="flex flex-col gap-3">
               <Button className="w-full" onClick={saveSchedule}>
                 Save Schedule
@@ -248,11 +265,7 @@ const saveSchedule = async () => {
               <Button
                 variant="destructive"
                 className="w-full"
-                onClick={() => {
-                  if (confirm("Mark entire day unavailable?")) {
-                    setRanges([{ start: "00:00", end: "23:59", isAvailable: false }]);
-                  }
-                }}
+                onClick={() => setConfirmLeave(true)}
               >
                 Mark Day Unavailable
               </Button>
@@ -260,12 +273,39 @@ const saveSchedule = async () => {
           </CardContent>
         </Card>
       </div>
+      {confirmLeave && (
+        <div className="fixed inset-0 z-40 flex items-center justify-center">
+          <div
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => setConfirmLeave(false)}
+          />
+          <div className="relative z-50 w-72 rounded-2xl bg-slate-900 p-6 text-center ring-1 ring-white/10 shadow-2xl">
+            <h4 className="mb-4 text-lg font-semibold text-slate-100">
+              Mark entire day unavailable?
+            </h4>
+            <p className="mb-6 text-sm text-slate-400">
+              Patients will not be able to book any slots for this day.
+            </p>
+            <div className="flex justify-center gap-4">
+              <Button
+                variant="secondary"
+                onClick={() => setConfirmLeave(false)}
+              >
+                Cancel
+              </Button>
+              <Button variant="destructive" onClick={markDayUnavailable}>
+                Confirm
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
     </motion.section>
   );
 }
 
 interface Range {
-  start: string; // HH:mm
-  end: string; // HH:mm
+  start: string;
+  end: string;
   isAvailable: boolean;
 }

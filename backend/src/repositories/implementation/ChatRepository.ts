@@ -1,11 +1,3 @@
-// import { IChatRepository } from "../interface/IChatRepository";
-// import MessageModel, { MessageDocument } from "../../models/messageModel";
-
-// export class ChatRepository implements IChatRepository {
-//   async getMessagesByChatId(chatId: string): Promise<MessageDocument[]> {
-//     return await MessageModel.find({ chatId }).sort({ createdAt: 1 });
-//   }
-// }
 import MessageModel, { MessageDocument } from "../../models/messageModel";
 import ChatModel from "../../models/chatModel";
 import { IChatRepository } from "../interface/IChatRepository";
@@ -22,7 +14,7 @@ export class ChatRepository implements IChatRepository {
     return MessageModel.find(query)
       .sort({ createdAt: 1 })
       .limit(limit)
-      .lean<MessageDocument[]>()        
+      .lean<MessageDocument[]>()
       .exec();
   }
 
@@ -73,4 +65,3 @@ export class ChatRepository implements IChatRepository {
     }).exec();
   }
 }
-

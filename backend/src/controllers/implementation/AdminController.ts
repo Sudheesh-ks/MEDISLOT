@@ -115,44 +115,6 @@ export class AdminController implements IAdminController {
     });
   }
 
-  // // For adding a doctor
-  // async addDoctor(req: CustomRequest, res: Response): Promise<void> {
-  //   try {
-  //     const {
-  //       name,
-  //       email,
-  //       password,
-  //       speciality,
-  //       degree,
-  //       experience,
-  //       about,
-  //       fees,
-  //       address,
-  //     } = req.body;
-
-  //     const imageFile = req.file;
-
-  //     const doctorDTO: DoctorDTO = {
-  //       name,
-  //       email,
-  //       password,
-  //       speciality,
-  //       degree,
-  //       experience,
-  //       about,
-  //       fees: Number(fees),
-  //       address: JSON.parse(address),
-  //       imagePath: imageFile?.path,
-  //     };
-  //     const message = await this._adminService.addDoctor(doctorDTO);
-  //     res.status(HttpStatus.CREATED).json({ success: true, message });
-  //     return;
-  //   } catch (error) {
-  //     res
-  //       .status(HttpStatus.BAD_REQUEST)
-  //       .json({ success: false, message: (error as Error).message });
-  //   }
-  // }
 
   // For getting all the doctors
   async getDoctors(req: Request, res: Response): Promise<void> {
@@ -211,11 +173,8 @@ export class AdminController implements IAdminController {
   // For toggling the state of user
   async toggleUserBlock(req: Request, res: Response): Promise<void> {
     try {
-      const { userId } = req.params;
-      const { block } = req.body as { block?: boolean };
-
-      console.log("PARAM userId:", userId);
-      console.log("BODY block:", block);
+      const userId  = req.params.id;
+    const {block}  = req.body as { block?: boolean };
 
       if (typeof block !== "boolean") {
         res.status(HttpStatus.BAD_REQUEST).json({
@@ -251,7 +210,8 @@ export class AdminController implements IAdminController {
   async rejectDoctor(req: Request, res: Response): Promise<void> {
     try {
       const doctorId = req.params.id;
-      const message = await this._adminService.rejectDoctor(doctorId);
+        const { reason } = req.body;  
+      const message = await this._adminService.rejectDoctor(doctorId, reason);
       res.status(HttpStatus.OK).json({ success: true, message });
     } catch (error) {
       res

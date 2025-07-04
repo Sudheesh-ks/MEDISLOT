@@ -51,7 +51,7 @@ interface AdminContextType {
   dashData: any;
   getDashData: () => Promise<void>;
   approveDoctor: (doctorId: string) => Promise<void>;
-  rejectDoctor: (doctorId: string) => Promise<void>;
+  rejectDoctor: (doctorId: string, reason: string) => Promise<void>;
   loading: boolean;
 }
 
@@ -87,7 +87,7 @@ const [aToken, setAToken] = useState(getAdminAccessToken() ?? "");
       const { data } = await getAllDoctorsAPI(aToken);
       if (data.success) {
         setDoctors(data.doctors);
-        console.log(data.doctors);
+        // console.log(data.doctors);
       } else {
         toast.error(data.message);
       }
@@ -132,9 +132,9 @@ const [aToken, setAToken] = useState(getAdminAccessToken() ?? "");
   }
 };
 
-const rejectDoctor = async (doctorId: string) => {
+const rejectDoctor = async (doctorId: string, reason: string) => {
   try {
-    const { data } = await rejectDoctorAPI(doctorId, aToken);
+    const { data } = await rejectDoctorAPI(doctorId, reason, aToken);
     if (data.success) {
       toast.success(data.message);
       getAllDoctors(); 

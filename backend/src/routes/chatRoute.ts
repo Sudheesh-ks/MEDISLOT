@@ -16,8 +16,8 @@ chatRouter.patch("/:chatId/read", chatController.markRead.bind(chatController));
 
 chatRouter.post(
   "/upload",
-  uploadMemory.single("file"),                     // ✨ CHANGED
-  chatController.uploadFile.bind(chatController)   // controller handles Cloudinary
+  uploadMemory.single("file"),                     
+  chatController.uploadFile.bind(chatController)   
 );
 
 export default chatRouter;

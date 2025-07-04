@@ -25,6 +25,7 @@ export interface DoctorData {
   slots_booked?: {
     [date: string]: string[]; 
   };
+  rejectionReason?: string;
 }
 
 export interface DoctorDTO {

@@ -78,11 +78,11 @@ doctorRouter.patch(
   doctorController.updateDoctorProfile.bind(doctorController)
 );
 
-doctorRouter.get(
-  "/slots",
-  authRole(["doctor"]),
-  doctorController.getMonthlySlots.bind(doctorController)
-);
+// doctorRouter.get(
+//   "/slots",
+//   authRole(["doctor"]),
+//   doctorController.getMonthlySlots.bind(doctorController)
+// );
 
 doctorRouter.post(
   "/slots",

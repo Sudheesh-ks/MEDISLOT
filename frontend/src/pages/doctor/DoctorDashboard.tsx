@@ -1,4 +1,3 @@
-// src/pages/doctor/DoctorDashboard.tsx
 import { useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { DoctorContext } from "../../context/DoctorContext";
@@ -9,22 +8,24 @@ import type { AppointmentTypes } from "../../types/appointment";
 import { motion } from "framer-motion";
 
 const DoctorDashboard = () => {
-  const nav  = useNavigate();
-  const ctx  = useContext(DoctorContext);
-  const app  = useContext(AppContext);
-  const adm  = useContext(AdminContext);
+  const nav = useNavigate();
+  const ctx = useContext(DoctorContext);
+  const app = useContext(AppContext);
+  const adm = useContext(AdminContext);
 
   if (!ctx || !app || !adm) throw new Error("context missing");
 
   const { dToken, cancelAppointment, profileData } = ctx;
-  const { dashData, getDashData }                 = adm;
-  const { slotDateFormat }                        = app;
+  const { dashData, getDashData } = adm;
+  const { slotDateFormat } = app;
 
-  /* ─── side‑effects ─── */
-  useEffect(() => { if (dToken) getDashData(); }, [dToken]);
-  useEffect(() => { if (!dToken) nav("/doctor/login"); }, [dToken]);
+  useEffect(() => {
+    if (dToken) getDashData();
+  }, [dToken]);
+  useEffect(() => {
+    if (!dToken) nav("/doctor/login");
+  }, [dToken]);
 
-  /* ─── gate by status ─── */
   if (profileData?.status === "pending")
     return (
       <div className="m-5 text-center bg-yellow-900/30 border border-yellow-600 rounded-xl p-6 text-yellow-200 shadow-md">
@@ -43,14 +44,12 @@ const DoctorDashboard = () => {
 
   if (profileData?.status !== "approved") return null;
 
-  /* ─── ui helpers ─── */
-  const glass    = "bg-white/5 backdrop-blur ring-1 ring-white/10";
+  const glass = "bg-white/5 backdrop-blur ring-1 ring-white/10";
   const gradient = "from-cyan-500 to-fuchsia-600";
 
   return (
     dashData && (
       <div className="m-5 space-y-10 text-slate-100">
-        {/* ── Top stats ── */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {[
             {
@@ -91,7 +90,6 @@ const DoctorDashboard = () => {
           ))}
         </div>
 
-        {/* ── Latest appointments ── */}
         <div className={`${glass} rounded-xl overflow-hidden`}>
           <div className="flex items-center gap-2.5 px-6 py-4 border-b border-white/10">
             <img src={assets.list_icon} className="w-6" />
@@ -99,32 +97,39 @@ const DoctorDashboard = () => {
           </div>
 
           <div className="divide-y divide-white/10">
-            {dashData.latestAppointments.map((a: AppointmentTypes, i: number) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
-                className="flex items-center gap-4 px-6 py-4 hover:bg-white/5 transition-colors"
-              >
-                <img src={a.userData.image} className="w-10 h-10 rounded-full" />
-                <div className="flex-1 text-sm">
-                  <p className="font-semibold">{a.userData.name}</p>
-                  <p className="text-slate-400 text-xs">
-                    {slotDateFormat(a.slotDate)}
-                  </p>
-                </div>
-                {a.cancelled ? (
-                  <p className="text-red-400 text-sm font-semibold">Cancelled</p>
-                ) : (
+            {dashData.latestAppointments.map(
+              (a: AppointmentTypes, i: number) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: i * 0.1 }}
+                  className="flex items-center gap-4 px-6 py-4 hover:bg-white/5 transition-colors"
+                >
                   <img
-                    src={assets.cancel_icon}
-                    onClick={() => cancelAppointment(a._id!)}
-                    className="w-6 cursor-pointer hover:scale-110 transition-transform"
+                    src={a.userData.image}
+                    className="w-10 h-10 rounded-full"
                   />
-                )}
-              </motion.div>
-            ))}
+                  <div className="flex-1 text-sm">
+                    <p className="font-semibold">{a.userData.name}</p>
+                    <p className="text-slate-400 text-xs">
+                      {slotDateFormat(a.slotDate)}
+                    </p>
+                  </div>
+                  {a.cancelled ? (
+                    <p className="text-red-400 text-sm font-semibold">
+                      Cancelled
+                    </p>
+                  ) : (
+                    <img
+                      src={assets.cancel_icon}
+                      onClick={() => cancelAppointment(a._id!)}
+                      className="w-6 cursor-pointer hover:scale-110 transition-transform"
+                    />
+                  )}
+                </motion.div>
+              )
+            )}
           </div>
         </div>
       </div>

@@ -1,7 +1,4 @@
-import {
-  MessageDocument,
-  MessageKind,
-} from "../../models/messageModel";
+import { MessageDocument, MessageKind } from "../../models/messageModel";
 import { IChatRepository } from "../../repositories/interface/IChatRepository";
 import { IChatService } from "../interface/IChatService";
 

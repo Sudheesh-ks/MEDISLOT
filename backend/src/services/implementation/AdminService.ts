@@ -10,6 +10,7 @@ import {
   generateRefreshToken,
 } from "../../utils/jwt.utils";
 import { PaginationResult } from "../../repositories/interface/IAdminRepository";
+import { sendDoctorRejectionEmail } from "../../utils/mail.util";
 dotenv.config();
 
 export class AdminService implements IAdminService {
@@ -136,16 +137,22 @@ export class AdminService implements IAdminService {
     await this._doctorRepository.save(doctor);
     return "Doctor approved successfully";
   }
-
-  async rejectDoctor(doctorId: string): Promise<string> {
+  
+  async rejectDoctor(doctorId: string, reason?: string): Promise<string> {
     const doctor = await this._doctorRepository.findById(doctorId);
     if (!doctor) throw new Error("Doctor not found");
     if (doctor.status === "rejected")
       throw new Error("Doctor already rejected");
 
     doctor.status = "rejected";
+    if (reason) doctor.rejectionReason = reason;
     await this._doctorRepository.save(doctor);
-    return "Doctor rejected successfully";
+
+    sendDoctorRejectionEmail(doctor.email, doctor.name, reason).catch((err) =>
+      console.error("Rejection email failed:", err)
+    );
+
+    return "Doctor rejected and notified by email";
   }
 
   async getDoctors(): Promise<any[]> {

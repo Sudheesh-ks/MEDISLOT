@@ -5,13 +5,11 @@ import { AppContext } from "../../context/AppContext";
 import { resendOtpAPI, verifyOtpAPI } from "../../services/authServices";
 
 const OtpVerificationPage = () => {
-  /* ---------------- context & nav ---------------- */
   const navigate = useNavigate();
   const ctx = useContext(AppContext);
   if (!ctx) throw new Error("OtpVerification must be within AppContext");
   const { token, setToken } = ctx;
 
-  /* ---------------- local state ----------------- */
   const [otp, setOtp] = useState<string[]>(["", "", "", "", "", ""]);
   const [email, setEmail] = useState("");
   const [purpose, setPurpose] = useState("");
@@ -19,7 +17,6 @@ const OtpVerificationPage = () => {
   const [timer, setTimer] = useState(60);
   const [canResend, setCanResend] = useState(false);
 
-  /* pull temp data from localStorage */
   useEffect(() => {
     const temp = JSON.parse(localStorage.getItem("tempUserData") || "{}");
     if (!temp.email || !temp.purpose) navigate("/login");
@@ -29,14 +26,12 @@ const OtpVerificationPage = () => {
     }
   }, []);
 
-  /* resend countdown */
   useEffect(() => {
     if (timer === 0) return setCanResend(true);
     const id = setInterval(() => setTimer((t) => t - 1), 1000);
     return () => clearInterval(id);
   }, [timer]);
 
-  /* handle OTP input */
   const handleChange = (i: number, v: string) => {
     if (/^\d?$/.test(v)) {
       const next = [...otp];
@@ -46,7 +41,6 @@ const OtpVerificationPage = () => {
     }
   };
 
-  /* submit */
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const code = otp.join("");
@@ -70,7 +64,6 @@ const OtpVerificationPage = () => {
     }
   };
 
-  /* resend */
   const resendOtp = async () => {
     if (!canResend) return;
     try {
@@ -85,18 +78,15 @@ const OtpVerificationPage = () => {
     }
   };
 
-  /* already logged in? */
   useEffect(() => {
     if (token) navigate("/home");
   }, [token, navigate]);
 
-  /* ---------------- styles ---------------- */
   const inputBox =
     "w-12 h-12 text-center text-xl bg-transparent ring-1 ring-white/10 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500";
   const primaryBtn =
     "w-full bg-gradient-to-r from-cyan-500 to-fuchsia-600 py-2 rounded-md text-base hover:-translate-y-0.5 transition-transform";
 
-  /* ---------------- render ---------------- */
   return (
     <form
       onSubmit={handleSubmit}
@@ -109,7 +99,6 @@ const OtpVerificationPage = () => {
           <span className="text-cyan-400">{email}</span>
         </p>
 
-        {/* OTP boxes */}
         <div>
           <label className="block mb-2 text-sm">Verification Code</label>
           <div className="flex gap-3 justify-center">

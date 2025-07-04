@@ -16,11 +16,11 @@ import MessageModel from "./models/messageModel";
 import chatRouter from "./routes/chatRoute";
 dotenv.config();
 
-/* chat layer */
+// chat layer 
 import { ChatRepository } from "./repositories/implementation/ChatRepository";
 import { ChatService } from "./services/implementation/ChatService";
 
-/* socket registration */
+// socket registration 
 import { registerChatSocket } from "./sockets/ChatSocket";
 
 // app config
@@ -55,16 +55,15 @@ app.get("/", (req, res) => {
 });
 
 
-/* chat service singleton */
+// chat service 
 const chatService = new ChatService(new ChatRepository());
 
-/* socket.io */
+// socket.io 
 const server = http.createServer(app);
 const io = new SocketIOServer(server, {
   cors: { origin: "http://localhost:5173", credentials: true },
 });
 
-/* delegate all socket logic */
 registerChatSocket(io, chatService);
 
 server.listen(PORT, () => {

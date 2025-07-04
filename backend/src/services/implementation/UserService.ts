@@ -25,7 +25,7 @@ export class UserService implements IUserService {
   constructor(
     private _userRepository: IUserRepository,
     private _paymentService = new PaymentService(),
-    private _slotRepository = new SlotRepository(),
+    private _slotRepository = new SlotRepository()
   ) {}
 
   async register(
@@ -53,7 +53,7 @@ export class UserService implements IUserService {
   async login(
     email: string,
     password: string
-  ): Promise<{ user: UserDocument, token: string; refreshToken: string }> {
+  ): Promise<{ user: UserDocument; token: string; refreshToken: string }> {
     const user = await this._userRepository.findByEmail(email);
     if (!user) throw new Error("User not found");
     const isMatch = await bcrypt.compare(password, user.password);
@@ -112,22 +112,22 @@ export class UserService implements IUserService {
   async hashPassword(password: string) {
     return await bcrypt.hash(password, 10);
   }
-async finalizeRegister(userData: {
-  name: string;
-  email: string;
-  password: string;
-}): Promise<UserDocument> {
-  const existing = await this._userRepository.findByEmail(userData.email);
-  if (existing) throw new Error("User already exists");
+  async finalizeRegister(userData: {
+    name: string;
+    email: string;
+    password: string;
+  }): Promise<UserDocument> {
+    const existing = await this._userRepository.findByEmail(userData.email);
+    if (existing) throw new Error("User already exists");
 
-  const newUser = (await this._userRepository.create({
-    name: userData.name,
-    email: userData.email,
-    password: userData.password, 
-  })) as UserDocument;
+    const newUser = (await this._userRepository.create({
+      name: userData.name,
+      email: userData.email,
+      password: userData.password,
+    })) as UserDocument;
 
-  return newUser;
-}
+    return newUser;
+  }
 
   async resetPassword(
     email: string,
@@ -177,11 +177,9 @@ async finalizeRegister(userData: {
       appointmentId
     );
 
-
     console.log("Appointment:", appointment);
-console.log("Amount:", appointment.amount);
-console.log("hii");
-
+    console.log("Amount:", appointment.amount);
+    console.log("hii");
 
     const order = await this._paymentService.createOrder(
       appointment.amount * 100,
@@ -211,18 +209,25 @@ console.log("hii");
     await this._userRepository.markAppointmentPaid(appointmentId);
   }
 
-    async getAvailableSlotsByDate(
+  async getAvailableSlotsByDate(
     doctorId: string,
     date: string
   ): Promise<SlotRange[]> {
-    const doc = await this._slotRepository.getSlotByDate(doctorId, isoDate(date));
-    // return only un‑booked & available ranges
-    return (
-      doc?.slots.filter((r) => r.isAvailable && !r.booked) ?? []
+    const doc = await this._slotRepository.getSlotByDate(
+      doctorId,
+      isoDate(date)
+    );
+    return doc?.slots.filter((r) => r.isAvailable && !r.booked) ?? [];
+  }
+  async getAvailableSlotsForDoctor(
+    doctorId: string,
+    year: number,
+    month: number
+  ): Promise<any[]> {
+    return this._userRepository.getAvailableSlotsByDoctorAndMonth(
+      doctorId,
+      year,
+      month
     );
   }
-  async getAvailableSlotsForDoctor(doctorId: string, year: number, month: number): Promise<any[]> {
-  return this._userRepository.getAvailableSlotsByDoctorAndMonth(doctorId, year, month);
-}
-
 }

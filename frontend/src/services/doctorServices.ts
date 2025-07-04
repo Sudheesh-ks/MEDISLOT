@@ -88,25 +88,19 @@ data.append("available", (formData.available ?? false).toString());
   });
 };
 
-// Calendar dots (month view)
 export const getDoctorSlotsAPI = (year: number, month: number) =>
-  api.get(DOCTOR_API.SLOTS, { params: { year, month } });          // 🔧 CHANGED
+  api.get(DOCTOR_API.SLOTS, { params: { year, month } });          
 
-// ───────────────────────────────────────────────
-// Create / replace one day
 export const upsertDaySlotsAPI = (
   date: string,
   slots: { start: string; end: string; isAvailable: boolean }[],
   isCancelled: boolean
-) => api.post(DOCTOR_API.SLOTS, { date, slots, isCancelled });     // 🔧 CHANGED
+) => api.post(DOCTOR_API.SLOTS, { date, slots, isCancelled });     
 
-// (alias kept for backward compatibility)
 export const addDoctorSlotsAPI = upsertDaySlotsAPI;
 
-// ───────────────────────────────────────────────
-// Fetch a single day for edit
 export const getDaySlotsAPI = async (date: string) => {
-  const res = await api.get(`${DOCTOR_API.SLOTS}/day`, { params: { date } }); // 🔧 CHANGED
+  const res = await api.get(`${DOCTOR_API.SLOTS}/day`, { params: { date } }); 
   return res.data.data as {
     start: string;
     end: string;

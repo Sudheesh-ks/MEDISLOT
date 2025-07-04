@@ -2,7 +2,8 @@ import { assets } from "../../assets/user/assets";
 
 const DocVideoCallCard = () => {
   const glass = "bg-white/5 backdrop-blur ring-1 ring-white/10";
-  const btn   = "w-full bg-gradient-to-r from-cyan-500 to-fuchsia-600 py-3 rounded-lg font-medium hover:-translate-y-0.5 transition-transform shadow-lg";
+  const btn =
+    "w-full bg-gradient-to-r from-cyan-500 to-fuchsia-600 py-3 rounded-lg font-medium hover:-translate-y-0.5 transition-transform shadow-lg";
   return (
     <div className={`w-96 ${glass} rounded-3xl overflow-hidden`}>
       {/* header image */}

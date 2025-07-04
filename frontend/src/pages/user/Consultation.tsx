@@ -1,4 +1,3 @@
-import React from "react";
 import VideoCallCard from "../../components/user/VideoCallCard";
 import ChatCard from "../../components/user/ChatCard";
 import { useParams } from "react-router-dom";

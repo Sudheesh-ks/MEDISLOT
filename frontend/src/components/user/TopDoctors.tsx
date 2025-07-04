@@ -6,18 +6,13 @@ import type { Doctor } from "../../assets/user/assets";
 const TopDoctors = () => {
   const navigate = useNavigate();
   const context = useContext(AppContext);
-  if (!context) throw new Error("TopDoctors must be used within an AppContextProvider");
+  if (!context)
+    throw new Error("TopDoctors must be used within an AppContextProvider");
   const { doctors, getDoctorsData } = context;
 
   useEffect(() => {
     getDoctorsData();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-  /* Portrait fix ✅
-     --------------------------------------------------
-     • Wrapper height fixed (h-80) instead of aspect‑ratio to favour vertical human PNGs.
-     • Flex + object-contain keeps full figure visible & centred.
-  */
+  }, []);
 
   return (
     <section className="max-w-7xl mx-auto px-4 md:px-10 py-24 animate-fade">
@@ -36,7 +31,6 @@ const TopDoctors = () => {
               }}
               className="group bg-white/5 backdrop-blur rounded-3xl ring-1 ring-white/10 overflow-hidden hover:-translate-y-1 transition-transform cursor-pointer"
             >
-              {/* IMAGE WRAPPER */}
               <div className="h-80 bg-white/5 flex items-end justify-center overflow-hidden">
                 <img
                   src={doc.image}
@@ -46,8 +40,16 @@ const TopDoctors = () => {
               </div>
 
               <div className="p-6 space-y-2">
-                <span className={`inline-flex items-center gap-2 text-sm font-medium ${doc.available ? "text-emerald-400" : "text-rose-400"}`}> 
-                  <span className={`inline-block w-2 h-2 rounded-full ${doc.available ? "bg-emerald-400" : "bg-rose-400"}`} />
+                <span
+                  className={`inline-flex items-center gap-2 text-sm font-medium ${
+                    doc.available ? "text-emerald-400" : "text-rose-400"
+                  }`}
+                >
+                  <span
+                    className={`inline-block w-2 h-2 rounded-full ${
+                      doc.available ? "bg-emerald-400" : "bg-rose-400"
+                    }`}
+                  />
                   {doc.available ? "Available" : "Not Available"}
                 </span>
                 <h3 className="font-semibold text-lg text-white">{doc.name}</h3>

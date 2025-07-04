@@ -37,8 +37,12 @@ export class UserRepository
     const doctor = await doctorModel.findById(docId);
     if (!doctor || !doctor.available) throw new Error("Doctor not available");
 
-    const slotDoc = await slotModel.findOne({ doctorId: docId, date: slotDate });
-    if (!slotDoc || slotDoc.isCancelled) throw new Error("No available slots for this date");
+    const slotDoc = await slotModel.findOne({
+      doctorId: docId,
+      date: slotDate,
+    });
+    if (!slotDoc || slotDoc.isCancelled)
+      throw new Error("No available slots for this date");
 
     const slotIndex = slotDoc.slots.findIndex(
       (slot) => slot.start === slotTime && !slot.booked
@@ -92,7 +96,10 @@ export class UserRepository
     await appointment.save();
 
     const { docId, slotDate, slotTime } = appointment;
-    const slotDoc = await slotModel.findOne({ doctorId: docId, date: slotDate });
+    const slotDoc = await slotModel.findOne({
+      doctorId: docId,
+      date: slotDate,
+    });
     if (slotDoc) {
       const slotIndex = slotDoc.slots.findIndex(
         (slot) => slot.start === slotTime && slot.booked
@@ -104,22 +111,23 @@ export class UserRepository
     }
   }
 
-async findPayableAppointment(
-  userId: string,
-  appointmentId: string
-): Promise<AppointmentDocument> {
-  const appointment = await appointmentModel.findById<AppointmentDocument>(appointmentId);
-  if (!appointment) throw new Error("Appointment not found");
+  async findPayableAppointment(
+    userId: string,
+    appointmentId: string
+  ): Promise<AppointmentDocument> {
+    const appointment = await appointmentModel.findById<AppointmentDocument>(
+      appointmentId
+    );
+    if (!appointment) throw new Error("Appointment not found");
 
-  if (appointment.userId.toString() !== userId.toString()) {
-    throw new Error("Unauthorized");
+    if (appointment.userId.toString() !== userId.toString()) {
+      throw new Error("Unauthorized");
+    }
+
+    if (appointment.cancelled) throw new Error("Appointment cancelled");
+
+    return appointment;
   }
-
-  if (appointment.cancelled) throw new Error("Appointment cancelled");
-
-  return appointment;
-}
-
 
   async saveRazorpayOrderId(
     appointmentId: string,
@@ -135,19 +143,20 @@ async findPayableAppointment(
   }
 
   async getAvailableSlotsByDoctorAndMonth(
-  doctorId: string,
-  year: number,
-  month: number
-): Promise<any[]> {
-  const regexMonth = String(month).padStart(2, "0");
-  const regex = new RegExp(`^${year}-${regexMonth}`); 
+    doctorId: string,
+    year: number,
+    month: number
+  ): Promise<any[]> {
+    const regexMonth = String(month).padStart(2, "0");
+    const regex = new RegExp(`^${year}-${regexMonth}`);
 
-  return slotModel.find({
-    doctorId,
-    date: { $regex: regex },
-    isCancelled: false,
-    "slots.booked": false, 
-  }).select("date slots");
-}
-
+    return slotModel
+      .find({
+        doctorId,
+        date: { $regex: regex },
+        isCancelled: false,
+        "slots.booked": false,
+      })
+      .select("date slots");
+  }
 }

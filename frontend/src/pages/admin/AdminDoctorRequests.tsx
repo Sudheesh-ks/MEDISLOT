@@ -1,4 +1,3 @@
-// src/pages/admin/AdminDoctorRequests.tsx
 import { useContext, useEffect, useState } from "react";
 import { AdminContext } from "../../context/AdminContext";
 import { useNavigate } from "react-router-dom";
@@ -13,16 +12,19 @@ const AdminDoctorRequests = () => {
 
   const { aToken, getDoctorsPaginated, approveDoctor, rejectDoctor } = ctx;
 
-  /* ───────── local state ───────── */
-  const [page,   setPage]   = useState(1);
-  const [rows,   setRows]   = useState<any[]>([]);
-  const [pages,  setPages]  = useState(1);
-  const [count,  setCount]  = useState(0);
-  const [load,   setLoad]   = useState(false);
-  const [query,  setQuery]  = useState("");
+  const [page, setPage] = useState(1);
+  const [rows, setRows] = useState<any[]>([]);
+  const [pages, setPages] = useState(1);
+  const [count, setCount] = useState(0);
+  const [load, setLoad] = useState(false);
+  const [query, setQuery] = useState("");
+
+  const [showModal, setShowModal] = useState(false);
+  const [reason, setReason] = useState("");
+  const [currentId, setCurrentId] = useState<string | null>(null);
+
   const perPage = 6;
 
-  /* ───────── effects ───────── */
   useEffect(() => {
     if (aToken) fetchRows();
   }, [aToken, page]);
@@ -33,7 +35,6 @@ const AdminDoctorRequests = () => {
 
   useEffect(() => window.scrollTo({ top: 0, behavior: "smooth" }), [page]);
 
-  /* ───────── fetch ───────── */
   const fetchRows = async () => {
     try {
       setLoad(true);
@@ -48,17 +49,24 @@ const AdminDoctorRequests = () => {
     }
   };
 
-  /* ───────── handlers ───────── */
   const doApprove = async (id: string) => {
     await approveDoctor(id);
     fetchRows();
   };
-  const doReject = async (id: string) => {
-    await rejectDoctor(id);
+
+  const openModal = (id: string) => {
+    setCurrentId(id);
+    setReason("");
+    setShowModal(true);
+  };
+
+  const submitReject = async () => {
+    if (!currentId) return;
+    await rejectDoctor(currentId, reason.trim());
+    setShowModal(false);
     fetchRows();
   };
 
-  /* ───────── filtered list ───────── */
   const pending = rows
     .filter((d) => d.status === "pending")
     .filter(
@@ -67,16 +75,14 @@ const AdminDoctorRequests = () => {
         d.speciality?.toLowerCase().includes(query.toLowerCase())
     );
 
-  /* ───────── styles ───────── */
   const glass = "bg-white/5 backdrop-blur ring-1 ring-white/10";
-  const pill  = "text-xs font-medium px-4 py-1.5 rounded-md shadow-lg hover:-translate-y-0.5 hover:scale-105 transition-all duration-300";
+  const pill =
+    "text-xs font-medium px-4 py-1.5 rounded-md shadow-lg hover:-translate-y-0.5 hover:scale-105 transition-all duration-300";
 
-  /* ───────── render ───────── */
   return (
     <div className="m-5 text-slate-100 max-h-[90vh] overflow-y-auto">
       <h1 className="text-lg font-medium mb-4">Doctor Requests</h1>
 
-      {/* search */}
       <div className="mb-6 max-w-sm">
         <SearchBar
           placeholder="Search by name or speciality"
@@ -84,7 +90,6 @@ const AdminDoctorRequests = () => {
         />
       </div>
 
-      {/* list */}
       {load ? (
         <div className="text-center py-10 text-slate-400 text-sm">
           Loading doctor requests…
@@ -101,17 +106,13 @@ const AdminDoctorRequests = () => {
                 transition={{ duration: 0.4, delay: i * 0.08 }}
                 whileHover={{ scale: 1.02 }}
               >
-                <img
-                  src={doc.image}
-                  className="w-full h-40 object-cover"
-                />
+                <img src={doc.image} className="w-full h-40 object-cover" />
                 <div className="p-4 space-y-1">
                   <p className="text-base font-semibold truncate">{doc.name}</p>
                   <p className="text-sm text-slate-400 truncate">
                     {doc.speciality}
                   </p>
 
-                  {/* buttons */}
                   <div className="mt-4 flex justify-end gap-2">
                     <button
                       onClick={() => doApprove(doc._id)}
@@ -120,7 +121,7 @@ const AdminDoctorRequests = () => {
                       Approve
                     </button>
                     <button
-                      onClick={() => doReject(doc._id)}
+                      onClick={() => openModal(doc._id)}
                       className={`${pill} bg-gradient-to-r from-red-500 to-red-600 text-white`}
                     >
                       Reject
@@ -131,7 +132,6 @@ const AdminDoctorRequests = () => {
             ))}
           </div>
 
-          {/* pagination */}
           {pages > 1 && (
             <Pagination
               currentPage={page}
@@ -143,6 +143,47 @@ const AdminDoctorRequests = () => {
       ) : (
         <div className="text-center py-10 text-slate-400 text-sm">
           No matching doctor requests found.
+        </div>
+      )}
+
+      {showModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="bg-slate-800 w-full max-w-md rounded-xl p-6 shadow-2xl">
+            <h3 className="text-lg font-semibold mb-4 text-slate-100">
+              Reject Doctor
+            </h3>
+
+            <label className="block text-sm text-slate-300 mb-1">
+              Reason <span className="text-red-500">*</span>
+            </label>
+            <textarea
+              value={reason}
+              onChange={(e) => setReason(e.target.value)}
+              rows={4}
+              className="w-full rounded-lg bg-slate-700 p-3 text-sm text-slate-100 focus:ring-2 focus:ring-emerald-500 outline-none"
+              placeholder="E.g. Invalid documents, incomplete profile…"
+            />
+
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                onClick={() => setShowModal(false)}
+                className={`${pill} bg-slate-600 text-slate-100`}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={submitReject}
+                disabled={!reason.trim()}
+                className={`${pill} ${
+                  reason.trim()
+                    ? "bg-gradient-to-r from-red-500 to-red-600 text-white"
+                    : "bg-slate-500 opacity-60 cursor-not-allowed"
+                }`}
+              >
+                Reject
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

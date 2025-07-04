@@ -3,7 +3,10 @@ import appointmentModel from "../../models/appointmentModel";
 import doctorModel from "../../models/doctorModel";
 import { AppointmentTypes } from "../../types/appointment";
 import { DoctorData, DoctorDocument } from "../../types/doctor";
-import { IDoctorRepository, PaginationResult } from "../interface/IDoctorRepository";
+import {
+  IDoctorRepository,
+  PaginationResult,
+} from "../interface/IDoctorRepository";
 
 export class DoctorRepository
   extends BaseRepository<DoctorDocument>
@@ -49,43 +52,54 @@ export class DoctorRepository
     await appointmentModel.findByIdAndUpdate(id, { cancelled: true });
   }
 
-   async getDoctorsPaginated(page: number, limit: number): Promise<PaginationResult<Partial<DoctorData>>> {
+  async getDoctorsPaginated(
+    page: number,
+    limit: number
+  ): Promise<PaginationResult<Partial<DoctorData>>> {
     const skip = (page - 1) * limit;
     const totalCount = await doctorModel.countDocuments({ status: "approved" });
-    const data = await doctorModel.find({ status: "approved" }).select("-password").skip(skip).limit(limit);
-    
+    const data = await doctorModel
+      .find({ status: "approved" })
+      .select("-password")
+      .skip(skip)
+      .limit(limit);
+
     const totalPages = Math.ceil(totalCount / limit);
-    
+
     return {
       data,
       totalCount,
       currentPage: page,
       totalPages,
       hasNextPage: page < totalPages,
-      hasPrevPage: page > 1
+      hasPrevPage: page > 1,
     };
   }
 
-
- async getAppointmentsPaginated(docId: string, page: number, limit: number): Promise<PaginationResult<AppointmentTypes>> {
+  async getAppointmentsPaginated(
+    docId: string,
+    page: number,
+    limit: number
+  ): Promise<PaginationResult<AppointmentTypes>> {
     const skip = (page - 1) * limit;
     const totalCount = await appointmentModel.countDocuments({ docId });
-    const data = await appointmentModel.find({ docId })
-      .populate('userId', 'name email image dob')
-      .populate('docId', 'name image speciality')
+    const data = await appointmentModel
+      .find({ docId })
+      .populate("userId", "name email image dob")
+      .populate("docId", "name image speciality")
       .skip(skip)
       .limit(limit)
-      .sort({ createdAt: 1 });
-    
+      .sort({ createdAt: -1 });
+
     const totalPages = Math.ceil(totalCount / limit);
-    
+
     return {
       data,
       totalCount,
       currentPage: page,
       totalPages,
       hasNextPage: page < totalPages,
-      hasPrevPage: page > 1
+      hasPrevPage: page > 1,
     };
   }
 

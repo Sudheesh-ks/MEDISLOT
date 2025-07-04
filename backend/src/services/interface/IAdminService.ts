@@ -21,5 +21,5 @@ export interface IAdminService {
   listAppointmentsPaginated(page: number, limit: number): Promise<PaginationResult<AppointmentTypes>>;
   cancelAppointment(appointmentId: string): Promise<void>;
   approveDoctor(doctorId: string): Promise<string>;
-  rejectDoctor(doctorId: string): Promise<string>;
+  rejectDoctor(doctorId: string, reason?: string): Promise<string>;
 }

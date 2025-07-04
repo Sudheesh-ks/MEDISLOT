@@ -4,10 +4,6 @@ import { cn } from "../../utils/slotManagementHelper";
 export interface InputProps
   extends React.InputHTMLAttributes<HTMLInputElement> {}
 
-/**
- * Tailwind‑styled input that adapts to light & dark themes
- * and keeps the focus ring on the brand colour (#5f6FFF).
- */
 export const Input = React.forwardRef<HTMLInputElement, InputProps>(
   ({ className, type = "text", ...props }, ref) => (
     <input

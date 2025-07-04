@@ -1,4 +1,3 @@
-// src/pages/admin/AdminUsersList.tsx
 import { useContext, useEffect, useState } from "react";
 import { AdminContext } from "../../context/AdminContext";
 import { useNavigate } from "react-router-dom";
@@ -14,16 +13,14 @@ const AdminUsersList = () => {
 
   const { aToken, getUsersPaginated, toggleBlockUser } = ctx;
 
-  /* ───────── local state ───────── */
-  const [page,  setPage]  = useState(1);
-  const [rows,  setRows]  = useState<any[]>([]);
+  const [page, setPage] = useState(1);
+  const [rows, setRows] = useState<any[]>([]);
   const [pages, setPages] = useState(1);
-  const [cnt,   setCnt]   = useState(0);
+  const [cnt, setCnt] = useState(0);
   const [loading, setLoading] = useState(false);
   const perPage = 6;
   const [q, setQ] = useState("");
 
-  /* ───────── data fetch ───────── */
   useEffect(() => {
     if (aToken) fetchRows();
   }, [aToken, page]);
@@ -49,16 +46,20 @@ const AdminUsersList = () => {
     fetchRows();
   };
 
-  /* ───────── derived ───────── */
-  const filtered = rows.filter((u) =>
-    (u.name || "").toLowerCase().includes(q.toLowerCase()) ||
-    (u.email || "").toLowerCase().includes(q.toLowerCase())
+  const filtered = rows.filter(
+    (u) =>
+      (u.name || "").toLowerCase().includes(q.toLowerCase()) ||
+      (u.email || "").toLowerCase().includes(q.toLowerCase())
   );
 
-  /* ───────── columns ───────── */
   const cols = [
-    { key: "#", header: "#", width: "0.5fr", hideOnMobile: true,
-      render: (_: any, i: number) => (page - 1) * perPage + i + 1 },
+    {
+      key: "#",
+      header: "#",
+      width: "0.5fr",
+      hideOnMobile: true,
+      render: (_: any, i: number) => (page - 1) * perPage + i + 1,
+    },
     {
       key: "img",
       header: "Image",
@@ -80,7 +81,9 @@ const AdminUsersList = () => {
       key: "mail",
       header: "Email",
       width: "3fr",
-      render: (it: any) => <span className="text-slate-400 text-sm">{it.email}</span>,
+      render: (it: any) => (
+        <span className="text-slate-400 text-sm">{it.email}</span>
+      ),
     },
     {
       key: "st",
@@ -89,9 +92,11 @@ const AdminUsersList = () => {
       render: (it: any) => (
         <span
           className={`px-3 py-0.5 text-xs rounded-full font-semibold
-            ${it.isBlocked
-              ? "bg-red-500/20 text-red-400"
-              : "bg-emerald-500/20 text-emerald-400"}`}
+            ${
+              it.isBlocked
+                ? "bg-red-500/20 text-red-400"
+                : "bg-emerald-500/20 text-emerald-400"
+            }`}
         >
           {it.isBlocked ? "Blocked" : "Active"}
         </span>
@@ -110,9 +115,11 @@ const AdminUsersList = () => {
             doToggle(it._id);
           }}
           className={`px-4 py-1.5 text-xs rounded-lg font-medium shadow-md
-            ${it.isBlocked
-              ? "bg-gradient-to-r from-emerald-500 to-cyan-500 text-white"
-              : "bg-gradient-to-r from-red-500 to-fuchsia-500 text-white"}`}
+            ${
+              it.isBlocked
+                ? "bg-gradient-to-r from-emerald-500 to-cyan-500 text-white"
+                : "bg-gradient-to-r from-red-500 to-fuchsia-500 text-white"
+            }`}
         >
           {it.isBlocked ? "Unblock" : "Block"}
         </motion.button>
@@ -120,16 +127,12 @@ const AdminUsersList = () => {
     },
   ];
 
-  /* ───────── render ───────── */
   return (
     <div className="w-full max-w-6xl m-5 text-slate-100">
       <h1 className="mb-4 text-lg font-semibold">👥 All Users</h1>
 
       <div className="mb-6 max-w-sm">
-        <SearchBar
-          placeholder="Search by name or email"
-          onSearch={setQ}
-        />
+        <SearchBar placeholder="Search by name or email" onSearch={setQ} />
       </div>
 
       <DataTable

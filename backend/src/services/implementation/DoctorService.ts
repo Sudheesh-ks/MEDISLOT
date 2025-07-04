@@ -76,8 +76,8 @@ export class DoctorService implements IDoctorService {
     await this._doctorRepository.registerDoctor(doctorData);
   }
 
-    async getPublicDoctorById(id: string): Promise<DoctorData | null> {
-    return this._doctorRepository.getDoctorProfileById(id); 
+  async getPublicDoctorById(id: string): Promise<DoctorData | null> {
+    return this._doctorRepository.getDoctorProfileById(id);
   }
 
   async toggleAvailability(docId: string): Promise<void> {
@@ -120,13 +120,21 @@ export class DoctorService implements IDoctorService {
     return await this._doctorRepository.findAppointmentsByDoctorId(docId);
   }
 
-  async getDoctorAppointmentsPaginated(docId: string, page: number, limit: number): Promise<any> {
+  async getDoctorAppointmentsPaginated(
+    docId: string,
+    page: number,
+    limit: number
+  ): Promise<any> {
     const doctor = await this._doctorRepository.findById(docId);
     if (!doctor) {
       throw new Error("Doctor not found");
     }
 
-    return await this._doctorRepository.getAppointmentsPaginated(docId, page, limit);
+    return await this._doctorRepository.getAppointmentsPaginated(
+      docId,
+      page,
+      limit
+    );
   }
 
   async confirmAppointment(
@@ -137,7 +145,7 @@ export class DoctorService implements IDoctorService {
       appointmentId
     );
     console.log(appointment?.docId);
-    console.log(docId)
+    console.log(docId);
     if (!appointment || appointment.docId !== docId.toString()) {
       throw new Error("Mark Failed");
     }

@@ -1,4 +1,3 @@
-// src/pages/admin/AdminDoctorList.tsx
 import { useContext, useEffect, useState } from "react";
 import { AdminContext } from "../../context/AdminContext";
 import { useNavigate } from "react-router-dom";
@@ -7,33 +6,30 @@ import SearchBar from "../../components/common/SearchBar";
 import Pagination from "../../components/common/Pagination";
 
 const AdminDoctorList = () => {
-  const nav   = useNavigate();
-  const ctx   = useContext(AdminContext);
-  if (!ctx) throw new Error("AdminContext missing");
+  const navigate = useNavigate();
+  const context = useContext(AdminContext);
+  if (!context) throw new Error("AdminContext missing");
 
-  const { aToken, getDoctorsPaginated } = ctx;
+  const { aToken, getDoctorsPaginated } = context;
 
-  /* ───────── local state ───────── */
-  const [page,   setPage]   = useState(1);
-  const [rows,   setRows]   = useState<any[]>([]);
-  const [pages,  setPages]  = useState(1);
-  const [count,  setCount]  = useState(0);
-  const [load,   setLoad]   = useState(false);
-  const [query,  setQuery]  = useState("");
+  const [page, setPage] = useState(1);
+  const [rows, setRows] = useState<any[]>([]);
+  const [pages, setPages] = useState(1);
+  const [count, setCount] = useState(0);
+  const [load, setLoad] = useState(false);
+  const [query, setQuery] = useState("");
   const perPage = 6;
 
-  /* ───────── effects ───────── */
   useEffect(() => {
     if (aToken) fetchRows();
   }, [aToken, page]);
 
   useEffect(() => {
-    if (!aToken) nav("/admin/login");
+    if (!aToken) navigate("/admin/login");
   }, [aToken]);
 
   useEffect(() => window.scrollTo({ top: 0, behavior: "smooth" }), [page]);
 
-  /* ───────── fetch ───────── */
   const fetchRows = async () => {
     try {
       setLoad(true);
@@ -48,7 +44,6 @@ const AdminDoctorList = () => {
     }
   };
 
-  /* ───────── derived list ───────── */
   const filtered = rows
     .filter((d) => d.status === "approved")
     .filter(
@@ -57,12 +52,10 @@ const AdminDoctorList = () => {
         d.speciality?.toLowerCase().includes(query.toLowerCase())
     );
 
-  /* ───────── styles ───────── */
   const glass = "bg-white/5 backdrop-blur ring-1 ring-white/10";
-  const card  =
+  const card =
     "max-w-56 overflow-hidden cursor-pointer group transition-transform hover:-translate-y-1";
 
-  /* ───────── render ───────── */
   return (
     <div className="m-5 text-slate-100 max-h-[90vh] overflow-y-auto">
       <h1 className="text-lg font-medium mb-4">👨‍⚕️ All Doctors</h1>
@@ -75,7 +68,6 @@ const AdminDoctorList = () => {
         />
       </div>
 
-      {/* grid / list */}
       {load ? (
         <div className="text-center py-10 text-slate-400 text-sm">
           Loading doctors…
@@ -102,7 +94,6 @@ const AdminDoctorList = () => {
                     {doc.speciality}
                   </p>
 
-                  {/* availability pill */}
                   {doc.available ? (
                     <span className="inline-flex items-center gap-1 text-xs text-emerald-400">
                       <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />

@@ -19,14 +19,12 @@ export const ADMIN_API = {
   DASHBOARD: "/api/admin/dashboard",
 };
 
-
 export const APPOINTMENT_API = {
   BASE: "/api/user/appointments",
   CANCEL: (appointmentId: string) =>
     `/api/user/appointments/${appointmentId}/cancel`,
   AVAILABLE_FOR_USER: "/api/user/available-slots",
 };
-
 
 export const AUTH_API = {
   REGISTER: "/api/user/register",
@@ -40,7 +38,6 @@ export const AUTH_API = {
   FORGOT_PASSWORD: "/api/user/password/forgot",
   RESET_PASSWORD: "/api/user/password/reset",
 };
-
 
 export const DOCTOR_API = {
   BASE: "/api/doctor",
@@ -69,18 +66,16 @@ export const PAYMENT_API = {
   RAZORPAY_VERIFY: "/api/user/payments/razorpay/verify",
 };
 
-
 export const CHAT_API = {
   BASE: "/api/chat",
-  HISTORY: (chatId: string) => `/api/chat/${chatId}`,            // GET
-  DELETE_MESSAGE: (messageId: string) => `/api/chat/message/${messageId}`, // DELETE
-  MARK_READ: (chatId: string) => `/api/chat/${chatId}/read`,     // PATCH
-  UPLOAD:        "/api/chat/upload",
+  HISTORY: (chatId: string) => `/api/chat/${chatId}`,
+  DELETE_MESSAGE: (messageId: string) => `/api/chat/message/${messageId}`,
+  MARK_READ: (chatId: string) => `/api/chat/${chatId}/read`,
+  UPLOAD: "/api/chat/upload",
 };
-
 
 export const USER_PROFILE_API = {
   GET: "/api/user/profile",
   UPDATE: "/api/user/profile",
-  USERBY_ID:(id: string) => `/api/user/${id}`,
+  USERBY_ID: (id: string) => `/api/user/${id}`,
 };

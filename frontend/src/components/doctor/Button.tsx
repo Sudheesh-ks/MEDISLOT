@@ -1,19 +1,14 @@
 import * as React from "react";
 import { cn } from "../../utils/slotManagementHelper";
 
-
 type Variant = "default" | "secondary" | "ghost" | "destructive";
 type Size = "default" | "sm" | "lg" | "icon";
 
 const variantClasses: Record<Variant, string> = {
-  default:
-    "bg-[#5f6FFF] text-white hover:bg-[#4e5ce6] focus:ring-[#5f6FFF]",
-  secondary:
-    "bg-muted text-foreground hover:bg-muted/80",
-  ghost:
-    "hover:bg-muted/50 bg-transparent",
-  destructive:
-    "bg-red-600 text-white hover:bg-red-700 focus:ring-red-600",
+  default: "bg-[#5f6FFF] text-white hover:bg-[#4e5ce6] focus:ring-[#5f6FFF]",
+  secondary: "bg-muted text-foreground hover:bg-muted/80",
+  ghost: "hover:bg-muted/50 bg-transparent",
+  destructive: "bg-red-600 text-white hover:bg-red-700 focus:ring-red-600",
 };
 
 const sizeClasses: Record<Size, string> = {
@@ -29,14 +24,8 @@ export interface ButtonProps
   size?: Size;
 }
 
-/**
- * Re‑usable button component (Tailwind + focus ring)
- */
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  (
-    { className, variant = "default", size = "default", ...props },
-    ref
-  ) => (
+  ({ className, variant = "default", size = "default", ...props }, ref) => (
     <button
       ref={ref}
       className={cn(

@@ -1,4 +1,3 @@
-// src/components/doctor/DoctorNavbar.tsx
 import { useContext } from "react";
 import { assets } from "../../assets/admin/assets";
 import { DoctorContext } from "../../context/DoctorContext";
@@ -13,12 +12,11 @@ const DoctorNavbar = () => {
   const { setDToken, profileData } = ctx;
   const nav = useNavigate();
 
-  /* ——— logout ——— */
   const logout = async () => {
     try {
-      await logoutDoctorAPI();               // clear httpOnly cookie
+      await logoutDoctorAPI();
       setDToken("");
-      localStorage.removeItem("doctorAccessToken")
+      localStorage.removeItem("doctorAccessToken");
       localStorage.setItem("isDoctorLoggedOut", "true");
       clearDoctorAccessToken();
       nav("/doctor/login");
@@ -27,14 +25,12 @@ const DoctorNavbar = () => {
     }
   };
 
-  /* ——— ui ——— */
   const glass = "bg-white/5 backdrop-blur ring-1 ring-white/10";
 
   return (
     <header
       className={`sticky top-0 z-40 flex justify-between items-center px-4 sm:px-10 py-3 ${glass}`}
     >
-      {/* left: logo & role badge */}
       <div className="flex items-center gap-3">
         <img
           src={assets.logo_dark ?? assets.logo}
@@ -44,7 +40,6 @@ const DoctorNavbar = () => {
           Doctor
         </span>
 
-        {/* status chips – animation unchanged */}
         {profileData?.status === "pending" && (
           <span className="ml-3 px-3 py-1 text-xs font-semibold bg-yellow-400/20 text-yellow-300 ring-1 ring-yellow-400/40 rounded-full animate-pulse">
             ⏳ Waiting for approval
@@ -57,7 +52,6 @@ const DoctorNavbar = () => {
         )}
       </div>
 
-      {/* right: logout button */}
       <button
         onClick={logout}
         className="bg-gradient-to-r from-cyan-500 to-fuchsia-600 text-white text-sm px-8 py-2 rounded-full shadow hover:-translate-y-0.5 transition-transform"

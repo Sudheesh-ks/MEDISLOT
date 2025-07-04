@@ -1,9 +1,7 @@
-// src/services/chatService.ts
-import { api } from "../axios/axiosInstance";          // rename if you store elsewhere
+import { api } from "../axios/axiosInstance";          
 import { doctorApi } from "../axios/doctorAxiosInstance";
 import { CHAT_API } from "../constants/apiRoutes";
 
-/* ===== user side ===== */
 export const userChat = {
   fetchHistory: (chatId: string, limit = 1000, before?: string) =>
     api.get(CHAT_API.HISTORY(chatId), { params: { limit, before } }),
@@ -14,7 +12,6 @@ export const userChat = {
     api.patch(CHAT_API.MARK_READ(chatId), { userId }),
 };
 
-/* ===== doctor side ===== */
 export const doctorChat = {
   fetchHistory: (chatId: string, limit = 1000, before?: string) =>
     doctorApi.get(CHAT_API.HISTORY(chatId), { params: { limit, before } }),
@@ -27,21 +24,20 @@ export const doctorChat = {
 };
 
 
-// src/services/chatService.ts
-export const uploadChatFile = async (file: File) => {           // ✨ NEW
+export const uploadChatFile = async (file: File) => {           
   const fd = new FormData();
   fd.append("file", file);
 
-  const { data } = await api.post("/api/chat/upload", fd, {     // ✨ NEW
-    headers: { "Content-Type": "multipart/form‑data" },         // ✨ NEW
-  });                                                           // ✨ NEW
+  const { data } = await api.post("/api/chat/upload", fd, {     
+    headers: { "Content-Type": "multipart/form‑data" },         
+  });                                                           
 
-  if (!data.success) throw new Error("upload failed");          // ✨ NEW
-  return { url: data.url as string, mime: data.mime as string } // ✨ NEW
+  if (!data.success) throw new Error("upload failed");          
+  return { url: data.url as string, mime: data.mime as string } 
 }; 
 
 
-export const getPresence = (id: string) =>                       // ⭐ NEW
+export const getPresence = (id: string) =>                      
   api.get<{ online: boolean }>(`/api/presence/${id}`);  
 
 

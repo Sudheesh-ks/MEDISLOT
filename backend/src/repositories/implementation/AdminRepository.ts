@@ -1,4 +1,7 @@
-import { IAdminRepository, PaginationResult } from "../interface/IAdminRepository";
+import {
+  IAdminRepository,
+  PaginationResult,
+} from "../interface/IAdminRepository";
 import { BaseRepository } from "../BaseRepository";
 import adminModel from "../../models/adminModel";
 import doctorModel from "../../models/doctorModel";
@@ -19,7 +22,7 @@ export class AdminRepository extends BaseRepository<AdminDocument> {
   }
 
   async findAdminById(id: string): Promise<AdminDocument | null> {
-     return this.findById(id)
+    return this.findById(id);
   }
 
   // async saveDoctor(data: DoctorData): Promise<void> {
@@ -31,20 +34,27 @@ export class AdminRepository extends BaseRepository<AdminDocument> {
     return doctorModel.find({}).select("-password");
   }
 
-  async getDoctorsPaginated(page: number, limit: number): Promise<PaginationResult<Omit<DoctorData, "password">>> {
+  async getDoctorsPaginated(
+    page: number,
+    limit: number
+  ): Promise<PaginationResult<Omit<DoctorData, "password">>> {
     const skip = (page - 1) * limit;
     const totalCount = await doctorModel.countDocuments({});
-    const data = await doctorModel.find({}).select("-password").skip(skip).limit(limit);
-    
+    const data = await doctorModel
+      .find({})
+      .select("-password")
+      .skip(skip)
+      .limit(limit);
+
     const totalPages = Math.ceil(totalCount / limit);
-    
+
     return {
       data,
       totalCount,
       currentPage: page,
       totalPages,
       hasNextPage: page < totalPages,
-      hasPrevPage: page > 1
+      hasPrevPage: page > 1,
     };
   }
 
@@ -52,20 +62,27 @@ export class AdminRepository extends BaseRepository<AdminDocument> {
     return userModel.find({}).select("-password");
   }
 
-  async getUsersPaginated(page: number, limit: number): Promise<PaginationResult<Omit<userData, "password">>> {
+  async getUsersPaginated(
+    page: number,
+    limit: number
+  ): Promise<PaginationResult<Omit<userData, "password">>> {
     const skip = (page - 1) * limit;
     const totalCount = await userModel.countDocuments({});
-    const data = await userModel.find({}).select("-password").skip(skip).limit(limit);
-    
+    const data = await userModel
+      .find({})
+      .select("-password")
+      .skip(skip)
+      .limit(limit);
+
     const totalPages = Math.ceil(totalCount / limit);
-    
+
     return {
       data,
       totalCount,
       currentPage: page,
       totalPages,
       hasNextPage: page < totalPages,
-      hasPrevPage: page > 1
+      hasPrevPage: page > 1,
     };
   }
 
@@ -83,25 +100,29 @@ export class AdminRepository extends BaseRepository<AdminDocument> {
     return appointmentModel.find({});
   }
 
-  async getAppointmentsPaginated(page: number, limit: number): Promise<PaginationResult<AppointmentTypes>> {
+  async getAppointmentsPaginated(
+    page: number,
+    limit: number
+  ): Promise<PaginationResult<AppointmentTypes>> {
     const skip = (page - 1) * limit;
     const totalCount = await appointmentModel.countDocuments({});
-    const data = await appointmentModel.find({})
-      .populate('userId', 'name email image dob')
-      .populate('docId', 'name image speciality')
+    const data = await appointmentModel
+      .find({})
+      .populate("userId", "name email image dob")
+      .populate("docId", "name image speciality")
       .skip(skip)
       .limit(limit)
       .sort({ createdAt: -1 });
-    
+
     const totalPages = Math.ceil(totalCount / limit);
-    
+
     return {
       data,
       totalCount,
       currentPage: page,
       totalPages,
       hasNextPage: page < totalPages,
-      hasPrevPage: page > 1
+      hasPrevPage: page > 1,
     };
   }
 

@@ -1,4 +1,3 @@
-// src/pages/user/Login.tsx  –  Dark‑Neon Version
 import React, { useState, useEffect, useContext } from "react";
 import { assets } from "../../assets/user/assets";
 import Footer from "../../components/common/Footer";
@@ -23,7 +22,6 @@ const Login: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
 
-  /* -------------------------------- submit -------------------------------- */
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password || (state === "Sign Up" && !name))
@@ -63,12 +61,10 @@ const Login: React.FC = () => {
     }
   };
 
-  /* redirect if already logged in */
   useEffect(() => {
     if (token) nav("/home");
   }, [token, nav]);
 
-  /* -------------------------------- render -------------------------------- */
   const inputStyle =
     "w-full bg-transparent ring-1 ring-white/10 rounded px-4 py-2 mt-1 text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500";
   const card =
@@ -81,7 +77,6 @@ const Login: React.FC = () => {
       onSubmit={onSubmit}
       className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center relative"
     >
-      {/* back‑home */}
       <button
         type="button"
         onClick={() => nav("/")}
@@ -91,7 +86,6 @@ const Login: React.FC = () => {
       </button>
 
       <div className={card}>
-        {/* image */}
         <div className="hidden sm:block w-96">
           <img
             src={assets.contact_image}
@@ -100,7 +94,6 @@ const Login: React.FC = () => {
           />
         </div>
 
-        {/* form */}
         <div className="flex flex-col gap-4 p-8 min-w-[320px] sm:min-w-96">
           <h2 className="text-2xl font-semibold">
             {state === "Sign Up" ? "Create Account" : "Login"}

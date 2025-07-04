@@ -1,4 +1,3 @@
-// src/pages/user/MyAppointments.tsx  –  Dark‑Neon Version
 import { useContext, useEffect, useState } from "react";
 import { AppContext } from "../../context/AppContext";
 import { toast } from "react-toastify";
@@ -23,7 +22,6 @@ import { NotifContext } from "../../context/NotificationContext";
 dayjs.extend(customParseFormat);
 
 
-/** "23:00" → "11:00 pm" (needs the customParseFormat plugin) */
 const to12h = (t: string) => dayjs(t, "HH:mm").format("hh:mm A").toLowerCase();
 
 
@@ -41,7 +39,6 @@ const MyAppointments = () => {
     return null;
   }
 
-  /* ------------------- data helpers ------------------- */
   const fetchAppointments = async () => {
     try {
       const { data } = await getAppointmentsAPI(token);
@@ -105,7 +102,6 @@ const MyAppointments = () => {
     fetchAppointments();
   }, [token]);
 
-  /* ------------------------- UI ------------------------ */
   const glass =
     "bg-white/5 backdrop-blur ring-1 ring-white/10 rounded-xl overflow-hidden";
   const btn =
@@ -122,13 +118,11 @@ const MyAppointments = () => {
           key={a._id}
           className={`grid grid-cols-[auto_1fr_auto] gap-4 md:gap-6 py-6 border-b border-white/5`}
         >
-          {/* avatar */}
           <img
             src={a.docData.image}
             className="w-28 h-28 object-cover ring-1 ring-white/10 rounded-xl"
           />
 
-          {/* info */}
           <div className="text-sm text-slate-300 space-y-1">
             <p className="text-slate-100 font-semibold">{a.docData.name}</p>
             <p>{a.docData.speciality}</p>
@@ -144,16 +138,13 @@ const MyAppointments = () => {
             </p>
           </div>
 
-          {/* actions / status */}
           <div className="flex flex-col gap-2 items-end">
-            {/* confirmed & paid */}
             {!a.cancelled && a.payment && a.isConfirmed && (
               <button
                 onClick={() => nav(`/consultation/${a.docData._id}`)}
                 className={`${btn} bg-gradient-to-r from-cyan-500 to-fuchsia-600 text-white relative`}
               >
                 Go to Consultation
-                {/* Badge for unread messages */}
                 {notif?.unread?.[`${userData!._id}_${a.docData._id}`] > 0 && (
                   <span className="absolute -top-2 -right-2 h-5 min-w-[20px] px-1 bg-red-500 text-xs rounded-full flex items-center justify-center">
                     {notif.unread[`${userData!._id}_${a.docData._id}`]}
@@ -162,14 +153,12 @@ const MyAppointments = () => {
               </button>
             )}
 
-            {/* paid but waiting */}
             {!a.cancelled && a.payment && !a.isConfirmed && (
               <div className="bg-yellow-400/10 text-yellow-400 text-xs font-semibold px-3 py-1 rounded-full border border-yellow-400/40 animate-pulse text-center">
                 ⏳ Payment received – awaiting doctor
               </div>
             )}
 
-            {/* unpaid */}
             {!a.cancelled && !a.payment && (
               <button
                 onClick={() => payNow(a._id!)}
@@ -179,7 +168,6 @@ const MyAppointments = () => {
               </button>
             )}
 
-            {/* cancel or cancelled tag */}
             {!a.cancelled ? (
               <button
                 onClick={() => cancelAppt(a._id!)}
@@ -193,7 +181,6 @@ const MyAppointments = () => {
               </span>
             )}
 
-            {/* paid badge */}
             {!a.cancelled && a.payment && (
               <span className="border border-emerald-500 text-emerald-400 text-xs py-1 px-3 rounded">
                 Paid

@@ -61,7 +61,6 @@ const styles: Record<string, React.CSSProperties> = {
   },
 };
 
-// CSS keyframes for spinner animation
 const styleSheet = document.styleSheets[0];
 const keyframes = `@keyframes spin {
     0% { transform: rotate(0deg); }

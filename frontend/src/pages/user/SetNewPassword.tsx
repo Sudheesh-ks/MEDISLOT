@@ -32,7 +32,6 @@ const NewPasswordPage = () => {
     }
   };
 
-  // already logged in -> home
   useEffect(() => {
     if (token) nav("/");
   }, [token, nav]);

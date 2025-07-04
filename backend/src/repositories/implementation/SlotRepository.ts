@@ -9,13 +9,20 @@ export class SlotRepository {
   async getSlotsByMonth(doctorId: string, year: number, month: number) {
     const start = new Date(year, month - 1, 1).toISOString().split("T")[0];
     const end = new Date(year, month, 0).toISOString().split("T")[0];
-    return slotModel.find({
-      doctorId,
-      date: { $gte: start, $lte: end },
-    }).exec();
+    return slotModel
+      .find({
+        doctorId,
+        date: { $gte: start, $lte: end },
+      })
+      .exec();
   }
 
-  async upsertSlot(doctorId: string, date: string, slots: { start: string; end: string; isAvailable?: boolean }[], isCancelled: boolean) {
+  async upsertSlot(
+    doctorId: string,
+    date: string,
+    slots: { start: string; end: string; isAvailable?: boolean }[],
+    isCancelled: boolean
+  ) {
     return slotModel.findOneAndUpdate(
       { doctorId, date },
       { slots, isCancelled },
@@ -27,7 +34,7 @@ export class SlotRepository {
     return slotModel.findOneAndDelete({ doctorId, date });
   }
 
-    async getSlotByDate(doctorId: string, date: string) {
+  async getSlotByDate(doctorId: string, date: string) {
     return slotModel.findOne({ doctorId, date }).exec();
   }
 }

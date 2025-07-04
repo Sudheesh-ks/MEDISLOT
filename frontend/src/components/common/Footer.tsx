@@ -2,7 +2,6 @@ import { assets } from "../../assets/user/assets";
 
 const Footer = () => (
   <footer className="bg-slate-950 text-slate-400">
-    {/* upper grid */}
     <div className="max-w-7xl mx-auto grid md:grid-cols-3 gap-12 px-6 md:px-10 py-16">
       <div>
         <img
@@ -36,7 +35,6 @@ const Footer = () => (
       </div>
     </div>
 
-    {/* copyright strip */}
     <p className="text-center text-xs py-6 border-t border-white/10">
       © 2025 MediSlot • All rights reserved
     </p>

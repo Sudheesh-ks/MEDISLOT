@@ -1,9 +1,7 @@
-// src/pages/user/Contact.tsx  –  Dark‑Neon Version
 import { assets } from "../../assets/user/assets";
 
 const Contact = () => (
   <main className="max-w-7xl mx-auto px-4 md:px-10 py-24 text-slate-100 animate-fade">
-    {/* Heading */}
     <h1 className="text-center text-3xl md:text-4xl font-extrabold mb-16">
       CONTACT{" "}
       <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-fuchsia-500 to-indigo-600">
@@ -11,16 +9,13 @@ const Contact = () => (
       </span>
     </h1>
 
-    {/* Split layout */}
     <section className="flex flex-col md:flex-row gap-12 mb-32">
-      {/* Image */}
       <img
         src={assets.contact_image}
         alt="Contact MediSlot"
         className="w-full md:max-w-sm rounded-3xl ring-1 ring-white/10 object-cover"
       />
 
-      {/* Details */}
       <div className="flex flex-col justify-center gap-6 text-sm text-slate-400">
         <h2 className="text-lg font-semibold text-slate-100">Our Office</h2>
         <p>54709 Willms Station Suite 350, Washington USA</p>

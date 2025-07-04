@@ -1,4 +1,3 @@
-// src/pages/admin/AdminAppointments.tsx
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AdminContext } from "../../context/AdminContext";
@@ -9,29 +8,25 @@ import SearchBar from "../../components/common/SearchBar";
 import Pagination from "../../components/common/Pagination";
 import DataTable from "../../components/common/DataTable";
 
-/* glass & gradient helpers */
 const glass = "bg-white/5 backdrop-blur ring-1 ring-white/10";
-const grad  = "from-cyan-500 to-fuchsia-600";
+const grad = "from-cyan-500 to-fuchsia-600";
 
 const AdminAppointments = () => {
-  /* ——— contexts / hooks ——— */
-  const nav      = useNavigate();
+  const nav = useNavigate();
   const adminCtx = useContext(AdminContext);
-  const appCtx   = useContext(AppContext);
+  const appCtx = useContext(AppContext);
   if (!adminCtx || !appCtx) throw new Error("Missing contexts");
 
   const { aToken, getAppointmentsPaginated, cancelAppointment } = adminCtx;
-  const { calculateAge, slotDateFormat, currencySymbol }        = appCtx;
+  const { calculateAge, slotDateFormat, currencySymbol } = appCtx;
 
-  /* ——— local state ——— */
-  const [search, setSearch]       = useState("");
-  const [page,   setPage]         = useState(1);
-  const [rows,   setRows]         = useState<any[]>([]);
-  const [pages,  setPages]        = useState(1);
-  const [loading, setLoading]     = useState(false);
+  const [search, setSearch] = useState("");
+  const [page, setPage] = useState(1);
+  const [rows, setRows] = useState<any[]>([]);
+  const [pages, setPages] = useState(1);
+  const [loading, setLoading] = useState(false);
   const perPage = 6;
 
-  /* ——— fetch ——— */
   useEffect(() => {
     if (aToken) fetchRows();
   }, [aToken, page]);
@@ -47,12 +42,10 @@ const AdminAppointments = () => {
     }
   };
 
-  /* ——— auth guard ——— */
   useEffect(() => {
     if (!aToken) nav("/admin/login");
   }, [aToken, nav]);
 
-  /* ——— filtered list ——— */
   const filtered = rows.filter((it) => {
     const q = search.toLowerCase();
     return (
@@ -61,7 +54,6 @@ const AdminAppointments = () => {
     );
   });
 
-  /* ——— columns ——— */
   const columns = [
     {
       key: "#",
@@ -76,8 +68,10 @@ const AdminAppointments = () => {
       width: "3fr",
       render: (it: any) => (
         <div className="flex items-center gap-2">
-          <img className="w-10 h-10 rounded-full object-cover ring-1 ring-white/10"
-               src={it.userData?.image || "/default-avatar.png"} />
+          <img
+            className="w-10 h-10 rounded-full object-cover ring-1 ring-white/10"
+            src={it.userData?.image || "/default-avatar.png"}
+          />
           <p className="truncate">{it.userData?.name}</p>
         </div>
       ),
@@ -105,8 +99,10 @@ const AdminAppointments = () => {
       width: "3fr",
       render: (it: any) => (
         <div className="flex items-center gap-2">
-          <img className="w-9 h-9 rounded-full object-cover ring-1 ring-white/10"
-               src={it.docData?.image || "/default-avatar.png"} />
+          <img
+            className="w-9 h-9 rounded-full object-cover ring-1 ring-white/10"
+            src={it.docData?.image || "/default-avatar.png"}
+          />
           <p className="truncate">{it.docData?.name}</p>
         </div>
       ),
@@ -147,14 +143,12 @@ const AdminAppointments = () => {
     },
   ];
 
-  /* ——— render ——— */
   return (
     <div className="max-w-6xl mx-auto m-5 text-slate-100">
       <h2 className="mb-5 text-lg font-semibold flex items-center gap-2">
         <span>📅</span> All Appointments
       </h2>
 
-      {/* search */}
       <div className={`${glass} rounded-xl p-3 mb-6`}>
         <SearchBar
           placeholder="Search by patient or doctor name"
@@ -162,7 +156,6 @@ const AdminAppointments = () => {
         />
       </div>
 
-      {/* table */}
       <DataTable
         data={[...filtered].sort(
           (a, b) =>

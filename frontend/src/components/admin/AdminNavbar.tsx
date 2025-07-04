@@ -1,4 +1,3 @@
-// src/components/admin/AdminNavbar.tsx
 import { useContext } from "react";
 import { assets } from "../../assets/admin/assets";
 import { AdminContext } from "../../context/AdminContext";
@@ -8,14 +7,15 @@ import { logoutAdminAPI } from "../../services/adminServices";
 
 const AdminNavbar = () => {
   const ctx = useContext(AdminContext);
-  if (!ctx) throw new Error("AdminContext must be used within AdminContextProvider");
+  if (!ctx)
+    throw new Error("AdminContext must be used within AdminContextProvider");
 
   const { aToken, setAToken } = ctx;
   const nav = useNavigate();
 
   const logout = async () => {
     try {
-      await logoutAdminAPI();            // clear cookie on server
+      await logoutAdminAPI();
       setAToken("");
       localStorage.setItem("isAdminLoggedOut", "true");
       clearAdminAccessToken();
@@ -25,11 +25,12 @@ const AdminNavbar = () => {
     }
   };
 
-  /* ───────── RENDER ───────── */
   return (
-    <header className="sticky top-0 z-50 flex justify-between items-center px-4 sm:px-10 py-3
-                       bg-white/5 backdrop-blur ring-1 ring-white/10 border-b border-white/10">
-      {/* logo + tag */}
+    <header
+      className="sticky top-0 z-50 flex justify-between items-center px-4 sm:px-10 py-3
+                       bg-white/5 backdrop-blur ring-1 ring-white/10 border-b border-white/10"
+    >
+      {/* logo */}
       <div className="flex items-center gap-3 text-xs">
         <img
           src={assets.logo}

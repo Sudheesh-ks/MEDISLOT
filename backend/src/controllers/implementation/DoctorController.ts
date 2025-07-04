@@ -328,9 +328,6 @@ export class DoctorController implements IDoctorController {
 
       const imageFile = req.file;
 
-      console.log("Received body:", req.body);
-      console.log("Received file:", imageFile);
-
       let parsedAddress;
       try {
         parsedAddress = JSON.parse(address);
@@ -369,22 +366,22 @@ export class DoctorController implements IDoctorController {
     }
   }
 
-  async getMonthlySlots(req: Request, res: Response): Promise<void> {
-    try {
-      const doctorId = (req as any).docId;
-      const { year, month } = req.query;
-      const data = await this._slotService.getMonthlySlots(
-        doctorId,
-        +year!,
-        +month!
-      );
-      res.json({ success: true, data });
-    } catch (error) {
-      res
-        .status(500)
-        .json({ success: false, message: (error as Error).message });
-    }
-  }
+  // async getMonthlySlots(req: Request, res: Response): Promise<void> {
+  //   try {
+  //     const doctorId = (req as any).docId;
+  //     const { year, month } = req.query;
+  //     const data = await this._slotService.getMonthlySlots(
+  //       doctorId,
+  //       +year!,
+  //       +month!
+  //     );
+  //     res.json({ success: true, data });
+  //   } catch (error) {
+  //     res
+  //       .status(500)
+  //       .json({ success: false, message: (error as Error).message });
+  //   }
+  // }
 
   async updateDaySlot(req: Request, res: Response): Promise<void> {
     try {
