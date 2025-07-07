@@ -41,6 +41,7 @@ export default function DoctorSlotManager() {
   const [start, setStart] = useState("09:00");
   const [end, setEnd] = useState("17:00");
   const [confirmLeave, setConfirmLeave] = useState(false);
+  const [dayStatus, setDayStatus] = useState<Record<string, boolean>>({});
 
   const monthDays = useMemo(() => {
     const startDay = month.startOf("week");
@@ -94,6 +95,11 @@ export default function DoctorSlotManager() {
     try {
       await upsertDaySlotsAPI(selectedDate.format("YYYY-MM-DD"), ranges, false);
       toast.success("Schedule saved");
+
+      setDayStatus((s) => ({
+        ...s,
+        [selectedDate.format("YYYY-MM-DD")]: ranges.some((r) => r.isAvailable),
+      }));
     } catch {
       toast.error("Failed to save schedule");
     }
@@ -102,6 +108,13 @@ export default function DoctorSlotManager() {
   const markDayUnavailable = () => {
     setRanges([{ start: "00:00", end: "23:59", isAvailable: false }]);
     setConfirmLeave(false);
+
+        if (selectedDate) {
+      setDayStatus((s) => ({
+        ...s,
+        [selectedDate.format("YYYY-MM-DD")]: false,
+      }));
+    }
   };
 
   useEffect(() => {
@@ -118,6 +131,38 @@ export default function DoctorSlotManager() {
       }
     })();
   }, [selectedDate]);
+
+  useEffect(() => {
+    const fetchMonthStatus = async () => {
+      const startOfMonth = month.startOf("month");
+      const endOfMonth = month.endOf("month");
+      const tasks: Promise<{ date: string; hasFree: boolean }>[] = [];
+
+      let d = startOfMonth.clone();
+      while (d.isSame(endOfMonth, "day") || d.isBefore(endOfMonth)) {
+        const iso = d.format("YYYY-MM-DD");
+        tasks.push(
+          getDaySlotsAPI(iso)
+            .then((ranges) => ({
+              date: iso,
+              hasFree: (ranges ?? []).some((r: Range) => r.isAvailable),
+            }))
+            .catch(() => ({ date: iso, hasFree: false }))
+        );
+        d = d.add(1, "day");
+      }
+
+      const results = await Promise.all(tasks);
+      setDayStatus(
+        results.reduce<Record<string, boolean>>((acc, { date, hasFree }) => {
+          acc[date] = hasFree;
+          return acc;
+        }, {})
+      );
+    };
+
+    fetchMonthStatus();
+  }, [month]);
 
   if (profileData?.status === "pending")
     return (
@@ -181,6 +226,11 @@ export default function DoctorSlotManager() {
 
             <div className="grid grid-cols-7 gap-1">
               {monthDays.map((d) => {
+                const iso = d.format("YYYY-MM-DD");                  // 🆕
+                const hasFree = dayStatus[iso];                      // 🆕
+                const dotColour =
+                  hasFree === undefined  ? "bg-rose-400" :           // no data yet
+                  hasFree                ? "bg-emerald-400" : "bg-rose-400"; // 🆕 CHANGED
                 const isCurrentMonth = d.month() === month.month();
                 const isSelected =
                   selectedDate && d.isSame(selectedDate, "day");
@@ -197,7 +247,7 @@ export default function DoctorSlotManager() {
                       ${!isCurrentMonth ? "opacity-40" : ""}`}
                   >
                     <span className="text-sm font-medium">{d.date()}</span>
-                    <span className="w-2 h-2 rounded-full bg-emerald-400 mt-1" />
+                    <span className={`w-2 h-2 rounded-full ${dotColour} mt-1`} />
                   </button>
                 );
               })}
