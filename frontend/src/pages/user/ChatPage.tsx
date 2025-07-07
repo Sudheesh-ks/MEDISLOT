@@ -91,14 +91,19 @@ const ChatPage: React.FC = () => {
   useEffect(() => {
     if (!socket || !chatId) return;
 
+    // To join the chat room
     socket.emit("join", chatId);
+
+    // To make the messages read and remove the notification badge
     markRead(chatId);
     socket.emit("read", { chatId });
 
+    // To get all the messages
     userChat
       .fetchHistory(chatId)
       .then(({ data }) => data.success && setMessages(data.messages));
 
+      // To get the newly messages
     const onReceive = (m: Message) => setMessages((p) => [...p, m]);
     const onDelivered = (d: any) =>
       setMessages((p) =>
@@ -114,6 +119,7 @@ const ChatPage: React.FC = () => {
             : m
         )
       );
+      // To mark as read
     const onReadBy = (d: any) =>
       setMessages((p) =>
         p.map((m) =>
@@ -125,9 +131,11 @@ const ChatPage: React.FC = () => {
             : m
         )
       );
+      // Typing indicators
     const onTyping = () => setIsTyping(true);
     const onStopTyping = () => setIsTyping(false);
 
+    // To delete a message
     const onDeleted = (d: { messageId: string }) =>
       setMessages((p) =>
         p.map((m) => (m._id === d.messageId ? { ...m, deleted: true } : m))
@@ -158,6 +166,7 @@ const ChatPage: React.FC = () => {
     e.preventDefault();
     if (!socket) return;
 
+    // To send a file
     if (pickedFile) {
       try {
         const { url, mime } = await uploadChatFile(pickedFile);
@@ -168,6 +177,7 @@ const ChatPage: React.FC = () => {
           mediaUrl: url,
           mediaType: mime,
         });
+        // For reseting preview of the file
         setPickedFile(null);
         clearFileInput();
       } catch (err) {
@@ -176,6 +186,7 @@ const ChatPage: React.FC = () => {
       return;
     }
 
+    // For text messages
     if (!newMessage.trim()) return;
     socket.emit("sendMessage", {
       chatId,

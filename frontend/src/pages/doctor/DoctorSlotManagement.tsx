@@ -55,11 +55,28 @@ export default function DoctorSlotManager() {
     return days;
   }, [month]);
 
-  const addRange = () => {
-    if (dayjs(end, "HH:mm").isBefore(dayjs(start, "HH:mm"))) {
-      return alert("End time must be after start time");
+ const addRange = () => {
+    const newStart = dayjs(start, "HH:mm");
+    const newEnd = dayjs(end, "HH:mm");
+
+    if (!newEnd.isAfter(newStart)) {
+      toast.error("End time must be after start time");
+      return;
     }
+
+    const clashes = ranges.some((r) => {
+      const s = dayjs(r.start, "HH:mm");
+      const e = dayjs(r.end, "HH:mm");
+      return newStart.isBefore(e) && newEnd.isAfter(s);
+    });
+
+    if (clashes) {
+      toast.error("This time slot already exists");
+      return;
+    }
+
     setRanges((r) => [...r, { start, end, isAvailable: true }]);
+    toast.success("Time slot added");
   };
 
   const toggleAvailability = (i: number) =>
