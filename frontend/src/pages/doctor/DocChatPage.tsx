@@ -1,7 +1,15 @@
-import React, { useState, useRef, useEffect, useContext } from "react";
-import io, { Socket } from "socket.io-client";
+import React, {
+  useState,
+  useRef,
+  useEffect,
+  useContext,
+  type FormEvent,
+  type MouseEvent,
+} from "react";
 import { useParams } from "react-router-dom";
 import { DoctorContext } from "../../context/DoctorContext";
+import { NotifContext } from "../../context/NotificationContext";
+
 import { getUserByIDAPI } from "../../services/userProfileServices";
 import {
   doctorChat,
@@ -9,9 +17,9 @@ import {
   uploadChatFile,
 } from "../../services/chatService";
 import type { Message } from "../../types/message";
-import { NotifContext } from "../../context/NotificationContext";
 
-const SOCKET_URL = "http://localhost:4000";
+
+
 const timeOf = (iso?: string) =>
   iso
     ? new Date(iso).toLocaleTimeString("en-US", {
@@ -23,24 +31,29 @@ const timeOf = (iso?: string) =>
 
 const fileName = (url: string) => url.split("/").pop()?.split("?")[0] ?? "file";
 
-const DocChatPage: React.FC = () => {
-  const ctx = useContext(DoctorContext);
-  const notif = useContext(NotifContext);
-  if (!ctx) throw new Error("DoctorContext missing");
-  const doctorId = ctx.profileData?._id ?? null;
-  const { userId } = useParams<"userId">();
-  const chatId = doctorId && userId ? `${userId}_${doctorId}` : "";
 
-  const socketRef = useRef<Socket | null>(null);
+
+const DocChatPage: React.FC = () => {
+  const { profileData } = useContext(DoctorContext);
+  const { socket, markRead } = useContext(NotifContext);
+
+  if (!profileData) throw new Error("DoctorContext missing profile");
+
+  const doctorId = profileData._id;
+  const { userId } = useParams<"userId">();
+  const chatId = userId ? `${userId}_${doctorId}` : "";
+
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [isUserOnline, setIsUserOnline] = useState(false);
   const [pickedFile, setPickedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const [isTyping, setIsTyping] = useState(false);
   const [pendingId, setPendingId] = useState<string | null>(null);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
   const [userProfile, setUserProfile] = useState<{
     name: string;
     avatar: string;
@@ -56,19 +69,8 @@ const DocChatPage: React.FC = () => {
   };
 
   useEffect(() => {
-    if (!doctorId) return;
-    const s = io(SOCKET_URL, {
-      withCredentials: true,
-      auth: { userId: doctorId, role: "doctor" },
-    });
-    socketRef.current = s;
-    return () => {
-      s.disconnect();
-    };
-  }, [doctorId]);
-
-  useEffect(() => {
     if (!userId) return;
+
     getUserByIDAPI(userId).then(({ data }) => {
       if (data.success) {
         setUserProfile({
@@ -78,58 +80,44 @@ const DocChatPage: React.FC = () => {
         });
       }
     });
+
     getPresence(userId).then((r) => setIsUserOnline(r.data.online));
   }, [userId]);
 
   useEffect(() => {
-    if (!doctorId) return;
-    const s = io(SOCKET_URL, {
-      withCredentials: true,
-      auth: { userId: doctorId, role: "doctor" },
-    });
-    socketRef.current = s;
+    if (!socket) return;
 
-    s.on(
-      "presence",
-      ({ userId: id, online }: { userId: string; online: boolean }) => {
-        if (id === userId) setIsUserOnline(online);
-      }
-    );
-
-    return () => {
-      s.off("presence");
-      s.disconnect();
+    const onPresence = ({
+      userId: id,
+      online,
+    }: {
+      userId: string;
+      online: boolean;
+    }) => {
+      if (id === userId) setIsUserOnline(online);
     };
-  }, [doctorId, userId]);
+
+    socket.on("presence", onPresence);
+    return () => {
+      socket.off("presence", onPresence);
+    };
+  }, [socket, userId]);
 
   useEffect(() => {
-    const s = socketRef.current;
-    if (!s || !chatId) return;
+    if (!socket || !chatId) return;
 
-    s.emit("join", chatId);
+    socket.emit("join", chatId);
 
-    const onPresence = (p: { userId: string; online: boolean }) => {
-      if (p.userId === userId) {
-        setUserProfile((prev) =>
-          prev
-            ? {
-                ...prev,
-                isOnline: p.online,
-                lastSeen: !p.online
-                  ? timeOf(new Date().toISOString())
-                  : prev.lastSeen,
-              }
-            : prev
-        );
-      }
-    };
-    s.on("presence", onPresence);
-    doctorChat.fetchHistory(chatId).then(({ data }) => {
-      if (data.success) setMessages(data.messages);
-    });
+    doctorChat
+      .fetchHistory(chatId)
+      .then(({ data }) => data.success && setMessages(data.messages));
 
-    const receive = (m: Message) => setMessages((p) => [...p, m]);
-    const delivered = (d: any) =>
+    socket.emit("read", { chatId });
+    markRead(chatId);
+
+    const onReceive = (m: Message) => setMessages((p) => [...p, m]);
+
+    const onDelivered = (d: any) =>
       setMessages((p) =>
         p.map((m) =>
           m._id === d.messageId
@@ -143,7 +131,8 @@ const DocChatPage: React.FC = () => {
             : m
         )
       );
-    const readBy = (d: any) =>
+
+    const onReadBy = (d: any) =>
       setMessages((p) =>
         p.map((m) =>
           m.chatId === d.chatId
@@ -160,41 +149,38 @@ const DocChatPage: React.FC = () => {
         p.map((m) => (m._id === d.messageId ? { ...m, deleted: true } : m))
       );
 
-    s.on("receiveMessage", receive);
-    s.on("delivered", delivered);
-    s.on("readBy", readBy);
-    s.on("messageDeleted", onDeleted);
-    s.on("typing", () => setIsTyping(true));
-    s.on("stopTyping", () => setIsTyping(false));
+    const onTyping = () => setIsTyping(true);
+    const onStopTyping = () => setIsTyping(false);
+
+    socket.on("receiveMessage", onReceive);
+    socket.on("delivered", onDelivered);
+    socket.on("readBy", onReadBy);
+    socket.on("messageDeleted", onDeleted);
+    socket.on("typing", onTyping);
+    socket.on("stopTyping", onStopTyping);
 
     return () => {
-      s.off("receiveMessage", receive);
-      s.off("presence", onPresence);
-      s.off("delivered", delivered);
-      s.off("readBy", readBy);
-      s.off("messageDeleted", onDeleted);
-      s.off("typing");
-      s.off("stopTyping");
+      socket.off("receiveMessage", onReceive);
+      socket.off("delivered", onDelivered);
+      socket.off("readBy", onReadBy);
+      socket.off("messageDeleted", onDeleted);
+      socket.off("typing", onTyping);
+      socket.off("stopTyping", onStopTyping);
     };
-  }, [chatId]);
+  }, [socket, chatId, markRead]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  useEffect(() => {
-    if (chatId) socketRef.current?.emit("read", { chatId });
-    notif?.markRead?.(chatId);
-  }, [chatId]);
-
-  const send = async (e: React.FormEvent | React.MouseEvent) => {
+  const send = async (e: FormEvent | MouseEvent) => {
     e.preventDefault();
-    if (!chatId) return;
+    if (!socket || !chatId) return;
 
     if (pickedFile) {
       try {
         const { url, mime } = await uploadChatFile(pickedFile);
-        socketRef.current?.emit("sendMessage", {
+        socket.emit("sendMessage", {
           chatId,
           receiverId: userId,
           kind: mime.startsWith("image/") ? "image" : "file",
@@ -210,24 +196,25 @@ const DocChatPage: React.FC = () => {
     }
 
     if (!newMessage.trim()) return;
-    socketRef.current?.emit("sendMessage", {
+
+    socket.emit("sendMessage", {
       chatId,
       receiverId: userId,
       kind: "text",
       text: newMessage,
     });
     setNewMessage("");
-    socketRef.current?.emit("stopTyping", { chatId });
+    socket.emit("stopTyping", { chatId });
   };
 
   const openConfirm = (id: string) => setPendingId(id);
   const confirmDelete = () => {
-    if (pendingId && socketRef.current)
-      socketRef.current.emit("deleteMessage", { chatId, messageId: pendingId });
+    if (pendingId && socket)
+      socket.emit("deleteMessage", { chatId, messageId: pendingId });
     setPendingId(null);
   };
 
-  if (!doctorId || !userProfile)
+  if (!userProfile)
     return (
       <div className="flex h-screen items-center justify-center text-slate-200">
         Loading…
@@ -238,7 +225,6 @@ const DocChatPage: React.FC = () => {
 
   return (
     <div className="flex h-screen bg-slate-950 text-slate-100">
-      {/* ---------- LEFT SIDEBAR ---------- */}
       <aside
         className={`w-80 shrink-0 ${glass} justify-center p-6 flex flex-col items-center text-center`}
       >
@@ -253,15 +239,11 @@ const DocChatPage: React.FC = () => {
             isUserOnline ? "text-emerald-400" : "text-slate-500"
           }`}
         >
-          {" "}
-          {/* ⭐ CHANGED */}
-          {isUserOnline ? "Online" : "Offline"} {/* ⭐ CHANGED */}
+          {isUserOnline ? "Online" : "Offline"}
         </p>
       </aside>
 
-      {/* ---------- CHAT PANEL ---------- */}
       <main className="flex flex-col flex-1 h-full">
-        {/* header */}
         <header
           className={`${glass} border-b border-white/10 px-6 py-4 flex items-center gap-3`}
         >
@@ -276,14 +258,11 @@ const DocChatPage: React.FC = () => {
                 isUserOnline ? "text-emerald-400" : "text-slate-500"
               }`}
             >
-              {" "}
-              {/* ⭐ CHANGED */}
-              {isUserOnline ? "Online" : "Offline"} {/* ⭐ CHANGED */}
+              {isUserOnline ? "Online" : "Offline"}
             </p>
           </div>
         </header>
 
-        {/* messages list */}
         <section className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
           {messages.map((m) => {
             const isDoc = m.senderRole === "doctor";
@@ -308,12 +287,14 @@ const DocChatPage: React.FC = () => {
                       ✕
                     </button>
                   )}
+
                   {!isDoc && (
                     <img
                       src={userProfile.avatar}
                       className="w-8 h-8 rounded-full object-cover"
                     />
                   )}
+
                   <div
                     className={`px-4 py-2 rounded-2xl ${
                       isDoc
@@ -378,6 +359,7 @@ const DocChatPage: React.FC = () => {
               <span className="animate-pulse">…</span> User is typing
             </div>
           )}
+
           <div ref={messagesEndRef} />
         </section>
 
@@ -462,9 +444,10 @@ const DocChatPage: React.FC = () => {
             placeholder="Type a message…"
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
-            onFocus={() => socketRef.current?.emit("typing", { chatId })}
-            onBlur={() => socketRef.current?.emit("stopTyping", { chatId })}
+            onFocus={() => socket?.emit("typing", { chatId })}
+            onBlur={() => socket?.emit("stopTyping", { chatId })}
           />
+
           <button
             type="submit"
             disabled={!newMessage.trim() && !pickedFile}
@@ -486,6 +469,7 @@ const DocChatPage: React.FC = () => {
           </button>
         </form>
       </main>
+
       {pendingId && (
         <div className="fixed inset-0 z-40 flex items-center justify-center">
           <div

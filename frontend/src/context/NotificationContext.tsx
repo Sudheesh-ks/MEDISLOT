@@ -6,11 +6,12 @@ import React, {
   useContext,
   useMemo,
 } from "react";
-import { useLocation } from "react-router-dom";
+import { matchPath, useLocation } from "react-router-dom";
 import io, { Socket } from "socket.io-client";
 import { AppContext } from "./AppContext";
 import { DoctorContext } from "./DoctorContext";
 import { AdminContext } from "./AdminContext";
+import { toast } from "react-toastify";
 
 const SOCKET_URL = import.meta.env.VITE_SOCKET_URL ?? "http://localhost:4000";
 
@@ -113,6 +114,14 @@ export const NotifProvider: React.FC<React.PropsWithChildren> = ({
       if (p.from.id === myId) return;
       if (p.from.role === myRole) return;
       inc(p.chatId);
+
+          const viewing = matchPath({ path: "**/chat/:cid" }, pathname)?.params.cid;
+   if (viewing === p.chatId) return;
+
+      /* ---------- SHOW TOAST ---------- */
+     toast.info("💬  You have a new message", {
+       autoClose: 3500,
+    });
     };
 
     s.on("dmNotice", onDm);

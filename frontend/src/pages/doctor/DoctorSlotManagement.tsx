@@ -226,11 +226,11 @@ export default function DoctorSlotManager() {
 
             <div className="grid grid-cols-7 gap-1">
               {monthDays.map((d) => {
-                const iso = d.format("YYYY-MM-DD");                  // 🆕
-                const hasFree = dayStatus[iso];                      // 🆕
+                const iso = d.format("YYYY-MM-DD");                 
+                const hasFree = dayStatus[iso];                      
                 const dotColour =
-                  hasFree === undefined  ? "bg-rose-400" :           // no data yet
-                  hasFree                ? "bg-emerald-400" : "bg-rose-400"; // 🆕 CHANGED
+                  hasFree === undefined  ? "bg-rose-400" :           
+                  hasFree                ? "bg-emerald-400" : "bg-rose-400";  
                 const isCurrentMonth = d.month() === month.month();
                 const isSelected =
                   selectedDate && d.isSame(selectedDate, "day");
