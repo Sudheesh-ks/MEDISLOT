@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { type AxiosRequestConfig } from "axios";
 import {
   getDoctorAccessToken,
   updateDoctorAccessToken,
@@ -9,43 +9,57 @@ export const doctorApi = axios.create({
   withCredentials: true,
 });
 
-doctorApi.interceptors.request.use(
-  (config) => {
-    const token = getDoctorAccessToken();
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
+doctorApi.interceptors.request.use((cfg) => {
+  const token = getDoctorAccessToken();
+  if (token) cfg.headers.Authorization = `Bearer ${token}`;
+  return cfg;
+});
+
+let isRefreshing = false;
+let queue: ((tok: string) => void)[] = [];
+const subscribe = (cb: (t: string) => void) => queue.push(cb);
+const onRefreshed = (t: string) => {
+  queue.forEach((cb) => cb(t));
+  queue = [];
+  isRefreshing = false;
+};
 
 doctorApi.interceptors.response.use(
   (res) => res,
   async (err) => {
-    const originalRequest = err.config;
+    const original = err.config as AxiosRequestConfig & { _retry?: boolean };
+    if (err.response?.status !== 401 || original._retry) {
+      return Promise.reject(err);
+    }
+    original._retry = true;
 
-    if (err.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-
-      try {
-        const refreshResponse = await axios.post(
-          `${import.meta.env.VITE_BACKEND_URL}/api/doctor/refresh-token`,
-          {},
-          { withCredentials: true }
-        );
-
-        const newToken = refreshResponse.data.accessToken;
-
-        updateDoctorAccessToken(newToken);
-        originalRequest.headers.Authorization = `Bearer ${newToken}`;
-        return doctorApi(originalRequest);
-      } catch (refreshError) {
-        console.error("Doctor token refresh failed", refreshError);
-        return Promise.reject(refreshError);
-      }
+    if (isRefreshing) {
+      return new Promise((resolve) =>
+        subscribe((t) => {
+          original.headers!.Authorization = `Bearer ${t}`;
+          resolve(doctorApi(original));
+        })
+      );
     }
 
-    return Promise.reject(err);
+    isRefreshing = true;
+    try {
+      const { data } = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/api/doctor/refresh-token`,
+        {},
+        { withCredentials: true }
+      );
+      const newTok: string = data.accessToken ?? data.token; 
+      updateDoctorAccessToken(newTok);
+
+      onRefreshed(newTok);
+
+      original.headers!.Authorization = `Bearer ${newTok}`;
+      return doctorApi(original);
+    } catch (e) {
+      isRefreshing = false;
+      queue = [];
+      return Promise.reject(e);
+    }
   }
 );

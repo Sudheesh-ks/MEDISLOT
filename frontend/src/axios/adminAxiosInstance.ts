@@ -1,4 +1,4 @@
-import axios from "axios";
+import axios, { type AxiosRequestConfig } from "axios";
 import {
   getAdminAccessToken,
   updateAdminAccessToken,
@@ -9,41 +9,57 @@ export const adminApi = axios.create({
   withCredentials: true,
 });
 
-adminApi.interceptors.request.use(
-  (config) => {
-    const token = getAdminAccessToken();
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
+adminApi.interceptors.request.use((cfg) => {
+  const token = getAdminAccessToken();
+  if (token) cfg.headers.Authorization = `Bearer ${token}`;
+  return cfg;
+});
+
+let isRefreshing = false;
+let queue: ((tok: string) => void)[] = [];
+const subscribe = (cb: (t: string) => void) => queue.push(cb);
+const onRefreshed = (t: string) => {
+  queue.forEach((cb) => cb(t));
+  queue = [];
+  isRefreshing = false;
+};
 
 adminApi.interceptors.response.use(
   (res) => res,
   async (err) => {
-    const originalRequest = err.config;
+    const original = err.config as AxiosRequestConfig & { _retry?: boolean };
+    if (err.response?.status !== 401 || original._retry) {
+      return Promise.reject(err);
+    }
+    original._retry = true;
 
-    if (err.response?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
-
-      try {
-        const refreshRes = await axios.post(
-          `${import.meta.env.VITE_BACKEND_URL}/api/admin/refresh-token`,
-          {},
-          { withCredentials: true }
-        );
-
-        const newToken = refreshRes.data.token;
-        updateAdminAccessToken(newToken);
-        originalRequest.headers.Authorization = `Bearer ${newToken}`;
-        return adminApi(originalRequest);
-      } catch (refreshErr) {
-        return Promise.reject(refreshErr);
-      }
+    if (isRefreshing) {
+      return new Promise((resolve) =>
+        subscribe((t) => {
+          original.headers!.Authorization = `Bearer ${t}`;
+          resolve(adminApi(original));
+        })
+      );
     }
 
-    return Promise.reject(err);
+    isRefreshing = true;
+    try {
+      const { data } = await axios.post(
+        `${import.meta.env.VITE_BACKEND_URL}/api/admin/refresh-token`,
+        {},
+        { withCredentials: true }
+      );
+      const newTok: string = data.accessToken ?? data.token; 
+      updateAdminAccessToken(newTok);
+
+      onRefreshed(newTok);
+
+      original.headers!.Authorization = `Bearer ${newTok}`;
+      return adminApi(original);
+    } catch (e) {
+      isRefreshing = false;
+      queue = [];
+      return Promise.reject(e);
+    }
   }
 );

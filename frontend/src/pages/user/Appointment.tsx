@@ -125,7 +125,7 @@ const Appointment = () => {
           <img
             src={info?.image}
             alt="doctor"
-            className="w-full h-full object-cover"
+            className="w-full bg-primary h-full object-cover"
           />
         </div>
         <div className="flex-1 bg-white/5 backdrop-blur ring-1 ring-white/10 rounded-3xl p-8 space-y-4">
