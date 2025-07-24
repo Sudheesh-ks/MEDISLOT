@@ -9,6 +9,7 @@ import RelatedDoctors from "../../components/user/RelatedDoctors";
 import { toast } from "react-toastify";
 import {
   appointmentBookingAPI,
+  cancelAppointmentAPI,
   getAvailableSlotsAPI,
 } from "../../services/appointmentServices";
 import { showErrorToast } from "../../utils/errorHandler";
@@ -125,9 +126,13 @@ const initPay = (
       }
     },
     modal: {
-      ondismiss: () => {
-        toast.warn("Payment was cancelled");
-        nav("/my-appointments");
+      ondismiss: async () => {
+        toast.warn("Payment failed");
+         try {
+          await cancelAppointmentAPI(appointmentId, token);
+        } catch (err) {
+          console.error("Failed to cancel appointment:", err);
+        }
       },
     },
   };

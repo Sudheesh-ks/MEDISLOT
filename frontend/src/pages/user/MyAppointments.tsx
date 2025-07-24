@@ -5,16 +5,8 @@ import {
   cancelAppointmentAPI,
   getAppointmentsAPI,
 } from "../../services/appointmentServices";
-import {
-  PaymentRazorpayAPI,
-  VerifyRazorpayAPI,
-} from "../../services/paymentServices";
 import { showErrorToast } from "../../utils/errorHandler";
 import type { AppointmentTypes } from "../../types/appointment";
-import type {
-  RazorpayOptions,
-  RazorpayPaymentResponse,
-} from "../../types/razorpay";
 import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
@@ -61,42 +53,6 @@ const MyAppointments = () => {
     }
   };
 
-  const initPay = (
-    order: { id: string; amount: number; currency: string; receipt?: string },
-    apptId: string
-  ) => {
-    const opts: RazorpayOptions = {
-      key: import.meta.env.VITE_RAZORPAY_KEY_ID,
-      amount: order.amount,
-      currency: order.currency,
-      name: "Appointment Payment",
-      description: "Appointment Payment",
-      order_id: order.id,
-      receipt: order.receipt,
-      handler: async (res: RazorpayPaymentResponse) => {
-        try {
-          const { data } = await VerifyRazorpayAPI(apptId, res, token);
-          if (data.success) {
-            toast.success(data.message);
-            fetchAppointments();
-            nav("/my-appointments");
-          }
-        } catch (err) {
-          showErrorToast(err);
-        }
-      },
-    };
-    new window.Razorpay(opts).open();
-  };
-
-  const payNow = async (id: string) => {
-    try {
-      const { data } = await PaymentRazorpayAPI(id, token);
-      if (data.success) initPay(data.order, id);
-    } catch (err) {
-      showErrorToast(err);
-    }
-  };
 
   useEffect(() => {
     fetchAppointments();
@@ -159,14 +115,6 @@ const MyAppointments = () => {
               </div>
             )}
 
-            {!a.cancelled && !a.payment && (
-              <button
-                onClick={() => payNow(a._id!)}
-                className={`${btn} border-cyan-500 text-cyan-400 hover:bg-cyan-500 hover:text-white`}
-              >
-                Pay Online
-              </button>
-            )}
 
             {!a.cancelled ? (
               <button
@@ -181,11 +129,6 @@ const MyAppointments = () => {
               </span>
             )}
 
-            {!a.cancelled && a.payment && (
-              <span className="border border-emerald-500 text-emerald-400 text-xs py-1 px-3 rounded">
-                Paid
-              </span>
-            )}
           </div>
         </div>
       ))}
