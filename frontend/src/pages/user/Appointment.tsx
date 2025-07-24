@@ -12,6 +12,8 @@ import {
   getAvailableSlotsAPI,
 } from "../../services/appointmentServices";
 import { showErrorToast } from "../../utils/errorHandler";
+import type { RazorpayOptions, RazorpayPaymentResponse } from "../../types/razorpay";
+import { PaymentRazorpayAPI, VerifyRazorpayAPI } from "../../services/paymentServices";
 
 const ymd = (d: Date) =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
@@ -30,6 +32,11 @@ const Appointment = () => {
   const ctx = useContext(AppContext);
   if (!ctx) throw new Error("AppContext missing");
   const { doctors, currencySymbol, token, getDoctorsData } = ctx;
+
+    if (!token) {
+    toast.error("Please login to continue…");
+    return null;
+  }
 
   const days = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 
@@ -94,29 +101,77 @@ const Appointment = () => {
     setDayIdx(0);
   };
 
-  const book = async () => {
-    if (!token) {
-      toast.warn("Login to book");
-      return nav("/login");
-    }
-    const target = slots[dayIdx]?.find((s) => s.time === slotTime);
-    if (!target) return toast.error("No slot selected");
-    try {
-      const res = await appointmentBookingAPI(
-        docId!,
-        ymd(target.datetime),
-        slotTime,
-        token
-      );
-      if (res.data.success) {
-        toast.success(res.data.message);
-        getDoctorsData();
+
+const initPay = (
+  order: { id: string; amount: number; currency: string; receipt?: string },
+  appointmentId: string
+) => {
+  const opts: RazorpayOptions = {
+    key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+    amount: order.amount,
+    currency: order.currency,
+    name: "Appointment Payment",
+    description: "Appointment Payment",
+    order_id: order.id,
+    receipt: order.receipt,
+    handler: async (res: RazorpayPaymentResponse) => {
+      try {
+        const { data } = await VerifyRazorpayAPI(appointmentId, res, token);
+        if (data.success) toast.success("Payment successful");
+      } catch (err) {
+        showErrorToast(err);
+      } finally {
         nav("/my-appointments");
-      } else toast.error(res.data.message);
-    } catch (err) {
-      showErrorToast(err);
-    }
+      }
+    },
+    modal: {
+      ondismiss: () => {
+        toast.warn("Payment was cancelled");
+        nav("/my-appointments");
+      },
+    },
   };
+
+  new window.Razorpay(opts).open();
+};
+
+const book = async () => {
+  if (!token) {
+    toast.warn("Login to book");
+    return nav("/login");
+  }
+
+  const target = slots[dayIdx]?.find((s) => s.time === slotTime);
+  if (!target) return toast.error("No slot selected");
+
+  try {
+    const res = await appointmentBookingAPI(docId!, ymd(target.datetime), slotTime, token);
+
+    console.log("appointmentBookingAPI response:", res.data);
+
+    if (!res.data.success) return toast.error(res.data.message);
+
+    // toast.success("Appointment booked! Redirecting to payment…");
+
+    // Step 2: Get Razorpay Order for this appointment
+    const apptId = res.data?.appointmentId ?? res.data?.appointment?._id;
+if (!apptId) {
+  toast.error("Failed to retrieve appointment ID");
+  return;
+}
+    const paymentRes = await PaymentRazorpayAPI(apptId, token);
+
+    if (paymentRes.data.success) {
+      initPay(paymentRes.data.order, apptId);
+    } else {
+      toast.error("Unable to initiate payment");
+      nav("/my-appointments");
+    }
+  } catch (err) {
+    showErrorToast(err);
+  }
+};
+
 
   return (
     <div className="max-w-7xl mx-auto px-4 md:px-10 py-24 text-slate-100 animate-fade">

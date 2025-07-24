@@ -31,7 +31,7 @@ export class UserRepository
     return !!updatedUser;
   }
 
-  async bookAppointment(appointmentData: AppointmentTypes): Promise<void> {
+  async bookAppointment(appointmentData: AppointmentTypes): Promise<any> {
     const { userId, docId, slotDate, slotTime } = appointmentData;
 
     const doctor = await doctorModel.findById(docId);
@@ -67,6 +67,7 @@ export class UserRepository
     });
 
     await appointment.save();
+    return appointment
   }
 
   async getAppointmentsByUserId(userId: string): Promise<AppointmentTypes[]> {

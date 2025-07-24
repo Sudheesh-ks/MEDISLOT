@@ -408,10 +408,10 @@ export class UserController implements IUserController {
         date: Date.now(),
       };
 
-      await this._userService.bookAppointment(appointmentData);
+      const appointment = await this._userService.bookAppointment(appointmentData);
       res
         .status(HttpStatus.OK)
-        .json({ success: true, message: HttpResponse.APPOINTMENT_BOOKED });
+        .json({ success: true, message: HttpResponse.APPOINTMENT_BOOKED, appointment });
     } catch (error) {
       res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)

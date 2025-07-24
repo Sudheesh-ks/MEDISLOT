@@ -33,7 +33,7 @@ export interface IUserService {
   resetPassword(email: string, newHashedPassword: string): Promise<boolean>;
   getUserById(id: string): Promise<UserDocument>;
   getDoctorById(id: string): Promise<DoctorData>;
-  bookAppointment(appointmentData: AppointmentTypes): Promise<void>;
+  bookAppointment(appointmentData: AppointmentTypes): Promise<any>;
   listUserAppointments(userId: string): Promise<AppointmentTypes[]>;
   cancelAppointment(userId: string, appointmentId: string): Promise<void>;
   startPayment(userId: string, appointmentId: string): Promise<{ order: any }>;

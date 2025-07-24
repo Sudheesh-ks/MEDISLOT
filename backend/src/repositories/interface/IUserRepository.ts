@@ -15,7 +15,7 @@ export interface IUserRepository {
     email: string,
     newHashedPassword: string
   ): Promise<boolean>;
-  bookAppointment(appointmentData: AppointmentTypes): Promise<void>;
+  bookAppointment(appointmentData: AppointmentTypes): Promise<any>;
   findDoctorById(id: string): Promise<DoctorData | null>;
   getAppointmentsByUserId(userId: string): Promise<AppointmentTypes[]>;
   cancelAppointment(userId: string, appointmentId: string): Promise<void>;

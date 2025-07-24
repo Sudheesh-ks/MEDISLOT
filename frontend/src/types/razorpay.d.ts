@@ -20,6 +20,9 @@ export interface RazorpayOptions {
     contact?: string;
   };
   theme?: { color?: string };
+    modal?: {
+    ondismiss: () => void;
+  };
 }
 
 export declare class Razorpay {
