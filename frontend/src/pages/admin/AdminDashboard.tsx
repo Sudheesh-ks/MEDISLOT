@@ -1,10 +1,11 @@
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AdminContext } from "../../context/AdminContext";
 import { AppContext } from "../../context/AppContext";
 import { assets } from "../../assets/admin/assets";
 import type { AppointmentTypes } from "../../types/appointment";
 import { motion } from "framer-motion";
+import { updateItemInList } from "../../utils/stateHelper.util";
 
 const glass = "bg-white/5 backdrop-blur ring-1 ring-white/10";
 const cardBase =
@@ -18,6 +19,7 @@ const AdminDashboard = () => {
 
   const { aToken, dashData, getDashData, cancelAppointment } = ctx;
   const { slotDateFormat } = app;
+  const [latest, setLatest] = useState<any[]>([]);
 
   useEffect(() => {
     if (aToken) getDashData();
@@ -26,6 +28,12 @@ const AdminDashboard = () => {
   useEffect(() => {
     if (!aToken) nav("/admin/login");
   });
+
+  useEffect(() => {
+    if (dashData?.latestAppointments) {
+      setLatest(dashData.latestAppointments);
+    }
+  }, [dashData]);
 
   if (!dashData) return null;
 
@@ -80,41 +88,42 @@ const AdminDashboard = () => {
         </div>
 
         <div className="divide-y divide-white/10">
-          {dashData.latestAppointments.map(
-            (it: AppointmentTypes, idx: number) => (
-              <motion.div
-                key={idx}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: idx * 0.1 }}
-                className="flex items-center gap-4 px-6 py-4 hover:bg-white/5"
-              >
-                <img
-                  src={it.docData.image}
-                  className="w-10 h-10 rounded-full object-cover ring-1 ring-white/10"
-                />
-                <div className="flex-1 text-sm">
-                  <p className="font-semibold">{it.docData.name}</p>
-                  <p className="text-slate-400 text-xs">
-                    {slotDateFormat(it.slotDate)}
-                  </p>
-                </div>
+          {latest.map((it: AppointmentTypes, idx: number) => (
+            <motion.div
+              key={idx}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: idx * 0.1 }}
+              className="flex items-center gap-4 px-6 py-4 hover:bg-white/5"
+            >
+              <img
+                src={it.docData.image}
+                className="w-10 h-10 rounded-full object-cover ring-1 ring-white/10"
+              />
+              <div className="flex-1 text-sm">
+                <p className="font-semibold">{it.docData.name}</p>
+                <p className="text-slate-400 text-xs">
+                  {slotDateFormat(it.slotDate)}
+                </p>
+              </div>
 
-                {it.cancelled ? (
-                  <span className="text-sm font-semibold text-red-400">
-                    Cancelled
-                  </span>
-                ) : (
-                  <motion.img
-                    whileTap={{ scale: 0.9 }}
-                    src={assets.cancel_icon}
-                    className="w-6 cursor-pointer hover:opacity-80"
-                    onClick={() => cancelAppointment(it._id!)}
-                  />
-                )}
-              </motion.div>
-            )
-          )}
+              {it.cancelled ? (
+                <span className="text-sm font-semibold text-red-400">
+                  Cancelled
+                </span>
+              ) : (
+                <motion.img
+                  whileTap={{ scale: 0.9 }}
+                  src={assets.cancel_icon}
+                  className="w-6 cursor-pointer hover:opacity-80"
+                  onClick={async () => {
+                    await cancelAppointment(it._id!);
+                     setLatest((prev) => updateItemInList(prev, it._id!, { cancelled: true }));
+                  }}
+                />
+              )}
+            </motion.div>
+          ))}
         </div>
       </div>
     </div>

@@ -38,11 +38,6 @@ adminRouter.post(
   adminController.logoutAdmin.bind(adminController)
 );
 adminRouter.get(
-  "/users",
-  authRole(["admin"]),
-  adminController.getAllUsers.bind(adminController)
-);
-adminRouter.get(
   "/users/paginated",
   authRole(["admin"]),
   adminController.getUsersPaginated.bind(adminController)
@@ -58,11 +53,6 @@ adminRouter.patch(
 //   upload.single("image"),
 //   adminController.addDoctor.bind(adminController)
 // );
-adminRouter.get(
-  "/doctors",
-  authRole(["admin"]),
-  adminController.getDoctors.bind(adminController)
-);
 adminRouter.get(
   "/doctors/paginated",
   authRole(["admin"]),
@@ -86,11 +76,6 @@ adminRouter.patch(
   doctorController.changeAvailability.bind(doctorController)
 );
 
-adminRouter.get(
-  "/appointments",
-  authRole(["admin"]),
-  adminController.appointmentsList.bind(adminController)
-);
 adminRouter.get(
   "/appointments/paginated",
   authRole(["admin"]),

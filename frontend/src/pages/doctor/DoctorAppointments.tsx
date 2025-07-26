@@ -7,6 +7,7 @@ import SearchBar from "../../components/common/SearchBar";
 import DataTable from "../../components/common/DataTable";
 import Pagination from "../../components/common/Pagination";
 import { NotifContext } from "../../context/NotificationContext";
+import { updateItemInList } from "../../utils/stateHelper.util";
 
 const DoctorAppointments = () => {
   const ctx = useContext(DoctorContext);
@@ -61,11 +62,11 @@ const DoctorAppointments = () => {
 
   const doConfirm = async (id: string) => {
     await confirmAppointment(id);
-    fetchRows();
+setRows((prev) => updateItemInList(prev, id, { isConfirmed: true }));
   };
   const doCancel = async (id: string) => {
     await cancelAppointment(id);
-    fetchRows();
+setRows((prev) => updateItemInList(prev, id, { cancelled: true }));
   };
 
   const filtered = rows.filter((r) =>
@@ -103,10 +104,10 @@ const DoctorAppointments = () => {
           className={`text-xs px-2 py-0.5 rounded-full ring-1 ${
             it.payment
               ? "ring-emerald-500 text-emerald-400"
-              : "ring-yellow-500 text-yellow-400"
+              : "ring-red-500 text-red-400"
           }`}
         >
-          {it.payment ? "Paid" : "Pending"}
+          {it.payment ? "Paid" : "failed"}
         </span>
       ),
     },

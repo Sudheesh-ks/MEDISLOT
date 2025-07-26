@@ -114,7 +114,9 @@ const [dToken, setDToken] = useState(getDoctorAccessToken() ?? "");
       const { data } = await AppointmentConfirmAPI(appointmentId);
       if (data.success) {
         toast.success(data.message);
-        getAppointments();
+                  setAppointments((prev) =>
+    prev.filter((a) => a._id !== appointmentId)
+  );
       } else {
         toast.error(data.message);
       }
@@ -128,7 +130,9 @@ const [dToken, setDToken] = useState(getDoctorAccessToken() ?? "");
       const { data } = await AppointmentCancelAPI(appointmentId);
       if (data.success) {
         toast.success(data.message);
-        getAppointments();
+                  setAppointments((prev) =>
+    prev.filter((a) => a._id !== appointmentId)
+  );
       } else {
         toast.error(data.message);
       }

@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import SearchBar from "../../components/common/SearchBar";
 import Pagination from "../../components/common/Pagination";
 import DataTable from "../../components/common/DataTable";
+import { updateItemInList } from "../../utils/stateHelper.util";
 
 const AdminUsersList = () => {
   const nav = useNavigate();
@@ -43,7 +44,10 @@ const AdminUsersList = () => {
 
   const doToggle = async (id: string) => {
     await toggleBlockUser(id);
-    fetchRows();
+    // fetchRows();
+    setRows((prev) =>
+      updateItemInList(prev, id, (item: any) => ({ isBlocked: !item.isBlocked }))
+    );
   };
 
   const filtered = rows.filter(

@@ -50,14 +50,6 @@ export const adminAddDoctorAPI = async (formData: FormData, token: string) => {
   });
 };
 
-export const getAllDoctorsAPI = async (token: string) => {
-  return await api.get(ADMIN_API.DOCTORS, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-};
-
 export const getDoctorsPaginatedAPI = async (
   page: number,
   limit: number,
@@ -89,14 +81,6 @@ export const changeAvailabilityAPI = async (
   );
 };
 
-export const getAllUsersAPI = async (token: string) => {
-  return await api.get(ADMIN_API.USERS, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
-};
-
 export const getUsersPaginatedAPI = async (
   page: number,
   limit: number,
@@ -126,14 +110,6 @@ export const toggleUserBlockAPI = async (
       },
     }
   );
-};
-
-export const getAllAppointmentsAPI = async (token: string) => {
-  return await api.get(ADMIN_API.APPOINTMENTS, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
 };
 
 export const getAppointmentsPaginatedAPI = async (

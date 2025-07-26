@@ -34,8 +34,15 @@ const fileName = (url: string) => url.split("/").pop()?.split("?")[0] ?? "file";
 
 
 const DocChatPage: React.FC = () => {
-  const { profileData } = useContext(DoctorContext);
+  const { profileData , loading} = useContext(DoctorContext);
   const { socket, markRead } = useContext(NotifContext);
+
+    if (loading)
+    return (
+      <div className="flex h-screen items-center justify-center text-slate-200">
+        Loading…
+      </div>
+    );
 
   if (!profileData) throw new Error("DoctorContext missing profile");
 

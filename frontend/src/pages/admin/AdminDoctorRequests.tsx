@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import SearchBar from "../../components/common/SearchBar";
 import Pagination from "../../components/common/Pagination";
+import { updateItemInList } from "../../utils/stateHelper.util";
 
 const AdminDoctorRequests = () => {
   const nav = useNavigate();
@@ -51,7 +52,9 @@ const AdminDoctorRequests = () => {
 
   const doApprove = async (id: string) => {
     await approveDoctor(id);
-    fetchRows();
+    setRows((prev) =>
+      updateItemInList(prev, id, { status: "approved" })
+    );
   };
 
   const openModal = (id: string) => {
@@ -63,8 +66,10 @@ const AdminDoctorRequests = () => {
   const submitReject = async () => {
     if (!currentId) return;
     await rejectDoctor(currentId, reason.trim());
+    setRows((prev) =>
+      updateItemInList(prev, currentId, { status: "rejected" })
+    );
     setShowModal(false);
-    fetchRows();
   };
 
   const pending = rows

@@ -15,6 +15,7 @@ import {
 import { showErrorToast } from "../../utils/errorHandler";
 import type { RazorpayOptions, RazorpayPaymentResponse } from "../../types/razorpay";
 import { PaymentRazorpayAPI, VerifyRazorpayAPI } from "../../services/paymentServices";
+import { getDoctorsByIDAPI } from "../../services/doctorServices";
 
 const ymd = (d: Date) =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
@@ -32,7 +33,7 @@ const Appointment = () => {
 
   const ctx = useContext(AppContext);
   if (!ctx) throw new Error("AppContext missing");
-  const { doctors, currencySymbol, token, getDoctorsData } = ctx;
+  const { currencySymbol, token } = ctx;
 
     if (!token) {
     toast.error("Please login to continue…");
@@ -48,13 +49,24 @@ const Appointment = () => {
   const [showPicker, setShowPicker] = useState(false);
   const [customDate, setCustomDate] = useState<Date | null>(null);
 
-  useEffect(() => {
-    if (!doctors.length) getDoctorsData();
-  }, []);
+  // Removed getDoctorsData and doctors usage
 
   useEffect(() => {
-    setInfo(doctors.find((d) => d._id === docId) || null);
-  }, [doctors, docId]);
+    const fetchDoctor = async () => {
+      if (docId) {
+        try {
+          const { data } = await getDoctorsByIDAPI(docId);
+          if (data.success) setInfo(data.doctor);
+          else setInfo(null);
+        } catch {
+          setInfo(null);
+        }
+      } else {
+        setInfo(null);
+      }
+    };
+    fetchDoctor();
+  }, [docId]);
 
   useEffect(() => {
     if (docId) fetchWeekSlots();

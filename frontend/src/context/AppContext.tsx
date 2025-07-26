@@ -3,7 +3,7 @@ import type { Doctor } from "../assets/user/assets";
 import { assets } from "../assets/user/assets";
 import { toast } from "react-toastify";
 import { getUserProfileAPI } from "../services/userProfileServices";
-import { getDoctorsAPI, getDoctorsPaginatedAPI } from "../services/doctorServices";
+import { getDoctorsPaginatedAPI, getDoctorsByIDAPI } from "../services/doctorServices";
 import { showErrorToast } from "../utils/errorHandler";
 import {
   getUserAccessToken,
@@ -36,8 +36,6 @@ interface PaginationData {
 }
 
 interface AppContextType {
-  doctors: Doctor[];
-  getDoctorsData: () => Promise<void>;
   getDoctorsPaginated: (page: number, limit: number) => Promise<PaginationData>;
   currencySymbol: string;
   backendUrl: string;
@@ -62,7 +60,6 @@ const AppContextProvider: React.FC<AppContextProviderProps> = ({
   const currencySymbol = "₹";
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
-  const [doctors, setDoctors] = useState([]);
   const [token, setTokenState] = useState<string | null>(getUserAccessToken());
   const [userData, setUserData] = useState<null | userData>({
     name: "",
@@ -76,19 +73,6 @@ const AppContextProvider: React.FC<AppContextProviderProps> = ({
     gender: "",
     dob: "",
   });
-
-  const getDoctorsData = async () => {
-    try {
-      const { data } = await getDoctorsAPI();
-      if (data.success) {
-        setDoctors(data.doctors);
-      } else {
-        toast.error(data.message);
-      }
-    } catch (error) {
-      showErrorToast(error);
-    }
-  };
 
   const getDoctorsPaginated = async (page: number, limit: number): Promise<PaginationData> => {
     try {
@@ -235,8 +219,6 @@ const AppContextProvider: React.FC<AppContextProviderProps> = ({
   }, [token]);
 
   const value: AppContextType = {
-    doctors,
-    getDoctorsData,
     getDoctorsPaginated,
     currencySymbol,
     backendUrl,

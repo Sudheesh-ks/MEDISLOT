@@ -1,4 +1,4 @@
-import { useContext, useEffect } from "react";
+import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AppContext } from "../../context/AppContext";
 import type { Doctor } from "../../assets/user/assets";
@@ -8,11 +8,15 @@ const TopDoctors = () => {
   const context = useContext(AppContext);
   if (!context)
     throw new Error("TopDoctors must be used within an AppContextProvider");
-  const { doctors, getDoctorsData } = context;
+  const { getDoctorsPaginated } = context;
 
+  const [doctors, setDoctors] = useState([]);
   useEffect(() => {
-    getDoctorsData();
-  }, []);
+    (async () => {
+      const res = await getDoctorsPaginated(1, 10);
+      setDoctors(res.data);
+    })();
+  }, [getDoctorsPaginated]);
 
   return (
     <section className="max-w-7xl mx-auto px-4 md:px-10 py-24 animate-fade">

@@ -11,6 +11,7 @@ import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { NotifContext } from "../../context/NotificationContext";
+import { updateItemInList } from "../../utils/stateHelper.util";
 dayjs.extend(customParseFormat);
 
 
@@ -20,10 +21,10 @@ const to12h = (t: string) => dayjs(t, "HH:mm").format("hh:mm A").toLowerCase();
 const MyAppointments = () => {
   const ctx = useContext(AppContext);
   if (!ctx) throw new Error("MyAppointments must be within AppContext");
-  const { token, getDoctorsData, slotDateFormat, userData } = ctx;
+  const { token, slotDateFormat, userData } = ctx;
   const notif = useContext(NotifContext);
 
-  const [appointments, setAppointments] = useState<AppointmentTypes[]>([]);
+  const [appointments, setAppointments] = useState<any[]>([]);
   const nav = useNavigate();
 
   if (!token) {
@@ -40,13 +41,16 @@ const MyAppointments = () => {
     }
   };
 
-  const cancelAppt = async (id: string) => {
+  const cancelAppointment = async (id: string) => {
     try {
       const { data } = await cancelAppointmentAPI(id, token);
       if (data.success) {
         toast.success(data.message);
-        fetchAppointments();
-        getDoctorsData();
+        // fetchAppointments();
+        // Removed getDoctorsData();
+         setAppointments((prev) =>
+        updateItemInList(prev, id, { cancelled: true })
+      );
       } else toast.error(data.message);
     } catch (err) {
       showErrorToast(err);
@@ -118,7 +122,7 @@ const MyAppointments = () => {
 
             {!a.cancelled ? (
               <button
-                onClick={() => cancelAppt(a._id!)}
+                onClick={() => cancelAppointment(a._id!)}
                 className={`${btn} border-red-500 text-red-400 hover:bg-red-500 hover:text-white`}
               >
                 Cancel appointment

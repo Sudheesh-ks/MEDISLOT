@@ -1,24 +1,24 @@
-import { useContext, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { AdminContext } from "../../context/AdminContext";
+// import { useContext, useEffect } from "react";
+// import { useNavigate } from "react-router-dom";
+// import { AdminContext } from "../../context/AdminContext";
 
-const AdminUpdateDoctor = () => {
-  const navigate = useNavigate();
-  const context = useContext(AdminContext);
+// const AdminUpdateDoctor = () => {
+//   const navigate = useNavigate();
+//   const context = useContext(AdminContext);
 
-  if (!context) {
-    throw new Error("AdminContext must be used within AdminContextProvider");
-  }
+//   if (!context) {
+//     throw new Error("AdminContext must be used within AdminContextProvider");
+//   }
 
-  const { aToken } = context;
+//   const { aToken } = context;
 
-  useEffect(() => {
-    if (!aToken) {
-      navigate("/admin/login");
-    }
-  });
+//   useEffect(() => {
+//     if (!aToken) {
+//       navigate("/admin/login");
+//     }
+//   });
 
-  return <div></div>;
-};
+//   return <div></div>;
+// };
 
-export default AdminUpdateDoctor;
+// export default AdminUpdateDoctor;

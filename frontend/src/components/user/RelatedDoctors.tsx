@@ -12,19 +12,22 @@ const RelatedDoctors = ({ docId, speciality }: RelatedDoctorsProps) => {
   const context = useContext(AppContext);
   if (!context)
     throw new Error("RelatedDoctors must be used within an AppContextProvider");
-  const { doctors } = context;
+  const { getDoctorsPaginated } = context;
 
   const navigate = useNavigate();
   const [relDoc, setRelDoc] = useState<Doctor[]>([]);
 
   useEffect(() => {
-    if (doctors.length && speciality) {
-      const data = doctors.filter(
-        (d) => d.speciality === speciality && d._id !== docId
-      );
-      setRelDoc(data);
-    }
-  }, [doctors, speciality, docId]);
+    (async () => {
+      if (speciality) {
+        const res = await getDoctorsPaginated(1, 20);
+        const data = res.data.filter(
+          (d: any) => d.speciality === speciality && d._id !== docId
+        );
+        setRelDoc(data);
+      }
+    })();
+  }, [getDoctorsPaginated, speciality, docId]);
 
   return (
     <section className="max-w-7xl mx-auto px-4 md:px-10 py-24 animate-fade">

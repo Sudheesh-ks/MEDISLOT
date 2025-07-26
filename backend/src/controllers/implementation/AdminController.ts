@@ -115,19 +115,6 @@ export class AdminController implements IAdminController {
     });
   }
 
-
-  // For getting all the doctors
-  async getDoctors(req: Request, res: Response): Promise<void> {
-    try {
-      const doctors = await this._adminService.getDoctors();
-      res.status(HttpStatus.OK).json({ success: true, doctors });
-    } catch (error) {
-      res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ success: false, message: (error as Error).message });
-    }
-  }
-
   // For getting paginated doctors
   async getDoctorsPaginated(req: Request, res: Response): Promise<void> {
     try {
@@ -136,18 +123,6 @@ export class AdminController implements IAdminController {
 
       const result = await this._adminService.getDoctorsPaginated(page, limit);
       res.status(HttpStatus.OK).json({ success: true, ...result });
-    } catch (error) {
-      res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ success: false, message: (error as Error).message });
-    }
-  }
-
-  // For getting all users
-  async getAllUsers(req: Request, res: Response): Promise<void> {
-    try {
-      const users = await this._adminService.getUsers();
-      res.status(HttpStatus.OK).json({ success: true, users });
     } catch (error) {
       res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -213,18 +188,6 @@ export class AdminController implements IAdminController {
         const { reason } = req.body;  
       const message = await this._adminService.rejectDoctor(doctorId, reason);
       res.status(HttpStatus.OK).json({ success: true, message });
-    } catch (error) {
-      res
-        .status(HttpStatus.BAD_REQUEST)
-        .json({ success: false, message: (error as Error).message });
-    }
-  }
-
-  // For getting all the appointments
-  async appointmentsList(req: Request, res: Response): Promise<void> {
-    try {
-      const appointments = await this._adminService.listAppointments();
-      res.status(HttpStatus.OK).json({ success: true, appointments });
     } catch (error) {
       res
         .status(HttpStatus.BAD_REQUEST)

@@ -8,11 +8,11 @@ import {
   adminDashboardAPI,
   approveDoctorAPI,
   changeAvailabilityAPI,
-  getAllAppointmentsAPI,
+  // getAllAppointmentsAPI,
   getAppointmentsPaginatedAPI,
-  getAllDoctorsAPI,
+  // getAllDoctorsAPI,
   getDoctorsPaginatedAPI,
-  getAllUsersAPI,
+  // getAllUsersAPI,
   getUsersPaginatedAPI,
   refreshAdminAccessTokenAPI,
   rejectDoctorAPI,
@@ -36,16 +36,13 @@ interface AdminContextType {
   setAToken: (token: string) => void;
   backendUrl: string;
   doctors: Doctor[];
-  getAllDoctors: () => Promise<void>;
   getDoctorsPaginated: (page: number, limit: number) => Promise<PaginationData>;
-  changeAvailability: (docId: string) => Promise<void>;
+  // changeAvailability: (docId: string) => Promise<void>;
   users: userData[];
-  getAllUsers: () => Promise<void>;
   getUsersPaginated: (page: number, limit: number) => Promise<PaginationData>;
   toggleBlockUser: (userId: string) => Promise<void>;
   appointments: AppointmentTypes[];
   setAppointments: React.Dispatch<React.SetStateAction<AppointmentTypes[]>>;
-  getAllAppointments: () => Promise<void>;
   getAppointmentsPaginated: (page: number, limit: number) => Promise<PaginationData>;
   cancelAppointment: (appointmentId: string) => Promise<void>;
   dashData: any;
@@ -82,20 +79,6 @@ const [aToken, setAToken] = useState(getAdminAccessToken() ?? "");
     };
   
 
-  const getAllDoctors = async () => {
-    try {
-      const { data } = await getAllDoctorsAPI(aToken);
-      if (data.success) {
-        setDoctors(data.doctors);
-        // console.log(data.doctors);
-      } else {
-        toast.error(data.message);
-      }
-    } catch (error) {
-      showErrorToast(error);
-    }
-  };
-
   const getDoctorsPaginated = async (page: number, limit: number): Promise<PaginationData> => {
     try {
       const { data } = await getDoctorsPaginatedAPI(page, limit, aToken);
@@ -123,7 +106,12 @@ const [aToken, setAToken] = useState(getAdminAccessToken() ?? "");
     const { data } = await approveDoctorAPI(doctorId, aToken);
     if (data.success) {
       toast.success(data.message);
-      getAllDoctors(); 
+      // getAllDoctors(); // REMOVED
+        setDoctors((prevDoctors) =>
+    prevDoctors.map((doc) =>
+      doc._id === doctorId ? { ...doc, isApproved: true } : doc
+    )
+  );
     } else {
       toast.error(data.message);
     }
@@ -137,7 +125,10 @@ const rejectDoctor = async (doctorId: string, reason: string) => {
     const { data } = await rejectDoctorAPI(doctorId, reason, aToken);
     if (data.success) {
       toast.success(data.message);
-      getAllDoctors(); 
+      // getAllDoctors(); // REMOVED
+        setDoctors((prevDoctors) =>
+    prevDoctors.filter((doc) => doc._id !== doctorId)
+  );
     } else {
       toast.error(data.message);
     }
@@ -147,44 +138,31 @@ const rejectDoctor = async (doctorId: string, reason: string) => {
 };
 
 
-  const changeAvailability = async (docId: string) => {
-    try {
-      const doctor = doctors.find((doc) => doc._id === docId);
-      if (!doctor) {
-        toast.error("Doctor not found");
-        return;
-      }
+  // const changeAvailability = async (docId: string) => {
+  //   try {
+  //     const doctor = doctors.find((doc) => doc._id === docId);
+  //     if (!doctor) {
+  //       toast.error("Doctor not found");
+  //       return;
+  //     }
 
-      const newAvailability = !doctor.available;
+  //     const newAvailability = !doctor.available;
 
-      const { data } = await changeAvailabilityAPI(
-        docId,
-        newAvailability,
-        aToken
-      );
-      if (data.success) {
-        toast.success(data.message);
-        getAllDoctors();
-      } else {
-        toast.error(data.message);
-      }
-    } catch (error) {
-      showErrorToast(error);
-    }
-  };
-
-  const getAllUsers = async () => {
-    try {
-      const { data } = await getAllUsersAPI(aToken);
-      if (data.success) {
-        setUsers(data.users);
-      } else {
-        toast.error(data.message);
-      }
-    } catch (error) {
-      showErrorToast(error);
-    }
-  };
+  //     const { data } = await changeAvailabilityAPI(
+  //       docId,
+  //       newAvailability,
+  //       aToken
+  //     );
+  //     if (data.success) {
+  //       toast.success(data.message);
+  //       // getAllDoctors(); // REMOVED
+  //     } else {
+  //       toast.error(data.message);
+  //     }
+  //   } catch (error) {
+  //     showErrorToast(error);
+  //   }
+  // };
 
   const getUsersPaginated = async (page: number, limit: number): Promise<PaginationData> => {
     try {
@@ -221,21 +199,12 @@ const rejectDoctor = async (doctorId: string, reason: string) => {
       const { data } = await toggleUserBlockAPI(userId, newBlockStatus, aToken);
       if (data.success) {
         toast.success(data.message);
-        getAllUsers();
-      } else {
-        toast.error(data.message);
-      }
-    } catch (error) {
-      showErrorToast(error);
-    }
-  };
-
-  const getAllAppointments = async () => {
-    try {
-      const { data } = await getAllAppointmentsAPI(aToken);
-
-      if (data.success) {
-        setAppointments(data.appointments.reverse());
+        // getAllUsers(); // REMOVED
+        setUsers((prevUsers) =>
+    prevUsers.map((u) =>
+      u._id === userId ? { ...u, isBlocked: newBlockStatus } : u
+    )
+  );
       } else {
         toast.error(data.message);
       }
@@ -272,7 +241,10 @@ const rejectDoctor = async (doctorId: string, reason: string) => {
 
       if (data.success) {
         toast.success(data.message);
-        getAllAppointments();
+        // getAllAppointments(); // REMOVED
+          setAppointments((prev) =>
+    prev.filter((a) => a._id !== appointmentId)
+  );
       } else {
         toast.error(data.message);
       }
@@ -336,16 +308,13 @@ const rejectDoctor = async (doctorId: string, reason: string) => {
     setAToken,
     backendUrl,
     doctors,
-    getAllDoctors,
     getDoctorsPaginated,
-    changeAvailability,
+    // changeAvailability,
     users,
-    getAllUsers,
     getUsersPaginated,
     toggleBlockUser,
     appointments,
     setAppointments,
-    getAllAppointments,
     getAppointmentsPaginated,
     cancelAppointment,
     dashData,

@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import SearchBar from "../../components/common/SearchBar";
 import Pagination from "../../components/common/Pagination";
 import DataTable from "../../components/common/DataTable";
+import { updateItemInList } from "../../utils/stateHelper.util";
 
 const glass = "bg-white/5 backdrop-blur ring-1 ring-white/10";
 const grad = "from-cyan-500 to-fuchsia-600";
@@ -136,7 +137,8 @@ const AdminAppointments = () => {
             className="w-7 cursor-pointer hover:opacity-80"
             onClick={(e) => {
               e.stopPropagation();
-              cancelAppointment(it._id!).then(fetchRows);
+              cancelAppointment(it._id!);
+setRows((prev) => updateItemInList(prev, it._id!, { cancelled: true }));
             }}
           />
         ),
