@@ -22,6 +22,13 @@ export const getAppointmentsAPI = async (token: string) => {
   });
 };
 
+export const getAppointmentsPaginatedAPI = async (token: string, page = 1, limit = 5) => {
+  return api.get(APPOINTMENT_API.BASE + `?page=${page}&limit=${limit}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+};
+
+
 // Cancel an appointment
 export const cancelAppointmentAPI = async (
   appointmentId: string,

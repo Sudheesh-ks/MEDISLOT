@@ -4,14 +4,15 @@ import { toast } from "react-toastify";
 import {
   cancelAppointmentAPI,
   getAppointmentsAPI,
+  getAppointmentsPaginatedAPI,
 } from "../../services/appointmentServices";
 import { showErrorToast } from "../../utils/errorHandler";
-import type { AppointmentTypes } from "../../types/appointment";
 import { useNavigate } from "react-router-dom";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat";
 import { NotifContext } from "../../context/NotificationContext";
 import { updateItemInList } from "../../utils/stateHelper.util";
+import Pagination from "../../components/common/Pagination";
 dayjs.extend(customParseFormat);
 
 
@@ -25,6 +26,9 @@ const MyAppointments = () => {
   const notif = useContext(NotifContext);
 
   const [appointments, setAppointments] = useState<any[]>([]);
+  const [page, setPage] = useState(1);
+const [totalPages, setTotalPages] = useState(1);
+
   const nav = useNavigate();
 
   if (!token) {
@@ -32,14 +36,19 @@ const MyAppointments = () => {
     return null;
   }
 
-  const fetchAppointments = async () => {
-    try {
-      const { data } = await getAppointmentsAPI(token);
-      if (data.success) setAppointments(data.appointments);
-    } catch (err) {
-      showErrorToast(err);
+const fetchAppointments = async (pageToFetch = 1) => {
+  try {
+    const { data } = await getAppointmentsPaginatedAPI(token, pageToFetch);
+    if (data.success) {
+      setAppointments(data.data); // paginated appointments
+      setTotalPages(data.totalPages);
+      setPage(data.currentPage);
     }
-  };
+  } catch (err) {
+    showErrorToast(err);
+  }
+};
+
 
   const cancelAppointment = async (id: string) => {
     try {
@@ -58,9 +67,14 @@ const MyAppointments = () => {
   };
 
 
-  useEffect(() => {
-    fetchAppointments();
-  }, [token]);
+useEffect(() => {
+  fetchAppointments(page);
+}, [token]);
+
+const handlePageChange = (newPage: number) => {
+  fetchAppointments(newPage);
+};
+
 
   const glass =
     "bg-white/5 backdrop-blur ring-1 ring-white/10 rounded-xl overflow-hidden";
@@ -136,6 +150,14 @@ const MyAppointments = () => {
           </div>
         </div>
       ))}
+      {totalPages > 1 && (
+  <Pagination
+    currentPage={page}
+    totalPages={totalPages}
+    onPageChange={handlePageChange}
+  />
+)}
+
     </div>
   );
 };

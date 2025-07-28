@@ -1,22 +1,24 @@
 import { AppointmentTypes } from "../../types/appointment";
-import { DoctorData } from "../../types/doctor";
-import { PaginationResult } from "../../repositories/interface/IDoctorRepository";
+import { DoctorTypes } from "../../types/doctor";
+import { DoctorDTO } from "../../dtos/doctor.dto";
+import { AppointmentDTO } from "../../dtos/appointment.dto";
+import { PaginationResult } from "../../types/pagination";
 
 export interface IDoctorService {
-  registerDoctor(data: DoctorData): Promise<void>;
-  getPublicDoctorById(id: string): Promise<DoctorData | null>;
+  registerDoctor(data: DoctorTypes): Promise<void>;
+  getPublicDoctorById(id: string): Promise<DoctorDTO>;
   toggleAvailability(docId: string): Promise<void>;
-  getAllDoctors(): Promise<any[]>;
-  getDoctorsPaginated(page: number, limit: number): Promise<PaginationResult<any>>;
+  getAllDoctors(): Promise<DoctorDTO[]>;
+  getDoctorsPaginated(page: number, limit: number): Promise<PaginationResult<DoctorDTO>>;
   loginDoctor(
     email: string,
     password: string
   ): Promise<{ token: string; refreshToken: string }>;
-  getDoctorAppointments(docId: string): Promise<AppointmentTypes[]>;
-  getDoctorAppointmentsPaginated(docId: string, page: number, limit: number): Promise<PaginationResult<AppointmentTypes>>;
+  getDoctorAppointments(docId: string): Promise<AppointmentDTO[]>;
+  getDoctorAppointmentsPaginated(docId: string, page: number, limit: number): Promise<PaginationResult<AppointmentDTO>>;
   confirmAppointment(docId: string, appointmentId: string): Promise<void>;
   cancelAppointment(docId: string, appointmentId: string): Promise<void>;
-  getDoctorProfile(docId: string): Promise<DoctorData | null>;
+  getDoctorProfile(docId: string): Promise<DoctorDTO>;
   updateDoctorProfile(data: {
     doctId: string;
     name: string;
@@ -25,7 +27,7 @@ export interface IDoctorService {
     experience: string;
     about: string;
     fees: number;
-    address: DoctorData["address"];
+    address: DoctorTypes["address"];
     imagePath?: string;
     available?: boolean;
   }): Promise<void>;

@@ -1,19 +1,23 @@
-import { MessageDocument, MessageKind } from "../../models/messageModel";
+import { MessageDTO } from "../../dtos/message.dto";
+import { toMessageDTO } from "../../mappers/message.mapper";
+import { MessageDocument } from "../../models/messageModel";
 import { IChatRepository } from "../../repositories/interface/IChatRepository";
+import { MessageKind } from "../../types/message";
 import { IChatService } from "../interface/IChatService";
 
 export class ChatService implements IChatService {
   constructor(private repo: IChatRepository) {}
 
-  fetchChatHistory(
+  async fetchChatHistory(
     chatId: string,
     limit = 1000,
     before?: Date
-  ): Promise<MessageDocument[]> {
-    return this.repo.getMessagesByChatId(chatId, limit, before);
+  ): Promise<MessageDTO[]> {
+    const messages = await this.repo.getMessagesByChatId(chatId, limit, before);
+    return messages.map(toMessageDTO);
   }
 
-  sendMessage(dto: {
+  async sendMessage(dto: {
     chatId: string;
     senderId: string;
     receiverId: string;
@@ -23,8 +27,9 @@ export class ChatService implements IChatService {
     mediaUrl?: string;
     mediaType?: string;
     replyTo?: string;
-  }): Promise<MessageDocument> {
-    return this.repo.createMessage(dto);
+  }): Promise<MessageDTO> {
+    const message = await this.repo.createMessage(dto);
+    return toMessageDTO(message);
   }
 
   delivered(messageId: string, userId: string): Promise<void> {

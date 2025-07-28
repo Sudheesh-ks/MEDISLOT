@@ -1,11 +1,13 @@
-import { MessageDocument, MessageKind } from "../../models/messageModel";
+import { MessageDTO } from "../../dtos/message.dto";
+import { MessageDocument } from "../../models/messageModel";
+import { MessageKind } from "../../types/message";
 
 export interface IChatService {
   fetchChatHistory(
     chatId: string,
     limit?: number,
     before?: Date
-  ): Promise<MessageDocument[]>;
+  ): Promise<MessageDTO[]>;
 
   sendMessage(dto: {
     chatId: string;
@@ -17,7 +19,7 @@ export interface IChatService {
     mediaUrl?: string;
     mediaType?: string;
     replyTo?: string;
-  }): Promise<MessageDocument>;
+  }): Promise<MessageDTO>;
 
   delivered(messageId: string, userId: string): Promise<void>;
   read(chatId: string, userId: string): Promise<void>;

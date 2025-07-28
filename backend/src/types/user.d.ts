@@ -1,9 +1,14 @@
+// import { Types } from "mongoose";
+
+import { Types } from "mongoose";
+
 export interface Address {
   line1: string;
   line2: string;
 }
 
-export interface userData {
+export interface userTypes {
+  _id?: string;
   name: string;
   email: string;
   image: string;
@@ -17,4 +22,10 @@ export interface userData {
 }
 
 
-export type UserDocument = HydratedDocument<userData>;
+export interface UserAppntTypes {
+  name: string;
+  email: string;
+  phone: string;
+}
+
+// export type UserDocument = HydratedDocument<userData>;

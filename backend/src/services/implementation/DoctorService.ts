@@ -2,22 +2,27 @@ import { IDoctorRepository } from "../../repositories/interface/IDoctorRepositor
 import bcrypt from "bcrypt";
 import { IDoctorService } from "../interface/IDoctorService";
 import { AppointmentTypes } from "../../types/appointment";
-import { DoctorData, DoctorDTO } from "../../types/doctor";
+import { DoctorTypes } from "../../types/doctor";
 import { v2 as cloudinary } from "cloudinary";
 import fs from "fs";
 import {
   generateAccessToken,
   generateRefreshToken,
 } from "../../utils/jwt.utils";
+import { DoctorDTO } from "../../dtos/doctor.dto";
+import { toDoctorDTO } from "../../mappers/doctor.mapper";
+import { AppointmentDTO } from "../../dtos/appointment.dto";
+import { toAppointmentDTO } from "../../mappers/appointment.mapper";
+import { PaginationResult } from "../../types/pagination";
 
-export interface DoctorDocument extends DoctorData {
+export interface DoctorDocument extends DoctorTypes {
   _id: string;
 }
 
 export class DoctorService implements IDoctorService {
   constructor(private _doctorRepository: IDoctorRepository) {}
 
-  async registerDoctor(data: DoctorDTO): Promise<void> {
+  async registerDoctor(data: DoctorTypes): Promise<void> {
     const {
       name,
       email,
@@ -28,7 +33,7 @@ export class DoctorService implements IDoctorService {
       about,
       fees,
       address,
-      imagePath,
+      image,
     } = data;
 
     if (
@@ -51,14 +56,14 @@ export class DoctorService implements IDoctorService {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     let imageUrl = "";
-    if (imagePath) {
-      const uploadResult = await cloudinary.uploader.upload(imagePath, {
+    if (image) {
+      const uploadResult = await cloudinary.uploader.upload(image, {
         resource_type: "image",
       });
       imageUrl = uploadResult.secure_url;
     }
 
-    const doctorData: DoctorData = {
+    const doctorData: DoctorTypes = {
       name,
       email,
       password: hashedPassword,
@@ -76,8 +81,10 @@ export class DoctorService implements IDoctorService {
     await this._doctorRepository.registerDoctor(doctorData);
   }
 
-  async getPublicDoctorById(id: string): Promise<DoctorData | null> {
-    return this._doctorRepository.getDoctorProfileById(id);
+  async getPublicDoctorById(id: string): Promise<DoctorDTO> {
+const doctor = await this._doctorRepository.getDoctorProfileById(id);
+if (!doctor) throw new Error("Doctor not found");
+return toDoctorDTO(doctor);
   }
 
   async toggleAvailability(docId: string): Promise<void> {
@@ -87,13 +94,30 @@ export class DoctorService implements IDoctorService {
     await this._doctorRepository.updateAvailability(docId, !doc.available);
   }
 
-  async getAllDoctors(): Promise<any[]> {
-    return await this._doctorRepository.findAllDoctors();
+  async getAllDoctors(): Promise<DoctorDTO[]> {
+    const doctors = await this._doctorRepository.findAllDoctors();
+    return doctors.map(toDoctorDTO);
   }
 
-  async getDoctorsPaginated(page: number, limit: number): Promise<any> {
-    return await this._doctorRepository.getDoctorsPaginated(page, limit);
-  }
+async getDoctorsPaginated(
+  page: number,
+  limit: number
+): Promise<PaginationResult<DoctorDTO>> {
+  const { data, totalCount, currentPage, totalPages, hasNextPage, hasPrevPage } =
+    await this._doctorRepository.getDoctorsPaginated(page, limit);
+
+  const mappedData = data.map(toDoctorDTO);
+
+  return {
+    data: mappedData,
+    totalCount,
+    currentPage,
+    totalPages,
+    hasNextPage,
+    hasPrevPage,
+  };
+}
+
 
   async loginDoctor(
     email: string,
@@ -111,30 +135,33 @@ export class DoctorService implements IDoctorService {
     return { token, refreshToken };
   }
 
-  async getDoctorAppointments(docId: string): Promise<AppointmentTypes[]> {
-    const doctor = await this._doctorRepository.findById(docId);
-    if (!doctor) {
-      throw new Error("Doctor not found");
-    }
-
-    return await this._doctorRepository.findAppointmentsByDoctorId(docId);
+async getDoctorAppointments(docId: string): Promise<AppointmentDTO[]> {
+  const doctor = await this._doctorRepository.findById(docId);
+  if (!doctor) {
+    throw new Error("Doctor not found");
   }
+
+  const appointments = await this._doctorRepository.findAppointmentsByDoctorId(docId);
+  return appointments.map(toAppointmentDTO); 
+}
+
 
   async getDoctorAppointmentsPaginated(
     docId: string,
     page: number,
     limit: number
-  ): Promise<any> {
+  ): Promise<PaginationResult<AppointmentDTO>> {
     const doctor = await this._doctorRepository.findById(docId);
     if (!doctor) {
       throw new Error("Doctor not found");
     }
 
-    return await this._doctorRepository.getAppointmentsPaginated(
-      docId,
-      page,
-      limit
-    );
+  const paginatedData = await this._doctorRepository.getAppointmentsPaginated(docId, page, limit);
+
+  return {
+    ...paginatedData,
+    data: paginatedData.data.map(toAppointmentDTO), 
+  };
   }
 
   async confirmAppointment(
@@ -162,10 +189,10 @@ export class DoctorService implements IDoctorService {
     await this._doctorRepository.cancelAppointment(appointmentId);
   }
 
-  async getDoctorProfile(docId: string): Promise<DoctorData | null> {
+  async getDoctorProfile(docId: string): Promise<DoctorDTO> {
     const doctor = await this._doctorRepository.getDoctorProfileById(docId);
     if (!doctor) throw new Error("Doctor not found");
-    return doctor;
+    return toDoctorDTO(doctor);
   }
 
   async updateDoctorProfile(data: {
@@ -176,7 +203,7 @@ export class DoctorService implements IDoctorService {
     experience: string;
     about: string;
     fees: number;
-    address: DoctorData["address"];
+    address: DoctorTypes["address"];
     imagePath?: string;
     available?: boolean;
   }): Promise<void> {

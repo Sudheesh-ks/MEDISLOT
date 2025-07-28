@@ -49,7 +49,11 @@ export function registerChatSocket(io: Server, chatService: ChatService) {
 
           io.to(saved.chatId).emit("receiveMessage", saved);
 
-          await chatService.delivered(saved.id, msg.receiverId);
+          if (msg.receiverId) {
+  await chatService.delivered(saved.id!, msg.receiverId);
+}
+
+          // await chatService.delivered(saved.id, msg.receiverId);
           io.to(saved.chatId).emit("delivered", {
             messageId: saved.id,
             userId: msg.receiverId,

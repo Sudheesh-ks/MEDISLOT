@@ -1,12 +1,12 @@
 import { BaseRepository } from "../BaseRepository";
-import appointmentModel from "../../models/appointmentModel";
-import doctorModel from "../../models/doctorModel";
+import appointmentModel, { AppointmentDocument } from "../../models/appointmentModel";
+import doctorModel, { DoctorDocument } from "../../models/doctorModel";
 import { AppointmentTypes } from "../../types/appointment";
-import { DoctorData, DoctorDocument } from "../../types/doctor";
+import { DoctorTypes } from "../../types/doctor";
 import {
   IDoctorRepository,
-  PaginationResult,
 } from "../interface/IDoctorRepository";
+import { PaginationResult } from "../../types/pagination";
 
 export class DoctorRepository
   extends BaseRepository<DoctorDocument>
@@ -16,11 +16,11 @@ export class DoctorRepository
     super(doctorModel);
   }
 
-  async registerDoctor(data: DoctorData): Promise<DoctorDocument> {
+  async registerDoctor(data: DoctorTypes): Promise<DoctorDocument> {
     return doctorModel.create(data);
   }
 
-  async findByEmail(email: string): Promise<DoctorData | null> {
+  async findByEmail(email: string): Promise<DoctorDocument | null> {
     return this.findOne({ email });
   }
 
@@ -32,15 +32,15 @@ export class DoctorRepository
     await this.updateById(id, { available });
   }
 
-  async findAllDoctors(): Promise<Partial<DoctorData>[]> {
-    return doctorModel.find({}).select("-password -email");
+  async findAllDoctors(): Promise<DoctorDocument[]> {
+    return doctorModel.find({}).select("-password");
   }
 
-  async findAppointmentsByDoctorId(docId: string): Promise<AppointmentTypes[]> {
+  async findAppointmentsByDoctorId(docId: string): Promise<AppointmentDocument[]> {
     return appointmentModel.find({ docId });
   }
 
-  async findAppointmentById(id: string): Promise<AppointmentTypes | null> {
+  async findAppointmentById(id: string): Promise<AppointmentDocument | null> {
     return appointmentModel.findById(id);
   }
 
@@ -55,7 +55,7 @@ export class DoctorRepository
   async getDoctorsPaginated(
     page: number,
     limit: number
-  ): Promise<PaginationResult<Partial<DoctorData>>> {
+  ): Promise<PaginationResult<DoctorDocument>> {
     const skip = (page - 1) * limit;
     const totalCount = await doctorModel.countDocuments({ status: "approved" });
     const data = await doctorModel
@@ -80,7 +80,7 @@ export class DoctorRepository
     docId: string,
     page: number,
     limit: number
-  ): Promise<PaginationResult<AppointmentTypes>> {
+  ): Promise<PaginationResult<AppointmentDocument>> {
     const skip = (page - 1) * limit;
     const totalCount = await appointmentModel.countDocuments({ docId });
     const data = await appointmentModel
@@ -103,7 +103,7 @@ export class DoctorRepository
     };
   }
 
-  async getDoctorProfileById(id: string): Promise<DoctorData | null> {
+  async getDoctorProfileById(id: string): Promise<DoctorDocument | null> {
     return doctorModel.findById(id).select("-password");
   }
 
@@ -111,7 +111,7 @@ export class DoctorRepository
     id: string,
     updateData: Partial<
       Pick<
-        DoctorData,
+        DoctorTypes,
         | "name"
         | "speciality"
         | "degree"

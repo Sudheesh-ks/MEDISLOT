@@ -4,7 +4,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import dayjs from "dayjs";
 import { AppContext } from "../../context/AppContext";
-import { assets, type Doctor } from "../../assets/user/assets";
+import { assets } from "../../assets/user/assets";
 import RelatedDoctors from "../../components/user/RelatedDoctors";
 import { toast } from "react-toastify";
 import {
@@ -16,6 +16,7 @@ import { showErrorToast } from "../../utils/errorHandler";
 import type { RazorpayOptions, RazorpayPaymentResponse } from "../../types/razorpay";
 import { PaymentRazorpayAPI, VerifyRazorpayAPI } from "../../services/paymentServices";
 import { getDoctorsByIDAPI } from "../../services/doctorServices";
+import type { DoctorProfileType } from "../../types/doctor";
 
 const ymd = (d: Date) =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
@@ -42,7 +43,7 @@ const Appointment = () => {
 
   const days = ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"];
 
-  const [info, setInfo] = useState<Doctor | null>();
+  const [info, setInfo] = useState<DoctorProfileType | null>();
   const [slots, setSlots] = useState<TimeSlot[][]>([]);
   const [dayIdx, setDayIdx] = useState(0);
   const [slotTime, setSlotTime] = useState("");
@@ -50,6 +51,7 @@ const Appointment = () => {
   const [customDate, setCustomDate] = useState<Date | null>(null);
 
   // Removed getDoctorsData and doctors usage
+
 
   useEffect(() => {
     const fetchDoctor = async () => {

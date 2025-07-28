@@ -1,3 +1,5 @@
+import { Types } from "mongoose";
+
 interface CustomRequest extends Request {
   file?: Express.Multer.File;
 }
@@ -7,7 +9,7 @@ export interface Address {
   line2: string;
 }
 
-export interface DoctorData {
+export interface DoctorTypes {
   _id?: string;
   name: string;
   email: string;
@@ -28,20 +30,25 @@ export interface DoctorData {
   rejectionReason?: string;
 }
 
-export interface DoctorDTO {
+export interface DoctorAppntTypes {
   name: string;
-  email: string;
-  password: string;
   speciality: string;
-  degree: string;
-  experience: string;
-  about: string;
-  fees: number;
-  address: Address;
-  imagePath?: string;
 }
 
+// export interface DoctorDTO {
+//   name: string;
+//   email: string;
+//   password: string;
+//   speciality: string;
+//   degree: string;
+//   experience: string;
+//   about: string;
+//   fees: number;
+//   address: Address;
+//   imagePath?: string;
+// }
 
 
-export type DoctorDocument = HydratedDocument<DoctorData>;
+
+// export type DoctorDocument = HydratedDocument<DoctorData>;
 

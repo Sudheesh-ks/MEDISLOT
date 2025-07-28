@@ -1,7 +1,9 @@
-import mongoose, { Schema, Document, Model } from "mongoose";
-import { userData } from "../types/user";
+import mongoose, { Schema, Document, Model, Types } from "mongoose";
+import { userTypes } from "../types/user";
 
-interface userDocument extends userData, Document {}
+export interface userDocument extends Omit<userTypes, "_id">, Document {
+  _id: Types.ObjectId
+}
 
 const userSchema: Schema<userDocument> = new mongoose.Schema({
   name: {
@@ -33,8 +35,8 @@ const userSchema: Schema<userDocument> = new mongoose.Schema({
   },
 
   address: {
-    type: Object,
-    default: { line1: "Enter your address here.", line2: "" },
+  line1: { type: String, default: "Enter your address here." },
+  line2: { type: String, default: "" },
   },
 
   gender: {

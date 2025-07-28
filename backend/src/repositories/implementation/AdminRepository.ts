@@ -1,16 +1,15 @@
 import {
   IAdminRepository,
-  PaginationResult,
 } from "../interface/IAdminRepository";
 import { BaseRepository } from "../BaseRepository";
-import adminModel from "../../models/adminModel";
-import doctorModel from "../../models/doctorModel";
-import userModel from "../../models/userModel";
-import appointmentModel from "../../models/appointmentModel";
-import { DoctorData } from "../../types/doctor";
-import { userData } from "../../types/user";
-import { AdminDocument } from "../../types/admin";
-import { AppointmentDocument, AppointmentTypes } from "../../types/appointment";
+import adminModel, { AdminDocument } from "../../models/adminModel";
+import doctorModel, { DoctorDocument } from "../../models/doctorModel";
+import userModel, { userDocument } from "../../models/userModel";
+import appointmentModel, { AppointmentDocument } from "../../models/appointmentModel";
+import { DoctorTypes } from "../../types/doctor";
+import { userTypes } from "../../types/user";
+import { AppointmentTypes } from "../../types/appointment";
+import { PaginationResult } from "../../types/pagination";
 
 export class AdminRepository extends BaseRepository<AdminDocument> {
   constructor() {
@@ -30,14 +29,14 @@ export class AdminRepository extends BaseRepository<AdminDocument> {
   //   await newDoctor.save();
   // }
 
-  async getAllDoctors(): Promise<Omit<DoctorData, "password">[]> {
+  async getAllDoctors(): Promise<DoctorDocument[]> {
     return doctorModel.find({}).select("-password");
   }
 
   async getDoctorsPaginated(
     page: number,
     limit: number
-  ): Promise<PaginationResult<Omit<DoctorData, "password">>> {
+  ): Promise<PaginationResult<DoctorDocument>> {
     const skip = (page - 1) * limit;
     const totalCount = await doctorModel.countDocuments({});
     const data = await doctorModel
@@ -58,14 +57,14 @@ export class AdminRepository extends BaseRepository<AdminDocument> {
     };
   }
 
-  async getAllUsers(): Promise<Omit<userData, "password">[]> {
+  async getAllUsers(): Promise<userDocument[]> {
     return userModel.find({}).select("-password");
   }
 
   async getUsersPaginated(
     page: number,
     limit: number
-  ): Promise<PaginationResult<Omit<userData, "password">>> {
+  ): Promise<PaginationResult<userDocument>> {
     const skip = (page - 1) * limit;
     const totalCount = await userModel.countDocuments({});
     const data = await userModel
@@ -103,7 +102,7 @@ export class AdminRepository extends BaseRepository<AdminDocument> {
   async getAppointmentsPaginated(
     page: number,
     limit: number
-  ): Promise<PaginationResult<AppointmentTypes>> {
+  ): Promise<PaginationResult<AppointmentDocument>> {
     const skip = (page - 1) * limit;
     const totalCount = await appointmentModel.countDocuments({});
     const data = await appointmentModel

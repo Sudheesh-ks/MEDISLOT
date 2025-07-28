@@ -1,7 +1,7 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
-import { DoctorData } from "../types/doctor";
+import { DoctorTypes } from "../types/doctor";
 
-interface DoctorDocument extends DoctorData, Document {
+export interface DoctorDocument extends Omit<DoctorTypes, "_id">, Document {
   _id: string;
 }
 

@@ -1,24 +1,39 @@
 import { IUserRepository } from "../../repositories/interface/IUserRepository";
-import userModel from "../../models/userModel";
-import doctorModel from "../../models/doctorModel";
+import userModel, { userDocument } from "../../models/userModel";
+import doctorModel, { DoctorDocument } from "../../models/doctorModel";
 import slotModel from "../../models/slotModel";
-import { AppointmentDocument, AppointmentTypes } from "../../types/appointment";
-import appointmentModel from "../../models/appointmentModel";
-import { DoctorData } from "../../types/doctor";
+import { AppointmentTypes } from "../../types/appointment";
+import appointmentModel, { AppointmentDocument } from "../../models/appointmentModel";
+import { DoctorTypes } from "../../types/doctor";
 import { BaseRepository } from "../BaseRepository";
-import { UserDocument } from "../../types/user";
+import { userTypes } from "../../types/user";
+import { PaginationResult } from "../../types/pagination";
 
 export class UserRepository
-  extends BaseRepository<UserDocument>
+  extends BaseRepository<userDocument>
   implements IUserRepository
 {
   constructor() {
     super(userModel);
   }
 
-  async findByEmail(email: string): Promise<UserDocument | null> {
+    async createUser(user: Partial<userDocument>): Promise<userDocument> {
+    const createdUser = await this.create(user);
+    return createdUser as userDocument;
+  }
+
+  async findUserById(id: string): Promise<userDocument | null> {
+    const user = await this.findById(id);
+    return user ? (user as userDocument) : null;
+  }
+
+  async findUserByEmail(email: string): Promise<userDocument | null> {
     return this.findOne({ email });
   }
+
+  async updateUserById(id: string, data: Partial<userTypes>): Promise<void> {
+  await userModel.findByIdAndUpdate(id, { $set: data });
+}
 
   async updatePasswordByEmail(
     email: string,
@@ -31,7 +46,7 @@ export class UserRepository
     return !!updatedUser;
   }
 
-  async bookAppointment(appointmentData: AppointmentTypes): Promise<any> {
+  async bookAppointment(appointmentData: AppointmentTypes): Promise<AppointmentDocument> {
     const { userId, docId, slotDate, slotTime } = appointmentData;
 
     const doctor = await doctorModel.findById(docId);
@@ -52,8 +67,8 @@ export class UserRepository
     slotDoc.slots[slotIndex].booked = true;
     await slotDoc.save();
 
-    const userData = await userModel.findById(userId).select("-password");
-    const docData = await doctorModel.findById(docId).select("-password");
+    const userData = await userModel.findById(userId).select("-password").lean();
+    const docData = await doctorModel.findById(docId).select("-password").lean();
 
     const appointment = new appointmentModel({
       userId,
@@ -66,15 +81,48 @@ export class UserRepository
       date: new Date(),
     });
 
-    await appointment.save();
-    return appointment
+    return await appointment.save();
   }
 
-  async getAppointmentsByUserId(userId: string): Promise<AppointmentTypes[]> {
-    return appointmentModel.find({ userId }).sort({ date: -1 });
-  }
+  async findAppointmentById(appointmentId: string): Promise<AppointmentDocument | null> {
+  return await appointmentModel.findById(appointmentId).lean();
+}
 
-  async findDoctorById(id: string): Promise<DoctorData | null> {
+  // async getAppointmentsByUserId(userId: string): Promise<AppointmentDocument[]> {
+  //   return appointmentModel.find({ userId }).sort({ date: -1 }).lean();
+  // }
+
+async getAppointmentsByUserIdPaginated(
+  userId: string,
+  page: number,
+  limit: number
+): Promise<PaginationResult<AppointmentDocument>> {
+  const skip = (page - 1) * limit;
+  const totalCount = await appointmentModel.countDocuments({ userId });
+
+  const data = await appointmentModel
+    .find({ userId })
+    .populate("userId", "name email image dob")
+    .populate("docId", "name image speciality")
+    .skip(skip)
+    .limit(limit)
+    .sort({ createdAt: -1 });
+
+  const totalPages = Math.ceil(totalCount / limit);
+
+  return {
+    data,
+    totalCount,
+    currentPage: page,
+    totalPages,
+    hasNextPage: page < totalPages,
+    hasPrevPage: page > 1,
+  };
+}
+
+
+
+  async findDoctorById(id: string): Promise<DoctorDocument | null> {
     return doctorModel.findById(id).select("-password") as any;
   }
 
@@ -115,8 +163,8 @@ export class UserRepository
   async findPayableAppointment(
     userId: string,
     appointmentId: string
-  ): Promise<AppointmentDocument> {
-    const appointment = await appointmentModel.findById<AppointmentDocument>(
+  ): Promise<any> {
+    const appointment = await appointmentModel.findById<AppointmentTypes>(
       appointmentId
     );
     if (!appointment) throw new Error("Appointment not found");

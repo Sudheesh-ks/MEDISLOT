@@ -1,10 +1,17 @@
+import { Types } from "mongoose";
+import { DoctorAppntTypes, DoctorTypes } from "./doctor";
+import { UserAppntTypes, userTypes } from "./user";
+import { DoctorDocument } from "../models/doctorModel";
+import { userDocument } from "../models/userModel";
+
 export interface AppointmentTypes {
+  _id?: string;
   userId: string;
   docId: string;
   slotDate: string;
   slotTime: string;
-  userData: Record<string, any>;
-  docData: Record<string, any>;
+  userData: userDocument;
+  docData: DoctorDocument;
   amount: number;
   date: number;
   cancelled?: boolean;
@@ -15,7 +22,4 @@ export interface AppointmentTypes {
 }
 
 
-export interface AppointmentDocument
-  extends AppointmentTypes, Document {
-  _id: Types.ObjectId;
-}
+

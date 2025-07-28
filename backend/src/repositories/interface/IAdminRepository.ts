@@ -1,27 +1,23 @@
-import { adminData, AdminDocument } from "../../types/admin";
-import { AppointmentDocument, AppointmentTypes } from "../../types/appointment";
-import { DoctorData } from "../../types/doctor";
-import { userData } from "../../types/user";
+import { AdminDocument } from "../../models/adminModel";
+import { AppointmentDocument } from "../../models/appointmentModel";
+import { DoctorDocument } from "../../models/doctorModel";
+import { userDocument } from "../../models/userModel";
+import { AppointmentTypes } from "../../types/appointment";
+import { DoctorTypes } from "../../types/doctor";
+import { PaginationResult } from "../../types/pagination";
+import { userTypes } from "../../types/user";
 
-export interface PaginationResult<T> {
-  data: T[];
-  totalCount: number;
-  currentPage: number;
-  totalPages: number;
-  hasNextPage: boolean;
-  hasPrevPage: boolean;
-}
 
 export interface IAdminRepository {
   findByEmail(email: string): Promise<AdminDocument | null>;
   findAdminById(id: string): Promise<AdminDocument | null>;
-  // saveDoctor(data: DoctorData): Promise<void>;
-  getAllDoctors(): Promise<Omit<DoctorData, "password">[]>;
-  getDoctorsPaginated(page: number, limit: number): Promise<PaginationResult<Omit<DoctorData, "password">>>;
-  getAllUsers(): Promise<Omit<userData, "password">[]>;
-  getUsersPaginated(page: number, limit: number): Promise<PaginationResult<Omit<userData, "password">>>;
+  // saveDoctor(data: DoctorTypes): Promise<void>;
+  getAllDoctors(): Promise<DoctorDocument[]>;
+  getDoctorsPaginated(page: number, limit: number): Promise<PaginationResult<DoctorDocument>>;
+  getAllUsers(): Promise<userDocument[]>;
+  getUsersPaginated(page: number, limit: number): Promise<PaginationResult<userDocument>>;
   toggleUserBlock(userId: string): Promise<string>;
   getAllAppointments():Promise<AppointmentDocument[]>;
-  getAppointmentsPaginated(page: number, limit: number): Promise<PaginationResult<AppointmentTypes>>;
+  getAppointmentsPaginated(page: number, limit: number): Promise<PaginationResult<AppointmentDocument>>;
   cancelAppointment(appointmentId: string): Promise<void>;
 }

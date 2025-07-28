@@ -3,7 +3,7 @@ import { DoctorService } from "../../services/implementation/DoctorService";
 import { IDoctorController } from "../interface/IdoctorController.interface";
 import { HttpStatus } from "../../constants/status.constants";
 import { HttpResponse } from "../../constants/responseMessage.constants";
-import { DoctorDTO } from "../../types/doctor";
+import { DoctorTypes } from "../../types/doctor";
 import {
   generateAccessToken,
   generateRefreshToken,
@@ -41,7 +41,7 @@ export class DoctorController implements IDoctorController {
         return;
       }
 
-      const doctorDTO: DoctorDTO = {
+      const doctorDTO: DoctorTypes = {
         name,
         email,
         password,
@@ -51,7 +51,7 @@ export class DoctorController implements IDoctorController {
         degree,
         fees: Number(fees),
         address: JSON.parse(address),
-        imagePath: imageFile.path,
+        image: imageFile.path,
       };
 
       await this._doctorService.registerDoctor(doctorDTO);

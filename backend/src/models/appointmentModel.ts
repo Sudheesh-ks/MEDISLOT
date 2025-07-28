@@ -1,7 +1,9 @@
-import mongoose, { Schema, Model, Document } from "mongoose";
+import mongoose, { Schema, Model, Document, Types } from "mongoose";
 import { AppointmentTypes } from "../types/appointment";
 
-interface AppointmentDocument extends AppointmentTypes, Document {}
+export interface AppointmentDocument extends Omit<AppointmentTypes, "_id">, Document {
+  _id: Types.ObjectId
+}
 
 const appointmentSchema: Schema<AppointmentDocument> = new mongoose.Schema({
   userId: {
@@ -68,7 +70,11 @@ const appointmentSchema: Schema<AppointmentDocument> = new mongoose.Schema({
   type: String,
   default: null,
 },
-});
+},
+  {
+    timestamps: true, 
+  }
+);
 
 const appointmentModel: Model<AppointmentDocument> =
   mongoose.model<AppointmentDocument>("appointment", appointmentSchema);

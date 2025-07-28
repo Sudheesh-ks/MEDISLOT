@@ -1,23 +1,32 @@
-import { userData } from "../../types/user";
-import { AppointmentDocument, AppointmentTypes } from "../../types/appointment";
-import { DoctorData } from "../../types/doctor";
+import { userTypes } from "../../types/user";
+import { AppointmentTypes } from "../../types/appointment";
+import { DoctorTypes } from "../../types/doctor";
+import { userDocument } from "../../models/userModel";
+import { AppointmentDocument } from "../../models/appointmentModel";
+import { DoctorDocument } from "../../models/doctorModel";
+import { PaginationResult } from "../../types/pagination";
 
-export interface UserDocument extends userData {
+export interface UserDocument extends userTypes {
   _id: string;
 }
 
 export interface IUserRepository {
-  create(user: Partial<userData>): Promise<UserDocument>;
-  findByEmail(email: string): Promise<UserDocument | null>;
-  findById(id: string): Promise<UserDocument | null>;
-  updateById(id: string, data: Partial<userData>): Promise<void>;
+  createUser(user: Partial<userDocument>): Promise<userDocument>;
+  findUserByEmail(email: string): Promise<userDocument | null>;
+  findUserById(id: string): Promise<userDocument | null>;
+  updateUserById(id: string, data: Partial<userTypes>): Promise<void>;
   updatePasswordByEmail(
     email: string,
     newHashedPassword: string
   ): Promise<boolean>;
-  bookAppointment(appointmentData: AppointmentTypes): Promise<any>;
-  findDoctorById(id: string): Promise<DoctorData | null>;
-  getAppointmentsByUserId(userId: string): Promise<AppointmentTypes[]>;
+  bookAppointment(appointmentData: AppointmentTypes): Promise<AppointmentDocument>;
+  findDoctorById(id: string): Promise<DoctorDocument | null>;
+  findAppointmentById(appointmentId: string): Promise<AppointmentDocument | null>;
+  getAppointmentsByUserIdPaginated(
+    userId: string,
+    page: number,
+    limit: number
+  ): Promise<PaginationResult<AppointmentDocument>>;
   cancelAppointment(userId: string, appointmentId: string): Promise<void>;
   findPayableAppointment(userId: string,appointmentId: string): Promise<AppointmentDocument>;
   saveRazorpayOrderId(appointmentId: string, orderId: string): Promise<void>;

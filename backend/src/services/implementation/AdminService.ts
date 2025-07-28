@@ -2,15 +2,20 @@ import { IAdminRepository } from "../../repositories/interface/IAdminRepository"
 import { IAdminService } from "../interface/IAdminService";
 import bcrypt from "bcrypt";
 import dotenv from "dotenv";
-import { AppointmentDocument, AppointmentTypes } from "../../types/appointment";
 import { IDoctorRepository } from "../../repositories/interface/IDoctorRepository";
-import { adminData, AdminDocument } from "../../types/admin";
 import {
   generateAccessToken,
   generateRefreshToken,
 } from "../../utils/jwt.utils";
-import { PaginationResult } from "../../repositories/interface/IAdminRepository";
 import { sendDoctorRejectionEmail } from "../../utils/mail.util";
+import { DoctorDTO } from "../../dtos/doctor.dto";
+import { UserDTO } from "../../dtos/user.dto";
+import { AppointmentDTO } from "../../dtos/appointment.dto";
+import { toUserDTO } from "../../mappers/user.mapper";
+import { toAppointmentDTO } from "../../mappers/appointment.mapper";
+import { AdminDTO } from "../../dtos/admin.dto";
+import { toAdminDTO } from "../../mappers/admin.mapper";
+import { PaginationResult } from "../../types/pagination";
 dotenv.config();
 
 export class AdminService implements IAdminService {
@@ -23,7 +28,7 @@ export class AdminService implements IAdminService {
     email: string,
     password: string
   ): Promise<{
-    admin: AdminDocument;
+    admin: AdminDTO;
     accessToken: string;
     refreshToken: string;
   }> {
@@ -40,92 +45,31 @@ export class AdminService implements IAdminService {
     );
     const refreshToken = generateRefreshToken(admin._id.toString());
 
-    return { admin, accessToken, refreshToken };
+    return { 
+      admin: toAdminDTO(admin), 
+      accessToken, 
+      refreshToken 
+    };
   }
 
-  async getAdminById(id: string): Promise<AdminDocument | null> {
-    return this._adminRepository.findAdminById(id);
+  async getAdminById(id: string): Promise<AdminDTO | null> {
+  const admin = await this._adminRepository.findAdminById(id);
+  return admin ? toAdminDTO(admin) : null;
   }
 
   async validateCredentials(
     email: string,
     password: string
-  ): Promise<adminData> {
+  ): Promise<AdminDTO> {
     const admin = await this._adminRepository.findByEmail(email);
     if (!admin) throw new Error("Admin not found");
 
     const isMatch = await bcrypt.compare(password, admin.password);
     if (!isMatch) throw new Error("Invalid credentials");
 
-    return admin;
+  return toAdminDTO(admin);
   }
 
-  // async addDoctor(data: DoctorDTO): Promise<string> {
-  //   const {
-  //     name,
-  //     email,
-  //     password,
-  //     speciality,
-  //     degree,
-  //     experience,
-  //     about,
-  //     fees,
-  //     address,
-  //     imagePath,
-  //   } = data;
-
-  //   if (
-  //     !name ||
-  //     !email ||
-  //     !password ||
-  //     !speciality ||
-  //     !degree ||
-  //     !experience ||
-  //     !about ||
-  //     !fees ||
-  //     !address
-  //   ) {
-  //     throw new Error("All Fields Required");
-  //   }
-
-  //   if (!isValidEmail(email)) {
-  //     throw new Error("Invalid Email");
-  //   }
-
-  //   if (!isValidPassword(password)) {
-  //     throw new Error(
-  //       "Password must be at least 8 characters long, contain at least 1 letter, 1 number, and 1 special character"
-  //     );
-  //   }
-
-  //   const salt = await bcrypt.genSalt(10);
-  //   const hashedPassword = await bcrypt.hash(password, salt);
-
-  //   let imageUrl = "";
-  //   if (imagePath) {
-  //     const uploadResult = await cloudinary.uploader.upload(imagePath, {
-  //       resource_type: "image",
-  //     });
-  //     imageUrl = uploadResult.secure_url;
-  //   }
-
-  //   const doctorData: DoctorData = {
-  //     name,
-  //     email,
-  //     image: imageUrl,
-  //     password: hashedPassword,
-  //     speciality,
-  //     degree,
-  //     experience,
-  //     about,
-  //     fees,
-  //     address,
-  //     date: new Date(),
-  //   };
-
-  //   await this._adminRepository.saveDoctor(doctorData);
-  //   return "Doctor added successfully";
-  // }
 
   async approveDoctor(doctorId: string): Promise<string> {
     const doctor = await this._doctorRepository.findById(doctorId);
@@ -162,35 +106,55 @@ export class AdminService implements IAdminService {
   async getDoctorsPaginated(
     page: number,
     limit: number
-  ): Promise<PaginationResult<any>> {
+  ): Promise<PaginationResult<DoctorDTO>> {
     return await this._adminRepository.getDoctorsPaginated(page, limit);
   }
 
-  async getUsers(): Promise<any[]> {
-    return await this._adminRepository.getAllUsers();
+  async getUsers(): Promise<UserDTO[]> {
+  const users = await this._adminRepository.getAllUsers();
+  return users.map(toUserDTO);
   }
 
-  async getUsersPaginated(
-    page: number,
-    limit: number
-  ): Promise<PaginationResult<any>> {
-    return await this._adminRepository.getUsersPaginated(page, limit);
-  }
+async getUsersPaginated(
+  page: number,
+  limit: number
+): Promise<PaginationResult<UserDTO>> {
+  const result = await this._adminRepository.getUsersPaginated(page, limit);
+
+  return {
+    data: result.data.map(toUserDTO),
+    totalCount: result.totalCount,
+    currentPage: result.currentPage,
+    totalPages: result.totalPages,
+    hasNextPage: result.hasNextPage,
+    hasPrevPage: result.hasPrevPage,
+  };
+}
 
   async toggleUserBlock(userId: string, block: boolean): Promise<string> {
     return await this._adminRepository.toggleUserBlock(userId);
   }
 
-  async listAppointments(): Promise<AppointmentDocument[]> {
-    return await this._adminRepository.getAllAppointments();
+  async listAppointments(): Promise<AppointmentDTO[]> {
+  const appointments = await this._adminRepository.getAllAppointments();
+  return appointments.map(toAppointmentDTO);
   }
 
-  async listAppointmentsPaginated(
-    page: number,
-    limit: number
-  ): Promise<PaginationResult<AppointmentTypes>> {
-    return await this._adminRepository.getAppointmentsPaginated(page, limit);
-  }
+async listAppointmentsPaginated(
+  page: number,
+  limit: number
+): Promise<PaginationResult<AppointmentDTO>> {
+  const result = await this._adminRepository.getAppointmentsPaginated(page, limit);
+
+  return {
+    data: result.data.map(toAppointmentDTO),
+    totalCount: result.totalCount,
+    currentPage: result.currentPage,
+    totalPages: result.totalPages,
+    hasNextPage: result.hasNextPage,
+    hasPrevPage: result.hasPrevPage,
+  };
+}
 
   async cancelAppointment(appointmentId: string): Promise<void> {
     await this._adminRepository.cancelAppointment(appointmentId);

@@ -1,34 +1,30 @@
+import { AppointmentDocument } from "../../models/appointmentModel";
+import { DoctorDocument } from "../../models/doctorModel";
 import { AppointmentTypes } from "../../types/appointment";
-import { DoctorData, DoctorDocument } from "../../types/doctor";
+import { DoctorTypes } from "../../types/doctor";
+import { PaginationResult } from "../../types/pagination";
 
-export interface PaginationResult<T> {
-  data: T[];
-  totalCount: number;
-  currentPage: number;
-  totalPages: number;
-  hasNextPage: boolean;
-  hasPrevPage: boolean;
-}
+
 
 export interface IDoctorRepository {
-  registerDoctor(data: DoctorData): Promise<DoctorDocument>;
-  findById(id: string): Promise<DoctorData | null>;
+  registerDoctor(data: DoctorTypes): Promise<DoctorDocument>;
+  findById(id: string): Promise<DoctorDocument | null>;
   updateAvailability(id: string, available: boolean): Promise<void>;
-  findAllDoctors(): Promise<Partial<DoctorData>[]>;
-  getDoctorsPaginated(page: number, limit: number): Promise<PaginationResult<Partial<DoctorData>>>;
-  findByEmail(email: string): Promise<DoctorData | null>;
+  findAllDoctors(): Promise<DoctorDocument[]>;
+  getDoctorsPaginated(page: number, limit: number): Promise<PaginationResult<DoctorDocument>>;
+  findByEmail(email: string): Promise<DoctorDocument | null>;
   save(doctor: DoctorDocument): Promise<void>
-  findAppointmentsByDoctorId(docId: string): Promise<AppointmentTypes[]>;
-  getAppointmentsPaginated(docId: string, page: number, limit: number): Promise<PaginationResult<AppointmentTypes>>;
-  findAppointmentById(id: string): Promise<AppointmentTypes | null>;
+  findAppointmentsByDoctorId(docId: string): Promise<AppointmentDocument[]>;
+  getAppointmentsPaginated(docId: string, page: number, limit: number): Promise<PaginationResult<AppointmentDocument>>;
+  findAppointmentById(id: string): Promise<AppointmentDocument | null>;
   markAppointmentAsConfirmed(id: string): Promise<void>;
   cancelAppointment(id: string): Promise<void>;
-  getDoctorProfileById(id: string): Promise<DoctorData | null>;
+  getDoctorProfileById(id: string): Promise<DoctorDocument | null>;
   updateDoctorProfile(
   id: string,
   updateData: Partial<
     Pick<
-      DoctorData,
+      DoctorTypes,
       "name" | "speciality" | "degree" | "experience" | "about" | "fees" | "address" | "image" | "available"
     >
   >

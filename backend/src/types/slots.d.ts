@@ -1,17 +1,18 @@
-import { Document } from "mongoose";
+import { Types } from "mongoose";
 
-
-export interface SlotDocument extends Document {
+export interface slotTypes {
+  _id?: string;
   doctorId: Object;
-  date: string; 
+  date: string;
   slots: {
-    isAvailable: boolean; start: string; end: string; booked: boolean 
-}[];
+    isAvailable: boolean;
+    start: string;
+    end: string;
+    booked: boolean;
+  }[];
   isCancelled: boolean;
 }
 
-
-// src/types/slots.ts  (or similar)
 export interface SlotRange {
   start: string;
   end: string;
