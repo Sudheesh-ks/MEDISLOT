@@ -1,4 +1,4 @@
-import { assets } from "../../assets/user/assets";
+import { assets } from '../../assets/user/assets';
 
 const Footer = () => (
   <footer className="bg-slate-950 text-slate-400">
@@ -10,8 +10,8 @@ const Footer = () => (
           className="w-40 mb-4"
         />
         <p className="max-w-sm leading-7">
-          MediSlot brings world‑class healthcare to your fingertips with instant
-          booking, secure video consults, and digital records — all wrapped in a
+          MediSlot brings world class healthcare to your fingertips with instant
+          booking, secure video consults, and digital records — all wrapped in a
           stunning experience.
         </p>
       </div>
@@ -36,7 +36,7 @@ const Footer = () => (
     </div>
 
     <p className="text-center text-xs py-6 border-t border-white/10">
-      © 2025 MediSlot • All rights reserved
+      © 2025 MediSlot • All rights reserved
     </p>
   </footer>
 );

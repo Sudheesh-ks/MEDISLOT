@@ -1,8 +1,8 @@
-import axios, { type AxiosRequestConfig } from "axios";
+import axios, { type AxiosRequestConfig } from 'axios';
 import {
   getAdminAccessToken,
   updateAdminAccessToken,
-} from "../context/tokenManagerAdmin";
+} from '../context/tokenManagerAdmin';
 
 export const adminApi = axios.create({
   baseURL: import.meta.env.VITE_BACKEND_URL,

@@ -1,27 +1,26 @@
-import { useContext, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { AdminContext } from "../../context/AdminContext";
-import { AppContext } from "../../context/AppContext";
-import { assets } from "../../assets/admin/assets";
-import { motion } from "framer-motion";
-import SearchBar from "../../components/common/SearchBar";
-import Pagination from "../../components/common/Pagination";
-import DataTable from "../../components/common/DataTable";
-import { updateItemInList } from "../../utils/stateHelper.util";
+import { useContext, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { AdminContext } from '../../context/AdminContext';
+import { AppContext } from '../../context/AppContext';
+import { assets } from '../../assets/admin/assets';
+import { motion } from 'framer-motion';
+import SearchBar from '../../components/common/SearchBar';
+import Pagination from '../../components/common/Pagination';
+import DataTable from '../../components/common/DataTable';
+import { updateItemInList } from '../../utils/stateHelper.util';
 
-const glass = "bg-white/5 backdrop-blur ring-1 ring-white/10";
-const grad = "from-cyan-500 to-fuchsia-600";
+const glass = 'bg-white/5 backdrop-blur ring-1 ring-white/10';
 
 const AdminAppointments = () => {
   const nav = useNavigate();
   const adminCtx = useContext(AdminContext);
   const appCtx = useContext(AppContext);
-  if (!adminCtx || !appCtx) throw new Error("Missing contexts");
+  if (!adminCtx || !appCtx) throw new Error('Missing contexts');
 
   const { aToken, getAppointmentsPaginated, cancelAppointment } = adminCtx;
   const { calculateAge, slotDateFormat, currencySymbol } = appCtx;
 
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [rows, setRows] = useState<any[]>([]);
   const [pages, setPages] = useState(1);
@@ -44,7 +43,7 @@ const AdminAppointments = () => {
   };
 
   useEffect(() => {
-    if (!aToken) nav("/admin/login");
+    if (!aToken) nav('/admin/login');
   }, [aToken, nav]);
 
   const filtered = rows.filter((it) => {
@@ -57,37 +56,37 @@ const AdminAppointments = () => {
 
   const columns = [
     {
-      key: "#",
-      header: "#",
-      width: "0.5fr",
+      key: '#',
+      header: '#',
+      width: '0.5fr',
       hideOnMobile: true,
       render: (_: any, i: number) => <p>{(page - 1) * perPage + i + 1}</p>,
     },
     {
-      key: "patient",
-      header: "Patient",
-      width: "3fr",
+      key: 'patient',
+      header: 'Patient',
+      width: '3fr',
       render: (it: any) => (
         <div className="flex items-center gap-2">
           <img
             className="w-10 h-10 rounded-full object-cover ring-1 ring-white/10"
-            src={it.userData?.image || "/default-avatar.png"}
+            src={it.userData?.image || '/default-avatar.png'}
           />
           <p className="truncate">{it.userData?.name}</p>
         </div>
       ),
     },
     {
-      key: "age",
-      header: "Age",
-      width: "1fr",
+      key: 'age',
+      header: 'Age',
+      width: '1fr',
       hideOnMobile: true,
       render: (it: any) => calculateAge(it.userData?.dob),
     },
     {
-      key: "dt",
-      header: "Date & Time",
-      width: "3fr",
+      key: 'dt',
+      header: 'Date & Time',
+      width: '3fr',
       render: (it: any) => (
         <p className="truncate text-xs">
           {slotDateFormat(it.slotDate)}, {it.slotTime}
@@ -95,23 +94,23 @@ const AdminAppointments = () => {
       ),
     },
     {
-      key: "doctor",
-      header: "Doctor",
-      width: "3fr",
+      key: 'doctor',
+      header: 'Doctor',
+      width: '3fr',
       render: (it: any) => (
         <div className="flex items-center gap-2">
           <img
             className="w-9 h-9 rounded-full object-cover ring-1 ring-white/10"
-            src={it.docData?.image || "/default-avatar.png"}
+            src={it.docData?.image || '/default-avatar.png'}
           />
           <p className="truncate">{it.docData?.name}</p>
         </div>
       ),
     },
     {
-      key: "fees",
-      header: "Fees",
-      width: "1fr",
+      key: 'fees',
+      header: 'Fees',
+      width: '1fr',
       render: (it: any) => (
         <>
           {currencySymbol}
@@ -120,9 +119,9 @@ const AdminAppointments = () => {
       ),
     },
     {
-      key: "actions",
-      header: "Actions",
-      width: "1fr",
+      key: 'actions',
+      header: 'Actions',
+      width: '1fr',
       render: (it: any) =>
         it.cancelled ? (
           <span className="text-xs font-semibold text-red-400">Cancelled</span>
@@ -137,8 +136,8 @@ const AdminAppointments = () => {
             className="w-7 cursor-pointer hover:opacity-80"
             onClick={(e) => {
               e.stopPropagation();
-              cancelAppointment(it._id!);
-setRows((prev) => updateItemInList(prev, it._id!, { cancelled: true }));
+              cancelAppointment(it._id);
+setRows((prev) => updateItemInList(prev, it._id, { cancelled: true }));
             }}
           />
         ),

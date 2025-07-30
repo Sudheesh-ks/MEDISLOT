@@ -3,10 +3,12 @@ import { Schema, model } from "mongoose";
 const chatSchema = new Schema({
   _id: String,
 
-  participants: [{ 
-    id: String, 
-    role: String 
-  }],
+  participants: [
+    {
+      id: String,
+      role: String,
+    },
+  ],
 
   lastMessage: {
     type: Schema.Types.ObjectId,
@@ -14,7 +16,7 @@ const chatSchema = new Schema({
   },
 
   lastMessageAt: Date,
-  
+
   unreadCount: {
     type: Map,
     of: Number,

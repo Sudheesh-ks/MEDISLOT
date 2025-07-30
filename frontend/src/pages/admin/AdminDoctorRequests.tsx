@@ -1,40 +1,40 @@
-import { useContext, useEffect, useState } from "react";
-import { AdminContext } from "../../context/AdminContext";
-import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
-import SearchBar from "../../components/common/SearchBar";
-import Pagination from "../../components/common/Pagination";
-import { updateItemInList } from "../../utils/stateHelper.util";
+import { useContext, useEffect, useState } from 'react';
+import { AdminContext } from '../../context/AdminContext';
+import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import SearchBar from '../../components/common/SearchBar';
+import Pagination from '../../components/common/Pagination';
+import { updateItemInList } from '../../utils/stateHelper.util';
 
 const AdminDoctorRequests = () => {
   const nav = useNavigate();
   const ctx = useContext(AdminContext);
-  if (!ctx) throw new Error("AdminContext missing");
+  if (!ctx) throw new Error('AdminContext missing');
 
   const { aToken, getDoctorsPaginated, approveDoctor, rejectDoctor } = ctx;
 
   const [page, setPage] = useState(1);
   const [rows, setRows] = useState<any[]>([]);
   const [pages, setPages] = useState(1);
-  const [count, setCount] = useState(0);
+  // const [count, setCount] = useState(0);
   const [load, setLoad] = useState(false);
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState('');
 
   const [showModal, setShowModal] = useState(false);
-  const [reason, setReason] = useState("");
+  const [reason, setReason] = useState('');
   const [currentId, setCurrentId] = useState<string | null>(null);
 
-  const perPage = 6;
+  const perPage = 10;
 
   useEffect(() => {
     if (aToken) fetchRows();
   }, [aToken, page]);
 
   useEffect(() => {
-    if (!aToken) nav("/admin/login");
+    if (!aToken) nav('/admin/login');
   }, [aToken]);
 
-  useEffect(() => window.scrollTo({ top: 0, behavior: "smooth" }), [page]);
+  useEffect(() => window.scrollTo({ top: 0, behavior: 'smooth' }), [page]);
 
   const fetchRows = async () => {
     try {
@@ -42,9 +42,9 @@ const AdminDoctorRequests = () => {
       const r = await getDoctorsPaginated(page, perPage);
       setRows(r.data);
       setPages(r.totalPages);
-      setCount(r.totalCount);
+      // setCount(r.totalCount);
     } catch (err) {
-      console.error("Failed to fetch doctors", err);
+      console.error('Failed to fetch doctors', err);
     } finally {
       setLoad(false);
     }
@@ -53,13 +53,13 @@ const AdminDoctorRequests = () => {
   const doApprove = async (id: string) => {
     await approveDoctor(id);
     setRows((prev) =>
-      updateItemInList(prev, id, { status: "approved" })
+      updateItemInList(prev, id, { status: 'approved' })
     );
   };
 
   const openModal = (id: string) => {
     setCurrentId(id);
-    setReason("");
+    setReason('');
     setShowModal(true);
   };
 
@@ -67,22 +67,22 @@ const AdminDoctorRequests = () => {
     if (!currentId) return;
     await rejectDoctor(currentId, reason.trim());
     setRows((prev) =>
-      updateItemInList(prev, currentId, { status: "rejected" })
+      updateItemInList(prev, currentId, { status: 'rejected' })
     );
     setShowModal(false);
   };
 
   const pending = rows
-    .filter((d) => d.status === "pending")
+    .filter((d) => d.status === 'pending')
     .filter(
       (d) =>
         d.name?.toLowerCase().includes(query.toLowerCase()) ||
         d.speciality?.toLowerCase().includes(query.toLowerCase())
     );
 
-  const glass = "bg-white/5 backdrop-blur ring-1 ring-white/10";
+  const glass = 'bg-white/5 backdrop-blur ring-1 ring-white/10';
   const pill =
-    "text-xs font-medium px-4 py-1.5 rounded-md shadow-lg hover:-translate-y-0.5 hover:scale-105 transition-all duration-300";
+    'text-xs font-medium px-4 py-1.5 rounded-md shadow-lg hover:-translate-y-0.5 hover:scale-105 transition-all duration-300';
 
   return (
     <div className="m-5 text-slate-100 max-h-[90vh] overflow-y-auto">
@@ -181,8 +181,8 @@ const AdminDoctorRequests = () => {
                 disabled={!reason.trim()}
                 className={`${pill} ${
                   reason.trim()
-                    ? "bg-gradient-to-r from-red-500 to-red-600 text-white"
-                    : "bg-slate-500 opacity-60 cursor-not-allowed"
+                    ? 'bg-gradient-to-r from-red-500 to-red-600 text-white'
+                    : 'bg-slate-500 opacity-60 cursor-not-allowed'
                 }`}
               >
                 Reject

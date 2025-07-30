@@ -1,8 +1,8 @@
-import { assets } from "../../assets/user/assets";
-import { useNavigate } from "react-router-dom";
-import { useContext } from "react";
-import { AppContext } from "../../context/AppContext";
-import { NotifContext } from "../../context/NotificationContext";
+import { assets } from '../../assets/user/assets';
+import { useNavigate } from 'react-router-dom';
+import React, { useContext } from 'react';
+import { AppContext } from '../../context/AppContext';
+import { NotifContext } from '../../context/NotificationContext';
 
 type ChatCardProps = { doctorId?: string };
 
@@ -11,7 +11,7 @@ const ChatCard: React.FC<ChatCardProps> = ({ doctorId }) => {
   const { userData } = useContext(AppContext)!;
   const { unread } = useContext(NotifContext);
   const chatKey =
-    userData?._id && doctorId ? `${userData._id}_${doctorId}` : "";
+    userData?._id && doctorId ? `${userData._id}_${doctorId}` : '';
   const unreadCount = chatKey ? unread[chatKey] ?? 0 : 0;
   return (
     <div className="flex flex-col bg-white/5 backdrop-blur ring-1 ring-white/10 rounded-3xl overflow-hidden h-full">

@@ -1,33 +1,33 @@
-import { useContext, useEffect, useState } from "react";
-import { AdminContext } from "../../context/AdminContext";
-import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
-import SearchBar from "../../components/common/SearchBar";
-import Pagination from "../../components/common/Pagination";
-import DataTable from "../../components/common/DataTable";
-import { updateItemInList } from "../../utils/stateHelper.util";
+import { useContext, useEffect, useState } from 'react';
+import { AdminContext } from '../../context/AdminContext';
+import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import SearchBar from '../../components/common/SearchBar';
+import Pagination from '../../components/common/Pagination';
+import DataTable from '../../components/common/DataTable';
+import { updateItemInList } from '../../utils/stateHelper.util';
 
 const AdminUsersList = () => {
   const nav = useNavigate();
   const ctx = useContext(AdminContext);
-  if (!ctx) throw new Error("AdminContext missing");
+  if (!ctx) throw new Error('AdminContext missing');
 
   const { aToken, getUsersPaginated, toggleBlockUser } = ctx;
 
   const [page, setPage] = useState(1);
   const [rows, setRows] = useState<any[]>([]);
   const [pages, setPages] = useState(1);
-  const [cnt, setCnt] = useState(0);
+  // const [cnt, setCnt] = useState(0);
   const [loading, setLoading] = useState(false);
   const perPage = 6;
-  const [q, setQ] = useState("");
+  const [q, setQ] = useState('');
 
   useEffect(() => {
     if (aToken) fetchRows();
   }, [aToken, page]);
 
   useEffect(() => {
-    if (!aToken) nav("/admin/login");
+    if (!aToken) nav('/admin/login');
   }, [aToken]);
 
   const fetchRows = async () => {
@@ -36,96 +36,100 @@ const AdminUsersList = () => {
       const res = await getUsersPaginated(page, perPage);
       setRows(res.data);
       setPages(res.totalPages);
-      setCnt(res.totalCount);
+      // setCnt(res.totalCount);
     } finally {
       setLoading(false);
     }
   };
 
   const doToggle = async (id: string) => {
-    await toggleBlockUser(id);
-    // fetchRows();
-    setRows((prev) =>
-      updateItemInList(prev, id, (item: any) => ({ isBlocked: !item.isBlocked }))
-    );
+  await toggleBlockUser(id); 
+
+  setRows((prev) =>
+  updateItemInList(prev, id, (item: any) => ({
+    ...item,
+    isBlocked: !item.isBlocked,
+  }))
+);
   };
 
   const filtered = rows.filter(
     (u) =>
-      (u.name || "").toLowerCase().includes(q.toLowerCase()) ||
-      (u.email || "").toLowerCase().includes(q.toLowerCase())
+      (u.name || '').toLowerCase().includes(q.toLowerCase()) ||
+      (u.email || '').toLowerCase().includes(q.toLowerCase())
   );
 
   const cols = [
     {
-      key: "#",
-      header: "#",
-      width: "0.5fr",
+      key: '#',
+      header: '#',
+      width: '0.5fr',
       hideOnMobile: true,
       render: (_: any, i: number) => (page - 1) * perPage + i + 1,
     },
     {
-      key: "img",
-      header: "Image",
-      width: "2fr",
+      key: 'img',
+      header: 'Image',
+      width: '2fr',
       render: (it: any) => (
         <img
-          src={it.image || "/default-avatar.png"}
+          src={it.image || '/default-avatar.png'}
           className="w-10 h-10 rounded-full object-cover ring-1 ring-white/10"
         />
       ),
     },
     {
-      key: "name",
-      header: "Name",
-      width: "2fr",
+      key: 'name',
+      header: 'Name',
+      width: '2fr',
       render: (it: any) => <span className="font-medium">{it.name}</span>,
     },
     {
-      key: "mail",
-      header: "Email",
-      width: "3fr",
+      key: 'mail',
+      header: 'Email',
+      width: '3fr',
       render: (it: any) => (
         <span className="text-slate-400 text-sm">{it.email}</span>
       ),
     },
     {
-      key: "st",
-      header: "Status",
-      width: "1.5fr",
+      key: 'st',
+      header: 'Status',
+      width: '1.5fr',
       render: (it: any) => (
         <span
           className={`px-3 py-0.5 text-xs rounded-full font-semibold
             ${
               it.isBlocked
-                ? "bg-red-500/20 text-red-400"
-                : "bg-emerald-500/20 text-emerald-400"
+                ? 'bg-red-500/20 text-red-400'
+                : 'bg-emerald-500/20 text-emerald-400'
             }`}
         >
-          {it.isBlocked ? "Blocked" : "Active"}
+          {it.isBlocked ? 'Blocked' : 'Active'}
         </span>
       ),
     },
     {
-      key: "act",
-      header: "Action",
-      width: "1.5fr",
-      className: "text-right pr-4",
+      key: 'act',
+      header: 'Action',
+      width: '1.5fr',
+      className: 'text-right pr-4',
       render: (it: any) => (
         <motion.button
           whileTap={{ scale: 0.92 }}
           onClick={(e) => {
             e.stopPropagation();
             doToggle(it._id);
+            setRows((prev) => updateItemInList(prev, it._id, { isBlocked: !it.isBlocked }));
           }}
           className={`px-4 py-1.5 text-xs rounded-lg font-medium shadow-md
             ${
               it.isBlocked
-                ? "bg-gradient-to-r from-emerald-500 to-cyan-500 text-white"
-                : "bg-gradient-to-r from-red-500 to-fuchsia-500 text-white"
+                ? 'bg-gradient-to-r from-emerald-500 to-cyan-500 text-white'
+                : 'bg-gradient-to-r from-red-500 to-fuchsia-500 text-white'
             }`}
         >
-          {it.isBlocked ? "Unblock" : "Block"}
+          {it.isBlocked ? 'Unblock' : 'Block'}
         </motion.button>
       ),
     },

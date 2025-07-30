@@ -1,11 +1,14 @@
+import type { DoctorProfileType } from './doctor';
+import type { userData } from './user';
+
 export interface AppointmentTypes {
   _id?: string;
   userId: string;
   docId: string;
   slotDate: string;
   slotTime: string;
-  userData: Record<string, any>;
-  docData: Record<string, any>;
+  userData: userData;
+  docData: DoctorProfileType;
   amount: number;
   date: Date;
   cancelled?: boolean;

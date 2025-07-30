@@ -1,6 +1,6 @@
-import { api } from "../axios/axiosInstance";
-import { PAYMENT_API } from "../constants/apiRoutes";
-import type { RazorpayPaymentResponse } from "../types/razorpay";
+import { api } from '../axios/axiosInstance';
+import { PAYMENT_API } from '../constants/apiRoutes';
+import type { RazorpayPaymentResponse } from '../types/razorpay';
 
 // Initiate Razorpay payment
 export const PaymentRazorpayAPI = async (

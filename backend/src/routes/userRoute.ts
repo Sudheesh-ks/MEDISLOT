@@ -5,7 +5,6 @@ import { UserRepository } from "../repositories/implementation/UserRepository";
 import upload from "../middlewares/multer";
 import { PaymentService } from "../services/implementation/PaymentService";
 import authRole from "../middlewares/authRole";
-// import { ChatController } from '../controllers/implementation/ChatController';
 
 const userRepository = new UserRepository();
 const paymentService = new PaymentService();
@@ -26,7 +25,10 @@ userRouter.post(
   "/password/reset",
   userController.resetPassword.bind(userController)
 );
-userRouter.post("/refresh-token", userController.refreshToken.bind(userController));
+userRouter.post(
+  "/refresh-token",
+  userController.refreshToken.bind(userController)
+);
 userRouter.post("/logout", userController.logout.bind(userController));
 userRouter.get(
   "/profile",
@@ -73,9 +75,6 @@ userRouter.get(
   userController.getAvailableSlotsByDate.bind(userController)
 );
 
-
 userRouter.get("/:id", userController.getUserById.bind(userController));
-
-
 
 export default userRouter;

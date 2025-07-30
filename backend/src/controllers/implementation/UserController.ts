@@ -3,20 +3,9 @@ import { IUserService } from "../../services/interface/IUserService";
 import { HttpStatus } from "../../constants/status.constants";
 import { HttpResponse } from "../../constants/responseMessage.constants";
 import { IUserController } from "../interface/IuserController.interface";
-import { otpStore } from "../../utils/otpStore";
-import { sendOTP } from "../../utils/mail.util";
-import { generateOTP } from "../../utils/otp.util";
-import {
-  isValidName,
-  isValidEmail,
-  isValidPassword,
-} from "../../utils/validator";
 import { PaymentService } from "../../services/implementation/PaymentService";
-import {
-  generateAccessToken,
-  generateRefreshToken,
-  verifyRefreshToken,
-} from "../../utils/jwt.utils";
+import { generateAccessToken } from "../../utils/jwt.utils";
+import logger from "../../utils/logger";
 
 export class UserController implements IUserController {
   constructor(
@@ -24,418 +13,445 @@ export class UserController implements IUserController {
     private _paymentService: PaymentService
   ) {}
 
+  async registerUser(req: Request, res: Response): Promise<void> {
+    const { name, email, password } = req.body;
 
+    try {
+      await this._userService.register(name, email, password);
+      logger.info(`OTP sent to ${email}`);
 
- async registerUser(req: Request, res: Response): Promise<void> {
-  const { name, email, password } = req.body;
+      res
+        .status(HttpStatus.OK)
+        .json({ success: true, message: HttpResponse.OTP_SENT });
+    } catch (error) {
+      logger.error(`Register Error: ${error}`);
 
-  try {
-    await this._userService.register(name, email, password);
-    res
-      .status(HttpStatus.OK)
-      .json({ success: true, message: HttpResponse.OTP_SENT });
-  } catch (error) {
-    res.status(HttpStatus.BAD_REQUEST).json({
-      success: false,
-      message: (error as Error).message || HttpResponse.SERVER_ERROR,
-    });
+      res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: (error as Error).message || HttpResponse.SERVER_ERROR,
+      });
+    }
   }
-}
 
+  async verifyOtp(req: Request, res: Response): Promise<void> {
+    const { email, otp } = req.body;
 
- async verifyOtp(req: Request, res: Response): Promise<void> {
-  const { email, otp } = req.body;
+    try {
+      const { purpose, user, refreshToken } = await this._userService.verifyOtp(
+        email,
+        otp
+      );
 
-  try {
-    const { purpose, user, refreshToken } = await this._userService.verifyOtp(email, otp);
+      if (purpose === "register" && user && user._id && refreshToken) {
+        res.cookie("refreshToken_user", refreshToken, {
+          httpOnly: true,
+          path: "/api/user/refresh-token",
+          secure: process.env.NODE_ENV === "production",
+          sameSite: "strict",
+          maxAge: 7 * 24 * 60 * 60 * 1000,
+        });
+        logger.info(`User ${email} verified & registered.`);
+        res.status(HttpStatus.CREATED).json({
+          success: true,
+          token: generateAccessToken(user._id, user.email, "user"),
+          message: HttpResponse.REGISTER_SUCCESS,
+        });
+        return;
+      }
 
-    if (purpose === "register" && user && user._id && refreshToken) {
+      if (purpose === "reset-password") {
+        res.status(HttpStatus.OK).json({
+          success: true,
+          message: HttpResponse.OTP_VERIFIED,
+        });
+        return;
+      }
+
+      res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: HttpResponse.BAD_REQUEST,
+      });
+    } catch (error) {
+      logger.warn(
+        `OTP verification failed for ${email}: ${(error as Error).message}`
+      );
+      res.status(HttpStatus.UNAUTHORIZED).json({
+        success: false,
+        message: (error as Error).message || HttpResponse.OTP_INVALID,
+      });
+    }
+  }
+
+  async resendOtp(req: Request, res: Response): Promise<void> {
+    try {
+      const { email } = req.body;
+
+      await this._userService.resendOtp(email);
+      logger.info(`OTP resent to ${email}`);
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: HttpResponse.OTP_RESENT,
+      });
+    } catch (error) {
+      logger.error(`Resend OTP Error for ${req.body.email}: ${error}`);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message || HttpResponse.OTP_SEND_FAILED,
+      });
+    }
+  }
+
+  async forgotPasswordRequest(req: Request, res: Response): Promise<void> {
+    try {
+      const { email } = req.body;
+
+      await this._userService.forgotPasswordRequest(email);
+      logger.info(`Forgot password OTP sent to ${email}`);
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: HttpResponse.RESET_EMAIL_SENT,
+      });
+    } catch (error) {
+      logger.error(`Forgot Password Request Error: ${error}`);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message || HttpResponse.OTP_SEND_FAILED,
+      });
+    }
+  }
+
+  async resetPassword(req: Request, res: Response): Promise<void> {
+    try {
+      const { email, newPassword } = req.body;
+
+      await this._userService.resetPassword(email, newPassword);
+      logger.info(`Password reset for ${email}`);
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: HttpResponse.PASSWORD_UPDATED,
+      });
+    } catch (error) {
+      logger.error(`Reset Password Error: ${error}`);
+      res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message:
+          (error as Error).message || HttpResponse.OTP_EXPIRED_OR_INVALID,
+      });
+    }
+  }
+
+  async loginUser(req: Request, res: Response): Promise<void> {
+    try {
+      const { email, password } = req.body;
+
+      const { user, token, refreshToken } = await this._userService.login(
+        email,
+        password
+      );
+
       res.cookie("refreshToken_user", refreshToken, {
         httpOnly: true,
         path: "/api/user/refresh-token",
         secure: process.env.NODE_ENV === "production",
         sameSite: "strict",
-        maxAge: 7 * 24 * 60 * 60 * 1000,
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       });
-
-      res.status(HttpStatus.CREATED).json({
-        success: true,
-        token: generateAccessToken(user._id, user.email, "user"),
-        message: HttpResponse.REGISTER_SUCCESS,
-      });
-      return;
-    }
-
-    if (purpose === "reset-password") {
+      logger.info(`User ${email} logged in`);
       res.status(HttpStatus.OK).json({
         success: true,
-        message: HttpResponse.OTP_VERIFIED,
+        token,
+        message: HttpResponse.LOGIN_SUCCESS,
       });
-      return;
+    } catch (error) {
+      logger.warn(`Login failed for ${req.body.email}`);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
     }
-
-    res.status(HttpStatus.BAD_REQUEST).json({
-      success: false,
-      message: HttpResponse.BAD_REQUEST,
-    });
-  } catch (error) {
-    res.status(HttpStatus.UNAUTHORIZED).json({
-      success: false,
-      message: (error as Error).message || HttpResponse.OTP_INVALID,
-    });
   }
-}
-
-
- async resendOtp(req: Request, res: Response): Promise<void> {
-  try {
-    const { email } = req.body;
-
-    await this._userService.resendOtp(email);
-
-    res.status(HttpStatus.OK).json({
-      success: true,
-      message: HttpResponse.OTP_RESENT,
-    });
-  } catch (error) {
-    console.error("Resend OTP error:", error);
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: (error as Error).message || HttpResponse.OTP_SEND_FAILED,
-    });
-  }
-}
-
-
-  async forgotPasswordRequest(req: Request, res: Response): Promise<void> {
-  try {
-    const { email } = req.body;
-
-    await this._userService.forgotPasswordRequest(email);
-
-    res.status(HttpStatus.OK).json({
-      success: true,
-      message: HttpResponse.RESET_EMAIL_SENT,
-    });
-  } catch (error) {
-    console.error("Forgot Password OTP Error:", error);
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: (error as Error).message || HttpResponse.OTP_SEND_FAILED,
-    });
-  }
-}
-
-async resetPassword(req: Request, res: Response): Promise<void> {
-  try {
-    const { email, newPassword } = req.body;
-
-    await this._userService.resetPassword(email, newPassword);
-
-    res.status(HttpStatus.OK).json({
-      success: true,
-      message: HttpResponse.PASSWORD_UPDATED,
-    });
-  } catch (error) {
-    console.error("Reset Password Error:", error);
-    res.status(HttpStatus.BAD_REQUEST).json({
-      success: false,
-      message: (error as Error).message || HttpResponse.OTP_EXPIRED_OR_INVALID,
-    });
-  }
-}
-
-
-  async loginUser(req: Request, res: Response): Promise<void> {
-  try {
-    const { email, password } = req.body;
-
-    const { user, token, refreshToken } = await this._userService.login(
-      email,
-      password
-    );
-
-    res.cookie("refreshToken_user", refreshToken, {
-      httpOnly: true,
-      path: "/api/user/refresh-token",
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    });
-
-    res.status(HttpStatus.OK).json({
-      success: true,
-      token,
-      message: HttpResponse.LOGIN_SUCCESS,
-    });
-  } catch (error) {
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: (error as Error).message,
-    });
-  }
-}
 
   async refreshToken(req: Request, res: Response): Promise<void> {
-  try {
-    const refreshToken = req.cookies?.refreshToken_user;
+    try {
+      const refreshToken = req.cookies?.refreshToken_user;
 
-    const { token, refreshToken: newRefreshToken } =
-      await this._userService.refreshToken(refreshToken);
+      const { token, refreshToken: newRefreshToken } =
+        await this._userService.refreshToken(refreshToken);
 
-    res.cookie("refreshToken_user", newRefreshToken, {
-      httpOnly: true,
-      path: "/api/user/refresh-token",
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
-    });
-
-    res.status(HttpStatus.OK).json({ success: true, token });
-  } catch (error) {
-    res.status(HttpStatus.UNAUTHORIZED).json({
-      success: false,
-      message: (error as Error).message || HttpResponse.REFRESH_TOKEN_FAILED,
-    });
+      res.cookie("refreshToken_user", newRefreshToken, {
+        httpOnly: true,
+        path: "/api/user/refresh-token",
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      });
+      logger.info(`Refresh token issued`);
+      res.status(HttpStatus.OK).json({ success: true, token });
+    } catch (error) {
+      logger.warn(`Refresh token failed`);
+      res.status(HttpStatus.UNAUTHORIZED).json({
+        success: false,
+        message: (error as Error).message || HttpResponse.REFRESH_TOKEN_FAILED,
+      });
+    }
   }
-}
 
- async logout(req: Request, res: Response): Promise<void> {
-  try {
-    res.clearCookie("refreshToken_user", {
-      httpOnly: true,
-      secure: true,
-      path: "/api/user/refresh-token",
-      sameSite: "strict",
-    });
-    res.status(HttpStatus.OK).json({ success: true, message: "Logged out successfully" });
-  } catch (err) {
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: (err as Error).message,
-    });
+  async logout(req: Request, res: Response): Promise<void> {
+    try {
+      res.clearCookie("refreshToken_user", {
+        httpOnly: true,
+        secure: true,
+        path: "/api/user/refresh-token",
+        sameSite: "strict",
+      });
+      logger.info("User logged out");
+      res
+        .status(HttpStatus.OK)
+        .json({ success: true, message: "Logged out successfully" });
+    } catch (err) {
+      logger.error(`Logout Error: ${err}`);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (err as Error).message,
+      });
+    }
   }
-}
-
 
   async getUserById(req: Request, res: Response): Promise<void> {
-  try {
-    const user = await this._userService.getUserById(req.params.id);
+    try {
+      const user = await this._userService.getUserById(req.params.id);
 
-     if (!user) {
-      res.status(HttpStatus.NOT_FOUND).json({
+      if (!user) {
+        logger.warn(`User not found with ID: ${req.params.id}`);
+        res.status(HttpStatus.NOT_FOUND).json({
+          success: false,
+          message: "User not found",
+        });
+        return;
+      }
+
+      const { _id, name, image } = user;
+      res.json({ success: true, user: { _id, name, image } });
+    } catch (err) {
+      logger.error(`Get user by ID error: ${err}`);
+      const statusCode =
+        (err as Error).message === "User not found"
+          ? HttpStatus.NOT_FOUND
+          : HttpStatus.INTERNAL_SERVER_ERROR;
+
+      res.status(statusCode).json({
         success: false,
-        message: "User not found",
+        message: (err as Error).message,
       });
-      return;
     }
-
-    const { _id, name, image } = user;
-    res.json({ success: true, user: { _id, name, image } });
-  } catch (err) {
-    const statusCode = (err as Error).message === "User not found"
-      ? HttpStatus.NOT_FOUND
-      : HttpStatus.INTERNAL_SERVER_ERROR;
-
-    res.status(statusCode).json({
-      success: false,
-      message: (err as Error).message,
-    });
   }
-}
 
+  async getProfile(req: Request, res: Response): Promise<void> {
+    try {
+      const userId = (req as any).userId;
+      const userData = await this._userService.getProfile(userId);
+      logger.info(`Profile fetched for user: ${userId}`);
+      res.status(HttpStatus.OK).json({ success: true, userData });
+    } catch (error) {
+      logger.error(`Get profile error: ${error}`);
+      const statusCode =
+        (error as Error).message === HttpResponse.USER_NOT_FOUND
+          ? HttpStatus.NOT_FOUND
+          : HttpStatus.INTERNAL_SERVER_ERROR;
 
-async getProfile(req: Request, res: Response): Promise<void> {
-  try {
-    const userId = (req as any).userId;
-    const userData = await this._userService.getProfile(userId);
-
-    res.status(HttpStatus.OK).json({ success: true, userData });
-  } catch (error) {
-    const statusCode = (error as Error).message === HttpResponse.USER_NOT_FOUND
-      ? HttpStatus.NOT_FOUND
-      : HttpStatus.INTERNAL_SERVER_ERROR;
-
-    res.status(statusCode).json({
-      success: false,
-      message: (error as Error).message,
-    });
+      res.status(statusCode).json({
+        success: false,
+        message: (error as Error).message,
+      });
+    }
   }
-}
 
-
- async updateProfile(req: Request, res: Response): Promise<void> {
-  try {
-    const userId = (req as any).userId;
-    await this._userService.updateProfile(userId, req.body, req.file);
-
-    res.status(HttpStatus.OK).json({
-      success: true,
-      message: HttpResponse.PROFILE_UPDATED,
-    });
-  } catch (error) {
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: (error as Error).message,
-    });
+  async updateProfile(req: Request, res: Response): Promise<void> {
+    try {
+      const userId = (req as any).userId;
+      await this._userService.updateProfile(userId, req.body, req.file);
+      logger.info(`Profile updated for user: ${userId}`);
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: HttpResponse.PROFILE_UPDATED,
+      });
+    } catch (error) {
+      logger.error(`Update profile error: ${error}`);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
+    }
   }
-}
-
 
   async bookAppointment(req: Request, res: Response): Promise<void> {
-  try {
-    const userId = (req as any).userId;
-    const { docId, slotDate, slotTime } = req.body;
+    try {
+      const userId = (req as any).userId;
+      const { docId, slotDate, slotTime } = req.body;
 
-    const appointment = await this._userService.bookAppointment({
-      userId,
-      docId,
-      slotDate,
-      slotTime,
-    });
-
-    res.status(HttpStatus.OK).json({
-      success: true,
-      message: HttpResponse.APPOINTMENT_BOOKED,
-      appointment,
-    });
-  } catch (error) {
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: (error as Error).message,
-    });
+      const appointment = await this._userService.bookAppointment({
+        userId,
+        docId,
+        slotDate,
+        slotTime,
+      });
+      logger.info(`Appointment booked for user ${userId}`);
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: HttpResponse.APPOINTMENT_BOOKED,
+        appointment,
+      });
+    } catch (error) {
+      logger.error(`Book appointment error: ${error}`);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
+    }
   }
-}
 
+  async listAppointment(req: Request, res: Response): Promise<void> {
+    try {
+      const userId = (req as any).userId;
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 5;
 
-async listAppointment(req: Request, res: Response): Promise<void> {
-  try {
-    const userId = (req as any).userId;
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 5;
-
-    const result = await this._userService.listUserAppointmentsPaginated(userId, page, limit);
-
-    res.status(HttpStatus.OK).json({
-      success: true,
-      ...result,
-    });
-  } catch (error) {
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: (error as Error).message,
-    });
+      const result = await this._userService.listUserAppointmentsPaginated(
+        userId,
+        page,
+        limit
+      );
+      logger.info(`Appointments listed for user ${userId}`);
+      res.status(HttpStatus.OK).json({
+        success: true,
+        ...result,
+      });
+    } catch (error) {
+      logger.error(`List appointment error: ${error}`);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
+    }
   }
-}
 
+  async cancelAppointment(req: Request, res: Response): Promise<void> {
+    try {
+      const userId = (req as any).userId;
+      const { appointmentId } = req.params;
+      console.log("userId from token:", userId);
 
-
-async cancelAppointment(req: Request, res: Response): Promise<void> {
-  try {
-    const userId = (req as any).userId;
-    const { appointmentId } = req.params;
-    console.log("userId from token:", userId);
-
-
-    await this._userService.cancelAppointment(userId, appointmentId);
-
-    res.status(HttpStatus.OK).json({
-      success: true,
-      message: HttpResponse.APPOINTMENT_CANCELLED,
-    });
-  } catch (error) {
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: (error as Error).message,
-    });
+      await this._userService.cancelAppointment(userId, appointmentId);
+      logger.info(`Appointment ${appointmentId} cancelled by user ${userId}`);
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: HttpResponse.APPOINTMENT_CANCELLED,
+      });
+    } catch (error) {
+      logger.error(`Cancel appointment error: ${error}`);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
+    }
   }
-}
 
+  async paymentRazorpay(req: Request, res: Response): Promise<void> {
+    try {
+      const userId = (req as any).userId;
+      const { appointmentId } = req.body;
 
- async paymentRazorpay(req: Request, res: Response): Promise<void> {
-  try {
-    const userId = (req as any).userId;
-    const { appointmentId } = req.body;
-
-    const { order } = await this._userService.startPayment(userId, appointmentId);
-
-    res.status(HttpStatus.OK).json({ success: true, order });
-  } catch (error) {
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: (error as Error).message,
-    });
+      const { order } = await this._userService.startPayment(
+        userId,
+        appointmentId
+      );
+      logger.info(`Payment started for appointment ${appointmentId}`);
+      res.status(HttpStatus.OK).json({ success: true, order });
+    } catch (error) {
+      logger.error(`Payment init error: ${error}`);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
+    }
   }
-}
 
+  async verifyRazorpay(req: Request, res: Response): Promise<void> {
+    try {
+      const userId = (req as any).userId;
+      const { appointmentId, razorpay_order_id } = req.body;
 
- async verifyRazorpay(req: Request, res: Response): Promise<void> {
-  try {
-    const userId = (req as any).userId;
-    const { appointmentId, razorpay_order_id } = req.body;
-
-    await this._userService.verifyPayment(userId, appointmentId, razorpay_order_id);
-
-    res.status(HttpStatus.OK).json({
-      success: true,
-      message: HttpResponse.PAYMENT_SUCCESS,
-    });
-  } catch (error) {
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: (error as Error).message,
-    });
+      await this._userService.verifyPayment(
+        userId,
+        appointmentId,
+        razorpay_order_id
+      );
+      logger.info(`Payment verified for appointment ${appointmentId}`);
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: HttpResponse.PAYMENT_SUCCESS,
+      });
+    } catch (error) {
+      logger.error(`Payment verify error: ${error}`);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
+    }
   }
-}
-
 
   async getAvailableSlotsForDoctor(req: Request, res: Response): Promise<void> {
-  try {
-    const { doctorId, year, month } = req.query;
+    try {
+      const { doctorId, year, month } = req.query;
 
-    if (!doctorId || !year || !month) {
-      res.status(HttpStatus.BAD_REQUEST).json({
+      if (!doctorId || !year || !month) {
+        res.status(HttpStatus.BAD_REQUEST).json({
+          success: false,
+          message: HttpResponse.FIELDS_REQUIRED,
+        });
+        return;
+      }
+
+      const slots = await this._userService.getAvailableSlotsForDoctor(
+        String(doctorId),
+        Number(year),
+        Number(month)
+      );
+      logger.info(`Available slots fetched for doctor ${doctorId}`);
+      res.status(HttpStatus.OK).json({ success: true, data: slots });
+    } catch (error) {
+      logger.error(`Get available slots error: ${error}`);
+      console.error("getAvailableSlotsForDoctor error:", error);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
-        message: HttpResponse.FIELDS_REQUIRED,
+        message: "Failed to fetch available slots",
       });
-      return;
     }
-
-    const slots = await this._userService.getAvailableSlotsForDoctor(
-      String(doctorId),
-      Number(year),
-      Number(month)
-    );
-
-    res.status(HttpStatus.OK).json({ success: true, data: slots });
-  } catch (error) {
-    console.error("getAvailableSlotsForDoctor error:", error);
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: "Failed to fetch available slots",
-    });
   }
-}
 
-async getAvailableSlotsByDate(req: Request, res: Response): Promise<void> {
-  try {
-    const { doctorId, date } = req.query;
-    if (!doctorId || !date) {
+  async getAvailableSlotsByDate(req: Request, res: Response): Promise<void> {
+    try {
+      const { doctorId, date } = req.query;
+      if (!doctorId || !date) {
+        res
+          .status(400)
+          .json({ success: false, message: "doctorId & date required" });
+        return;
+      }
+
+      const data = await this._userService.getAvailableSlotsByDate(
+        String(doctorId),
+        String(date)
+      );
+      logger.info(
+        `Available slots by date fetched for doctor ${doctorId} on ${date}`
+      );
+      res.json({ success: true, data });
+    } catch (err) {
+      logger.error(`Get available slots by date error: ${err}`);
       res
-        .status(400)
-        .json({ success: false, message: "doctorId & date required" });
-      return;
+        .status(500)
+        .json({ success: false, message: "Failed to fetch slots" });
     }
-
-    const data = await this._userService.getAvailableSlotsByDate(
-      String(doctorId),
-      String(date)
-    );
-    res.json({ success: true, data });
-  } catch (err) {
-    res
-      .status(500)
-      .json({ success: false, message: "Failed to fetch slots" });
   }
-}
 }

@@ -11,13 +11,16 @@ const chatService = new ChatService(chatRepository);
 const chatController = new ChatController(chatService);
 
 chatRouter.get("/:chatId", chatController.getChatHistory.bind(chatController));
-chatRouter.delete("/message/:messageId", chatController.deleteMessage.bind(chatController));
+chatRouter.delete(
+  "/message/:messageId",
+  chatController.deleteMessage.bind(chatController)
+);
 chatRouter.patch("/:chatId/read", chatController.markRead.bind(chatController));
 
 chatRouter.post(
   "/upload",
-  uploadMemory.single("file"),                     
-  chatController.uploadFile.bind(chatController)   
+  uploadMemory.single("file"),
+  chatController.uploadFile.bind(chatController)
 );
 
 export default chatRouter;

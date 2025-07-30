@@ -1,10 +1,10 @@
-import React from "react";
+import React from 'react';
 
 interface LoadingButtonProps {
   text: any;
   loading: boolean;
   onClick?: () => void;
-  type?: "button" | "submit" | "reset";
+  type?: 'button' | 'submit' | 'reset';
   className?: string;
   disabled?: boolean;
 }
@@ -13,8 +13,8 @@ const LoadingButton: React.FC<LoadingButtonProps> = ({
   text,
   loading,
   onClick,
-  type = "button",
-  className = "",
+  type = 'button',
+  className = '',
   disabled = false,
 }) => {
   return (
@@ -27,7 +27,7 @@ const LoadingButton: React.FC<LoadingButtonProps> = ({
         hover:from-indigo-400 hover:to-purple-500
         transition duration-200 ease-in-out
         backdrop-blur-sm ring-1 ring-white/10 shadow-md
-        ${loading || disabled ? "opacity-60 cursor-not-allowed" : ""}
+        ${loading || disabled ? 'opacity-60 cursor-not-allowed' : ''}
         ${className}`}
     >
       {loading && (
@@ -52,7 +52,7 @@ const LoadingButton: React.FC<LoadingButtonProps> = ({
           ></path>
         </svg>
       )}
-      {loading ? "Processing..." : text}
+      {loading ? 'Processing...' : text}
     </button>
   );
 };

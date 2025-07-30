@@ -5,7 +5,13 @@ import bcrypt from "bcrypt";
 import validator from "validator";
 import { v2 as cloudinary } from "cloudinary";
 import { AppointmentTypes } from "../../types/appointment";
-import { isValidDateOfBirth, isValidEmail, isValidName, isValidPassword, isValidPhone } from "../../utils/validator";
+import {
+  isValidDateOfBirth,
+  isValidEmail,
+  isValidName,
+  isValidPassword,
+  isValidPhone,
+} from "../../utils/validator";
 import { DoctorTypes } from "../../types/doctor";
 import { PaymentService } from "./PaymentService";
 import {
@@ -38,81 +44,80 @@ export class UserService implements IUserService {
     private _slotRepository = new SlotRepository()
   ) {}
 
-async register(name: string, email: string, password: string): Promise<void> {
-  if (!name || !email || !password) {
-    throw new Error(HttpResponse.FIELDS_REQUIRED);
+  async register(name: string, email: string, password: string): Promise<void> {
+    if (!name || !email || !password) {
+      throw new Error(HttpResponse.FIELDS_REQUIRED);
+    }
+
+    if (!isValidName(name)) {
+      throw new Error(HttpResponse.INVALID_NAME);
+    }
+
+    if (!isValidEmail(email)) {
+      throw new Error(HttpResponse.INVALID_EMAIL);
+    }
+
+    if (!isValidPassword(password)) {
+      throw new Error(HttpResponse.INVALID_PASSWORD);
+    }
+
+    const existing = await this._userRepository.findUserByEmail(email);
+    if (existing) {
+      throw new Error(HttpResponse.EMAIL_ALREADY_EXISTS);
+    }
+
+    const hashed = await this.hashPassword(password);
+    const otp = generateOTP();
+    console.log("Generated OTP:", otp);
+
+    otpStore.set(email, {
+      otp,
+      purpose: "register",
+      userData: { name, email, password: hashed },
+    });
+
+    try {
+      await sendOTP(email, otp);
+    } catch (error) {
+      console.error("Email send failed:", error);
+      throw new Error(HttpResponse.OTP_SEND_FAILED);
+    }
   }
 
-  if (!isValidName(name)) {
-    throw new Error(HttpResponse.INVALID_NAME);
+  async verifyOtp(
+    email: string,
+    otp: string
+  ): Promise<{
+    purpose: string;
+    user?: UserDTO;
+    refreshToken?: string;
+  }> {
+    const record = otpStore.get(email);
+
+    if (!record || record.otp !== otp) {
+      throw new Error(HttpResponse.OTP_INVALID);
+    }
+
+    const { purpose } = record;
+
+    if (purpose === "register") {
+      const newUser = await this.finalizeRegister(record.userData);
+
+      otpStore.delete(email);
+
+      const refreshToken = generateRefreshToken(newUser._id!);
+      return { purpose, user: newUser, refreshToken };
+    }
+
+    if (purpose === "reset-password") {
+      otpStore.set(email, { ...record, otp: "VERIFIED" });
+      return { purpose };
+    }
+
+    throw new Error(HttpResponse.BAD_REQUEST);
   }
 
-  if (!isValidEmail(email)) {
-    throw new Error(HttpResponse.INVALID_EMAIL);
-  }
-
-  if (!isValidPassword(password)) {
-    throw new Error(HttpResponse.INVALID_PASSWORD);
-  }
-
-  const existing = await this._userRepository.findUserByEmail(email);
-  if (existing) {
-    throw new Error(HttpResponse.EMAIL_ALREADY_EXISTS);
-  }
-
-  const hashed = await this.hashPassword(password);
-  const otp = generateOTP();
-  console.log("Generated OTP:", otp);
-
-  otpStore.set(email, {
-    otp,
-    purpose: "register",
-    userData: { name, email, password: hashed },
-  });
-
-  try {
-    await sendOTP(email, otp);
-  } catch (error) {
-    console.error("Email send failed:", error);
-    throw new Error(HttpResponse.OTP_SEND_FAILED);
-  }
-}
-
-async verifyOtp(
-  email: string,
-  otp: string
-): Promise<{
-  purpose: string;
-  user?: UserDTO;
-  refreshToken?: string;
-}> {
-  const record = otpStore.get(email);
-
-  if (!record || record.otp !== otp) {
-    throw new Error(HttpResponse.OTP_INVALID);
-  }
-
-  const { purpose } = record;
-
-  if (purpose === "register") {
-
-    const newUser = await this.finalizeRegister(record.userData);
-
-    otpStore.delete(email);
-
-    const refreshToken = generateRefreshToken(newUser._id!);
-    return { purpose, user: newUser, refreshToken };
-  }
-
-  if (purpose === "reset-password") {
-    otpStore.set(email, { ...record, otp: "VERIFIED" });
-    return { purpose };
-  }
-
-  throw new Error(HttpResponse.BAD_REQUEST);
-}
-
-async hashPassword(password: string) {
+  async hashPassword(password: string) {
     return await bcrypt.hash(password, 10);
   }
   async finalizeRegister(userData: {
@@ -133,329 +138,340 @@ async hashPassword(password: string) {
   }
 
   async resendOtp(email: string): Promise<void> {
-  const record = otpStore.get(email);
+    const record = otpStore.get(email);
 
-  if (!record) {
-    throw new Error(HttpResponse.OTP_NOT_FOUND);
+    if (!record) {
+      throw new Error(HttpResponse.OTP_NOT_FOUND);
+    }
+
+    const newOtp = generateOTP();
+    console.log("New OTP:", newOtp);
+
+    otpStore.set(email, { ...record, otp: newOtp });
+
+    await sendOTP(email, newOtp);
   }
 
-  const newOtp = generateOTP();
-  console.log("New OTP:", newOtp);
+  async forgotPasswordRequest(email: string): Promise<void> {
+    const userExists = await this.checkEmailExists(email);
+    if (!userExists) {
+      throw new Error(HttpResponse.USER_NOT_FOUND);
+    }
 
-  otpStore.set(email, { ...record, otp: newOtp });
+    const otp = generateOTP();
+    console.log("Generated OTP:", otp);
 
-  await sendOTP(email, newOtp);
-}
+    otpStore.set(email, { otp, purpose: "reset-password", email });
 
-
-async forgotPasswordRequest(email: string): Promise<void> {
-  const userExists = await this.checkEmailExists(email);
-  if (!userExists) {
-    throw new Error(HttpResponse.USER_NOT_FOUND);
+    await sendOTP(email, otp);
   }
 
-  const otp = generateOTP();
-  console.log("Generated OTP:", otp);
+  async resetPassword(email: string, newPassword: string): Promise<void> {
+    if (!isValidPassword(newPassword)) {
+      throw new Error(HttpResponse.INVALID_PASSWORD);
+    }
 
-  otpStore.set(email, { otp, purpose: "reset-password", email });
+    const record = otpStore.get(email);
 
-  await sendOTP(email, otp);
-}
+    if (
+      !record ||
+      record.purpose !== "reset-password" ||
+      record.otp !== "VERIFIED"
+    ) {
+      throw new Error(HttpResponse.OTP_EXPIRED_OR_INVALID);
+    }
 
-async resetPassword(email: string, newPassword: string): Promise<void> {
-  if (!isValidPassword(newPassword)) {
-    throw new Error(HttpResponse.INVALID_PASSWORD);
+    const hashed = await this.hashPassword(newPassword);
+    const updated = await this._userRepository.updatePasswordByEmail(
+      email,
+      hashed
+    );
+
+    if (!updated) {
+      throw new Error(HttpResponse.USER_NOT_FOUND);
+    }
+
+    otpStore.delete(email);
   }
 
-  const record = otpStore.get(email);
+  async login(
+    email: string,
+    password: string
+  ): Promise<{ user: UserDTO; token: string; refreshToken: string }> {
+    if (!email || !password) {
+      throw new Error(HttpResponse.FIELDS_REQUIRED);
+    }
 
-  if (
-    !record ||
-    record.purpose !== "reset-password" ||
-    record.otp !== "VERIFIED"
-  ) {
-    throw new Error(HttpResponse.OTP_EXPIRED_OR_INVALID);
+    if (!isValidEmail(email)) {
+      throw new Error(HttpResponse.INVALID_EMAIL);
+    }
+
+    if (!isValidPassword(password)) {
+      throw new Error(HttpResponse.INVALID_PASSWORD);
+    }
+
+    const user = await this._userRepository.findUserByEmail(email);
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      throw new Error("Invalid credentials");
+    }
+
+    if (user.isBlocked) {
+      throw new Error("Your account has been blocked by admin");
+    }
+
+    const token = generateAccessToken(user._id.toString(), user.email, "user");
+    const refreshToken = generateRefreshToken(user._id.toString());
+
+    return {
+      user: toUserDTO(user),
+      token,
+      refreshToken,
+    };
   }
 
-  const hashed = await this.hashPassword(newPassword);
-  const updated = await this._userRepository.updatePasswordByEmail(email, hashed);
+  async refreshToken(
+    refreshToken?: string
+  ): Promise<{ token: string; refreshToken: string }> {
+    if (!refreshToken) {
+      throw new Error(HttpResponse.REFRESH_TOKEN_MISSING);
+    }
 
-  if (!updated) {
-    throw new Error(HttpResponse.USER_NOT_FOUND);
+    const decoded = verifyRefreshToken(refreshToken);
+    if (!decoded || typeof decoded !== "object" || !("id" in decoded)) {
+      throw new Error(HttpResponse.REFRESH_TOKEN_INVALID);
+    }
+
+    const user = await this._userRepository.findUserById(decoded.id);
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    const newAccessToken = generateAccessToken(
+      user._id.toString(),
+      user.email,
+      "user"
+    );
+    const newRefreshToken = generateRefreshToken(user._id.toString());
+
+    return { token: newAccessToken, refreshToken: newRefreshToken };
   }
 
-  otpStore.delete(email);
-}
-
-
-async login(
-  email: string,
-  password: string
-): Promise<{ user: UserDTO; token: string; refreshToken: string }> {
-  if (!email || !password) {
-    throw new Error(HttpResponse.FIELDS_REQUIRED);
+  async getProfile(userId: string): Promise<UserDTO> {
+    const user = await this._userRepository.findUserById(userId);
+    if (!user) throw new Error(HttpResponse.USER_NOT_FOUND);
+    return toUserDTO(user);
   }
-
-  if (!isValidEmail(email)) {
-    throw new Error(HttpResponse.INVALID_EMAIL);
-  }
-
-  if (!isValidPassword(password)) {
-    throw new Error(HttpResponse.INVALID_PASSWORD);
-  }
-
-  const user = await this._userRepository.findUserByEmail(email);
-  if (!user) {
-    throw new Error("User not found");
-  }
-
-  const isMatch = await bcrypt.compare(password, user.password);
-  if (!isMatch) {
-    throw new Error("Invalid credentials");
-  }
-
-  if (user.isBlocked) {
-    throw new Error("Your account has been blocked by admin");
-  }
-
-  const token = generateAccessToken(user._id.toString(), user.email, "user");
-  const refreshToken = generateRefreshToken(user._id.toString());
-
-  return {
-    user: toUserDTO(user),
-    token,
-    refreshToken,
-  };
-}
-
-async refreshToken(
-  refreshToken?: string
-): Promise<{ token: string; refreshToken: string }> {
-  if (!refreshToken) {
-    throw new Error(HttpResponse.REFRESH_TOKEN_MISSING);
-  }
-
-  const decoded = verifyRefreshToken(refreshToken);
-  if (!decoded || typeof decoded !== "object" || !("id" in decoded)) {
-    throw new Error(HttpResponse.REFRESH_TOKEN_INVALID);
-  }
-
-  const user = await this._userRepository.findUserById(decoded.id);
-  if (!user) {
-    throw new Error("User not found");
-  }
-
-  const newAccessToken = generateAccessToken(
-    user._id.toString(),
-    user.email,
-    "user"
-  );
-  const newRefreshToken = generateRefreshToken(user._id.toString());
-
-  return { token: newAccessToken, refreshToken: newRefreshToken };
-}
-
-
-async getProfile(userId: string): Promise<UserDTO> {
-  const user = await this._userRepository.findUserById(userId);
-  if (!user) throw new Error(HttpResponse.USER_NOT_FOUND);
-  return toUserDTO(user);
-}
 
   async updateProfile(
-  userId: string,
-  data: Partial<userTypes>,
-  imageFile?: Express.Multer.File
-): Promise<void> {
-  if (!data.name || !data.phone || !data.address || !data.dob || !data.gender)
-    throw new Error("Please provide all details");
+    userId: string,
+    data: Partial<userTypes>,
+    imageFile?: Express.Multer.File
+  ): Promise<void> {
+    if (!data.name || !data.phone || !data.address || !data.dob || !data.gender)
+      throw new Error("Please provide all details");
 
-  if (!isValidPhone(data.phone)) throw new Error("Phone number must be 10 numbers");
-  if (!isValidDateOfBirth(data.dob)) throw new Error("Enter a valid birth date");
+    if (!isValidPhone(data.phone))
+      throw new Error("Phone number must be 10 numbers");
+    if (!isValidDateOfBirth(data.dob))
+      throw new Error("Enter a valid birth date");
 
-  if (imageFile) {
-    const imageUpload = await cloudinary.uploader.upload(imageFile.path, {
-      resource_type: "image",
-    });
-    data.image = imageUpload.secure_url;
+    if (
+      typeof data.address !== "object" ||
+      !data.address.line1?.trim() ||
+      !data.address.line2?.trim()
+    ) {
+      throw new Error("Both address lines are required");
+    }
+
+    if (imageFile) {
+      const imageUpload = await cloudinary.uploader.upload(imageFile.path, {
+        resource_type: "image",
+      });
+      data.image = imageUpload.secure_url;
+    }
+
+    await this._userRepository.updateUserById(userId, data);
   }
-
-  await this._userRepository.updateUserById(userId, data);
-}
-
 
   async checkEmailExists(email: string): Promise<boolean> {
     const user = await this._userRepository.findUserByEmail(email);
     return !!user;
   }
 
-  
-
-
-    async getUserById(id: string): Promise<UserDTO | null> {
+  async getUserById(id: string): Promise<UserDTO | null> {
     const user = await this._userRepository.findUserById(id);
     if (!user) throw new Error("User not found");
     return user ? toUserDTO(user) : null;
   }
 
   async getDoctorById(id: string): Promise<DoctorTypes> {
-    const doctor = (await this._userRepository.findDoctorById(id));
+    const doctor = await this._userRepository.findDoctorById(id);
     if (!doctor) throw new Error("Doctor not found");
     return doctor;
   }
 
   async bookAppointment({
-  userId,
-  docId,
-  slotDate,
-  slotTime,
-}: {
-  userId: string;
-  docId: string;
-  slotDate: string;
-  slotTime: string;
-}): Promise<AppointmentDTO> {
-  if (!userId || !docId || !slotDate || !slotTime) {
-    throw new Error("All fields are required");
-  }
-
-  const user = await this._userRepository.findUserById(userId);
-  if (!user) throw new Error("User not found");
-
-  const doctor = await this._userRepository.findDoctorById(docId);
-  if (!doctor) throw new Error("Doctor not found");
-
-  const appointmentData: AppointmentTypes = {
     userId,
     docId,
     slotDate,
     slotTime,
-    userData: user,
-    docData: doctor,
-    amount: doctor.fees,
-    date: Date.now(),
-  };
+  }: {
+    userId: string;
+    docId: string;
+    slotDate: string;
+    slotTime: string;
+  }): Promise<AppointmentDTO> {
+    if (!userId || !docId || !slotDate || !slotTime) {
+      throw new Error("All fields are required");
+    }
 
-  const booked = await this._userRepository.bookAppointment(appointmentData);
-  return toAppointmentDTO(booked);
-}
+    const user = await this._userRepository.findUserById(userId);
+    if (!user) throw new Error("User not found");
 
+    const doctor = await this._userRepository.findDoctorById(docId);
+    if (!doctor) throw new Error("Doctor not found");
 
-// async listUserAppointments(userId: string): Promise<AppointmentDTO[]> {
-//   if (!userId) throw new Error("User ID is required");
+    const appointmentData: AppointmentTypes = {
+      userId,
+      docId,
+      slotDate,
+      slotTime,
+      userData: user,
+      docData: doctor,
+      amount: doctor.fees,
+      date: Date.now(),
+    };
 
-//   const appointments = await this._userRepository.getAppointmentsByUserId(userId);
-
-//   return appointments.map(toAppointmentDTO);
-// }
-
-async listUserAppointmentsPaginated(
-  userId: string,
-  page: number,
-  limit: number
-): Promise<PaginationResult<AppointmentDTO>> {
-  const paginatedData = await this._userRepository.getAppointmentsByUserIdPaginated(userId, page, limit);
-
-  return {
-    ...paginatedData,
-    data: paginatedData.data.map(toAppointmentDTO),
-  };
-}
-
-
-
-
-async cancelAppointment(userId: string, appointmentId: string): Promise<void> {
-  if (!userId || !appointmentId) throw new Error("Missing required details");
-
-  const appointment = await this._userRepository.findAppointmentById(appointmentId);
-  if (!appointment) throw new Error("Appointment not found");
-
-  if (appointment.userId.toString() !== userId.toString()) {
-    throw new Error("Unauthorized cancellation");
+    const booked = await this._userRepository.bookAppointment(appointmentData);
+    return toAppointmentDTO(booked);
   }
 
-  await this._userRepository.cancelAppointment(userId, appointmentId);
-}
+  async listUserAppointmentsPaginated(
+    userId: string,
+    page: number,
+    limit: number
+  ): Promise<PaginationResult<AppointmentDTO>> {
+    const paginatedData =
+      await this._userRepository.getAppointmentsByUserIdPaginated(
+        userId,
+        page,
+        limit
+      );
 
-
-  async startPayment(userId: string, appointmentId: string): Promise<{ order: any }> {
-  if (!userId || !appointmentId) {
-    throw new Error("User ID and Appointment ID are required");
+    return {
+      ...paginatedData,
+      data: paginatedData.data.map(toAppointmentDTO),
+    };
   }
 
-  const appointment = await this._userRepository.findPayableAppointment(userId, appointmentId);
-  if (!appointment || !appointment._id) {
-    throw new Error("Invalid appointment for payment");
+  async cancelAppointment(
+    userId: string,
+    appointmentId: string
+  ): Promise<void> {
+    if (!userId || !appointmentId) throw new Error("Missing required details");
+
+    const appointment = await this._userRepository.findAppointmentById(
+      appointmentId
+    );
+    if (!appointment) throw new Error("Appointment not found");
+
+    if (appointment.userId.toString() !== userId.toString()) {
+      throw new Error("Unauthorized cancellation");
+    }
+
+    await this._userRepository.cancelAppointment(userId, appointmentId);
   }
 
-  const amountInPaise = appointment.amount * 100;
+  async startPayment(
+    userId: string,
+    appointmentId: string
+  ): Promise<{ order: any }> {
+    if (!userId || !appointmentId) {
+      throw new Error("User ID and Appointment ID are required");
+    }
 
-  const order = await this._paymentService.createOrder(
-    amountInPaise,
-    appointment._id.toString()
-  );
+    const appointment = await this._userRepository.findPayableAppointment(
+      userId,
+      appointmentId
+    );
+    if (!appointment || !appointment._id) {
+      throw new Error("Invalid appointment for payment");
+    }
 
-  return { order };
-}
+    const amountInPaise = appointment.amount * 100;
 
-async verifyPayment(
-  userId: string,
-  appointmentId: string,
-  razorpay_order_id: string
-): Promise<void> {
-  if (!userId || !appointmentId || !razorpay_order_id) {
-    throw new Error("Missing required payment verification details");
+    const order = await this._paymentService.createOrder(
+      amountInPaise,
+      appointment._id.toString()
+    );
+
+    return { order };
   }
 
-  const appointment = await this._userRepository.findPayableAppointment(userId, appointmentId);
-  if (!appointment) {
-    throw new Error("No payable appointment found");
+  async verifyPayment(
+    userId: string,
+    appointmentId: string,
+    razorpay_order_id: string
+  ): Promise<void> {
+    if (!userId || !appointmentId || !razorpay_order_id) {
+      throw new Error("Missing required payment verification details");
+    }
+
+    const appointment = await this._userRepository.findPayableAppointment(
+      userId,
+      appointmentId
+    );
+    if (!appointment) {
+      throw new Error("No payable appointment found");
+    }
+
+    const orderInfo = await this._paymentService.fetchOrder(razorpay_order_id);
+
+    if (orderInfo.status !== "paid") {
+      throw new Error("Payment not completed");
+    }
+
+    if (orderInfo.receipt !== appointmentId) {
+      throw new Error("Receipt mismatch with appointment");
+    }
+
+    await this._userRepository.markAppointmentPaid(appointmentId);
   }
 
-  const orderInfo = await this._paymentService.fetchOrder(razorpay_order_id);
+  async getAvailableSlotsByDate(
+    doctorId: string,
+    date: string
+  ): Promise<SlotRange[]> {
+    if (!doctorId || !date) {
+      throw new Error("doctorId and date are required");
+    }
 
-  if (orderInfo.status !== "paid") {
-    throw new Error("Payment not completed");
+    const doc = await this._slotRepository.getSlotByDate(
+      doctorId,
+      isoDate(date)
+    );
+
+    return doc?.slots.filter((r) => r.isAvailable && !r.booked) ?? [];
   }
 
-  if (orderInfo.receipt !== appointmentId) {
-    throw new Error("Receipt mismatch with appointment");
+  async getAvailableSlotsForDoctor(
+    doctorId: string,
+    year: number,
+    month: number
+  ): Promise<any[]> {
+    if (!doctorId || !year || !month) {
+      throw new Error("doctorId, year, and month are required");
+    }
+
+    return this._userRepository.getAvailableSlotsByDoctorAndMonth(
+      doctorId,
+      year,
+      month
+    );
   }
-
-  await this._userRepository.markAppointmentPaid(appointmentId);
-}
-
-
-async getAvailableSlotsByDate(
-  doctorId: string,
-  date: string
-): Promise<SlotRange[]> {
-  if (!doctorId || !date) {
-    throw new Error("doctorId and date are required");
-  }
-
-  const doc = await this._slotRepository.getSlotByDate(
-    doctorId,
-    isoDate(date)
-  );
-
-  return doc?.slots.filter((r) => r.isAvailable && !r.booked) ?? [];
-}
-
-async getAvailableSlotsForDoctor(
-  doctorId: string,
-  year: number,
-  month: number
-): Promise<any[]> {
-  if (!doctorId || !year || !month) {
-    throw new Error("doctorId, year, and month are required");
-  }
-
-  return this._userRepository.getAvailableSlotsByDoctorAndMonth(
-    doctorId,
-    year,
-    month
-  );
-}
 }

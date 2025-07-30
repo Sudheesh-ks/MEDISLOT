@@ -1,15 +1,15 @@
-import { useContext, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
-import { AppContext } from "../../context/AppContext";
-import { verifyEmailAPI } from "../../services/authServices";
-import { showErrorToast } from "../../utils/errorHandler";
+import React, { useContext, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { AppContext } from '../../context/AppContext';
+import { verifyEmailAPI } from '../../services/authServices';
+import { showErrorToast } from '../../utils/errorHandler';
 
 const EmailVerificationPage = () => {
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState('');
   const nav = useNavigate();
   const ctx = useContext(AppContext);
-  if (!ctx) throw new Error("EmailVerificationPage must be used within AppContextProvider");
+  if (!ctx) throw new Error('EmailVerificationPage must be used within AppContextProvider');
   const { token } = ctx;
 
   const send = async (e: React.FormEvent) => {
@@ -17,14 +17,14 @@ const EmailVerificationPage = () => {
     try {
       const { data } = await verifyEmailAPI(email);
       if (data.success) {
-        toast.success("OTP sent to your email");
-        localStorage.setItem("tempUserData", JSON.stringify({ email, purpose: "reset-password" }));
-        nav("/verify-otp");
+        toast.success('OTP sent to your email');
+        localStorage.setItem('tempUserData', JSON.stringify({ email, purpose: 'reset-password' }));
+        nav('/verify-otp');
       } else toast.error(data.message);
     } catch (err) { showErrorToast(err); }
   };
 
-  useEffect(() => { if (token) nav("/"); }, [token, nav]);
+  useEffect(() => { if (token) nav('/'); }, [token, nav]);
 
   return (
     <main className="min-h-screen bg-slate-950 flex items-center justify-center text-slate-100 animate-fade">

@@ -1,8 +1,8 @@
-import { useEffect, useContext } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { AppContext } from "../../context/AppContext";
-import { updateUserAccessToken } from "../../context/tokenManagerUser";
-import { toast } from "react-toastify";
+import React, { useEffect, useContext } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { AppContext } from '../../context/AppContext';
+import { updateUserAccessToken } from '../../context/tokenManagerUser';
+import { toast } from 'react-toastify';
 
 const GoogleCallback = () => {
   const [params] = useSearchParams();
@@ -10,21 +10,21 @@ const GoogleCallback = () => {
   const context = useContext(AppContext);
 
   if (!context) {
-    throw new Error("Must use within AppContext");
+    throw new Error('Must use within AppContext');
   }
 
   const { setToken } = context;
 
   useEffect(() => {
-    const token = params.get("token");
+    const token = params.get('token');
     if (token) {
       updateUserAccessToken(token);
       setToken(token);
-                      localStorage.removeItem("isDoctorLoggedOut");
-                      toast.success("Registration successful")
-      navigate("/home");
+      localStorage.removeItem('isDoctorLoggedOut');
+      toast.success('Registration successful');
+      navigate('/home');
     } else {
-      navigate("/login");
+      navigate('/login');
     }
   }, []);
 
@@ -38,26 +38,26 @@ const GoogleCallback = () => {
 
 const styles: Record<string, React.CSSProperties> = {
   container: {
-    display: "flex",
-    flexDirection: "column" as const,
-    alignItems: "center",
-    justifyContent: "center",
-    height: "100vh",
-    backgroundColor: "#f9fafb",
-    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+    display: 'flex',
+    flexDirection: 'column' as const,
+    alignItems: 'center',
+    justifyContent: 'center',
+    height: '100vh',
+    backgroundColor: '#f9fafb',
+    fontFamily: '\'Segoe UI\', Tahoma, Geneva, Verdana, sans-serif',
   },
   spinner: {
-    border: "6px solid #eee",
-    borderTop: "6px solid #3b82f6",
-    borderRadius: "50%",
+    border: '6px solid #eee',
+    borderTop: '6px solid #3b82f6',
+    borderRadius: '50%',
     width: 50,
     height: 50,
-    animation: "spin 1s linear infinite",
+    animation: 'spin 1s linear infinite',
     marginBottom: 20,
   },
   text: {
     fontSize: 18,
-    color: "#333",
+    color: '#333',
   },
 };
 

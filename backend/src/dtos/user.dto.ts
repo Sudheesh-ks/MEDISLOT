@@ -10,5 +10,5 @@ export interface UserDTO {
     line1: string;
     line2: string;
   };
+  isBlocked: boolean;
 }
-

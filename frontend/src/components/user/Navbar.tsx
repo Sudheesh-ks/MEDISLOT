@@ -1,17 +1,17 @@
-import { useContext, useState } from "react";
-import { assets } from "../../assets/user/assets";
-import { NavLink, useNavigate } from "react-router-dom";
-import { AppContext } from "../../context/AppContext";
-import { clearUserAccessToken } from "../../context/tokenManagerUser";
-import { logoutUserAPI } from "../../services/authServices";
-import { NotifContext } from "../../context/NotificationContext";
+import { useContext, useState } from 'react';
+import { assets } from '../../assets/user/assets';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { AppContext } from '../../context/AppContext';
+import { clearUserAccessToken } from '../../context/tokenManagerUser';
+import { logoutUserAPI } from '../../services/authServices';
+import { NotifContext } from '../../context/NotificationContext';
 
 const Navbar = () => {
   const navigate = useNavigate();
   const context = useContext(AppContext);
   const notif = useContext(NotifContext);
   if (!context)
-    throw new Error("Navbar must be used within an AppContextProvider");
+    throw new Error('Navbar must be used within an AppContextProvider');
   const { token, setToken, userData, setUserData } = context;
   const [open, setOpen] = useState(false);
 
@@ -21,7 +21,7 @@ const Navbar = () => {
       clearUserAccessToken();
       setToken(null);
       setUserData(null);
-      navigate("/login");
+      navigate('/login');
     } catch (e) {
       console.error(e);
     }
@@ -35,22 +35,22 @@ const Navbar = () => {
           src={assets.logo_dark ?? assets.logo}
           alt="logo"
           className="w-36 cursor-pointer"
-          onClick={() => navigate("/")}
+          onClick={() => navigate('/')}
         />
 
         <ul className="hidden md:flex items-center gap-6 text-sm font-medium text-slate-200">
           {[
-            { to: "/home", label: "Home" },
-            { to: "/doctors", label: "Doctors" },
-            { to: "/about", label: "About" },
-            { to: "/contact", label: "Contact" },
+            { to: '/home', label: 'Home' },
+            { to: '/doctors', label: 'Doctors' },
+            { to: '/about', label: 'About' },
+            { to: '/contact', label: 'Contact' },
           ].map(({ to, label }) => (
             <NavLink
               key={to}
               to={to}
               className={({ isActive }) =>
                 `${
-                  isActive ? "text-white" : "text-slate-400 hover:text-white"
+                  isActive ? 'text-white' : 'text-slate-400 hover:text-white'
                 } transition-colors`
               }
             >
@@ -78,7 +78,7 @@ const Navbar = () => {
               )}
               <svg
                 className={`w-3 transition-transform ${
-                  open ? "rotate-180" : "rotate-0"
+                  open ? 'rotate-180' : 'rotate-0'
                 }`}
                 fill="none"
                 viewBox="0 0 24 24"
@@ -122,7 +122,7 @@ const Navbar = () => {
           </div>
         ) : (
           <button
-            onClick={() => navigate("/login")}
+            onClick={() => navigate('/login')}
             className="hidden md:inline-flex items-center bg-gradient-to-r from-cyan-500 to-fuchsia-600 text-white px-5 py-2 rounded-full text-sm shadow-lg hover:-translate-y-0.5 transition-transform"
           >
             Login
@@ -152,10 +152,10 @@ const Navbar = () => {
       {open && (
         <div className="md:hidden bg-slate-900/90 backdrop-blur-sm ring-1 ring-white/5 px-6 pb-6 space-y-4 animate-fade">
           {[
-            { to: "/home", label: "Home" },
-            { to: "/doctors", label: "Doctors" },
-            { to: "/about", label: "About" },
-            { to: "/contact", label: "Contact" },
+            { to: '/home', label: 'Home' },
+            { to: '/doctors', label: 'Doctors' },
+            { to: '/about', label: 'About' },
+            { to: '/contact', label: 'Contact' },
           ].map(({ to, label }) => (
             <NavLink
               key={to}
@@ -170,7 +170,7 @@ const Navbar = () => {
             <button
               onClick={() => {
                 setOpen(false);
-                navigate("/login");
+                navigate('/login');
               }}
               className="w-full bg-gradient-to-r from-cyan-500 to-fuchsia-600 text-white py-2 rounded-full"
             >

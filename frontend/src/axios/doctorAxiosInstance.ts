@@ -1,8 +1,8 @@
-import axios, { type AxiosRequestConfig } from "axios";
+import axios, { type AxiosRequestConfig } from 'axios';
 import {
   getDoctorAccessToken,
   updateDoctorAccessToken,
-} from "../context/tokenManagerDoctor";
+} from '../context/tokenManagerDoctor';
 
 export const doctorApi = axios.create({
   baseURL: import.meta.env.VITE_BACKEND_URL,

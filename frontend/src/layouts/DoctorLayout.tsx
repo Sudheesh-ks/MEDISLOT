@@ -1,6 +1,6 @@
-import React from "react";
-import DoctorSidebar from "../components/doctor/DoctorSidebar";
-import DoctorNavbar from "../components/doctor/DoctorNavbar";
+import React from 'react';
+import DoctorSidebar from '../components/doctor/DoctorSidebar';
+import DoctorNavbar from '../components/doctor/DoctorNavbar';
 
 const DoctorLayout = ({ children }: { children: React.ReactNode }) => {
   return (

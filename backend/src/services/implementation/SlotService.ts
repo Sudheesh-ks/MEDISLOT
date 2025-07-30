@@ -1,33 +1,42 @@
-import { SlotRepository } from "../../repositories/implementation/SlotRepository";
- import dayjs from "dayjs";
+import dayjs from "dayjs";
 import customParse from "dayjs/plugin/customParseFormat";
+import { SlotRepository } from "../../repositories/implementation/SlotRepository";
+import { ISlotService } from "../interface/ISlotService";
+import { SlotRange } from "../../types/slots";
+
 dayjs.extend(customParse);
 
-export class DoctorSlotService {
+export class DoctorSlotService implements ISlotService {
   constructor(private readonly _slotRepo: SlotRepository) {}
 
   async getMonthlySlots(doctorId: string, year: number, month: number) {
     return this._slotRepo.getSlotsByMonth(doctorId, year, month);
   }
 
-  private validateRanges(
-    ranges: { start: string; end: string; isAvailable?: boolean }[] 
-  ) {
+  private validateRanges(ranges: SlotRange[]) {
     const fmt = (t: string) => dayjs(t, "HH:mm");
     const sorted = [...ranges].sort(
       (a, b) => fmt(a.start).valueOf() - fmt(b.start).valueOf()
     );
-    for (let i = 0; i < sorted.length; i++) { 
+
+    for (let i = 0; i < sorted.length; i++) {
       const r = sorted[i];
-      if (!fmt(r.end).isAfter(fmt(r.start)))
+      if (!fmt(r.end).isAfter(fmt(r.start))) {
         throw new Error("End time must be after start time");
-      if (i > 0 && fmt(r.start).isBefore(fmt(sorted[i - 1].end)))
+      }
+      if (i > 0 && fmt(r.start).isBefore(fmt(sorted[i - 1].end))) {
         throw new Error("Time ranges cannot overlap");
+      }
     }
   }
 
-  async updateDaySlot(doctorId: string, date: string, slots: { start: string; end: string }[], isCancelled: boolean) {
-     this.validateRanges(slots);
+  async updateDaySlot(
+    doctorId: string,
+    date: string,
+    slots: SlotRange[],
+    isCancelled: boolean
+  ) {
+    this.validateRanges(slots);
     return this._slotRepo.upsertSlot(doctorId, date, slots, isCancelled);
   }
 

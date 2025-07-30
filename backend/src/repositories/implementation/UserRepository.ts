@@ -3,7 +3,9 @@ import userModel, { userDocument } from "../../models/userModel";
 import doctorModel, { DoctorDocument } from "../../models/doctorModel";
 import slotModel from "../../models/slotModel";
 import { AppointmentTypes } from "../../types/appointment";
-import appointmentModel, { AppointmentDocument } from "../../models/appointmentModel";
+import appointmentModel, {
+  AppointmentDocument,
+} from "../../models/appointmentModel";
 import { DoctorTypes } from "../../types/doctor";
 import { BaseRepository } from "../BaseRepository";
 import { userTypes } from "../../types/user";
@@ -17,7 +19,7 @@ export class UserRepository
     super(userModel);
   }
 
-    async createUser(user: Partial<userDocument>): Promise<userDocument> {
+  async createUser(user: Partial<userDocument>): Promise<userDocument> {
     const createdUser = await this.create(user);
     return createdUser as userDocument;
   }
@@ -32,8 +34,8 @@ export class UserRepository
   }
 
   async updateUserById(id: string, data: Partial<userTypes>): Promise<void> {
-  await userModel.findByIdAndUpdate(id, { $set: data });
-}
+    await userModel.findByIdAndUpdate(id, { $set: data });
+  }
 
   async updatePasswordByEmail(
     email: string,
@@ -46,7 +48,9 @@ export class UserRepository
     return !!updatedUser;
   }
 
-  async bookAppointment(appointmentData: AppointmentTypes): Promise<AppointmentDocument> {
+  async bookAppointment(
+    appointmentData: AppointmentTypes
+  ): Promise<AppointmentDocument> {
     const { userId, docId, slotDate, slotTime } = appointmentData;
 
     const doctor = await doctorModel.findById(docId);
@@ -67,8 +71,14 @@ export class UserRepository
     slotDoc.slots[slotIndex].booked = true;
     await slotDoc.save();
 
-    const userData = await userModel.findById(userId).select("-password").lean();
-    const docData = await doctorModel.findById(docId).select("-password").lean();
+    const userData = await userModel
+      .findById(userId)
+      .select("-password")
+      .lean();
+    const docData = await doctorModel
+      .findById(docId)
+      .select("-password")
+      .lean();
 
     const appointment = new appointmentModel({
       userId,
@@ -84,43 +94,39 @@ export class UserRepository
     return await appointment.save();
   }
 
-  async findAppointmentById(appointmentId: string): Promise<AppointmentDocument | null> {
-  return await appointmentModel.findById(appointmentId).lean();
-}
+  async findAppointmentById(
+    appointmentId: string
+  ): Promise<AppointmentDocument | null> {
+    return await appointmentModel.findById(appointmentId).lean();
+  }
 
-  // async getAppointmentsByUserId(userId: string): Promise<AppointmentDocument[]> {
-  //   return appointmentModel.find({ userId }).sort({ date: -1 }).lean();
-  // }
+  async getAppointmentsByUserIdPaginated(
+    userId: string,
+    page: number,
+    limit: number
+  ): Promise<PaginationResult<AppointmentDocument>> {
+    const skip = (page - 1) * limit;
+    const totalCount = await appointmentModel.countDocuments({ userId });
 
-async getAppointmentsByUserIdPaginated(
-  userId: string,
-  page: number,
-  limit: number
-): Promise<PaginationResult<AppointmentDocument>> {
-  const skip = (page - 1) * limit;
-  const totalCount = await appointmentModel.countDocuments({ userId });
+    const data = await appointmentModel
+      .find({ userId })
+      .populate("userId", "name email image dob")
+      .populate("docId", "name image speciality")
+      .skip(skip)
+      .limit(limit)
+      .sort({ createdAt: -1 });
 
-  const data = await appointmentModel
-    .find({ userId })
-    .populate("userId", "name email image dob")
-    .populate("docId", "name image speciality")
-    .skip(skip)
-    .limit(limit)
-    .sort({ createdAt: -1 });
+    const totalPages = Math.ceil(totalCount / limit);
 
-  const totalPages = Math.ceil(totalCount / limit);
-
-  return {
-    data,
-    totalCount,
-    currentPage: page,
-    totalPages,
-    hasNextPage: page < totalPages,
-    hasPrevPage: page > 1,
-  };
-}
-
-
+    return {
+      data,
+      totalCount,
+      currentPage: page,
+      totalPages,
+      hasNextPage: page < totalPages,
+      hasPrevPage: page > 1,
+    };
+  }
 
   async findDoctorById(id: string): Promise<DoctorDocument | null> {
     return doctorModel.findById(id).select("-password") as any;

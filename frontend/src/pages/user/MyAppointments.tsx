@@ -1,27 +1,26 @@
-import { useContext, useEffect, useState } from "react";
-import { AppContext } from "../../context/AppContext";
-import { toast } from "react-toastify";
+import { useContext, useEffect, useState } from 'react';
+import { AppContext } from '../../context/AppContext';
+import { toast } from 'react-toastify';
 import {
   cancelAppointmentAPI,
-  getAppointmentsAPI,
   getAppointmentsPaginatedAPI,
-} from "../../services/appointmentServices";
-import { showErrorToast } from "../../utils/errorHandler";
-import { useNavigate } from "react-router-dom";
-import dayjs from "dayjs";
-import customParseFormat from "dayjs/plugin/customParseFormat";
-import { NotifContext } from "../../context/NotificationContext";
-import { updateItemInList } from "../../utils/stateHelper.util";
-import Pagination from "../../components/common/Pagination";
+} from '../../services/appointmentServices';
+import { showErrorToast } from '../../utils/errorHandler';
+import { useNavigate } from 'react-router-dom';
+import dayjs from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+import { NotifContext } from '../../context/NotificationContext';
+import { updateItemInList } from '../../utils/stateHelper.util';
+import Pagination from '../../components/common/Pagination';
 dayjs.extend(customParseFormat);
 
 
-const to12h = (t: string) => dayjs(t, "HH:mm").format("hh:mm A").toLowerCase();
+const to12h = (t: string) => dayjs(t, 'HH:mm').format('hh:mm A').toLowerCase();
 
 
 const MyAppointments = () => {
   const ctx = useContext(AppContext);
-  if (!ctx) throw new Error("MyAppointments must be within AppContext");
+  if (!ctx) throw new Error('MyAppointments must be within AppContext');
   const { token, slotDateFormat, userData } = ctx;
   const notif = useContext(NotifContext);
 
@@ -32,7 +31,7 @@ const [totalPages, setTotalPages] = useState(1);
   const nav = useNavigate();
 
   if (!token) {
-    toast.error("Please login to continue…");
+    toast.error('Please login to continue…');
     return null;
   }
 
@@ -40,7 +39,7 @@ const fetchAppointments = async (pageToFetch = 1) => {
   try {
     const { data } = await getAppointmentsPaginatedAPI(token, pageToFetch);
     if (data.success) {
-      setAppointments(data.data); // paginated appointments
+      setAppointments(data.data); 
       setTotalPages(data.totalPages);
       setPage(data.currentPage);
     }
@@ -55,8 +54,6 @@ const fetchAppointments = async (pageToFetch = 1) => {
       const { data } = await cancelAppointmentAPI(id, token);
       if (data.success) {
         toast.success(data.message);
-        // fetchAppointments();
-        // Removed getDoctorsData();
          setAppointments((prev) =>
         updateItemInList(prev, id, { cancelled: true })
       );
@@ -76,10 +73,8 @@ const handlePageChange = (newPage: number) => {
 };
 
 
-  const glass =
-    "bg-white/5 backdrop-blur ring-1 ring-white/10 rounded-xl overflow-hidden";
   const btn =
-    "text-sm sm:min-w-48 py-2 border rounded transition-transform hover:-translate-y-0.5";
+    'text-sm sm:min-w-48 py-2 border rounded transition-transform hover:-translate-y-0.5';
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 px-4 md:px-10 py-24">
@@ -90,7 +85,7 @@ const handlePageChange = (newPage: number) => {
       {appointments.map((a) => (
         <div
           key={a._id}
-          className={`grid grid-cols-[auto_1fr_auto] gap-4 md:gap-6 py-6 border-b border-white/5`}
+          className={'grid grid-cols-[auto_1fr_auto] gap-4 md:gap-6 py-6 border-b border-white/5'}
         >
           <img
             src={a.docData.image}
@@ -102,12 +97,12 @@ const handlePageChange = (newPage: number) => {
             <p>{a.docData.speciality}</p>
 
             <p className="text-xs">
-              <span className="font-medium">Address:</span>{" "}
+              <span className="font-medium">Address:</span>{' '}
               {a.docData.address.line1}, {a.docData.address.line2}
             </p>
 
             <p className="text-xs">
-              <span className="font-medium">Date & Time:</span>{" "}
+              <span className="font-medium">Date & Time:</span>{' '}
               {slotDateFormat(a.slotDate)} | {to12h(a.slotTime)}
             </p>
           </div>
@@ -136,7 +131,7 @@ const handlePageChange = (newPage: number) => {
 
             {!a.cancelled ? (
               <button
-                onClick={() => cancelAppointment(a._id!)}
+                onClick={() => cancelAppointment(a._id)}
                 className={`${btn} border-red-500 text-red-400 hover:bg-red-500 hover:text-white`}
               >
                 Cancel appointment

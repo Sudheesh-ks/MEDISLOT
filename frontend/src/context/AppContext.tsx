@@ -1,16 +1,15 @@
-import { createContext, useEffect, useState, type ReactNode } from "react";
-import type { Doctor } from "../assets/user/assets";
-import { assets } from "../assets/user/assets";
-import { toast } from "react-toastify";
-import { getUserProfileAPI } from "../services/userProfileServices";
-import { getDoctorsPaginatedAPI, getDoctorsByIDAPI } from "../services/doctorServices";
-import { showErrorToast } from "../utils/errorHandler";
+import { createContext, useCallback, useEffect, useState, type ReactNode } from 'react';
+// import { assets } from '../assets/user/assets';
+import { toast } from 'react-toastify';
+import { getUserProfileAPI } from '../services/userProfileServices';
+import { getDoctorsPaginatedAPI } from '../services/doctorServices';
+import { showErrorToast } from '../utils/errorHandler';
 import {
   getUserAccessToken,
   updateUserAccessToken,
   clearUserAccessToken,
-} from "./tokenManagerUser";
-import { refreshAccessTokenAPI } from "../services/authServices";
+} from './tokenManagerUser';
+import { refreshAccessTokenAPI } from '../services/authServices';
 
 interface userData {
   _id? : string
@@ -57,57 +56,47 @@ interface AppContextProviderProps {
 const AppContextProvider: React.FC<AppContextProviderProps> = ({
   children,
 }) => {
-  const currencySymbol = "₹";
+  const currencySymbol = '₹';
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
   const [token, setTokenState] = useState<string | null>(getUserAccessToken());
-  const [userData, setUserData] = useState<null | userData>({
-    name: "",
-    email: "",
-    phone: "",
-    image: `${assets.upload_image}`,
-    address: {
-      line1: "",
-      line2: "",
-    },
-    gender: "",
-    dob: "",
-  });
+const [userData, setUserData] = useState<null | userData>(null);
 
-  const getDoctorsPaginated = async (page: number, limit: number): Promise<PaginationData> => {
-    try {
-      const { data } = await getDoctorsPaginatedAPI(page, limit);
-      if (data.success) {
-        return {
-          data: data.data,
-          totalCount: data.totalCount,
-          currentPage: data.currentPage,
-          totalPages: data.totalPages,
-          hasNextPage: data.hasNextPage,
-          hasPrevPage: data.hasPrevPage
-        };
-      } else {
-        toast.error(data.message);
-        throw new Error(data.message);
-      }
-    } catch (error) {
-      showErrorToast(error);
-      throw error;
+
+ const getDoctorsPaginated = useCallback(async (page: number, limit: number): Promise<PaginationData> => {
+  try {
+    const { data } = await getDoctorsPaginatedAPI(page, limit);
+    if (data.success) {
+      return {
+        data: data.data,
+        totalCount: data.totalCount,
+        currentPage: data.currentPage,
+        totalPages: data.totalPages,
+        hasNextPage: data.hasNextPage,
+        hasPrevPage: data.hasPrevPage
+      };
+    } else {
+      toast.error(data.message);
+      throw new Error(data.message);
     }
-  };
+  } catch (error) {
+    showErrorToast(error);
+    throw error;
+  }
+}, []);
 
   const loadUserProfileData = async () => {
     try {
       const accessToken = getUserAccessToken();
       if (!accessToken) {
-        toast.error("Please login to continue...");
+        toast.error('Please login to continue...');
         return;
       }
 
       const { data } = await getUserProfileAPI(accessToken);
       if (data.success) {
         if (data.userData.isBlocked) {
-          toast.error("Your account has been blocked. Logging out.");
+          toast.error('Your account has been blocked. Logging out.');
           clearToken();
           return;
         }
@@ -140,29 +129,29 @@ const AppContextProvider: React.FC<AppContextProviderProps> = ({
   };
 
   const months = [
-    "",
-    "Jan",
-    "Feb",
-    "Mar",
-    "Apr",
-    "May",
-    "Jun",
-    "Jul",
-    "Aug",
-    "Sep",
-    "Oct",
-    "Nov",
-    "Dec",
+    '',
+    'Jan',
+    'Feb',
+    'Mar',
+    'Apr',
+    'May',
+    'Jun',
+    'Jul',
+    'Aug',
+    'Sep',
+    'Oct',
+    'Nov',
+    'Dec',
   ];
 
   const slotDateFormat = (slotDate: string): string => {
-    if (!slotDate) return "N/A";
-    const dateArray = slotDate.split("-");
-    if (dateArray.length < 3) return "N/A";
+    if (!slotDate) return 'N/A';
+    const dateArray = slotDate.split('-');
+    if (dateArray.length < 3) return 'N/A';
     const day = dateArray[0];
     const monthIndex = Number(dateArray[1]);
     const year = dateArray[2];
-    if (isNaN(monthIndex) || !months[monthIndex]) return "N/A";
+    if (isNaN(monthIndex) || !months[monthIndex]) return 'N/A';
     return `${day} ${months[monthIndex]} ${year}`;
   };
 
@@ -180,14 +169,14 @@ const AppContextProvider: React.FC<AppContextProviderProps> = ({
         }
       } catch (err: any) {
         console.warn(
-          "User token refresh failed",
+          'User token refresh failed',
           err.response?.data || err.message
         );
         clearToken();
       }
     };
 
-      const wasLoggedOut = localStorage.getItem("isUserLoggedOut") === "true";
+      const wasLoggedOut = localStorage.getItem('isUserLoggedOut') === 'true';
 
     if (!getUserAccessToken()) {
        if (!wasLoggedOut) {
@@ -199,24 +188,24 @@ const AppContextProvider: React.FC<AppContextProviderProps> = ({
 
   }, []);
 
-  useEffect(() => {
-    if (token) {
-      loadUserProfileData();
-    } else {
-      setUserData({
-        name: "",
-        email: "",
-        phone: "",
-        image: `${assets.upload_image}`,
-        address: {
-          line1: "",
-          line2: "",
-        },
-        gender: "",
-        dob: "",
-      });
-    }
-  }, [token]);
+  // useEffect(() => {
+  //   if (token) {
+  //     // loadUserProfileData();
+  //   } else {
+  //     setUserData({
+  //       name: '',
+  //       email: '',
+  //       phone: '',
+  //       image: `${assets.upload_image}`,
+  //       address: {
+  //         line1: '',
+  //         line2: '',
+  //       },
+  //       gender: '',
+  //       dob: '',
+  //     });
+  //   }
+  // }, [token]);
 
   const value: AppContextType = {
     getDoctorsPaginated,

@@ -5,18 +5,18 @@ import React, {
   useCallback,
   useContext,
   useMemo,
-} from "react";
-import { matchPath, useLocation } from "react-router-dom";
-import io, { Socket } from "socket.io-client";
-import { toast } from "react-toastify";
+} from 'react';
+import { matchPath, useLocation } from 'react-router-dom';
+import io, { Socket } from 'socket.io-client';
+import { toast } from 'react-toastify';
 
-import { AppContext } from "./AppContext";
-import { DoctorContext } from "./DoctorContext";
-import { AdminContext } from "./AdminContext";
+import { AppContext } from './AppContext';
+import { DoctorContext } from './DoctorContext';
+import { AdminContext } from './AdminContext';
 
 
 const SOCKET_URL =
-  import.meta.env.VITE_SOCKET_URL ?? "http://localhost:4000";
+  import.meta.env.VITE_SOCKET_URL ?? 'http://localhost:4000';
 
 type UnreadMap = Record<string, number>;
 
@@ -25,7 +25,7 @@ export interface NotifCtx {
   inc: (chatId: string) => void;
   markRead: (chatId: string) => void;
   socket: Socket | null;
-  myRole: "user" | "doctor" | "admin";
+  myRole: 'user' | 'doctor' | 'admin';
 }
 
 export const NotifContext = createContext<NotifCtx>({
@@ -33,7 +33,7 @@ export const NotifContext = createContext<NotifCtx>({
   inc: () => {},
   markRead: () => {},
   socket: null,
-  myRole: "user",
+  myRole: 'user',
 });
 
 const storageKeyFor = (id?: string | null) => (id ? `unread_${id}` : null);
@@ -44,22 +44,22 @@ export const NotifProvider: React.FC<React.PropsWithChildren> = ({
   const { pathname } = useLocation();
 
   const { userData } = useContext(AppContext)!;
-  const { profileData } = useContext(DoctorContext)!;
+  const { profileData } = useContext(DoctorContext);
   const { dashData } = useContext(AdminContext)!;
 
-  const isDoctorRoute = pathname.startsWith("/doctor");
-  const isAdminRoute = pathname.startsWith("/admin");
+  const isDoctorRoute = pathname.startsWith('/doctor');
+  const isAdminRoute = pathname.startsWith('/admin');
 
-  const myRole: "user" | "doctor" | "admin" = isAdminRoute
-    ? "admin"
+  const myRole: 'user' | 'doctor' | 'admin' = isAdminRoute
+    ? 'admin'
     : isDoctorRoute
-    ? "doctor"
-    : "user";
+    ? 'doctor'
+    : 'user';
 
   const myId =
-    myRole === "user"
+    myRole === 'user'
       ? userData?._id
-      : myRole === "doctor"
+      : myRole === 'doctor'
       ? profileData?._id
       : dashData?._id;
 
@@ -117,22 +117,22 @@ export const NotifProvider: React.FC<React.PropsWithChildren> = ({
       from: { id: string; role: string };
       preview: string;
     }) => {
-      if (myRole === "admin") return;
+      if (myRole === 'admin') return;
       if (p.from.id === myId) return;
       if (p.from.role === myRole) return;
 
       inc(p.chatId);
 
-      const viewing = matchPath({ path: "**/chat/:cid" }, pathname)?.params.cid;
+      const viewing = matchPath({ path: '**/chat/:cid' }, pathname)?.params.cid;
       if (viewing === p.chatId) return;
 
-      toast.info("💬  You have a new message", { autoClose: 3500 });
+      toast.info('💬  You have a new message', { autoClose: 3500 });
     };
 
-    s.on("dmNotice", onDm);
+    s.on('dmNotice', onDm);
 
     return () => {
-      s.off("dmNotice", onDm);
+      s.off('dmNotice', onDm);
       s.disconnect();
       setSocket(null);
     };

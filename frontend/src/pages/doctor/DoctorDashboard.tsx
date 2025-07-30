@@ -1,11 +1,11 @@
-import { useContext, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { DoctorContext } from "../../context/DoctorContext";
-import { AppContext } from "../../context/AppContext";
-import { AdminContext } from "../../context/AdminContext";
-import { assets } from "../../assets/admin/assets";
-import type { AppointmentTypes } from "../../types/appointment";
-import { motion } from "framer-motion";
+import { useContext, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { DoctorContext } from '../../context/DoctorContext';
+import { AppContext } from '../../context/AppContext';
+import { AdminContext } from '../../context/AdminContext';
+import { assets } from '../../assets/admin/assets';
+import type { AppointmentTypes } from '../../types/appointment';
+import { motion } from 'framer-motion';
 
 const DoctorDashboard = () => {
   const nav = useNavigate();
@@ -13,7 +13,7 @@ const DoctorDashboard = () => {
   const app = useContext(AppContext);
   const adm = useContext(AdminContext);
 
-  if (!ctx || !app || !adm) throw new Error("context missing");
+  if (!ctx || !app || !adm) throw new Error('context missing');
 
   const { dToken, cancelAppointment, profileData } = ctx;
   const { dashData, getDashData } = adm;
@@ -23,18 +23,21 @@ const DoctorDashboard = () => {
     if (dToken) getDashData();
   }, [dToken]);
   useEffect(() => {
-    if (!dToken) nav("/doctor/login");
+    if (!dToken) nav('/doctor/login');
   }, [dToken]);
 
-  if (profileData?.status === "pending")
+  if (profileData?.status === 'pending')
     return (
       <div className="m-5 text-center bg-yellow-900/30 border border-yellow-600 rounded-xl p-6 text-yellow-200 shadow-md">
         <h2 className="text-xl font-semibold mb-2">⏳ Awaiting Approval</h2>
-        <p>Your registration is under review.</p>
+        <p>
+          Your registration is under review. The admin has not approved your
+          account yet.
+        </p>
       </div>
     );
 
-  if (profileData?.status === "rejected")
+  if (profileData?.status === 'rejected')
     return (
       <div className="m-5 text-center bg-red-900/30 border border-red-600 rounded-xl p-6 text-red-300 shadow-md">
         <h2 className="text-xl font-semibold mb-2">❌ Registration Rejected</h2>
@@ -42,10 +45,9 @@ const DoctorDashboard = () => {
       </div>
     );
 
-  if (profileData?.status !== "approved") return null;
+  if (profileData?.status !== 'approved') return null;
 
-  const glass = "bg-white/5 backdrop-blur ring-1 ring-white/10";
-  const gradient = "from-cyan-500 to-fuchsia-600";
+  const glass = 'bg-white/5 backdrop-blur ring-1 ring-white/10';
 
   return (
     dashData && (
@@ -54,30 +56,30 @@ const DoctorDashboard = () => {
           {[
             {
               count: `₹${dashData.totalEarnings}`,
-              label: "Total Earnings",
+              label: 'Total Earnings',
               icon: assets.earning_icon,
-              grad: "from-yellow-400 to-orange-500",
-              path: "/doctor/earnings",
+              grad: 'from-yellow-400 to-orange-500',
+              path: '/doctor/earnings',
             },
             {
               count: dashData.appointments,
-              label: "Appointments",
+              label: 'Appointments',
               icon: assets.appointments_icon,
-              grad: "from-cyan-500 to-indigo-500",
-              path: "/doctor/appointments",
+              grad: 'from-cyan-500 to-indigo-500',
+              path: '/doctor/appointments',
             },
             {
               count: dashData.upcomingAppointments || 0,
-              label: "Patients",
+              label: 'Patients',
               icon: assets.patients_icon,
-              grad: "from-emerald-400 to-teal-500",
-              path: "/doctor/appointments",
+              grad: 'from-emerald-400 to-teal-500',
+              path: '/doctor/appointments',
             },
           ].map((card, i) => (
             <motion.div
               key={i}
               whileHover={{ scale: 1.05 }}
-              transition={{ type: "spring", stiffness: 300 }}
+              transition={{ type: 'spring', stiffness: 300 }}
               onClick={() => nav(card.path)}
               className={`cursor-pointer bg-gradient-to-r ${card.grad} p-6 rounded-xl shadow-lg flex items-center gap-4`}
             >

@@ -1,7 +1,6 @@
 import { MessageDTO } from "../dtos/message.dto";
 import { MessageDocument } from "../models/messageModel";
 
-
 export const toMessageDTO = (m: MessageDocument): MessageDTO => {
   return {
     _id: m._id.toString(),

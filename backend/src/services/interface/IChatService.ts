@@ -21,6 +21,9 @@ export interface IChatService {
     replyTo?: string;
   }): Promise<MessageDTO>;
 
+  uploadFile(
+    file?: Express.Multer.File
+  ): Promise<{ result: string; mime: string }>;
   delivered(messageId: string, userId: string): Promise<void>;
   read(chatId: string, userId: string): Promise<void>;
   delete(messageId: string): Promise<void>;

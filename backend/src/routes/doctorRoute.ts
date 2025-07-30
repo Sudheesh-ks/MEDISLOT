@@ -4,20 +4,18 @@ import { DoctorService } from "../services/implementation/DoctorService";
 import { DoctorRepository } from "../repositories/implementation/DoctorRepository";
 import upload from "../middlewares/multer";
 import authRole from "../middlewares/authRole";
-import { SlotRepository } from "../repositories/implementation/SlotRepository";
-import { DoctorSlotService } from "../services/implementation/SlotService";
-// import { ChatController } from '../controllers/implementation/ChatController';
 
 const doctorRepository = new DoctorRepository();
-const slotRepository = new SlotRepository();
 const doctorService = new DoctorService(doctorRepository);
-const slotService = new DoctorSlotService(slotRepository);
-const doctorController = new DoctorController(doctorService, slotService);
+const doctorController = new DoctorController(doctorService);
 
 const doctorRouter = express.Router();
 
 doctorRouter.get("/", doctorController.doctorList.bind(doctorController));
-doctorRouter.get("/paginated", doctorController.getDoctorsPaginated.bind(doctorController));
+doctorRouter.get(
+  "/paginated",
+  doctorController.getDoctorsPaginated.bind(doctorController)
+);
 doctorRouter.post(
   "/register",
   upload.single("image"),
@@ -76,24 +74,6 @@ doctorRouter.patch(
   authRole(["doctor"]),
   upload.single("image"),
   doctorController.updateDoctorProfile.bind(doctorController)
-);
-
-// doctorRouter.get(
-//   "/slots",
-//   authRole(["doctor"]),
-//   doctorController.getMonthlySlots.bind(doctorController)
-// );
-
-doctorRouter.post(
-  "/slots",
-  authRole(["doctor"]),
-  doctorController.updateDaySlot.bind(doctorController)
-);
-
-doctorRouter.get(
-  "/slots/day",
-  authRole(["doctor"]),
-  doctorController.getDaySlot.bind(doctorController)
 );
 
 doctorRouter.get("/:id", doctorController.getDoctorById.bind(doctorController));

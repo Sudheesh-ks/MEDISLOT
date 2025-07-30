@@ -1,5 +1,5 @@
-import { adminApi as api } from "../axios/adminAxiosInstance";
-import { ADMIN_API } from "../constants/apiRoutes";
+import { adminApi as api } from '../axios/adminAxiosInstance';
+import { ADMIN_API } from '../constants/apiRoutes';
 
 export const adminLoginAPI = async (email: string, password: string) => {
   return await api.post(ADMIN_API.LOGIN, { email, password });
@@ -45,7 +45,7 @@ export const adminAddDoctorAPI = async (formData: FormData, token: string) => {
   return await api.post(ADMIN_API.DOCTORS, formData, {
     headers: {
       Authorization: `Bearer ${token}`,
-      "Content-Type": "multipart/form-data",
+      'Content-Type': 'multipart/form-data',
     },
   });
 };

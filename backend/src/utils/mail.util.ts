@@ -3,20 +3,15 @@ import nodemailer from "nodemailer";
 const { MAIL_EMAIL, MAIL_PASSWORD } = process.env as Record<string, string>;
 
 const transporter = nodemailer.createTransport({
-  service: "gmail",                       
+  service: "gmail",
   auth: { user: MAIL_EMAIL, pass: MAIL_PASSWORD },
 });
 
-export const sendEmail = async (
-  to: string,
-  subject: string,
-  html: string,
-) => {
+export const sendEmail = async (to: string, subject: string, html: string) => {
   await transporter.sendMail({ from: MAIL_EMAIL, to, subject, html });
 };
 
-
-// OTP 
+// OTP
 export const sendOTP = async (email: string, otp: string) =>
   sendEmail(
     email,
@@ -48,15 +43,14 @@ export const sendOTP = async (email: string, otp: string) =>
         </p>
       </div>
     </div>
-    `,
+    `
   );
-  
 
-// Doctor rejection 
+// Doctor rejection
 export const sendDoctorRejectionEmail = async (
   email: string,
   name: string,
-  reason?: string,
+  reason?: string
 ) =>
   sendEmail(
     email,
@@ -84,5 +78,5 @@ export const sendDoctorRejectionEmail = async (
         </p>
       </div>
     </div>
-    `,
+    `
   );

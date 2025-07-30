@@ -1,24 +1,24 @@
-import React, { useContext, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
-import { AdminContext } from "../../context/AdminContext";
-import { adminLoginAPI } from "../../services/adminServices";
-import { showErrorToast } from "../../utils/errorHandler";
-import { assets } from "../../assets/user/assets";
-import { updateAdminAccessToken } from "../../context/tokenManagerAdmin";
+import React, { useContext, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { AdminContext } from '../../context/AdminContext';
+import { adminLoginAPI } from '../../services/adminServices';
+import { showErrorToast } from '../../utils/errorHandler';
+import { assets } from '../../assets/user/assets';
+import { updateAdminAccessToken } from '../../context/tokenManagerAdmin';
 
 const AdminLogin = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const nav = useNavigate();
 
   const ctx = useContext(AdminContext);
   if (!ctx)
-    throw new Error("AdminContext must be used within AdminContextProvider");
+    throw new Error('AdminContext must be used within AdminContextProvider');
   const { aToken, setAToken } = ctx;
 
   useEffect(() => {
-    if (aToken) nav("/admin/dashboard");
+    if (aToken) nav('/admin/dashboard');
   }, [aToken, nav]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -28,20 +28,20 @@ const AdminLogin = () => {
       if (data.success) {
         updateAdminAccessToken(data.token);
         setAToken(data.token);
-        localStorage.removeItem("isAdminLoggedOut");
-        toast.success("Login successful");
-        nav("/admin/dashboard");
+        localStorage.removeItem('isAdminLoggedOut');
+        toast.success('Login successful');
+        nav('/admin/dashboard');
       } else toast.error(data.message);
     } catch (err) {
       showErrorToast(err);
     }
   };
 
-  const glass = "bg-white/5 backdrop-blur ring-1 ring-white/10";
+  const glass = 'bg-white/5 backdrop-blur ring-1 ring-white/10';
   const input =
-    "border-none ring-1 ring-white/10 rounded w-full px-4 py-2 mt-1 bg-transparent text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500";
+    'border-none ring-1 ring-white/10 rounded w-full px-4 py-2 mt-1 bg-transparent text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500';
   const btn =
-    "bg-gradient-to-r from-indigo-500 to-fuchsia-600 w-full py-2 rounded-md text-base hover:-translate-y-0.5 transition-transform disabled:opacity-60";
+    'bg-gradient-to-r from-indigo-500 to-fuchsia-600 w-full py-2 rounded-md text-base hover:-translate-y-0.5 transition-transform disabled:opacity-60';
 
   return (
     <div className="min-h-[80vh] flex items-center justify-center bg-slate-950 text-slate-100 relative overflow-hidden">

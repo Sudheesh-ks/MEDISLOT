@@ -1,11 +1,11 @@
 import { BaseRepository } from "../BaseRepository";
-import appointmentModel, { AppointmentDocument } from "../../models/appointmentModel";
+import appointmentModel, {
+  AppointmentDocument,
+} from "../../models/appointmentModel";
 import doctorModel, { DoctorDocument } from "../../models/doctorModel";
 import { AppointmentTypes } from "../../types/appointment";
 import { DoctorTypes } from "../../types/doctor";
-import {
-  IDoctorRepository,
-} from "../interface/IDoctorRepository";
+import { IDoctorRepository } from "../interface/IDoctorRepository";
 import { PaginationResult } from "../../types/pagination";
 
 export class DoctorRepository
@@ -36,7 +36,9 @@ export class DoctorRepository
     return doctorModel.find({}).select("-password");
   }
 
-  async findAppointmentsByDoctorId(docId: string): Promise<AppointmentDocument[]> {
+  async findAppointmentsByDoctorId(
+    docId: string
+  ): Promise<AppointmentDocument[]> {
     return appointmentModel.find({ docId });
   }
 

@@ -1,5 +1,3 @@
-// import { Types } from "mongoose";
-
 import { Types } from "mongoose";
 
 export interface Address {
@@ -21,11 +19,8 @@ export interface userTypes {
   googleId?: string;
 }
 
-
 export interface UserAppntTypes {
   name: string;
   email: string;
   phone: string;
 }
-
-// export type UserDocument = HydratedDocument<userData>;

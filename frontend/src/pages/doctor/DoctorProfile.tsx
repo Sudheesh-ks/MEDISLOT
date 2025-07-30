@@ -1,19 +1,19 @@
-import { useContext, useEffect, useState } from "react";
-import { DoctorContext } from "../../context/DoctorContext";
-import { useNavigate } from "react-router-dom";
-import { AppContext } from "../../context/AppContext";
-import { motion } from "framer-motion";
-import { toast } from "react-toastify";
-import { assets } from "../../assets/user/assets";
-import { showErrorToast } from "../../utils/errorHandler";
-import { updateDoctorProfileAPI } from "../../services/doctorServices";
+import React, { useContext, useEffect, useState } from 'react';
+import { DoctorContext } from '../../context/DoctorContext';
+import { useNavigate } from 'react-router-dom';
+import { AppContext } from '../../context/AppContext';
+import { motion } from 'framer-motion';
+import { toast } from 'react-toastify';
+import { assets } from '../../assets/user/assets';
+import { showErrorToast } from '../../utils/errorHandler';
+import { updateDoctorProfileAPI } from '../../services/doctorServices';
 
 const DoctorProfile = () => {
   const ctx = useContext(DoctorContext);
   const app = useContext(AppContext);
   const nav = useNavigate();
-  if (!ctx) throw new Error("DoctorProfile within DoctorContext");
-  if (!app) throw new Error("DoctorProfile within AppContext");
+  if (!ctx) throw new Error('DoctorProfile within DoctorContext');
+  if (!app) throw new Error('DoctorProfile within AppContext');
 
   const { dToken, profileData, getProfileData } = ctx;
   const { currencySymbol } = app;
@@ -27,16 +27,16 @@ const DoctorProfile = () => {
     if (dToken) getProfileData();
   }, [dToken]);
   useEffect(() => {
-    if (!dToken) nav("/doctor/login");
+    if (!dToken) nav('/doctor/login');
   }, [dToken]);
   useEffect(() => {
     setForm(profileData);
   }, [profileData]);
 
-  const glass = "bg-white/5 backdrop-blur ring-1 ring-white/10";
+  const glass = 'bg-white/5 backdrop-blur ring-1 ring-white/10';
   const input =
-    "bg-transparent ring-1 ring-white/10 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500";
-  const label = "text-sm font-medium text-slate-400";
+    'bg-transparent ring-1 ring-white/10 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500';
+  const label = 'text-sm font-medium text-slate-400';
 
   const onField = (e: React.ChangeEvent<HTMLElement>) => {
     const { name, value } = e.target as
@@ -45,12 +45,12 @@ const DoctorProfile = () => {
       | HTMLSelectElement;
     setForm((p) => (p ? { ...p, [name]: value } : p));
   };
-  const setAddr = (k: "line1" | "line2", v: string) =>
+  const setAddr = (k: 'line1' | 'line2', v: string) =>
     setForm((p) => (p ? { ...p, address: { ...p.address, [k]: v } } : p));
 
   const save = async () => {
     try {
-      if (!dToken) return toast.error("Login to continue");
+      if (!dToken) return toast.error('Login to continue');
       const { data } = await updateDoctorProfileAPI(
         { ...form, available: avail },
         image
@@ -64,21 +64,24 @@ const DoctorProfile = () => {
     }
   };
 
-  if (profileData?.status === "pending")
+  if (profileData?.status === 'pending')
     return (
       <div className="m-5 text-center bg-yellow-900/30 border border-yellow-600 rounded-xl p-6 text-yellow-200 shadow-md">
         <h2 className="text-xl font-semibold mb-2">⏳ Awaiting Approval</h2>
-        <p>Your registration is under review.</p>
+        <p>
+          Your registration is under review. The admin has not approved your
+          account yet.
+        </p>
       </div>
     );
-  if (profileData?.status === "rejected")
+  if (profileData?.status === 'rejected')
     return (
       <div className="m-5 text-center bg-red-900/30 border border-red-600 rounded-xl p-6 text-red-300 shadow-md">
         <h2 className="text-xl font-semibold mb-2">❌ Registration Rejected</h2>
         <p>Please contact support or try registering again.</p>
       </div>
     );
-  if (profileData?.status !== "approved") return null;
+  if (profileData?.status !== 'approved') return null;
 
   return profileData && form ? (
     <motion.div
@@ -106,6 +109,7 @@ const DoctorProfile = () => {
             <input
               id="doc-img"
               type="file"
+              accept="image/*"
               hidden
               onChange={(e) => setImage(e.target.files?.[0] || null)}
             />
@@ -212,12 +216,12 @@ const DoctorProfile = () => {
             <>
               <input
                 value={form.address.line1}
-                onChange={(e) => setAddr("line1", e.target.value)}
+                onChange={(e) => setAddr('line1', e.target.value)}
                 className={`${input} w-full mt-1`}
               />
               <input
                 value={form.address.line2}
-                onChange={(e) => setAddr("line2", e.target.value)}
+                onChange={(e) => setAddr('line2', e.target.value)}
                 className={`${input} w-full mt-2`}
               />
             </>
@@ -247,11 +251,11 @@ const DoctorProfile = () => {
             <span
               className={`px-3 py-1 rounded-full text-xs font-semibold ${
                 avail
-                  ? "bg-emerald-500/20 text-emerald-400"
-                  : "bg-slate-600/40 text-slate-400"
+                  ? 'bg-emerald-500/20 text-emerald-400'
+                  : 'bg-slate-600/40 text-slate-400'
               }`}
             >
-              {avail ? "Available" : "Not Available"}
+              {avail ? 'Available' : 'Not Available'}
             </span>
           )}
         </div>
@@ -260,8 +264,8 @@ const DoctorProfile = () => {
           whileHover={{ scale: 1.05 }}
           className={`px-8 py-2 rounded-full ${
             isEdit
-              ? "bg-gradient-to-r from-cyan-500 to-fuchsia-600 text-white"
-              : "border border-cyan-500 text-cyan-400 hover:bg-cyan-500 hover:text-white"
+              ? 'bg-gradient-to-r from-cyan-500 to-fuchsia-600 text-white'
+              : 'border border-cyan-500 text-cyan-400 hover:bg-cyan-500 hover:text-white'
           } transition-transform`}
           onClick={
             isEdit
@@ -272,7 +276,7 @@ const DoctorProfile = () => {
                 }
           }
         >
-          {isEdit ? "Save Changes" : "Edit Profile"}
+          {isEdit ? 'Save Changes' : 'Edit Profile'}
         </motion.button>
       </motion.div>
     </motion.div>

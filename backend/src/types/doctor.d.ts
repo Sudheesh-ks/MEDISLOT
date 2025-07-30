@@ -22,10 +22,10 @@ export interface DoctorTypes {
   available?: boolean;
   fees: number;
   address: Address;
-  status?: "pending" | "approved" | "rejected"; 
+  status?: "pending" | "approved" | "rejected";
   date?: Date;
   slots_booked?: {
-    [date: string]: string[]; 
+    [date: string]: string[];
   };
   rejectionReason?: string;
 }
@@ -34,21 +34,3 @@ export interface DoctorAppntTypes {
   name: string;
   speciality: string;
 }
-
-// export interface DoctorDTO {
-//   name: string;
-//   email: string;
-//   password: string;
-//   speciality: string;
-//   degree: string;
-//   experience: string;
-//   about: string;
-//   fees: number;
-//   address: Address;
-//   imagePath?: string;
-// }
-
-
-
-// export type DoctorDocument = HydratedDocument<DoctorData>;
-

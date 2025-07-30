@@ -1,9 +1,5 @@
-import { AppointmentTypes } from "../types/appointment";
-import { DoctorAppntTypes } from "../types/doctor";
-import { UserAppntTypes } from "../types/user";
 import { DoctorDTO } from "./doctor.dto";
 import { UserDTO } from "./user.dto";
-
 
 export interface AppointmentDTO {
   _id?: string;
@@ -18,4 +14,3 @@ export interface AppointmentDTO {
   isConfirmed?: boolean;
   isCompleted?: boolean;
 }
-

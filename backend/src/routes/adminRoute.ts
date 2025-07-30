@@ -8,22 +8,12 @@ import { AdminService } from "../services/implementation/AdminService";
 import { AdminController } from "../controllers/implementation/AdminController";
 
 import { DoctorRepository } from "../repositories/implementation/DoctorRepository";
-import { DoctorService } from "../services/implementation/DoctorService";
-import { DoctorController } from "../controllers/implementation/DoctorController";
-import { DoctorSlotService } from "../services/implementation/SlotService";
-import { SlotRepository } from "../repositories/implementation/SlotRepository";
 
 // Admin Layer
 const adminRepository = new AdminRepository();
 const doctorRepository = new DoctorRepository();
-const slotRepository = new SlotRepository();
 const adminService = new AdminService(adminRepository, doctorRepository);
 const adminController = new AdminController(adminService);
-
-// Doctor Layer
-const doctorService = new DoctorService(doctorRepository);
-const SlotService = new DoctorSlotService(slotRepository);
-const doctorController = new DoctorController(doctorService, SlotService);
 
 const adminRouter = express.Router();
 
@@ -33,10 +23,7 @@ adminRouter.post(
   adminController.refreshAdminToken.bind(adminController)
 );
 
-adminRouter.post(
-  "/logout",
-  adminController.logoutAdmin.bind(adminController)
-);
+adminRouter.post("/logout", adminController.logoutAdmin.bind(adminController));
 adminRouter.get(
   "/users/paginated",
   authRole(["admin"]),
@@ -47,12 +34,7 @@ adminRouter.patch(
   authRole(["admin"]),
   adminController.toggleUserBlock.bind(adminController)
 );
-// adminRouter.post(
-//   "/doctors",
-//   authRole(["admin"]),
-//   upload.single("image"),
-//   adminController.addDoctor.bind(adminController)
-// );
+
 adminRouter.get(
   "/doctors/paginated",
   authRole(["admin"]),
@@ -68,12 +50,6 @@ adminRouter.patch(
   "/doctors/:id/reject",
   authRole(["admin"]),
   adminController.rejectDoctor.bind(adminController)
-);
-
-adminRouter.patch(
-  "/doctors/:doctorId/availability",
-  authRole(["admin"]),
-  doctorController.changeAvailability.bind(doctorController)
 );
 
 adminRouter.get(

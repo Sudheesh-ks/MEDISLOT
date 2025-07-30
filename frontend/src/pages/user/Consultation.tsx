@@ -1,6 +1,6 @@
-import VideoCallCard from "../../components/user/VideoCallCard";
-import ChatCard from "../../components/user/ChatCard";
-import { useParams } from "react-router-dom";
+import VideoCallCard from '../../components/user/VideoCallCard';
+import ChatCard from '../../components/user/ChatCard';
+import { useParams } from 'react-router-dom';
 
 const Consultation = () => {
   const { doctorId } = useParams();

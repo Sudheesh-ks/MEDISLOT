@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 interface PaginationProps {
   currentPage: number;
@@ -13,11 +13,11 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
       for (let i = 1; i <= totalPages; i++) pages.push(i);
     } else {
       pages.push(1);
-      if (currentPage > 4) pages.push("…");
+      if (currentPage > 4) pages.push('…');
       const start = Math.max(2, currentPage - 1);
       const end = Math.min(totalPages - 1, currentPage + 1);
       for (let i = start; i <= end; i++) pages.push(i);
-      if (currentPage < totalPages - 3) pages.push("…");
+      if (currentPage < totalPages - 3) pages.push('…');
       pages.push(totalPages);
     }
     return pages;
@@ -34,13 +34,13 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
       </button>
 
       {getPages().map((p, idx) =>
-        p === "…" ? (
+        p === '…' ? (
           <span key={`ellipsis-${idx}`} className="px-2 text-slate-400">…</span>
         ) : (
           <button
             key={p}
             onClick={() => onPageChange(Number(p))}
-            className={`px-3 py-1 rounded-lg text-sm ring-1 ring-white/10 hover:bg-white/5 ${p === currentPage ? "bg-cyan-500/20" : ""}`}
+            className={`px-3 py-1 rounded-lg text-sm ring-1 ring-white/10 hover:bg-white/5 ${p === currentPage ? 'bg-cyan-500/20' : ''}`}
           >
             {p}
           </button>

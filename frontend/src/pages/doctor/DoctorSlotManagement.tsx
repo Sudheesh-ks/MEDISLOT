@@ -1,8 +1,8 @@
-import React, { useContext, useEffect, useMemo, useState } from "react";
-import dayjs, { Dayjs } from "dayjs";
-import customParseFormat from "dayjs/plugin/customParseFormat";
+import { useContext, useEffect, useMemo, useState } from 'react';
+import dayjs, { Dayjs } from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
 dayjs.extend(customParseFormat);
-import { motion } from "framer-motion";
+import { motion } from 'framer-motion';
 import {
   ChevronLeft,
   ChevronRight,
@@ -11,73 +11,73 @@ import {
   Check,
   X,
   Calendar as CalendarIcon,
-} from "lucide-react";
+} from 'lucide-react';
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
-} from "../../components/doctor/SlotCard";
-import { Button } from "../../components/doctor/Button";
-import { Input } from "../../components/doctor/SlotInput";
+} from '../../components/doctor/SlotCard';
+import { Button } from '../../components/doctor/Button';
+import { Input } from '../../components/doctor/SlotInput';
 import {
   getDaySlotsAPI,
   upsertDaySlotsAPI,
-} from "../../services/doctorServices";
-import { toast } from "react-toastify";
-import { DoctorContext } from "../../context/DoctorContext";
+} from '../../services/doctorServices';
+import { toast } from 'react-toastify';
+import { DoctorContext } from '../../context/DoctorContext';
 
-const to12h = (t: string) => dayjs(t, "HH:mm").format("hh:mm A").toLowerCase();
+const to12h = (t: string) => dayjs(t, 'HH:mm').format('hh:mm A').toLowerCase();
 
 export default function DoctorSlotManager() {
   const doctorContext = useContext(DoctorContext);
 
-  if (!doctorContext) throw new Error("context missing");
+  if (!doctorContext) throw new Error('context missing');
 
   const { profileData } = doctorContext;
-  const [month, setMonth] = useState<Dayjs>(dayjs().startOf("month"));
+  const [month, setMonth] = useState<Dayjs>(dayjs().startOf('month'));
   const [selectedDate, setSelectedDate] = useState<Dayjs | null>(dayjs());
   const [ranges, setRanges] = useState<Range[]>([]);
-  const [start, setStart] = useState("09:00");
-  const [end, setEnd] = useState("17:00");
+  const [start, setStart] = useState('09:00');
+  const [end, setEnd] = useState('17:00');
   const [confirmLeave, setConfirmLeave] = useState(false);
   const [dayStatus, setDayStatus] = useState<Record<string, boolean>>({});
 
   const monthDays = useMemo(() => {
-    const startDay = month.startOf("week");
-    const endDay = month.endOf("month").endOf("week");
+    const startDay = month.startOf('week');
+    const endDay = month.endOf('month').endOf('week');
 
     const days: Dayjs[] = [];
     let day = startDay;
     while (day.isBefore(endDay)) {
       days.push(day);
-      day = day.add(1, "day");
+      day = day.add(1, 'day');
     }
     return days;
   }, [month]);
 
  const addRange = () => {
-    const newStart = dayjs(start, "HH:mm");
-    const newEnd = dayjs(end, "HH:mm");
+    const newStart = dayjs(start, 'HH:mm');
+    const newEnd = dayjs(end, 'HH:mm');
 
     if (!newEnd.isAfter(newStart)) {
-      toast.error("End time must be after start time");
+      toast.error('End time must be after start time');
       return;
     }
 
     const clashes = ranges.some((r) => {
-      const s = dayjs(r.start, "HH:mm");
-      const e = dayjs(r.end, "HH:mm");
+      const s = dayjs(r.start, 'HH:mm');
+      const e = dayjs(r.end, 'HH:mm');
       return newStart.isBefore(e) && newEnd.isAfter(s);
     });
 
     if (clashes) {
-      toast.error("This time slot already exists");
+      toast.error('This time slot already exists');
       return;
     }
 
     setRanges((r) => [...r, { start, end, isAvailable: true }]);
-    toast.success("Time slot added");
+    toast.success('Time slot added');
   };
 
   const toggleAvailability = (i: number) =>
@@ -93,26 +93,26 @@ export default function DoctorSlotManager() {
   const saveSchedule = async () => {
     if (!selectedDate) return;
     try {
-      await upsertDaySlotsAPI(selectedDate.format("YYYY-MM-DD"), ranges, false);
-      toast.success("Schedule saved");
+      await upsertDaySlotsAPI(selectedDate.format('YYYY-MM-DD'), ranges, false);
+      toast.success('Schedule saved');
 
       setDayStatus((s) => ({
         ...s,
-        [selectedDate.format("YYYY-MM-DD")]: ranges.some((r) => r.isAvailable),
+        [selectedDate.format('YYYY-MM-DD')]: ranges.some((r) => r.isAvailable),
       }));
     } catch {
-      toast.error("Failed to save schedule");
+      toast.error('Failed to save schedule');
     }
   };
 
   const markDayUnavailable = () => {
-    setRanges([{ start: "00:00", end: "23:59", isAvailable: false }]);
+    setRanges([{ start: '00:00', end: '23:59', isAvailable: false }]);
     setConfirmLeave(false);
 
         if (selectedDate) {
       setDayStatus((s) => ({
         ...s,
-        [selectedDate.format("YYYY-MM-DD")]: false,
+        [selectedDate.format('YYYY-MM-DD')]: false,
       }));
     }
   };
@@ -122,11 +122,11 @@ export default function DoctorSlotManager() {
     (async () => {
       try {
         const dayRanges = await getDaySlotsAPI(
-          selectedDate.format("YYYY-MM-DD")
+          selectedDate.format('YYYY-MM-DD')
         );
         setRanges(dayRanges ?? []);
       } catch {
-        toast.error("Failed to load day slots");
+        toast.error('Failed to load day slots');
         setRanges([]);
       }
     })();
@@ -134,13 +134,13 @@ export default function DoctorSlotManager() {
 
   useEffect(() => {
     const fetchMonthStatus = async () => {
-      const startOfMonth = month.startOf("month");
-      const endOfMonth = month.endOf("month");
+      const startOfMonth = month.startOf('month');
+      const endOfMonth = month.endOf('month');
       const tasks: Promise<{ date: string; hasFree: boolean }>[] = [];
 
       let d = startOfMonth.clone();
-      while (d.isSame(endOfMonth, "day") || d.isBefore(endOfMonth)) {
-        const iso = d.format("YYYY-MM-DD");
+      while (d.isSame(endOfMonth, 'day') || d.isBefore(endOfMonth)) {
+        const iso = d.format('YYYY-MM-DD');
         tasks.push(
           getDaySlotsAPI(iso)
             .then((ranges) => ({
@@ -149,7 +149,7 @@ export default function DoctorSlotManager() {
             }))
             .catch(() => ({ date: iso, hasFree: false }))
         );
-        d = d.add(1, "day");
+        d = d.add(1, 'day');
       }
 
       const results = await Promise.all(tasks);
@@ -164,7 +164,7 @@ export default function DoctorSlotManager() {
     fetchMonthStatus();
   }, [month]);
 
-  if (profileData?.status === "pending")
+  if (profileData?.status === 'pending')
     return (
       <div className="m-5 text-center bg-yellow-900/30 border border-yellow-600 rounded-xl p-6 text-yellow-200 shadow-md">
         <h2 className="text-xl font-semibold mb-2">⏳ Awaiting Approval</h2>
@@ -174,7 +174,7 @@ export default function DoctorSlotManager() {
         </p>
       </div>
     );
-  if (profileData?.status === "rejected")
+  if (profileData?.status === 'rejected')
     return (
       <div className="m-5 text-center bg-red-900/30 border border-red-600 rounded-xl p-6 text-red-300 shadow-md">
         <h2 className="text-xl font-semibold mb-2">❌ Registration Rejected</h2>
@@ -184,7 +184,7 @@ export default function DoctorSlotManager() {
         </p>
       </div>
     );
-  if (profileData?.status !== "approved") return null;
+  if (profileData?.status !== 'approved') return null;
   return (
     <motion.section
       initial={{ opacity: 0, y: 20 }}
@@ -201,17 +201,17 @@ export default function DoctorSlotManager() {
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => setMonth((m) => m.subtract(1, "month"))}
+              onClick={() => setMonth((m) => m.subtract(1, 'month'))}
             >
               <ChevronLeft className="w-5 h-5" />
             </Button>
             <CardTitle className="text-lg md:text-xl font-semibold">
-              {month.format("MMMM YYYY")}
+              {month.format('MMMM YYYY')}
             </CardTitle>
             <Button
               variant="ghost"
               size="icon"
-              onClick={() => setMonth((m) => m.add(1, "month"))}
+              onClick={() => setMonth((m) => m.add(1, 'month'))}
             >
               <ChevronRight className="w-5 h-5" />
             </Button>
@@ -219,21 +219,21 @@ export default function DoctorSlotManager() {
 
           <CardContent className="p-6">
             <div className="grid grid-cols-7 mb-2 text-center text-sm font-semibold text-muted-foreground">
-              {"SUN MON TUE WED THU FRI SAT".split(" ").map((d) => (
+              {'SUN MON TUE WED THU FRI SAT'.split(' ').map((d) => (
                 <span key={d}>{d}</span>
               ))}
             </div>
 
             <div className="grid grid-cols-7 gap-1">
               {monthDays.map((d) => {
-                const iso = d.format("YYYY-MM-DD");                 
+                const iso = d.format('YYYY-MM-DD');                 
                 const hasFree = dayStatus[iso];                      
                 const dotColour =
-                  hasFree === undefined  ? "bg-rose-400" :           
-                  hasFree                ? "bg-emerald-400" : "bg-rose-400";  
+                  hasFree === undefined  ? 'bg-rose-400' :           
+                  hasFree                ? 'bg-emerald-400' : 'bg-rose-400'; 
                 const isCurrentMonth = d.month() === month.month();
                 const isSelected =
-                  selectedDate && d.isSame(selectedDate, "day");
+                  selectedDate && d.isSame(selectedDate, 'day');
                 return (
                   <button
                     key={d.toString()}
@@ -241,10 +241,10 @@ export default function DoctorSlotManager() {
                     className={`relative h-12 rounded-lg flex flex-col items-center justify-center transition
                       ${
                         isSelected
-                          ? "bg-[#5f6FFF] text-white"
-                          : "hover:bg-gray-700/50"
+                          ? 'bg-[#5f6FFF] text-white'
+                          : 'hover:bg-gray-700/50'
                       }
-                      ${!isCurrentMonth ? "opacity-40" : ""}`}
+                      ${!isCurrentMonth ? 'opacity-40' : ''}`}
                   >
                     <span className="text-sm font-medium">{d.date()}</span>
                     <span className={`w-2 h-2 rounded-full ${dotColour} mt-1`} />
@@ -259,8 +259,8 @@ export default function DoctorSlotManager() {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               {selectedDate
-                ? selectedDate.format("DD MMM, YYYY")
-                : "Pick a date"}
+                ? selectedDate.format('DD MMM, YYYY')
+                : 'Pick a date'}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">

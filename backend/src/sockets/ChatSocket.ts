@@ -11,7 +11,7 @@ export function registerChatSocket(io: Server, chatService: ChatService) {
       role?: "user" | "doctor";
     };
     if (!userId || !role) return socket.disconnect();
-    // For joining 
+    // For joining
     socket.join(userId);
 
     let set = onlineUsers.get(userId);
@@ -50,8 +50,8 @@ export function registerChatSocket(io: Server, chatService: ChatService) {
           io.to(saved.chatId).emit("receiveMessage", saved);
 
           if (msg.receiverId) {
-  await chatService.delivered(saved.id!, msg.receiverId);
-}
+            await chatService.delivered(saved.id!, msg.receiverId);
+          }
 
           // await chatService.delivered(saved.id, msg.receiverId);
           io.to(saved.chatId).emit("delivered", {

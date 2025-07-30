@@ -12,7 +12,7 @@ export interface DoctorProfileType {
     line1: string;
     line2: string;
   };
-  status?: "pending" | "approved" | "rejected";
+  status?: 'pending' | 'approved' | 'rejected';
   available?: boolean;
   date?: Date;
 }

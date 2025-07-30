@@ -1,16 +1,16 @@
-import { useContext, useEffect, useState } from "react";
-import { AppContext } from "../../context/AppContext";
-import { assets } from "../../assets/user/assets";
-import { toast } from "react-toastify";
-import { updateUserProfileAPI } from "../../services/userProfileServices";
-import { useNavigate } from "react-router-dom";
-import { isValidDateOfBirth, isValidPhone } from "../../utils/validator";
-import { showErrorToast } from "../../utils/errorHandler";
+import { useContext, useEffect, useState } from 'react';
+import { AppContext } from '../../context/AppContext';
+import { assets } from '../../assets/user/assets';
+import { toast } from 'react-toastify';
+import { updateUserProfileAPI } from '../../services/userProfileServices';
+import { useNavigate } from 'react-router-dom';
+import { isValidDateOfBirth, isValidPhone } from '../../utils/validator';
+import { showErrorToast } from '../../utils/errorHandler';
 
 const MyProfile = () => {
   const nav = useNavigate();
   const context = useContext(AppContext);
-  if (!context) throw new Error("MyProfile must be within AppContext");
+  if (!context) throw new Error('MyProfile must be within AppContext');
   const { userData, setUserData, token, loadUserProfileData } = context;
 
   const [isEdit, setEdit] = useState(false);
@@ -19,11 +19,11 @@ const MyProfile = () => {
 
   const save = async () => {
     try {
-      if (!token) return toast.error("Login to continue");
+      if (!token) return toast.error('Login to continue');
       if (!isValidPhone(userData.phone))
-        return toast.error("Phone must be 10 digits");
+        return toast.error('Phone must be 10 digits');
       if (!isValidDateOfBirth(userData.dob))
-        return toast.error("Enter a valid birth date");
+        return toast.error('Enter a valid birth date');
 
       const { message } = await updateUserProfileAPI(
         token,
@@ -46,11 +46,11 @@ const MyProfile = () => {
   };
 
   useEffect(() => {
-    if (!token) nav("/");
+    if (!token) nav('/');
   }, [token, nav]);
 
   const input =
-    "bg-transparent ring-1 ring-white/10 rounded px-2 py-1 mt-1 text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500";
+    'bg-transparent ring-1 ring-white/10 rounded px-2 py-1 mt-1 text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500';
 
   return (
     <div className="max-w-lg mx-auto py-24 px-4 text-slate-200">
@@ -86,7 +86,7 @@ const MyProfile = () => {
 
       {isEdit ? (
         <input
-          className={"mt-4 text-3xl font-semibold " + input}
+          className={'mt-4 text-3xl font-semibold ' + input}
           value={userData.name}
           onChange={(e) =>
             setUserData((p) => (p ? { ...p, name: e.target.value } : p))

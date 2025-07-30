@@ -1,4 +1,3 @@
-/* src/types/razorpay.d.ts  – browser-side Razorpay typings  */
 export interface RazorpayPaymentResponse {
   razorpay_payment_id: string;
   razorpay_order_id: string;
@@ -7,8 +6,8 @@ export interface RazorpayPaymentResponse {
 
 export interface RazorpayOptions {
   key: string;
-  amount: number;          // paise
-  currency: string;        // “INR”, “USD” …
+  amount: number;          
+  currency: string;        
   name: string;
   description?: string;
   order_id: string;

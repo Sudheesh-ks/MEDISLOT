@@ -4,3 +4,8 @@ export interface SlotRange {
   isAvailable: boolean;
   booked: boolean;
 }
+
+interface Slot {
+  slotTime: string;
+  isBooked: boolean;
+}

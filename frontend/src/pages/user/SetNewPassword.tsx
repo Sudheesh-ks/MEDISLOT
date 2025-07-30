@@ -1,45 +1,45 @@
-import { useContext, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
-import { AppContext } from "../../context/AppContext";
-import { resetPasswordAPI } from "../../services/authServices";
-import axios from "axios";
+import React, { useContext, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { AppContext } from '../../context/AppContext';
+import { resetPasswordAPI } from '../../services/authServices';
+import axios from 'axios';
 
 const NewPasswordPage = () => {
   const nav = useNavigate();
-  const [password, setPassword] = useState("");
-  const [confirm, setConfirm] = useState("");
+  const [password, setPassword] = useState('');
+  const [confirm, setConfirm] = useState('');
   const ctx = useContext(AppContext);
-  if (!ctx) throw new Error("NewPasswordPage must be in AppContext");
+  if (!ctx) throw new Error('NewPasswordPage must be in AppContext');
   const { token } = ctx;
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (password !== confirm) return toast.error("Passwords do not match");
+    if (password !== confirm) return toast.error('Passwords do not match');
     try {
-      const tmp = JSON.parse(localStorage.getItem("tempUserData") || "{}");
+      const tmp = JSON.parse(localStorage.getItem('tempUserData') || '{}');
       const { data } = await resetPasswordAPI(tmp.email, password);
       if (data.success) {
-        toast.success("Password reset successful");
-        localStorage.removeItem("tempUserData");
-        nav("/login");
+        toast.success('Password reset successful');
+        localStorage.removeItem('tempUserData');
+        nav('/login');
       } else toast.error(data.message);
     } catch (err) {
       if (axios.isAxiosError(err))
-        toast.error(err.response?.data?.message || "Something went wrong");
+        toast.error(err.response?.data?.message || 'Something went wrong');
       else if (err instanceof Error) toast.error(err.message);
-      else toast.error("Unknown error");
+      else toast.error('Unknown error');
     }
   };
 
   useEffect(() => {
-    if (token) nav("/");
+    if (token) nav('/');
   }, [token, nav]);
 
   const input =
-    "w-full bg-transparent ring-1 ring-white/10 rounded px-4 py-2 mt-1 text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500";
+    'w-full bg-transparent ring-1 ring-white/10 rounded px-4 py-2 mt-1 text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500';
   const btn =
-    "w-full bg-gradient-to-r from-cyan-500 to-fuchsia-600 py-2 rounded-md text-base hover:-translate-y-0.5 transition-transform";
+    'w-full bg-gradient-to-r from-cyan-500 to-fuchsia-600 py-2 rounded-md text-base hover:-translate-y-0.5 transition-transform';
 
   return (
     <form

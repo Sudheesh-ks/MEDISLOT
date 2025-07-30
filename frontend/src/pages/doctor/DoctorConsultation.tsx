@@ -1,6 +1,6 @@
-import { useParams } from "react-router-dom";
-import DocVideoCallCard from "../../components/doctor/DocVideoCallCard";
-import DocChatCard from "../../components/doctor/DocChatCard";
+import { useParams } from 'react-router-dom';
+import DocVideoCallCard from '../../components/doctor/DocVideoCallCard';
+import DocChatCard from '../../components/doctor/DocChatCard';
 
 const DoctorConsultation = () => {
   const { userId } = useParams();

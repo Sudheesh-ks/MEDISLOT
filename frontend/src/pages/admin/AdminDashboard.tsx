@@ -1,21 +1,21 @@
-import { useContext, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { AdminContext } from "../../context/AdminContext";
-import { AppContext } from "../../context/AppContext";
-import { assets } from "../../assets/admin/assets";
-import type { AppointmentTypes } from "../../types/appointment";
-import { motion } from "framer-motion";
-import { updateItemInList } from "../../utils/stateHelper.util";
+import { useContext, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { AdminContext } from '../../context/AdminContext';
+import { AppContext } from '../../context/AppContext';
+import { assets } from '../../assets/admin/assets';
+import type { AppointmentTypes } from '../../types/appointment';
+import { motion } from 'framer-motion';
+import { updateItemInList } from '../../utils/stateHelper.util';
 
-const glass = "bg-white/5 backdrop-blur ring-1 ring-white/10";
+const glass = 'bg-white/5 backdrop-blur ring-1 ring-white/10';
 const cardBase =
-  "cursor-pointer text-white p-6 rounded-xl shadow-md flex items-center gap-4";
+  'cursor-pointer text-white p-6 rounded-xl shadow-md flex items-center gap-4';
 
 const AdminDashboard = () => {
   const nav = useNavigate();
   const ctx = useContext(AdminContext);
   const app = useContext(AppContext);
-  if (!ctx || !app) throw new Error("Missing contexts");
+  if (!ctx || !app) throw new Error('Missing contexts');
 
   const { aToken, dashData, getDashData, cancelAppointment } = ctx;
   const { slotDateFormat } = app;
@@ -26,7 +26,7 @@ const AdminDashboard = () => {
   }, [aToken]);
 
   useEffect(() => {
-    if (!aToken) nav("/admin/login");
+    if (!aToken) nav('/admin/login');
   });
 
   useEffect(() => {
@@ -40,24 +40,24 @@ const AdminDashboard = () => {
   const stats = [
     {
       count: dashData.doctors,
-      label: "Doctors",
+      label: 'Doctors',
       icon: assets.doctor_icon,
-      grad: "from-cyan-500 to-fuchsia-600",
-      path: "/admin/all-doctors",
+      grad: 'from-cyan-500 to-fuchsia-600',
+      path: '/admin/all-doctors',
     },
     {
       count: dashData.appointments,
-      label: "Appointments",
+      label: 'Appointments',
       icon: assets.appointments_icon,
-      grad: "from-emerald-500 to-teal-500",
-      path: "/admin/appointments",
+      grad: 'from-emerald-500 to-teal-500',
+      path: '/admin/appointments',
     },
     {
       count: dashData.patients,
-      label: "Patients",
+      label: 'Patients',
       icon: assets.patients_icon,
-      grad: "from-indigo-500 to-violet-600",
-      path: "/admin/user-management",
+      grad: 'from-indigo-500 to-violet-600',
+      path: '/admin/user-management',
     },
   ];
 
@@ -68,7 +68,7 @@ const AdminDashboard = () => {
           <motion.div
             key={i}
             whileHover={{ scale: 1.05 }}
-            transition={{ type: "spring", stiffness: 300 }}
+            transition={{ type: 'spring', stiffness: 300 }}
             onClick={() => nav(c.path)}
             className={`${cardBase} bg-gradient-to-r ${c.grad}`}
           >

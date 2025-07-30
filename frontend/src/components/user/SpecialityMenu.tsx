@@ -1,5 +1,5 @@
-import { specialityData } from "../../assets/user/assets";
-import { Link } from "react-router-dom";
+import { specialityData } from '../../assets/user/assets';
+import { Link } from 'react-router-dom';
 
 const SpecialityMenu = () => (
   <section
@@ -15,7 +15,7 @@ const SpecialityMenu = () => (
         <Link
           key={idx}
           to={`/doctors/${item.speciality}`}
-          onClick={() => scrollTo({ top: 0, behavior: "smooth" })}
+          onClick={() => scrollTo({ top: 0, behavior: 'smooth' })}
           className="snap-start shrink-0 w-36 md:w-44 flex flex-col items-center gap-4 group"
         >
           <div className="w-24 h-24 md:w-28 md:h-28 rounded-full bg-white/5 backdrop-blur ring-1 ring-white/10 flex items-center justify-center group-hover:-translate-y-1 transition-transform">

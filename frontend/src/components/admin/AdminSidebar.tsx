@@ -1,50 +1,50 @@
-import { useState } from "react";
-import { NavLink } from "react-router-dom";
+import { useState } from 'react';
+import { NavLink } from 'react-router-dom';
 
 const AdminSidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   const assets = {
-    home_icon: "🏠",
-    people_icon: "👥",
-    appointment_icon: "📅",
-    doctor_request: "⚠️",
-    doctor_icon: "🧑🏻‍⚕️",
-    inbox_icon: "✉️",
+    home_icon: '🏠',
+    people_icon: '👥',
+    appointment_icon: '📅',
+    doctor_request: '⚠️',
+    doctor_icon: '🧑🏻‍⚕️',
+    inbox_icon: '✉️',
   };
 
   const menuItems = [
-    { to: "/admin/dashboard", icon: assets.home_icon, label: "Dashboard" },
+    { to: '/admin/dashboard', icon: assets.home_icon, label: 'Dashboard' },
     {
-      to: "/admin/user-management",
+      to: '/admin/user-management',
       icon: assets.people_icon,
-      label: "Manage Users",
+      label: 'Manage Users',
     },
     {
-      to: "/admin/appointments",
+      to: '/admin/appointments',
       icon: assets.appointment_icon,
-      label: "Appointments",
+      label: 'Appointments',
     },
     {
-      to: "/admin/doctor-requests",
+      to: '/admin/doctor-requests',
       icon: assets.doctor_request,
-      label: "Doctor Requests",
+      label: 'Doctor Requests',
     },
     {
-      to: "/admin/all-doctors",
+      to: '/admin/all-doctors',
       icon: assets.doctor_icon,
-      label: "Doctor List",
+      label: 'Doctor List',
     },
-    { to: "/admin/inbox", icon: assets.inbox_icon, label: "Inbox" },
+    { to: '/admin/inbox', icon: assets.inbox_icon, label: 'Inbox' },
   ];
 
-  const glass = "bg-white/5 backdrop-blur ring-1 ring-white/10";
-  const grad = "from-cyan-500 to-fuchsia-600";
+  const glass = 'bg-white/5 backdrop-blur ring-1 ring-white/10';
+  const grad = 'from-cyan-500 to-fuchsia-600';
 
   return (
     <aside
       className={`min-h-screen ${glass} transition-all duration-300
-                  ${isCollapsed ? "w-20" : "w-72"} relative`}
+                  ${isCollapsed ? 'w-20' : 'w-72'} relative`}
     >
       {/* Floating decor */}
       <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-br from-cyan-500/20 via-fuchsia-500/10 to-transparent" />
@@ -80,7 +80,7 @@ const AdminSidebar = () => {
           >
             <div
               className={`w-5 h-5 flex flex-col justify-center items-center transition-transform duration-300
-                          ${isCollapsed ? "rotate-180" : ""}`}
+                          ${isCollapsed ? 'rotate-180' : ''}`}
             >
               <span className="w-3 h-0.5 bg-slate-300 mb-1" />
               <span className="w-3 h-0.5 bg-slate-300 mb-1" />
@@ -101,13 +101,13 @@ const AdminSidebar = () => {
                   `relative flex items-center gap-4 p-3 rounded-xl overflow-hidden transition-all duration-300
                    ${
                      isActive
-                       ? "text-slate-100"
-                       : "text-slate-400 hover:text-slate-200"
+                       ? 'text-slate-100'
+                       : 'text-slate-400 hover:text-slate-200'
                    }
                    ${
                      isActive
-                       ? "bg-white/10 ring-1 ring-white/10"
-                       : "hover:bg-white/5"
+                       ? 'bg-white/10 ring-1 ring-white/10'
+                       : 'hover:bg-white/5'
                    }`
                 }
               >
@@ -117,8 +117,8 @@ const AdminSidebar = () => {
                       className={`absolute inset-0 bg-gradient-to-r ${grad}
                                   ${
                                     isActive
-                                      ? "opacity-10"
-                                      : "opacity-0 group-hover/item:opacity-5"
+                                      ? 'opacity-10'
+                                      : 'opacity-0 group-hover/item:opacity-5'
                                   }
                                   transition-opacity duration-300`}
                     />
@@ -133,15 +133,15 @@ const AdminSidebar = () => {
                                   ${
                                     isActive
                                       ? `bg-gradient-to-r ${grad} shadow-lg`
-                                      : "bg-white/10 group-hover/item:bg-gradient-to-r group-hover/item:" +
+                                      : 'bg-white/10 group-hover/item:bg-gradient-to-r group-hover/item:' +
                                         grad
                                   }`}
                     >
                       <span
                         className={`${
                           isActive
-                            ? "text-white"
-                            : "group-hover/item:text-white"
+                            ? 'text-white'
+                            : 'group-hover/item:text-white'
                         }`}
                       >
                         {it.icon}

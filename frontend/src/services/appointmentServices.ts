@@ -1,5 +1,5 @@
-import { api } from "../axios/axiosInstance";
-import { APPOINTMENT_API } from "../constants/apiRoutes";
+import { api } from '../axios/axiosInstance';
+import { APPOINTMENT_API } from '../constants/apiRoutes';
 
 // Book an appointment
 export const appointmentBookingAPI = async (

@@ -1,38 +1,38 @@
-import React, { useState } from "react";
-import { NavLink } from "react-router-dom";
+import { useState } from 'react';
+import { NavLink } from 'react-router-dom';
 
 const AdminSidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   const assets = {
-    home_icon: "🏠",
-    profile_icon: "🧑🏻‍⚕️",
-    appointment_icon: "📅",
-    slot_icon: "⏰",
+    home_icon: '🏠',
+    profile_icon: '🧑🏻‍⚕️',
+    appointment_icon: '📅',
+    slot_icon: '⏰',
   };
 
   const menu = [
-    { to: "/doctor/dashboard", icon: assets.home_icon, label: "Dashboard" },
+    { to: '/doctor/dashboard', icon: assets.home_icon, label: 'Dashboard' },
     {
-      to: "/doctor/appointments",
+      to: '/doctor/appointments',
       icon: assets.appointment_icon,
-      label: "Appointments",
+      label: 'Appointments',
     },
-    { to: "/doctor/profile", icon: assets.profile_icon, label: "Profile" },
+    { to: '/doctor/profile', icon: assets.profile_icon, label: 'Profile' },
     {
-      to: "/doctor/slot-management",
+      to: '/doctor/slot-management',
       icon: assets.slot_icon,
-      label: "Slot management",
+      label: 'Slot management',
     },
   ];
 
-  const glass = "bg-white/5 backdrop-blur ring-1 ring-white/10";
-  const gradient = "from-cyan-500 to-fuchsia-600";
+  const glass = 'bg-white/5 backdrop-blur ring-1 ring-white/10';
+  const gradient = 'from-cyan-500 to-fuchsia-600';
 
   return (
     <aside
       className={`min-h-screen ${glass} relative text-slate-100 transition-all duration-300
-        ${isCollapsed ? "w-20" : "w-72"}`}
+        ${isCollapsed ? 'w-20' : 'w-72'}`}
     >
       <div className="absolute inset-x-0 h-32 bg-gradient-to-br from-cyan-400/15 via-fuchsia-500/15 to-transparent" />
       <div className="absolute top-12 right-6 w-8 h-8 bg-cyan-400/20 rounded-full animate-pulse" />
@@ -47,7 +47,7 @@ const AdminSidebar = () => {
           </div>
           {!isCollapsed && (
             <div>
-              <h1 className="text-lg font-semibold">Doctor Panel</h1>
+              <h1 className="text-lg font-semibold">Doctor Panel</h1>
               <p className="text-xs text-slate-400">MediSlot</p>
             </div>
           )}
@@ -59,7 +59,7 @@ const AdminSidebar = () => {
         >
           <div
             className={`w-5 h-5 flex flex-col justify-center items-center space-y-0.5 origin-center transition
-              ${isCollapsed && "rotate-180"}`}
+              ${isCollapsed && 'rotate-180'}`}
           >
             <span className="w-3 h-0.5 bg-slate-300" />
             <span className="w-3 h-0.5 bg-slate-300" />
@@ -80,10 +80,10 @@ const AdminSidebar = () => {
                    transition-all duration-300 group-hover/item:scale-[1.03]
                    ${
                      isActive
-                       ? "text-white bg-gradient-to-r " +
+                       ? 'text-white bg-gradient-to-r ' +
                          gradient +
-                         " shadow-lg"
-                       : "text-slate-300 hover:bg-white/10"
+                         ' shadow-lg'
+                       : 'text-slate-300 hover:bg-white/10'
                    }`
                 }
               >
@@ -95,8 +95,8 @@ const AdminSidebar = () => {
                         transition-opacity duration-300 pointer-events-none
                         ${
                           isActive
-                            ? "opacity-20"
-                            : "opacity-0 group-hover/item:opacity-10"
+                            ? 'opacity-20'
+                            : 'opacity-0 group-hover/item:opacity-10'
                         }
                       `}
                     />
@@ -111,8 +111,8 @@ const AdminSidebar = () => {
                       className={`relative w-8 h-8 flex items-center justify-center rounded-lg text-sm transition-all duration-300
                         ${
                           isActive
-                            ? "bg-white/20"
-                            : "bg-white/10 group-hover/item:bg-gradient-to-r group-hover/item:" +
+                            ? 'bg-white/20'
+                            : 'bg-white/10 group-hover/item:bg-gradient-to-r group-hover/item:' +
                               gradient
                         }`}
                     >

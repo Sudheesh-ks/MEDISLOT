@@ -1,6 +1,6 @@
-import { api } from "../axios/axiosInstance";          
-import { doctorApi } from "../axios/doctorAxiosInstance";
-import { CHAT_API } from "../constants/apiRoutes";
+import { api } from '../axios/axiosInstance';          
+import { doctorApi } from '../axios/doctorAxiosInstance';
+import { CHAT_API } from '../constants/apiRoutes';
 
 export const userChat = {
   fetchHistory: (chatId: string, limit = 1000, before?: string) =>
@@ -26,14 +26,14 @@ export const doctorChat = {
 
 export const uploadChatFile = async (file: File) => {           
   const fd = new FormData();
-  fd.append("file", file);
+  fd.append('file', file);
 
-  const { data } = await api.post("/api/chat/upload", fd, {     
-    headers: { "Content-Type": "multipart/form‑data" },         
+  const { data } = await api.post('/api/chat/upload', fd, {     
+    headers: { 'Content-Type': 'multipart/form‑data' },         
   });                                                           
 
-  if (!data.success) throw new Error("upload failed");          
-  return { url: data.url as string, mime: data.mime as string } 
+  if (!data.success) throw new Error('upload failed');          
+  return { url: data.url as string, mime: data.mime as string }; 
 }; 
 
 

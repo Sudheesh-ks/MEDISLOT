@@ -11,17 +11,35 @@ export interface DoctorInput extends DoctorTypes {
 }
 
 export interface IAdminService {
-  login(email: string, password: string): Promise<{ admin: AdminDTO, accessToken: string, refreshToken: string }>;
+  login(
+    email?: string,
+    password?: string
+  ): Promise<{
+    accessToken: string;
+    refreshToken: string;
+  }>;
+  refreshAdminToken(refreshToken?: string): Promise<{
+    accessToken: string;
+    refreshToken: string;
+  }>;
   getAdminById(id: string): Promise<AdminDTO | null>;
   validateCredentials(email: string, password: string): Promise<AdminDTO>;
-  // addDoctor(data: DoctorDTO): Promise<string>;
   getDoctors(): Promise<DoctorDTO[]>;
-  getDoctorsPaginated(page: number, limit: number): Promise<PaginationResult<DoctorDTO>>;
+  getDoctorsPaginated(
+    page: string,
+    limit: string
+  ): Promise<PaginationResult<DoctorDTO>>;
   getUsers(): Promise<UserDTO[]>;
-  getUsersPaginated(page: number, limit: number): Promise<PaginationResult<UserDTO>>;
-  toggleUserBlock(userId: string, block: boolean): Promise<string>;
+  getUsersPaginated(
+    page: string,
+    limit: string
+  ): Promise<PaginationResult<UserDTO>>;
+  toggleUserBlock(userId: string, block: boolean): Promise<UserDTO>;
   listAppointments(): Promise<AppointmentDTO[]>;
-  listAppointmentsPaginated(page: number, limit: number): Promise<PaginationResult<AppointmentDTO>>;
+  listAppointmentsPaginated(
+    page: number,
+    limit: number
+  ): Promise<PaginationResult<AppointmentDTO>>;
   cancelAppointment(appointmentId: string): Promise<void>;
   approveDoctor(doctorId: string): Promise<string>;
   rejectDoctor(doctorId: string, reason?: string): Promise<string>;

@@ -1,6 +1,6 @@
-import React from "react";
-import Navbar from "../components/user/Navbar";
-import Footer from "../components/common/Footer";
+import React from 'react';
+import Navbar from '../components/user/Navbar';
+import Footer from '../components/common/Footer';
 
 const UserLayout = ({ children }: { children: React.ReactNode }) => {
   return (

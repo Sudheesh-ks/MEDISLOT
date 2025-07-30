@@ -1,14 +1,12 @@
-import { createContext, useEffect, useState } from "react";
-import type { ReactNode } from "react";
-import { toast } from "react-toastify";
-import type { Doctor } from "../assets/user/assets";
-import type { userData } from "../types/user";
+import { createContext, useEffect, useState } from 'react';
+import type { ReactNode } from 'react';
+import { toast } from 'react-toastify';
+import type { Doctor } from '../assets/user/assets';
+import type { userData } from '../types/user';
 import {
   adminCancelAppointmentAPI,
   adminDashboardAPI,
   approveDoctorAPI,
-  changeAvailabilityAPI,
-  // getAllAppointmentsAPI,
   getAppointmentsPaginatedAPI,
   // getAllDoctorsAPI,
   getDoctorsPaginatedAPI,
@@ -17,10 +15,10 @@ import {
   refreshAdminAccessTokenAPI,
   rejectDoctorAPI,
   toggleUserBlockAPI,
-} from "../services/adminServices";
-import { showErrorToast } from "../utils/errorHandler";
-import type { AppointmentTypes } from "../types/appointment";
-import { clearAdminAccessToken, getAdminAccessToken, updateAdminAccessToken } from "./tokenManagerAdmin";
+} from '../services/adminServices';
+import { showErrorToast } from '../utils/errorHandler';
+import type { AppointmentTypes } from '../types/appointment';
+import { clearAdminAccessToken, getAdminAccessToken, updateAdminAccessToken } from './tokenManagerAdmin';
 
 interface PaginationData {
   data: any[];
@@ -37,10 +35,9 @@ interface AdminContextType {
   backendUrl: string;
   doctors: Doctor[];
   getDoctorsPaginated: (page: number, limit: number) => Promise<PaginationData>;
-  // changeAvailability: (docId: string) => Promise<void>;
   users: userData[];
   getUsersPaginated: (page: number, limit: number) => Promise<PaginationData>;
-  toggleBlockUser: (userId: string) => Promise<void>;
+  toggleBlockUser: (userId: string) => Promise<userData | null>;
   appointments: AppointmentTypes[];
   setAppointments: React.Dispatch<React.SetStateAction<AppointmentTypes[]>>;
   getAppointmentsPaginated: (page: number, limit: number) => Promise<PaginationData>;
@@ -59,7 +56,7 @@ interface AdminContextProviderProps {
 }
 
 const AdminContextProvider = ({ children }: AdminContextProviderProps) => {
-const [aToken, setAToken] = useState(getAdminAccessToken() ?? "");
+const [aToken, setAToken] = useState(getAdminAccessToken() ?? '');
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [users, setUsers] = useState<userData[]>([]);
   const [appointments, setAppointments] = useState<AppointmentTypes[]>([]);
@@ -70,7 +67,7 @@ const [aToken, setAToken] = useState(getAdminAccessToken() ?? "");
 
 
     const setToken = (newToken: string | null) => {
-      setAToken(newToken ?? "");
+      setAToken(newToken ?? '');
       if (newToken) {
         updateAdminAccessToken(newToken);
       } else {
@@ -106,7 +103,7 @@ const [aToken, setAToken] = useState(getAdminAccessToken() ?? "");
     const { data } = await approveDoctorAPI(doctorId, aToken);
     if (data.success) {
       toast.success(data.message);
-      // getAllDoctors(); // REMOVED
+      // getAllDoctors();
         setDoctors((prevDoctors) =>
     prevDoctors.map((doc) =>
       doc._id === doctorId ? { ...doc, isApproved: true } : doc
@@ -125,7 +122,7 @@ const rejectDoctor = async (doctorId: string, reason: string) => {
     const { data } = await rejectDoctorAPI(doctorId, reason, aToken);
     if (data.success) {
       toast.success(data.message);
-      // getAllDoctors(); // REMOVED
+      // getAllDoctors(); 
         setDoctors((prevDoctors) =>
     prevDoctors.filter((doc) => doc._id !== doctorId)
   );
@@ -138,36 +135,11 @@ const rejectDoctor = async (doctorId: string, reason: string) => {
 };
 
 
-  // const changeAvailability = async (docId: string) => {
-  //   try {
-  //     const doctor = doctors.find((doc) => doc._id === docId);
-  //     if (!doctor) {
-  //       toast.error("Doctor not found");
-  //       return;
-  //     }
-
-  //     const newAvailability = !doctor.available;
-
-  //     const { data } = await changeAvailabilityAPI(
-  //       docId,
-  //       newAvailability,
-  //       aToken
-  //     );
-  //     if (data.success) {
-  //       toast.success(data.message);
-  //       // getAllDoctors(); // REMOVED
-  //     } else {
-  //       toast.error(data.message);
-  //     }
-  //   } catch (error) {
-  //     showErrorToast(error);
-  //   }
-  // };
-
   const getUsersPaginated = async (page: number, limit: number): Promise<PaginationData> => {
     try {
       const { data } = await getUsersPaginatedAPI(page, limit, aToken);
       if (data.success) {
+        setUsers(data.data);
         return {
           data: data.data,
           totalCount: data.totalCount,
@@ -187,31 +159,35 @@ const rejectDoctor = async (doctorId: string, reason: string) => {
   };
 
   const toggleBlockUser = async (userId: string) => {
-    try {
-      const user = users.find((u) => u._id === userId);
-      if (!user) {
-        toast.error("User not found");
-        return;
-      }
-
-      const newBlockStatus = !user.isBlocked;
-
-      const { data } = await toggleUserBlockAPI(userId, newBlockStatus, aToken);
-      if (data.success) {
-        toast.success(data.message);
-        // getAllUsers(); // REMOVED
-        setUsers((prevUsers) =>
-    prevUsers.map((u) =>
-      u._id === userId ? { ...u, isBlocked: newBlockStatus } : u
-    )
-  );
-      } else {
-        toast.error(data.message);
-      }
-    } catch (error) {
-      showErrorToast(error);
+  try {
+    const user = users.find((u) => u._id === userId);
+    if (!user) {
+      toast.error('User not found');
+      return null;
     }
-  };
+
+    const newBlockStatus = !user.isBlocked;
+    const { data } = await toggleUserBlockAPI(userId, newBlockStatus, aToken);
+
+    if (data.success) {
+      const updatedUser = data.data;
+      toast.success(`User ${updatedUser.isBlocked ? 'blocked' : 'unblocked'}`);
+      setUsers((prevUsers) =>
+        prevUsers.map((u) =>
+          u._id === updatedUser._id ? updatedUser : u
+        )
+      );
+      return updatedUser;
+    } else {
+      toast.error(data.message);
+      return null;
+    }
+  } catch (error) {
+    showErrorToast(error);
+    return null;
+  }
+};
+
 
   const getAppointmentsPaginated = async (page: number, limit: number): Promise<PaginationData> => {
     try {
@@ -241,7 +217,7 @@ const rejectDoctor = async (doctorId: string, reason: string) => {
 
       if (data.success) {
         toast.success(data.message);
-        // getAllAppointments(); // REMOVED
+        // getAllAppointments(); 
           setAppointments((prev) =>
     prev.filter((a) => a._id !== appointmentId)
   );
@@ -281,7 +257,7 @@ const rejectDoctor = async (doctorId: string, reason: string) => {
           }
         } catch (err: any) {
           console.warn(
-            "Admin token refresh failed",
+            'Admin token refresh failed',
             err.response?.data || err.message
           );
           setToken(null);
@@ -290,7 +266,7 @@ const rejectDoctor = async (doctorId: string, reason: string) => {
         }
       };
   
-      const wasLoggedOut = localStorage.getItem("isAdminLoggedOut") === "true";
+      const wasLoggedOut = localStorage.getItem('isAdminLoggedOut') === 'true';
   
       if (!getAdminAccessToken()) {
          if (!wasLoggedOut) {
@@ -309,7 +285,6 @@ const rejectDoctor = async (doctorId: string, reason: string) => {
     backendUrl,
     doctors,
     getDoctorsPaginated,
-    // changeAvailability,
     users,
     getUsersPaginated,
     toggleBlockUser,

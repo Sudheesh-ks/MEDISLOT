@@ -1,20 +1,19 @@
-import { assets } from "../../assets/user/assets";
-import { useNavigate } from "react-router-dom";
-import { useContext } from "react";
-import { NotifContext } from "../../context/NotificationContext";
-import { DoctorContext } from "../../context/DoctorContext";
+import { assets } from '../../assets/user/assets';
+import { useNavigate } from 'react-router-dom';
+import React, { useContext } from 'react';
+import { NotifContext } from '../../context/NotificationContext';
+import { DoctorContext } from '../../context/DoctorContext';
 
 type Props = { userId?: string };
 const DocChatCard: React.FC<Props> = ({ userId }) => {
   const nav = useNavigate();
   const { unread } = useContext(NotifContext);
-  const { profileData } = useContext(DoctorContext)!;
+  const { profileData } = useContext(DoctorContext);
   const doctorId = profileData?._id;
-  const chatKey = userId && doctorId ? `${userId}_${doctorId}` : "";
+  const chatKey = userId && doctorId ? `${userId}_${doctorId}` : '';
   const unreadCount = chatKey ? unread[chatKey] ?? 0 : 0;
-  const glass = "bg-white/5 backdrop-blur ring-1 ring-white/10";
-  const btn =
-    "w-full bg-gradient-to-r from-cyan-500 to-fuchsia-600 py-3 rounded-lg font-medium hover:-translate-y-0.5 transition-transform shadow-lg";
+  const glass = 'bg-white/5 backdrop-blur ring-1 ring-white/10';
+
   return (
     <div className={`w-96 ${glass} rounded-3xl overflow-hidden`}>
       {/* header image */}

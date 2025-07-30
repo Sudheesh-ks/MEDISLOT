@@ -1,8 +1,7 @@
-import { assets } from "../../assets/user/assets";
-import { useNavigate } from "react-router-dom";
+import { assets } from '../../assets/user/assets';
+
 
 const Header = () => {
-  const navigate = useNavigate();
   return (
     <section className="relative isolate overflow-hidden pt-28 pb-32 px-4 md:px-10">
       <svg
@@ -19,13 +18,13 @@ const Header = () => {
             Cure Health Issues, <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-fuchsia-500 to-indigo-600">With Trusted Doctors</span>
           </h1>
           <p className="text-slate-400 max-w-md mx-auto md:mx-0 leading-relaxed">
-            Simply browse through our extensive list of trusted doctors,{" "}
+            Simply browse through our extensive list of trusted doctors,{' '}
             <br className="hidden sm:block" />
             schedule your appointment hassle-free.
           </p>
           <div className="flex justify-center md:justify-start gap-4">
             <button
-              onClick={() => document.getElementById("speciality")?.scrollIntoView({ behavior: "smooth" })}
+              onClick={() => document.getElementById('speciality')?.scrollIntoView({ behavior: 'smooth' })}
               className="inline-flex items-center bg-gradient-to-r from-cyan-500 to-fuchsia-600 text-white px-6 py-3 rounded-full text-sm font-medium shadow-lg hover:-translate-y-0.5 transition-transform"
             >
               Browse Specialities

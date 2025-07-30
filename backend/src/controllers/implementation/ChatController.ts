@@ -2,9 +2,7 @@ import { Request, Response } from "express";
 import { HttpStatus } from "../../constants/status.constants";
 import { IChatController } from "../interface/IchatController";
 import { IChatService } from "../../services/interface/IChatService";
-import { v2 as cloudinary } from "cloudinary";
-import { upload } from "../../middlewares/multer";
-import streamifier from "streamifier";
+import logger from "../../utils/logger";
 
 export class ChatController implements IChatController {
   constructor(private chatService: IChatService) {}
@@ -17,14 +15,19 @@ export class ChatController implements IChatController {
         ? new Date(String(req.query.before))
         : undefined;
 
+      logger.info(
+        `Fetching chat history for chatId=${chatId}, limit=${limit}, before=${before}`
+      );
+
       const messages = await this.chatService.fetchChatHistory(
         chatId,
         limit,
         before
       );
-
       res.status(HttpStatus.OK).json({ success: true, messages });
     } catch (error) {
+      logger.error(`Error fetching chat history: ${(error as Error).message}`);
+
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: (error as Error).message,
@@ -35,9 +38,13 @@ export class ChatController implements IChatController {
   async deleteMessage(req: Request, res: Response): Promise<void> {
     try {
       const { messageId } = req.params;
+      logger.info(`Deleting message: ${messageId}`);
+
       await this.chatService.delete(messageId);
       res.status(HttpStatus.OK).json({ success: true });
     } catch (error) {
+      logger.error(`Error deleting message: ${(error as Error).message}`);
+
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: (error as Error).message,
@@ -49,9 +56,13 @@ export class ChatController implements IChatController {
     try {
       const { chatId } = req.params;
       const { userId } = req.body;
+      logger.info(`Marking chat ${chatId} as read for user ${userId}`);
+
       await this.chatService.read(chatId, userId);
       res.status(HttpStatus.OK).json({ success: true });
     } catch (error) {
+      logger.error(`Error marking messages read: ${(error as Error).message}`);
+
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: (error as Error).message,
@@ -61,38 +72,17 @@ export class ChatController implements IChatController {
 
   async uploadFile(req: Request, res: Response): Promise<void> {
     try {
-      if (!req.file) {
-        res
-          .status(HttpStatus.BAD_REQUEST)
-          .json({ success: false, message: "file missing" });
-        return;
-      }
+      const { result, mime } = await this.chatService.uploadFile(req.file);
+      logger.info(`Uploaded file with MIME type: ${mime}`);
 
-      const file = req.file as Express.Multer.File;
-
-      const isImage = file.mimetype.startsWith("image/");
-      const resourceType = isImage ? "image" : "raw";
-      const uploadPromise = () =>
-        new Promise<{ secure_url: string; [k: string]: any }>(
-          (resolve, reject) => {
-            const stream = cloudinary.uploader.upload_stream(
-              { folder: "chat", resource_type: resourceType },
-              (error, result) =>
-                error ? reject(error) : resolve(result as any)
-            );
-            streamifier.createReadStream(file.buffer).pipe(stream);
-          }
-        );
-
-      const result = await uploadPromise();
-
-      res.json({
+      res.status(HttpStatus.OK).json({
         success: true,
-        url: result.secure_url,
-        mime: file.mimetype,
+        url: result,
+        mime,
       });
     } catch (err) {
-      console.error(err);
+      logger.error(`Error uploading file: ${(err as Error).message}`);
+
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: (err as Error).message,

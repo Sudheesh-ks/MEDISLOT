@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from "react";
-import { Search } from "lucide-react";
+import React, { useState, useEffect } from 'react';
+import { Search } from 'lucide-react';
 
 type SearchBarProps = { placeholder?: string; onSearch: (query: string) => void; delay?: number };
 
-const SearchBar: React.FC<SearchBarProps> = ({ placeholder = "Search…", onSearch, delay = 400 }) => {
-  const [value, setValue] = useState("");
+const SearchBar: React.FC<SearchBarProps> = ({ placeholder = 'Search…', onSearch, delay = 400 }) => {
+  const [value, setValue] = useState('');
   const [debounced, setDebounced] = useState(value);
 
   useEffect(() => {

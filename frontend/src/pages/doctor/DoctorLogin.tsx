@@ -1,22 +1,22 @@
-import React, { useContext, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { toast } from "react-toastify";
-import { DoctorContext } from "../../context/DoctorContext";
-import { doctorLoginAPI } from "../../services/doctorServices";
-import { showErrorToast } from "../../utils/errorHandler";
-import { assets } from "../../assets/user/assets";
-import { updateDoctorAccessToken } from "../../context/tokenManagerDoctor";
+import React, { useContext, useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { DoctorContext } from '../../context/DoctorContext';
+import { doctorLoginAPI } from '../../services/doctorServices';
+import { showErrorToast } from '../../utils/errorHandler';
+import { assets } from '../../assets/user/assets';
+import { updateDoctorAccessToken } from '../../context/tokenManagerDoctor';
 
 const DoctorLogin = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const nav = useNavigate();
   const ctx = useContext(DoctorContext);
-  if (!ctx) throw new Error("DoctorContext missing");
-  const { dToken, setDToken } = ctx;
+  if (!ctx) throw new Error('DoctorContext missing');
+  const { dToken, setDToken, getProfileData } = ctx;
 
   useEffect(() => {
-    if (dToken) nav("/doctor/dashboard");
+    if (dToken) nav('/doctor/dashboard');
   }, [dToken]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -26,25 +26,26 @@ const DoctorLogin = () => {
       if (data.success) {
         updateDoctorAccessToken(data.token);
         setDToken(data.token);
-        localStorage.removeItem("isDoctorLoggedOut");
-        toast.success("Login successful");
-        nav("/doctor/dashboard");
+        localStorage.removeItem('isDoctorLoggedOut');
+        getProfileData();
+        toast.success('Login successful');
+        nav('/doctor/dashboard');
       } else toast.error(data.message);
     } catch (err) {
       showErrorToast(err);
     }
   };
 
-  const glass = "bg-white/5 backdrop-blur ring-1 ring-white/10";
+  const glass = 'bg-white/5 backdrop-blur ring-1 ring-white/10';
   const input =
-    "w-full bg-transparent ring-1 ring-white/10 rounded px-4 py-2 mt-1 text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500";
+    'w-full bg-transparent ring-1 ring-white/10 rounded px-4 py-2 mt-1 text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500';
   const btn =
-    "w-full bg-gradient-to-r from-cyan-500 to-fuchsia-600 py-2 rounded-md text-base hover:-translate-y-0.5 transition-transform";
+    'w-full bg-gradient-to-r from-cyan-500 to-fuchsia-600 py-2 rounded-md text-base hover:-translate-y-0.5 transition-transform';
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center relative">
       <div
-        onClick={() => nav("/")}
+        onClick={() => nav('/')}
         className="absolute top-6 left-6 flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-500/20 text-cyan-400 font-medium shadow-md hover:bg-cyan-500/30 cursor-pointer"
       >
         <span className="text-lg">🏠</span>

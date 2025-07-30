@@ -1,5 +1,5 @@
-import { api } from "../axios/axiosInstance";
-import { AUTH_API } from "../constants/apiRoutes";
+import { api } from '../axios/axiosInstance';
+import { AUTH_API } from '../constants/apiRoutes';
 
 // Register
 export const registerUserAPI = async (

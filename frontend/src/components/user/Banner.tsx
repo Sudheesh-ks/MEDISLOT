@@ -1,5 +1,5 @@
-import { assets } from "../../assets/user/assets";
-import { useNavigate } from "react-router-dom";
+import { assets } from '../../assets/user/assets';
+import { useNavigate } from 'react-router-dom';
 
 const Banner = () => {
   const navigate = useNavigate();
@@ -10,7 +10,7 @@ const Banner = () => {
       <div className="max-w-7xl mx-auto px-4 md:px-10 flex flex-col md:flex-row items-center gap-10">
         <div className="flex-1 text-center md:text-left space-y-6 animate-fade">
           <h2 className="text-4xl md:text-5xl font-extrabold leading-tight">
-            Book Faster.{" "}
+            Book Faster.{' '}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 through-fuchsia-500 to-indigo-600">
               Live Healthier
             </span>
@@ -19,7 +19,7 @@ const Banner = () => {
             Join 100k+ users already enjoying hassle‑free appointments.
           </p>
           <button
-            onClick={() => navigate("/login")}
+            onClick={() => navigate('/login')}
             className="bg-gradient-to-r from-cyan-500 to-fuchsia-600 text-white px-10 py-3 rounded-full hover:-translate-y-0.5 transition-transform"
           >
             Create Account

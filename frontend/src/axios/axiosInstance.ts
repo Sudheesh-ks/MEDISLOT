@@ -1,8 +1,8 @@
-import axios, { type AxiosRequestConfig } from "axios";
+import axios, { type AxiosRequestConfig } from 'axios';
 import {
   getUserAccessToken,
   updateUserAccessToken,
-} from "../context/tokenManagerUser";
+} from '../context/tokenManagerUser';
 
 
 export const api = axios.create({

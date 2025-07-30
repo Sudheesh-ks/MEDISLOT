@@ -1,11 +1,11 @@
-export type MessageKind = "text" | "image" | "file" | "emoji";
+export type MessageKind = 'text' | 'image' | 'file' | 'emoji';
 
 export interface Message {
   _id: string;
   chatId: string;
   senderId: string;
   receiverId: string;
-  senderRole: "user" | "doctor";
+  senderRole: 'user' | 'doctor';
 
   kind: MessageKind;
   text?: string;

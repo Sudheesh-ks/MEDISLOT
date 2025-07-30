@@ -5,31 +5,31 @@ import React, {
   useContext,
   type FormEvent,
   type MouseEvent,
-} from "react";
-import { useParams } from "react-router-dom";
-import { DoctorContext } from "../../context/DoctorContext";
-import { NotifContext } from "../../context/NotificationContext";
+} from 'react';
+import { useParams } from 'react-router-dom';
+import { DoctorContext } from '../../context/DoctorContext';
+import { NotifContext } from '../../context/NotificationContext';
 
-import { getUserByIDAPI } from "../../services/userProfileServices";
+import { getUserByIDAPI } from '../../services/userProfileServices';
 import {
   doctorChat,
   getPresence,
   uploadChatFile,
-} from "../../services/chatService";
-import type { Message } from "../../types/message";
+} from '../../services/chatService';
+import type { Message } from '../../types/message';
 
 
 
 const timeOf = (iso?: string) =>
   iso
-    ? new Date(iso).toLocaleTimeString("en-US", {
-        hour: "2-digit",
-        minute: "2-digit",
+    ? new Date(iso).toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
         hour12: true,
       })
-    : "";
+    : '';
 
-const fileName = (url: string) => url.split("/").pop()?.split("?")[0] ?? "file";
+const fileName = (url: string) => url.split('/').pop()?.split('?')[0] ?? 'file';
 
 
 
@@ -44,14 +44,14 @@ const DocChatPage: React.FC = () => {
       </div>
     );
 
-  if (!profileData) throw new Error("DoctorContext missing profile");
+  if (!profileData) throw new Error('DoctorContext missing profile');
 
   const doctorId = profileData._id;
-  const { userId } = useParams<"userId">();
-  const chatId = userId ? `${userId}_${doctorId}` : "";
+  const { userId } = useParams<'userId'>();
+  const chatId = userId ? `${userId}_${doctorId}` : '';
 
   const [messages, setMessages] = useState<Message[]>([]);
-  const [newMessage, setNewMessage] = useState("");
+  const [newMessage, setNewMessage] = useState('');
   const [isUserOnline, setIsUserOnline] = useState(false);
   const [pickedFile, setPickedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -70,7 +70,7 @@ const DocChatPage: React.FC = () => {
   } | null>(null);
 
   const clearFileInput = () => {
-    if (fileInputRef.current) fileInputRef.current.value = "";
+    if (fileInputRef.current) fileInputRef.current.value = '';
     if (previewUrl) URL.revokeObjectURL(previewUrl);
     setPreviewUrl(null);
   };
@@ -82,7 +82,7 @@ const DocChatPage: React.FC = () => {
       if (data.success) {
         setUserProfile({
           name: data.user.name,
-          avatar: data.user.image || "/placeholder-avatar.png",
+          avatar: data.user.image || '/placeholder-avatar.png',
           email: data.user.email,
         });
       }
@@ -104,22 +104,22 @@ const DocChatPage: React.FC = () => {
       if (id === userId) setIsUserOnline(online);
     };
 
-    socket.on("presence", onPresence);
+    socket.on('presence', onPresence);
     return () => {
-      socket.off("presence", onPresence);
+      socket.off('presence', onPresence);
     };
   }, [socket, userId]);
 
   useEffect(() => {
     if (!socket || !chatId) return;
 
-    socket.emit("join", chatId);
+    socket.emit('join', chatId);
 
     doctorChat
       .fetchHistory(chatId)
       .then(({ data }) => data.success && setMessages(data.messages));
 
-    socket.emit("read", { chatId });
+    socket.emit('read', { chatId });
     markRead(chatId);
 
     const onReceive = (m: Message) => setMessages((p) => [...p, m]);
@@ -159,25 +159,25 @@ const DocChatPage: React.FC = () => {
     const onTyping = () => setIsTyping(true);
     const onStopTyping = () => setIsTyping(false);
 
-    socket.on("receiveMessage", onReceive);
-    socket.on("delivered", onDelivered);
-    socket.on("readBy", onReadBy);
-    socket.on("messageDeleted", onDeleted);
-    socket.on("typing", onTyping);
-    socket.on("stopTyping", onStopTyping);
+    socket.on('receiveMessage', onReceive);
+    socket.on('delivered', onDelivered);
+    socket.on('readBy', onReadBy);
+    socket.on('messageDeleted', onDeleted);
+    socket.on('typing', onTyping);
+    socket.on('stopTyping', onStopTyping);
 
     return () => {
-      socket.off("receiveMessage", onReceive);
-      socket.off("delivered", onDelivered);
-      socket.off("readBy", onReadBy);
-      socket.off("messageDeleted", onDeleted);
-      socket.off("typing", onTyping);
-      socket.off("stopTyping", onStopTyping);
+      socket.off('receiveMessage', onReceive);
+      socket.off('delivered', onDelivered);
+      socket.off('readBy', onReadBy);
+      socket.off('messageDeleted', onDeleted);
+      socket.off('typing', onTyping);
+      socket.off('stopTyping', onStopTyping);
     };
   }, [socket, chatId, markRead]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
   const send = async (e: FormEvent | MouseEvent) => {
@@ -187,37 +187,37 @@ const DocChatPage: React.FC = () => {
     if (pickedFile) {
       try {
         const { url, mime } = await uploadChatFile(pickedFile);
-        socket.emit("sendMessage", {
+        socket.emit('sendMessage', {
           chatId,
           receiverId: userId,
-          kind: mime.startsWith("image/") ? "image" : "file",
+          kind: mime.startsWith('image/') ? 'image' : 'file',
           mediaUrl: url,
           mediaType: mime,
         });
         setPickedFile(null);
         clearFileInput();
       } catch (err) {
-        console.error("upload failed", err);
+        console.error('upload failed', err);
       }
       return;
     }
 
     if (!newMessage.trim()) return;
 
-    socket.emit("sendMessage", {
+    socket.emit('sendMessage', {
       chatId,
       receiverId: userId,
-      kind: "text",
+      kind: 'text',
       text: newMessage,
     });
-    setNewMessage("");
-    socket.emit("stopTyping", { chatId });
+    setNewMessage('');
+    socket.emit('stopTyping', { chatId });
   };
 
   const openConfirm = (id: string) => setPendingId(id);
   const confirmDelete = () => {
     if (pendingId && socket)
-      socket.emit("deleteMessage", { chatId, messageId: pendingId });
+      socket.emit('deleteMessage', { chatId, messageId: pendingId });
     setPendingId(null);
   };
 
@@ -228,7 +228,7 @@ const DocChatPage: React.FC = () => {
       </div>
     );
 
-  const glass = "bg-white/5 backdrop-blur ring-1 ring-white/10";
+  const glass = 'bg-white/5 backdrop-blur ring-1 ring-white/10';
 
   return (
     <div className="flex h-screen bg-slate-950 text-slate-100">
@@ -243,10 +243,10 @@ const DocChatPage: React.FC = () => {
         <p className="text-sm text-slate-400">{userProfile.email}</p>
         <p
           className={`mt-2 text-xs font-medium ${
-            isUserOnline ? "text-emerald-400" : "text-slate-500"
+            isUserOnline ? 'text-emerald-400' : 'text-slate-500'
           }`}
         >
-          {isUserOnline ? "Online" : "Offline"}
+          {isUserOnline ? 'Online' : 'Offline'}
         </p>
       </aside>
 
@@ -262,25 +262,25 @@ const DocChatPage: React.FC = () => {
             <h3 className="text-lg font-semibold">{userProfile.name}</h3>
             <p
               className={`mt-2 text-xs font-medium ${
-                isUserOnline ? "text-emerald-400" : "text-slate-500"
+                isUserOnline ? 'text-emerald-400' : 'text-slate-500'
               }`}
             >
-              {isUserOnline ? "Online" : "Offline"}
+              {isUserOnline ? 'Online' : 'Offline'}
             </p>
           </div>
         </header>
 
         <section className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
           {messages.map((m) => {
-            const isDoc = m.senderRole === "doctor";
+            const isDoc = m.senderRole === 'doctor';
             return (
               <div
                 key={m._id}
-                className={`flex ${isDoc ? "justify-end" : "justify-start"}`}
+                className={`flex ${isDoc ? 'justify-end' : 'justify-start'}`}
               >
                 <div
                   className={`relative group flex max-w-xs items-end space-x-2 ${
-                    isDoc ? "flex-row-reverse" : ""
+                    isDoc ? 'flex-row-reverse' : ''
                   }`}
                 >
                   {isDoc && !m.deleted && (
@@ -305,7 +305,7 @@ const DocChatPage: React.FC = () => {
                   <div
                     className={`px-4 py-2 rounded-2xl ${
                       isDoc
-                        ? "bg-cyan-600 text-white rounded-br-none"
+                        ? 'bg-cyan-600 text-white rounded-br-none'
                         : `${glass} rounded-bl-none`
                     }`}
                   >
@@ -313,11 +313,11 @@ const DocChatPage: React.FC = () => {
                       <em className="text-xs text-slate-400">
                         message removed
                       </em>
-                    ) : m.kind === "text" || m.kind === "emoji" ? (
+                    ) : m.kind === 'text' || m.kind === 'emoji' ? (
                       <p className="break-words">{m.text}</p>
-                    ) : m.kind === "image" ? (
+                    ) : m.kind === 'image' ? (
                       <img
-                        src={m.mediaUrl!}
+                        src={m.mediaUrl}
                         className="max-w-[200px] rounded"
                       />
                     ) : (
@@ -347,13 +347,13 @@ const DocChatPage: React.FC = () => {
                     )}
 
                     <p className="text-[10px] mt-1 text-slate-400">
-                      {timeOf(m.createdAt)}{" "}
+                      {timeOf(m.createdAt)}{' '}
                       {isDoc &&
                         (m.readBy?.length
-                          ? "✓✓"
+                          ? '✓✓'
                           : m.deliveredTo?.length
-                          ? "✓"
-                          : "")}
+                          ? '✓'
+                          : '')}
                     </p>
                   </div>
                 </div>
@@ -410,7 +410,7 @@ const DocChatPage: React.FC = () => {
 
           {pickedFile && (
             <div className="flex items-center gap-2 bg-white/10 px-3 py-1 rounded-full">
-              {pickedFile.type.startsWith("image/") ? (
+              {pickedFile.type.startsWith('image/') ? (
                 <img
                   src={previewUrl!}
                   alt={pickedFile.name}
@@ -451,8 +451,8 @@ const DocChatPage: React.FC = () => {
             placeholder="Type a message…"
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
-            onFocus={() => socket?.emit("typing", { chatId })}
-            onBlur={() => socket?.emit("stopTyping", { chatId })}
+            onFocus={() => socket?.emit('typing', { chatId })}
+            onBlur={() => socket?.emit('stopTyping', { chatId })}
           />
 
           <button

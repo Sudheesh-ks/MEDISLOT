@@ -9,13 +9,20 @@ export interface IDoctorService {
   getPublicDoctorById(id: string): Promise<DoctorDTO>;
   toggleAvailability(docId: string): Promise<void>;
   getAllDoctors(): Promise<DoctorDTO[]>;
-  getDoctorsPaginated(page: number, limit: number): Promise<PaginationResult<DoctorDTO>>;
-  loginDoctor(
-    email: string,
-    password: string
-  ): Promise<{ token: string; refreshToken: string }>;
+  getDoctorsPaginated(
+    page: number,
+    limit: number
+  ): Promise<PaginationResult<DoctorDTO>>;
+  loginDoctor(data: {
+    email: string;
+    password: string;
+  }): Promise<{ token: string; refreshToken: string }>;
   getDoctorAppointments(docId: string): Promise<AppointmentDTO[]>;
-  getDoctorAppointmentsPaginated(docId: string, page: number, limit: number): Promise<PaginationResult<AppointmentDTO>>;
+  getDoctorAppointmentsPaginated(
+    docId: string,
+    pageQuery: string,
+    limitQuery: string
+  ): Promise<PaginationResult<AppointmentDTO>>;
   confirmAppointment(docId: string, appointmentId: string): Promise<void>;
   cancelAppointment(docId: string, appointmentId: string): Promise<void>;
   getDoctorProfile(docId: string): Promise<DoctorDTO>;

@@ -3,7 +3,6 @@ import { AppointmentDocument } from "../models/appointmentModel";
 import { toDoctorDTO } from "./doctor.mapper";
 import { toUserDTO } from "./user.mapper";
 
-
 export const toAppointmentDTO = (a: AppointmentDocument): AppointmentDTO => {
   return {
     _id: a._id?.toString(),

@@ -1,25 +1,25 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
-import { AppContext } from "../../context/AppContext";
-import { NotifContext } from "../../context/NotificationContext";
-import { getDoctorsByIDAPI } from "../../services/doctorServices";
+import React, { useContext, useEffect, useRef, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { AppContext } from '../../context/AppContext';
+import { NotifContext } from '../../context/NotificationContext';
+import { getDoctorsByIDAPI } from '../../services/doctorServices';
 import {
   getPresence,
   uploadChatFile,
   userChat,
-} from "../../services/chatService";
-import type { Message } from "../../types/message";
+} from '../../services/chatService';
+import type { Message } from '../../types/message';
 
 const timeOf = (iso?: string) =>
   iso
-    ? new Date(iso).toLocaleTimeString("en-US", {
-        hour: "2-digit",
-        minute: "2-digit",
+    ? new Date(iso).toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
         hour12: true,
       })
-    : "";
+    : '';
 
-const fileName = (url: string) => url.split("/").pop()?.split("?")[0] ?? "file";
+const fileName = (url: string) => url.split('/').pop()?.split('?')[0] ?? 'file';
 
 const ChatPage: React.FC = () => {
   const { userData } = useContext(AppContext)!;
@@ -31,7 +31,7 @@ const ChatPage: React.FC = () => {
   const chatId = `${userId}_${doctorId}`;
 
   const [messages, setMessages] = useState<Message[]>([]);
-  const [newMessage, setNewMessage] = useState("");
+  const [newMessage, setNewMessage] = useState('');
   const [isDoctorOnline, setIsDoctorOnline] = useState(false);
   const [pickedFile, setPickedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -48,7 +48,7 @@ const ChatPage: React.FC = () => {
   } | null>(null);
 
   const clearFileInput = () => {
-    if (fileInputRef.current) fileInputRef.current.value = "";
+    if (fileInputRef.current) fileInputRef.current.value = '';
     if (previewUrl) URL.revokeObjectURL(previewUrl);
     setPreviewUrl(null);
   };
@@ -60,7 +60,7 @@ const ChatPage: React.FC = () => {
       if (data.success) {
         setDoctorProfile({
           name: data.doctor.name,
-          avatar: data.doctor.image || "/placeholder.png",
+          avatar: data.doctor.image || '/placeholder.png',
           speciality: data.doctor.speciality,
         });
       }
@@ -82,9 +82,9 @@ const ChatPage: React.FC = () => {
       if (id === doctorId) setIsDoctorOnline(online);
     };
 
-    socket.on("presence", onPresence);
+    socket.on('presence', onPresence);
     return () => {
-      socket.off("presence", onPresence);
+      socket.off('presence', onPresence);
     };
   }, [socket, doctorId]);
 
@@ -92,11 +92,11 @@ const ChatPage: React.FC = () => {
     if (!socket || !chatId) return;
 
     // To join the chat room
-    socket.emit("join", chatId);
+    socket.emit('join', chatId);
 
     // To make the messages read and remove the notification badge
     markRead(chatId);
-    socket.emit("read", { chatId });
+    socket.emit('read', { chatId });
 
     // To get all the messages
     userChat
@@ -141,25 +141,25 @@ const ChatPage: React.FC = () => {
         p.map((m) => (m._id === d.messageId ? { ...m, deleted: true } : m))
       );
 
-    socket.on("receiveMessage", onReceive);
-    socket.on("delivered", onDelivered);
-    socket.on("readBy", onReadBy);
-    socket.on("typing", onTyping);
-    socket.on("stopTyping", onStopTyping);
-    socket.on("messageDeleted", onDeleted);
+    socket.on('receiveMessage', onReceive);
+    socket.on('delivered', onDelivered);
+    socket.on('readBy', onReadBy);
+    socket.on('typing', onTyping);
+    socket.on('stopTyping', onStopTyping);
+    socket.on('messageDeleted', onDeleted);
 
     return () => {
-      socket.off("receiveMessage", onReceive);
-      socket.off("delivered", onDelivered);
-      socket.off("readBy", onReadBy);
-      socket.off("typing", onTyping);
-      socket.off("stopTyping", onStopTyping);
-      socket.off("messageDeleted", onDeleted);
+      socket.off('receiveMessage', onReceive);
+      socket.off('delivered', onDelivered);
+      socket.off('readBy', onReadBy);
+      socket.off('typing', onTyping);
+      socket.off('stopTyping', onStopTyping);
+      socket.off('messageDeleted', onDeleted);
     };
   }, [socket, chatId, doctorId, markRead]);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
   const send = async (e: React.FormEvent | React.MouseEvent) => {
@@ -170,10 +170,10 @@ const ChatPage: React.FC = () => {
     if (pickedFile) {
       try {
         const { url, mime } = await uploadChatFile(pickedFile);
-        socket.emit("sendMessage", {
+        socket.emit('sendMessage', {
           chatId,
           receiverId: doctorId,
-          kind: mime.startsWith("image/") ? "image" : "file",
+          kind: mime.startsWith('image/') ? 'image' : 'file',
           mediaUrl: url,
           mediaType: mime,
         });
@@ -181,27 +181,27 @@ const ChatPage: React.FC = () => {
         setPickedFile(null);
         clearFileInput();
       } catch (err) {
-        console.error("upload failed", err);
+        console.error('upload failed', err);
       }
       return;
     }
 
     // For text messages
     if (!newMessage.trim()) return;
-    socket.emit("sendMessage", {
+    socket.emit('sendMessage', {
       chatId,
       receiverId: doctorId,
-      kind: "text",
+      kind: 'text',
       text: newMessage,
     });
-    setNewMessage("");
-    socket.emit("stopTyping", { chatId });
+    setNewMessage('');
+    socket.emit('stopTyping', { chatId });
   };
 
   const openConfirm = (id: string) => setPendingId(id);
   const confirmDelete = () => {
     if (pendingId && socket)
-      socket.emit("deleteMessage", { chatId, messageId: pendingId });
+      socket.emit('deleteMessage', { chatId, messageId: pendingId });
     setPendingId(null);
   };
 
@@ -224,10 +224,10 @@ const ChatPage: React.FC = () => {
         <p className="text-sm text-slate-400">{doctorProfile.speciality}</p>
         <p
           className={`mt-2 text-xs font-medium ${
-            isDoctorOnline ? "text-emerald-400" : "text-slate-500"
+            isDoctorOnline ? 'text-emerald-400' : 'text-slate-500'
           }`}
         >
-          {isDoctorOnline ? "Online" : "Offline"}
+          {isDoctorOnline ? 'Online' : 'Offline'}
         </p>
       </aside>
 
@@ -244,25 +244,25 @@ const ChatPage: React.FC = () => {
             </h3>
             <p
               className={`mt-2 text-xs font-medium ${
-                isDoctorOnline ? "text-emerald-400" : "text-slate-500"
+                isDoctorOnline ? 'text-emerald-400' : 'text-slate-500'
               }`}
             >
-              {isDoctorOnline ? "Online" : "Offline"}
+              {isDoctorOnline ? 'Online' : 'Offline'}
             </p>
           </div>
         </header>
 
         <section className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
           {messages.map((m) => {
-            const isUser = m.senderRole === "user";
+            const isUser = m.senderRole === 'user';
             return (
               <div
                 key={m._id}
-                className={`flex ${isUser ? "justify-end" : "justify-start"}`}
+                className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}
               >
                 <div
                   className={`relative group flex max-w-xs items-end space-x-2 ${
-                    isUser ? "flex-row-reverse" : ""
+                    isUser ? 'flex-row-reverse' : ''
                   }`}
                 >
                   {isUser && !m.deleted && (
@@ -286,19 +286,19 @@ const ChatPage: React.FC = () => {
                   <div
                     className={`px-4 py-2 rounded-2xl text-sm ${
                       isUser
-                        ? "bg-cyan-600 text-white rounded-br-none"
-                        : "bg-white/10 ring-1 ring-white/10 text-slate-100 rounded-bl-none"
+                        ? 'bg-cyan-600 text-white rounded-br-none'
+                        : 'bg-white/10 ring-1 ring-white/10 text-slate-100 rounded-bl-none'
                     }`}
                   >
                     {m.deleted ? (
                       <em className="text-xs text-slate-400">
                         message removed
                       </em>
-                    ) : m.kind === "text" || m.kind === "emoji" ? (
+                    ) : m.kind === 'text' || m.kind === 'emoji' ? (
                       <p className="break-words">{m.text}</p>
-                    ) : m.kind === "image" ? (
+                    ) : m.kind === 'image' ? (
                       <img
-                        src={m.mediaUrl!}
+                        src={m.mediaUrl}
                         className="max-w-[200px] rounded"
                       />
                     ) : (
@@ -329,16 +329,16 @@ const ChatPage: React.FC = () => {
 
                     <p
                       className={`text-[10px] mt-1 ${
-                        isUser ? "text-slate-200" : "text-slate-400"
+                        isUser ? 'text-slate-200' : 'text-slate-400'
                       }`}
                     >
-                      {timeOf(m.createdAt)}{" "}
+                      {timeOf(m.createdAt)}{' '}
                       {isUser &&
                         (m.readBy?.length
-                          ? "✓✓"
+                          ? '✓✓'
                           : m.deliveredTo?.length
-                          ? "✓"
-                          : "")}
+                          ? '✓'
+                          : '')}
                     </p>
                   </div>
                 </div>
@@ -393,7 +393,7 @@ const ChatPage: React.FC = () => {
 
           {pickedFile && (
             <div className="flex items-center gap-2 bg-white/10 px-3 py-1 rounded-full">
-              {pickedFile.type.startsWith("image/") ? (
+              {pickedFile.type.startsWith('image/') ? (
                 <img
                   src={previewUrl!}
                   alt={pickedFile.name}
@@ -428,8 +428,8 @@ const ChatPage: React.FC = () => {
           <input
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
-            onFocus={() => socket?.emit("typing", { chatId })}
-            onBlur={() => socket?.emit("stopTyping", { chatId })}
+            onFocus={() => socket?.emit('typing', { chatId })}
+            onBlur={() => socket?.emit('stopTyping', { chatId })}
             placeholder="Type a message…"
             className="flex-1 bg-transparent ring-1 ring-white/10 rounded-full px-4 py-2 text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
           />

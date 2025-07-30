@@ -6,7 +6,11 @@ import Doctor from "../models/doctorModel";
 import Admin from "../models/adminModel";
 
 const authRole = (allowedRoles: Array<"user" | "doctor" | "admin">) => {
-  return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  return async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> => {
     try {
       const authHeader = req.headers.authorization;
 

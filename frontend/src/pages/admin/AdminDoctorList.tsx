@@ -1,34 +1,34 @@
-import { useContext, useEffect, useState } from "react";
-import { AdminContext } from "../../context/AdminContext";
-import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
-import SearchBar from "../../components/common/SearchBar";
-import Pagination from "../../components/common/Pagination";
+import { useContext, useEffect, useState } from 'react';
+import { AdminContext } from '../../context/AdminContext';
+import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import SearchBar from '../../components/common/SearchBar';
+import Pagination from '../../components/common/Pagination';
 
 const AdminDoctorList = () => {
   const navigate = useNavigate();
   const context = useContext(AdminContext);
-  if (!context) throw new Error("AdminContext missing");
+  if (!context) throw new Error('AdminContext missing');
 
   const { aToken, getDoctorsPaginated } = context;
 
   const [page, setPage] = useState(1);
   const [rows, setRows] = useState<any[]>([]);
   const [pages, setPages] = useState(1);
-  const [count, setCount] = useState(0);
+  // const [count, setCount] = useState(0);
   const [load, setLoad] = useState(false);
-  const [query, setQuery] = useState("");
-  const perPage = 6;
+  const [query, setQuery] = useState('');
+  const perPage = 14;
 
   useEffect(() => {
     if (aToken) fetchRows();
   }, [aToken, page]);
 
   useEffect(() => {
-    if (!aToken) navigate("/admin/login");
+    if (!aToken) navigate('/admin/login');
   }, [aToken]);
 
-  useEffect(() => window.scrollTo({ top: 0, behavior: "smooth" }), [page]);
+  useEffect(() => window.scrollTo({ top: 0, behavior: 'smooth' }), [page]);
 
   const fetchRows = async () => {
     try {
@@ -36,25 +36,25 @@ const AdminDoctorList = () => {
       const r = await getDoctorsPaginated(page, perPage);
       setRows(r.data);
       setPages(r.totalPages);
-      setCount(r.totalCount);
+      // setCount(r.totalCount);
     } catch (err) {
-      console.error("Failed to fetch doctors", err);
+      console.error('Failed to fetch doctors', err);
     } finally {
       setLoad(false);
     }
   };
 
   const filtered = rows
-    .filter((d) => d.status === "approved")
+    .filter((d) => d.status === 'approved')
     .filter(
       (d) =>
         d.name?.toLowerCase().includes(query.toLowerCase()) ||
         d.speciality?.toLowerCase().includes(query.toLowerCase())
     );
 
-  const glass = "bg-white/5 backdrop-blur ring-1 ring-white/10";
+  const glass = 'bg-white/5 backdrop-blur ring-1 ring-white/10';
   const card =
-    "max-w-56 overflow-hidden cursor-pointer group transition-transform hover:-translate-y-1";
+    'max-w-56 overflow-hidden cursor-pointer group transition-transform hover:-translate-y-1';
 
   return (
     <div className="m-5 text-slate-100 max-h-[90vh] overflow-y-auto">

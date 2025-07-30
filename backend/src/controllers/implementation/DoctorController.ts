@@ -4,33 +4,14 @@ import { IDoctorController } from "../interface/IdoctorController.interface";
 import { HttpStatus } from "../../constants/status.constants";
 import { HttpResponse } from "../../constants/responseMessage.constants";
 import { DoctorTypes } from "../../types/doctor";
-import {
-  generateAccessToken,
-  generateRefreshToken,
-  verifyRefreshToken,
-} from "../../utils/jwt.utils";
 import { DoctorSlotService } from "../../services/implementation/SlotService";
+import logger from "../../utils/logger";
 
 export class DoctorController implements IDoctorController {
-  constructor(
-    private _doctorService: DoctorService,
-    private _slotService: DoctorSlotService
-  ) {}
+  constructor(private _doctorService: DoctorService) {}
 
   async registerDoctor(req: Request, res: Response): Promise<void> {
     try {
-      const {
-        name,
-        email,
-        password,
-        experience,
-        about,
-        speciality,
-        degree,
-        fees,
-        address,
-      } = req.body;
-
       const imageFile = req.file;
 
       if (!imageFile) {
@@ -42,25 +23,28 @@ export class DoctorController implements IDoctorController {
       }
 
       const doctorDTO: DoctorTypes = {
-        name,
-        email,
-        password,
-        experience,
-        about,
-        speciality,
-        degree,
-        fees: Number(fees),
-        address: JSON.parse(address),
+        name: req.body.name,
+        email: req.body.email,
+        password: req.body.password,
+        experience: req.body.experience,
+        about: req.body.about,
+        speciality: req.body.speciality,
+        degree: req.body.degree,
+        fees: Number(req.body.fees),
+        address: req.body.address,
         image: imageFile.path,
       };
 
       await this._doctorService.registerDoctor(doctorDTO);
+      logger.info(`Doctor registered successfully: ${req.body.email}`);
 
       res.status(HttpStatus.CREATED).json({
         success: true,
         message: HttpResponse.DOCTOR_REGISTER_SUCCESS,
       });
     } catch (error) {
+      logger.error(`Doctor registration failed: ${(error as Error).message}`);
+
       res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
         message: (error as Error).message,
@@ -68,36 +52,37 @@ export class DoctorController implements IDoctorController {
     }
   }
 
-
   async getDoctorById(req: Request, res: Response): Promise<void> {
     try {
-      const doctor = await this._doctorService.getPublicDoctorById(req.params.id);
+      const doctor = await this._doctorService.getPublicDoctorById(
+        req.params.id
+      );
+      logger.info(`Fetched doctor by ID: ${req.params.id}`);
 
-      if (!doctor) {
-        res.status(HttpStatus.NOT_FOUND).json({ success: false, message: "Doctor not found" });
-        return;
-      }
-
-      const { _id, name, speciality, degree, experience, about, image, fees, available } = doctor;
-      res.json({ success: true, doctor: { _id, name, speciality, degree, experience, about, image, fees, available } });
+      res.status(HttpStatus.OK).json({ success: true, doctor });
     } catch (err) {
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+      logger.error(`Doctor not found: ${(err as Error).message}`);
+
+      res.status(HttpStatus.NOT_FOUND).json({
         success: false,
         message: (err as Error).message,
       });
     }
   }
 
-
   async changeAvailability(req: Request, res: Response): Promise<void> {
     try {
       const docId = (req as any).docId || req.params.doctorId || req.params.id;
       await this._doctorService.toggleAvailability(docId);
+      logger.info(`Doctor availability toggled: ${docId}`);
+
       res.status(HttpStatus.OK).json({
         success: true,
         message: HttpResponse.DOCTOR_AVAILABILITY_CHANGE,
       });
     } catch (error) {
+      logger.error(`Error changing availability: ${(error as Error).message}`);
+
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: (error as Error).message,
@@ -108,8 +93,12 @@ export class DoctorController implements IDoctorController {
   async doctorList(req: Request, res: Response): Promise<void> {
     try {
       const doctors = await this._doctorService.getAllDoctors();
+      logger.info("Fetched all doctors");
+
       res.status(HttpStatus.OK).json({ success: true, doctors });
     } catch (error) {
+      logger.error(`Error fetching doctors: ${(error as Error).message}`);
+
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: (error as Error).message,
@@ -119,12 +108,15 @@ export class DoctorController implements IDoctorController {
 
   async getDoctorsPaginated(req: Request, res: Response): Promise<void> {
     try {
-      const page = parseInt(req.query.page as string) || 1;
-      const limit = parseInt(req.query.limit as string) || 6;
+      const result = await this._doctorService.getDoctorsPaginated(req.query);
+      logger.info("Fetched paginated doctors list");
 
-      const result = await this._doctorService.getDoctorsPaginated(page, limit);
       res.status(HttpStatus.OK).json({ success: true, ...result });
     } catch (error) {
+      logger.error(
+        `Error in paginated doctor fetch: ${(error as Error).message}`
+      );
+
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: (error as Error).message,
@@ -134,10 +126,8 @@ export class DoctorController implements IDoctorController {
 
   async loginDoctor(req: Request, res: Response): Promise<void> {
     try {
-      const { email, password } = req.body;
-
       const { token: accessToken, refreshToken } =
-        await this._doctorService.loginDoctor(email, password);
+        await this._doctorService.loginDoctor(req.body);
 
       res.cookie("refreshToken_doctor", refreshToken, {
         httpOnly: true,
@@ -146,6 +136,7 @@ export class DoctorController implements IDoctorController {
         sameSite: "strict",
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       });
+      logger.info(`Doctor login: ${req.body.email}`);
 
       res.status(HttpStatus.OK).json({
         success: true,
@@ -153,6 +144,8 @@ export class DoctorController implements IDoctorController {
         message: HttpResponse.LOGIN_SUCCESS,
       });
     } catch (error) {
+      logger.error(`Doctor login failed: ${(error as Error).message}`);
+
       res.status(HttpStatus.UNAUTHORIZED).json({
         success: false,
         message: HttpResponse.UNAUTHORIZED,
@@ -162,46 +155,26 @@ export class DoctorController implements IDoctorController {
 
   async refreshDoctorToken(req: Request, res: Response): Promise<void> {
     try {
-      const refreshToken = req.cookies?.refreshToken_doctor;
-
-      if (!refreshToken) {
-        res.status(HttpStatus.UNAUTHORIZED).json({
-          success: false,
-          message: HttpResponse.REFRESH_TOKEN_MISSING,
-        });
-        return;
-      }
-
-      const decoded = verifyRefreshToken(refreshToken);
-
-      const doctor = await this._doctorService.getDoctorProfile(decoded.id);
-      if (!doctor) {
-        res.status(HttpStatus.UNAUTHORIZED).json({
-          success: false,
-          message: "Doctor not found",
-        });
-        return;
-      }
-      const newAccessToken = generateAccessToken(
-        doctor._id!,
-        doctor.email,
-        "doctor"
+      const { token, refreshToken } = await this._doctorService.refreshToken(
+        req.cookies?.refreshToken_doctor
       );
-      const newRefreshToken = generateRefreshToken(doctor._id!);
 
-      res.cookie("refreshToken_doctor", newRefreshToken, {
+      res.cookie("refreshToken_doctor", refreshToken, {
         httpOnly: true,
         path: "/api/doctor/refresh-token",
         secure: process.env.NODE_ENV === "production",
         sameSite: "strict",
         maxAge: 7 * 24 * 60 * 60 * 1000,
       });
+      logger.info("Doctor token refreshed");
 
       res.status(HttpStatus.OK).json({
         success: true,
-        token: newAccessToken,
+        token,
       });
     } catch (error) {
+      logger.error(`Doctor token refresh failed: ${(error as Error).message}`);
+
       res.status(HttpStatus.UNAUTHORIZED).json({
         success: false,
         message: HttpResponse.REFRESH_TOKEN_FAILED,
@@ -216,6 +189,7 @@ export class DoctorController implements IDoctorController {
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
     });
+    logger.info("Doctor logged out");
 
     res.status(HttpStatus.OK).json({
       success: true,
@@ -231,72 +205,90 @@ export class DoctorController implements IDoctorController {
       const appointments = await this._doctorService.getDoctorAppointments(
         docId
       );
+      logger.info(`Fetched appointments for doctor: ${docId}`);
 
       res.status(HttpStatus.OK).json({ success: true, appointments });
     } catch (error) {
-      res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ success: false, message: (error as Error).message });
+      logger.error(
+        `Error fetching doctor appointments: ${(error as Error).message}`
+      );
+
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
     }
   }
 
-  // For getting paginated doctor appointments
+  // For getting doctor appointments
   async appointmentsDoctorPaginated(
     req: Request,
     res: Response
   ): Promise<void> {
     try {
       const docId = (req as any).docId;
-      const page = parseInt(req.query.page as string) || 1;
-      const limit = parseInt(req.query.limit as string) || 6;
 
       const result = await this._doctorService.getDoctorAppointmentsPaginated(
         docId,
-        page,
-        limit
+        req.query.page as string,
+        req.query.limit as string
       );
+      logger.info(`Fetched paginated appointments for doctor: ${docId}`);
 
       res.status(HttpStatus.OK).json({ success: true, ...result });
     } catch (error) {
-      res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ success: false, message: (error as Error).message });
+      logger.error(
+        `Error fetching paginated appointments: ${(error as Error).message}`
+      );
+
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
     }
   }
 
-  // For appointment confirmation
   async appointmentConfirm(req: Request, res: Response): Promise<void> {
     try {
       const docId = (req as any).docId;
       const { appointmentId } = req.params;
 
       await this._doctorService.confirmAppointment(docId, appointmentId);
+      logger.info(`Appointment confirmed: ${appointmentId} by ${docId}`);
 
-      res
-        .status(HttpStatus.OK)
-        .json({ success: true, message: HttpResponse.APPOINTMENT_CONFIRMED });
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: HttpResponse.APPOINTMENT_CONFIRMED,
+      });
     } catch (error) {
-      res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ success: false, message: (error as Error).message });
+      logger.error(`Confirm appointment error: ${(error as Error).message}`);
+
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
     }
   }
 
-  // For appointment cancellation
   async appointmentCancel(req: Request, res: Response): Promise<void> {
     try {
       const docId = (req as any).docId;
       const { appointmentId } = req.params;
 
       await this._doctorService.cancelAppointment(docId, appointmentId);
+      logger.info(`Appointment cancelled: ${appointmentId} by ${docId}`);
 
-      res
-        .status(HttpStatus.OK)
-        .json({ success: true, message: HttpResponse.APPOINTMENT_CANCELLED });
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: HttpResponse.APPOINTMENT_CANCELLED,
+      });
     } catch (error) {
-      res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ success: false, message: (error as Error).message });
+      logger.error(`Cancel appointment error: ${(error as Error).message}`);
+
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
     }
   }
 
@@ -304,8 +296,11 @@ export class DoctorController implements IDoctorController {
     try {
       const doctId = (req as any).docId;
       const profileData = await this._doctorService.getDoctorProfile(doctId);
+      logger.info(`Fetched profile for doctor: ${doctId}`);
+
       res.json({ success: true, profileData });
     } catch (error) {
+      logger.error(`Doctor profile fetch failed: ${(error as Error).message}`);
       res
         .status(500)
         .json({ success: false, message: (error as Error).message });
@@ -314,108 +309,22 @@ export class DoctorController implements IDoctorController {
 
   async updateDoctorProfile(req: Request, res: Response): Promise<void> {
     try {
-      const doctId = req.body.doctId;
-      const {
-        name,
-        speciality,
-        degree,
-        experience,
-        about,
-        fees,
-        address,
-        available,
-      } = req.body;
-
-      const imageFile = req.file;
-
-      let parsedAddress;
-      try {
-        parsedAddress = JSON.parse(address);
-      } catch (err) {
-        console.error("Address parsing error:", err);
-        res
-          .status(400)
-          .json({ success: false, message: "Invalid address format" });
-        return;
-      }
-
-      await this._doctorService.updateDoctorProfile({
-        doctId,
-        name,
-        speciality,
-        degree,
-        experience,
-        about,
-        fees: Number(fees),
-        address: parsedAddress,
-        imagePath: imageFile?.path,
-        available: String(available) === "true",
-      });
-
+      const result = await this._doctorService.updateDoctorProfile(
+        req.body,
+        req.file
+      );
+      logger.info(`Doctor profile updated: ${(req as any).docId}`);
       res.status(HttpStatus.OK).json({
         success: true,
         message: "Doctor profile updated successfully",
       });
     } catch (error) {
-      console.error("Doctor profile update failed:", error);
+      logger.error(`Update doctor profile failed: ${(error as Error).message}`);
+
       res.status(500).json({
         success: false,
         message: (error as Error).message,
-        error: (error as Error).stack,
       });
     }
   }
-
-  // async getMonthlySlots(req: Request, res: Response): Promise<void> {
-  //   try {
-  //     const doctorId = (req as any).docId;
-  //     const { year, month } = req.query;
-  //     const data = await this._slotService.getMonthlySlots(
-  //       doctorId,
-  //       +year!,
-  //       +month!
-  //     );
-  //     res.json({ success: true, data });
-  //   } catch (error) {
-  //     res
-  //       .status(500)
-  //       .json({ success: false, message: (error as Error).message });
-  //   }
-  // }
-
-  async updateDaySlot(req: Request, res: Response): Promise<void> {
-    try {
-      const doctorId = (req as any).docId;
-      const { date, slots, isCancelled } = req.body;
-      const data = await this._slotService.updateDaySlot(
-        doctorId,
-        date,
-        slots,
-        isCancelled
-      );
-      res.json({ success: true, data });
-    } catch (error) {
-      console.log(error)
-      res
-        .status(500)
-        .json({ success: false, message: (error as Error).message });
-    }
-  }
-
-
-  async getDaySlot(req: Request, res: Response): Promise<void> {
- try {
-   const doctorId = (req as any).docId;
-   const { date } = req.query;
-   const data = await this._slotService.getDayAvailability(
-     doctorId,
-     date as string
-   );
-   res.json({ success: true, data });
- } catch (error) {
-   res
-     .status(500)
-     .json({ success: false, message: (error as Error).message });
- }
-}
 }

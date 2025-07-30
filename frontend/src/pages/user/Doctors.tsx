@@ -1,15 +1,15 @@
-import { useContext, useEffect, useState } from "react";
-import { useNavigate, useParams } from "react-router-dom";
-import { AppContext } from "../../context/AppContext";
-import type { Doctor } from "../../assets/user/assets";
-import SearchBar from "../../components/common/SearchBar";
-import Pagination from "../../components/common/Pagination";
+import { useContext, useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { AppContext } from '../../context/AppContext';
+import type { Doctor } from '../../assets/user/assets';
+import SearchBar from '../../components/common/SearchBar';
+import Pagination from '../../components/common/Pagination';
 
 const Doctors = () => {
   const nav = useNavigate();
   const { speciality } = useParams();
 
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState('');
   const [showFilter, setShowFilter] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -20,7 +20,7 @@ const Doctors = () => {
   const [loading, setLoading] = useState(false);
 
   const ctx = useContext(AppContext);
-  if (!ctx) throw new Error("Doctors must be used within an AppContextProvider");
+  if (!ctx) throw new Error('Doctors must be used within an AppContextProvider');
   const { getDoctorsPaginated } = ctx;
 
   const itemsPerPage = 6;
@@ -30,7 +30,7 @@ const Doctors = () => {
   }, [currentPage, speciality]);
 
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [currentPage]);
 
   const fetchDoctors = async () => {
@@ -51,12 +51,12 @@ const Doctors = () => {
   }, [doctors, speciality, searchQuery]);
 
   const specialities = [
-    "General physician",
-    "Gynecologist",
-    "Dermatologist",
-    "Pediatrician",
-    "Neurologist",
-    "Gastroenterologist",
+    'General physician',
+    'Gynecologist',
+    'Dermatologist',
+    'Pediatrician',
+    'Neurologist',
+    'Gastroenterologist',
   ];
 
   return (
@@ -66,18 +66,18 @@ const Doctors = () => {
       <div className="flex flex-col sm:flex-row gap-8">
         <aside className="sm:w-56 space-y-4">
           <button
-            className={`sm:hidden py-1.5 px-4 rounded-full ring-1 ring-white/20 text-sm ${showFilter ? "bg-white/10" : ""}`}
+            className={`sm:hidden py-1.5 px-4 rounded-full ring-1 ring-white/20 text-sm ${showFilter ? 'bg-white/10' : ''}`}
             onClick={() => setShowFilter(!showFilter)}
           >
-            {showFilter ? "Hide Filters" : "Filters"}
+            {showFilter ? 'Hide Filters' : 'Filters'}
           </button>
 
-          <div className={`${showFilter ? "flex" : "hidden sm:flex"} flex-col gap-3`}>
+          <div className={`${showFilter ? 'flex' : 'hidden sm:flex'} flex-col gap-3`}>
             {specialities.map((spec) => (
               <button
                 key={spec}
-                onClick={() => (speciality === spec ? nav("/doctors") : nav(`/doctors/${spec}`))}
-                className={`text-left px-4 py-2 rounded-lg text-sm ring-1 ring-white/10 hover:bg-white/5 transition-colors ${speciality === spec ? "bg-cyan-500/20 text-white" : ""}`}
+                onClick={() => (speciality === spec ? nav('/doctors') : nav(`/doctors/${spec}`))}
+                className={`text-left px-4 py-2 rounded-lg text-sm ring-1 ring-white/10 hover:bg-white/5 transition-colors ${speciality === spec ? 'bg-cyan-500/20 text-white' : ''}`}
               >
                 {spec}
               </button>
@@ -92,11 +92,11 @@ const Doctors = () => {
             <div className="flex justify-center items-center h-60">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500"></div>
             </div>
-          ) : filtered.filter((d) => d.status === "approved").length ? (
+          ) : filtered.filter((d) => d.status === 'approved').length ? (
             <>
               <div className="grid gap-10 grid-cols-[repeat(auto-fill,minmax(260px,1fr))]">
                 {filtered
-                  .filter((d) => d.status === "approved")
+                  .filter((d) => d.status === 'approved')
                   .map((doc) => (
                     <div
                       key={doc._id}
@@ -113,15 +113,15 @@ const Doctors = () => {
                       <div className="p-6 space-y-2">
                         <span
                           className={`inline-flex items-center gap-2 text-xs font-medium ${
-                            doc.available ? "text-emerald-400" : "text-rose-400"
+                            doc.available ? 'text-emerald-400' : 'text-rose-400'
                           }`}
                         >
                           <span
                             className={`inline-block w-2 h-2 rounded-full ${
-                              doc.available ? "bg-emerald-400" : "bg-rose-400"
+                              doc.available ? 'bg-emerald-400' : 'bg-rose-400'
                             }`}
                           />
-                          {doc.available ? "Available" : "Not Available"}
+                          {doc.available ? 'Available' : 'Not Available'}
                         </span>
                         <h3 className="font-semibold text-lg text-white">{doc.name}</h3>
                         <p className="text-sm text-slate-400">{doc.speciality}</p>

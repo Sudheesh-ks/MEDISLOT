@@ -1,13 +1,13 @@
-import { useContext, useEffect, useState } from "react";
-import { DoctorContext } from "../../context/DoctorContext";
-import { AppContext } from "../../context/AppContext";
-import { assets } from "../../assets/admin/assets";
-import { useNavigate } from "react-router-dom";
-import SearchBar from "../../components/common/SearchBar";
-import DataTable from "../../components/common/DataTable";
-import Pagination from "../../components/common/Pagination";
-import { NotifContext } from "../../context/NotificationContext";
-import { updateItemInList } from "../../utils/stateHelper.util";
+import { useContext, useEffect, useState } from 'react';
+import { DoctorContext } from '../../context/DoctorContext';
+import { AppContext } from '../../context/AppContext';
+import { assets } from '../../assets/admin/assets';
+import { useNavigate } from 'react-router-dom';
+import SearchBar from '../../components/common/SearchBar';
+import DataTable from '../../components/common/DataTable';
+import Pagination from '../../components/common/Pagination';
+import { NotifContext } from '../../context/NotificationContext';
+import { updateItemInList } from '../../utils/stateHelper.util';
 
 const DoctorAppointments = () => {
   const ctx = useContext(DoctorContext);
@@ -15,16 +15,16 @@ const DoctorAppointments = () => {
   const navigate = useNavigate();
   const notif = useContext(NotifContext);
 
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [rows, setRows] = useState<any[]>([]);
   const [pages, setPages] = useState(1);
-  const [count, setCount] = useState(0);
+  // const [count, setCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const perPage = 6;
 
-  if (!ctx) throw new Error("DoctorContext missing");
-  if (!app) throw new Error("AppContext missing");
+  if (!ctx) throw new Error('DoctorContext missing');
+  if (!app) throw new Error('AppContext missing');
   const {
     dToken,
     getAppointmentsPaginated,
@@ -39,11 +39,11 @@ const DoctorAppointments = () => {
   }, [dToken, page]);
 
   useEffect(() => {
-    if (!dToken) navigate("/doctor/login");
+    if (!dToken) navigate('/doctor/login');
   });
 
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [page]);
 
   const fetchRows = async () => {
@@ -52,9 +52,9 @@ const DoctorAppointments = () => {
       const r = await getAppointmentsPaginated(page, perPage);
       setRows(r.data);
       setPages(r.totalPages);
-      setCount(r.totalCount);
+      // setCount(r.totalCount);
     } catch (err) {
-      console.error("Failed to fetch appointments", err);
+      console.error('Failed to fetch appointments', err);
     } finally {
       setLoading(false);
     }
@@ -75,16 +75,16 @@ setRows((prev) => updateItemInList(prev, id, { cancelled: true }));
 
   const cols = [
     {
-      key: "#",
-      header: "#",
-      width: "0.5fr",
+      key: '#',
+      header: '#',
+      width: '0.5fr',
       hideOnMobile: true,
       render: (_: any, i: number) => i + 1,
     },
     {
-      key: "patient",
-      header: "Patient",
-      width: "2fr",
+      key: 'patient',
+      header: 'Patient',
+      width: '2fr',
       render: (it: any) => (
         <div className="flex items-center gap-2">
           <img
@@ -96,38 +96,38 @@ setRows((prev) => updateItemInList(prev, id, { cancelled: true }));
       ),
     },
     {
-      key: "pay",
-      header: "Payment",
-      width: "1fr",
+      key: 'pay',
+      header: 'Payment',
+      width: '1fr',
       render: (it: any) => (
         <span
           className={`text-xs px-2 py-0.5 rounded-full ring-1 ${
             it.payment
-              ? "ring-emerald-500 text-emerald-400"
-              : "ring-red-500 text-red-400"
+              ? 'ring-emerald-500 text-emerald-400'
+              : 'ring-red-500 text-red-400'
           }`}
         >
-          {it.payment ? "Paid" : "failed"}
+          {it.payment ? 'Paid' : 'failed'}
         </span>
       ),
     },
     {
-      key: "age",
-      header: "Age",
-      width: "1fr",
+      key: 'age',
+      header: 'Age',
+      width: '1fr',
       hideOnMobile: true,
       render: (it: any) => calculateAge(it.userData.dob),
     },
     {
-      key: "dt",
-      header: "Date & Time",
-      width: "3fr",
+      key: 'dt',
+      header: 'Date & Time',
+      width: '3fr',
       render: (it: any) => `${slotDateFormat(it.slotDate)}, ${it.slotTime}`,
     },
     {
-      key: "fees",
-      header: "Fees",
-      width: "1fr",
+      key: 'fees',
+      header: 'Fees',
+      width: '1fr',
       render: (it: any) => (
         <span>
           {currencySymbol}
@@ -136,9 +136,9 @@ setRows((prev) => updateItemInList(prev, id, { cancelled: true }));
       ),
     },
     {
-      key: "act",
-      header: "Action",
-      width: "1fr",
+      key: 'act',
+      header: 'Action',
+      width: '1fr',
       render: (it: any) =>
         it.cancelled ? (
           <span className="text-red-500">Cancelled</span>
@@ -162,7 +162,7 @@ setRows((prev) => updateItemInList(prev, id, { cancelled: true }));
             <img
               onClick={(e) => {
                 e.stopPropagation();
-                doCancel(it._id!);
+                doCancel(it._id);
               }}
               src={assets.cancel_icon}
               className="w-7 cursor-pointer opacity-80 hover:opacity-100"
@@ -170,7 +170,7 @@ setRows((prev) => updateItemInList(prev, id, { cancelled: true }));
             <img
               onClick={(e) => {
                 e.stopPropagation();
-                doConfirm(it._id!);
+                doConfirm(it._id);
               }}
               src={assets.tick_icon}
               className="w-7 cursor-pointer opacity-80 hover:opacity-100"
@@ -180,7 +180,7 @@ setRows((prev) => updateItemInList(prev, id, { cancelled: true }));
     },
   ];
 
-  if (profileData?.status === "pending")
+  if (profileData?.status === 'pending')
     return (
       <div className="m-5 text-center bg-yellow-900/30 border border-yellow-600 rounded-xl p-6 text-yellow-200 shadow-md">
         <h2 className="text-xl font-semibold mb-2">⏳ Awaiting Approval</h2>
@@ -190,7 +190,7 @@ setRows((prev) => updateItemInList(prev, id, { cancelled: true }));
         </p>
       </div>
     );
-  if (profileData?.status === "rejected")
+  if (profileData?.status === 'rejected')
     return (
       <div className="m-5 text-center bg-red-900/30 border border-red-600 rounded-xl p-6 text-red-300 shadow-md">
         <h2 className="text-xl font-semibold mb-2">❌ Registration Rejected</h2>
@@ -200,7 +200,7 @@ setRows((prev) => updateItemInList(prev, id, { cancelled: true }));
         </p>
       </div>
     );
-  if (profileData?.status !== "approved") return null;
+  if (profileData?.status !== 'approved') return null;
 
   return (
     <div className="w-full max-w-6xl m-5 text-slate-100">

@@ -16,12 +16,13 @@ import MessageModel from "./models/messageModel";
 import chatRouter from "./routes/chatRoute";
 dotenv.config();
 
-// chat layer 
+// chat layer
 import { ChatRepository } from "./repositories/implementation/ChatRepository";
 import { ChatService } from "./services/implementation/ChatService";
 
-// socket registration 
+// socket registration
 import { registerChatSocket } from "./sockets/ChatSocket";
+import slotRouter from "./routes/slotRoute";
 
 // app config
 const app = express();
@@ -49,16 +50,16 @@ app.use("/api/doctor", doctorRouter);
 app.use("/api/user", userRouter);
 app.use("/api/auth", authRouter);
 app.use("/api/chat", chatRouter);
+app.use("/api/slots", slotRouter);
 
 app.get("/", (req, res) => {
   res.send("API WORKING");
 });
 
-
-// chat service 
+// chat service
 const chatService = new ChatService(new ChatRepository());
 
-// socket.io 
+// socket.io
 const server = http.createServer(app);
 const io = new SocketIOServer(server, {
   cors: { origin: "http://localhost:5173", credentials: true },

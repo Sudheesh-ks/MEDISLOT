@@ -1,7 +1,6 @@
 import { DoctorDTO } from "../dtos/doctor.dto";
 import { DoctorDocument } from "../models/doctorModel";
 
-
 export const toDoctorDTO = (doc: DoctorDocument): DoctorDTO => {
   return {
     _id: doc._id.toString(),

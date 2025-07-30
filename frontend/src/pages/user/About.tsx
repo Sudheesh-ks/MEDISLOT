@@ -1,4 +1,4 @@
-import { assets } from "../../assets/user/assets";
+import { assets } from '../../assets/user/assets';
 
 const About = () => (
   <main className="max-w-7xl mx-auto px-4 md:px-10 py-24 text-slate-100 animate-fade">
@@ -31,9 +31,9 @@ const About = () => (
 
     <section className="grid gap-6 md:grid-cols-3 mb-32">
       {[
-        { title: "Efficiency", text: "Streamlined appointment scheduling that fits your busy lifestyle." },
-        { title: "Convenience", text: "Access a network of trusted healthcare professionals in your area." },
-        { title: "Personalization", text: "Tailored recommendations and reminders to keep you on top of your health." },
+        { title: 'Efficiency', text: 'Streamlined appointment scheduling that fits your busy lifestyle.' },
+        { title: 'Convenience', text: 'Access a network of trusted healthcare professionals in your area.' },
+        { title: 'Personalization', text: 'Tailored recommendations and reminders to keep you on top of your health.' },
       ].map(({ title, text }) => (
         <div key={title} className="bg-white/5 backdrop-blur ring-1 ring-white/10 px-8 py-14 rounded-3xl text-center hover:-translate-y-1 transition-transform cursor-default">
           <h3 className="text-lg font-semibold text-slate-100 mb-3">{title}</h3>

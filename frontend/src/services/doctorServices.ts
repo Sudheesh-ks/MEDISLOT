@@ -1,5 +1,5 @@
-import { doctorApi as api } from "../axios/doctorAxiosInstance";
-import { DOCTOR_API } from "../constants/apiRoutes";
+import { doctorApi as api } from '../axios/doctorAxiosInstance';
+import { DOCTOR_API, SLOT_API } from '../constants/apiRoutes';
 
 // Get paginated doctors
 export const getDoctorsPaginatedAPI = (page: number, limit: number) => {
@@ -8,7 +8,7 @@ export const getDoctorsPaginatedAPI = (page: number, limit: number) => {
 
 export const getDoctorsByIDAPI = (id: string) => {
   return api.get(DOCTOR_API.DOCTOR_ID(id));
-}
+};
 
 // Register doctor
 export const registerDoctorAPI = (formData: FormData) => {
@@ -62,23 +62,23 @@ export const updateDoctorProfileAPI = (
 ) => {
   const data = new FormData();
 
-  data.append("doctId", formData._id);
-  data.append("name", formData.name);
-  data.append("speciality", formData.speciality);
-  data.append("degree", formData.degree);
-  data.append("experience", String(formData.experience));
-  data.append("about", formData.about);
-  data.append("fees", String(formData.fees));
-  data.append("address", JSON.stringify(formData.address));
-data.append("available", (formData.available ?? false).toString());
+  data.append('doctId', formData._id);
+  data.append('name', formData.name);
+  data.append('speciality', formData.speciality);
+  data.append('degree', formData.degree);
+  data.append('experience', String(formData.experience));
+  data.append('about', formData.about);
+  data.append('fees', String(formData.fees));
+  data.append('address', JSON.stringify(formData.address));
+data.append('available', (formData.available ?? false).toString());
 
   if (image) {
-    data.append("image", image);
+    data.append('image', image);
   }
 
   return api.patch(DOCTOR_API.PROFILE_UPDATE, data, {
     headers: {
-      "Content-Type": "multipart/form-data",
+      'Content-Type': 'multipart/form-data',
     },
   });
 };
@@ -90,12 +90,12 @@ export const upsertDaySlotsAPI = (
   date: string,
   slots: { start: string; end: string; isAvailable: boolean }[],
   isCancelled: boolean
-) => api.post(DOCTOR_API.SLOTS, { date, slots, isCancelled });     
+) => api.post(SLOT_API.SLOTS, { date, slots, isCancelled });     
 
 export const addDoctorSlotsAPI = upsertDaySlotsAPI;
 
 export const getDaySlotsAPI = async (date: string) => {
-  const res = await api.get(`${DOCTOR_API.SLOTS}/day`, { params: { date } }); 
+  const res = await api.get(`${SLOT_API.SLOTS}/day`, { params: { date } }); 
   return res.data.data as {
     start: string;
     end: string;

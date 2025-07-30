@@ -1,17 +1,17 @@
-import { Route } from "react-router-dom";
+import { Route } from 'react-router-dom';
 
 // Layout
-import DoctorLayout from "../layouts/DoctorLayout";
+import DoctorLayout from '../layouts/DoctorLayout';
 
 // Doctor Pages
-import DoctorLogin from "../pages/doctor/DoctorLogin";
-import DoctorDashboard from "../pages/doctor/DoctorDashboard";
-import DoctorAppointments from "../pages/doctor/DoctorAppointments";
-import DoctorProfile from "../pages/doctor/DoctorProfile";
-import DoctorConsultation from "../pages/doctor/DoctorConsultation";
-import DocChatPage from "../pages/doctor/DocChatPage";
-import DoctorRegister from "../pages/doctor/DoctorRegister";
-import DoctorSlotManager from "../pages/doctor/DoctorSlotManagement";
+import DoctorLogin from '../pages/doctor/DoctorLogin';
+import DoctorDashboard from '../pages/doctor/DoctorDashboard';
+import DoctorAppointments from '../pages/doctor/DoctorAppointments';
+import DoctorProfile from '../pages/doctor/DoctorProfile';
+import DoctorConsultation from '../pages/doctor/DoctorConsultation';
+import DocChatPage from '../pages/doctor/DocChatPage';
+import DoctorRegister from '../pages/doctor/DoctorRegister';
+import DoctorSlotManager from '../pages/doctor/DoctorSlotManagement';
 
 const DoctorRoutes = () => {
   return (

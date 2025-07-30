@@ -1,7 +1,7 @@
-import { createContext, useEffect, useState } from "react";
-import type { ReactNode } from "react";
-import { toast } from "react-toastify";
-import { showErrorToast } from "../utils/errorHandler";
+import { createContext, useEffect, useState } from 'react';
+import type { ReactNode } from 'react';
+import { toast } from 'react-toastify';
+import { showErrorToast } from '../utils/errorHandler';
 import {
   AppointmentCancelAPI,
   AppointmentConfirmAPI,
@@ -9,14 +9,14 @@ import {
   getDoctorAppointmentsPaginatedAPI,
   getDoctorProfileAPI,
   refreshDoctorAccessTokenAPI,
-} from "../services/doctorServices";
-import type { AppointmentTypes } from "../types/appointment";
-import type { DoctorProfileType } from "../types/doctor";
+} from '../services/doctorServices';
+import type { AppointmentTypes } from '../types/appointment';
+import type { DoctorProfileType } from '../types/doctor';
 import {
   getDoctorAccessToken,
   updateDoctorAccessToken,
   clearDoctorAccessToken,
-} from "./tokenManagerDoctor";
+} from './tokenManagerDoctor';
 
 interface PaginationData {
   data: any[];
@@ -56,7 +56,7 @@ interface DoctorContextProviderProps {
 const DoctorContextProvider = ({ children }: DoctorContextProviderProps) => {
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
-const [dToken, setDToken] = useState(getDoctorAccessToken() ?? "");
+const [dToken, setDToken] = useState(getDoctorAccessToken() ?? '');
   const [appointments, setAppointments] = useState<AppointmentTypes[]>([]);
   const [profileData, setProfileData] = useState<DoctorProfileType | null>(
     null
@@ -64,7 +64,7 @@ const [dToken, setDToken] = useState(getDoctorAccessToken() ?? "");
   const [loading, setLoading] = useState(true);
 
   const setToken = (newToken: string | null) => {
-    setDToken(newToken ?? "");
+    setDToken(newToken ?? '');
     if (newToken) {
       updateDoctorAccessToken(newToken);
     } else {
@@ -165,7 +165,7 @@ const [dToken, setDToken] = useState(getDoctorAccessToken() ?? "");
         }
       } catch (err: any) {
         console.warn(
-          "Doctor token refresh failed",
+          'Doctor token refresh failed',
           err.response?.data || err.message
         );
         setToken(null);
@@ -174,7 +174,7 @@ const [dToken, setDToken] = useState(getDoctorAccessToken() ?? "");
       }
     };
 
-    const wasLoggedOut = localStorage.getItem("isDoctorLoggedOut") === "true";
+    const wasLoggedOut = localStorage.getItem('isDoctorLoggedOut') === 'true';
 
     if (!getDoctorAccessToken()) {
        if (!wasLoggedOut) {

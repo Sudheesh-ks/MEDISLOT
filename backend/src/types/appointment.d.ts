@@ -20,6 +20,3 @@ export interface AppointmentTypes {
   isCompleted?: boolean;
   razorpayOrderId?: string | null;
 }
-
-
-

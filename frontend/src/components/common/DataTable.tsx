@@ -1,6 +1,6 @@
-import React from "react";
-import { motion } from "framer-motion";
-import type { Variants } from "framer-motion";
+import React from 'react';
+import { motion } from 'framer-motion';
+import type { Variants } from 'framer-motion';
 
 interface Column {
   key: string;
@@ -28,7 +28,7 @@ const fadeInUp: Variants = {
   visible: (i: number) => ({
     opacity: 1,
     y: 0,
-    transition: { delay: i * 0.05, type: "spring", stiffness: 100 },
+    transition: { delay: i * 0.05, type: 'spring', stiffness: 100 },
   }),
 };
 
@@ -36,19 +36,19 @@ const DataTable: React.FC<DataTableProps> = ({
   data,
   columns,
   loading = false,
-  emptyMessage = "No data found.",
+  emptyMessage = 'No data found.',
   onRowClick,
-  className = "",
+  className = '',
   gridCols,
   showHeader = true,
-  containerClassName = "",
+  containerClassName = '',
 }) => {
   const defaultGrid = `grid-cols-[${columns
-    .map((c) => c.width ?? "1fr")
-    .join("_")}]`;
+    .map((c) => c.width ?? '1fr')
+    .join('_')}]`;
 
-  const glass = "bg-white/5 backdrop-blur ring-1 ring-white/10";
-  const divider = "border-white/10";
+  const glass = 'bg-white/5 backdrop-blur ring-1 ring-white/10';
+  const divider = 'border-white/10';
 
   return (
     <div
@@ -63,8 +63,8 @@ const DataTable: React.FC<DataTableProps> = ({
           {columns.map((col) => (
             <p
               key={col.key}
-              className={`${col.hideOnMobile ? "max-sm:hidden" : ""} ${
-                col.className ?? ""
+              className={`${col.hideOnMobile ? 'max-sm:hidden' : ''} ${
+                col.className ?? ''
               }`}
             >
               {col.header}
@@ -88,14 +88,14 @@ const DataTable: React.FC<DataTableProps> = ({
             className={`flex flex-wrap justify-between max-sm:gap-2 sm:grid ${
               gridCols ?? defaultGrid
             } items-center py-3 px-6 ${divider} border-b hover:bg-white/5 transition ${
-              onRowClick ? "cursor-pointer" : ""
+              onRowClick ? 'cursor-pointer' : ''
             } ${className}`}
           >
             {columns.map((col) => (
               <div
                 key={col.key}
-                className={`${col.hideOnMobile ? "max-sm:hidden" : ""} ${
-                  col.className ?? ""
+                className={`${col.hideOnMobile ? 'max-sm:hidden' : ''} ${
+                  col.className ?? ''
                 }`}
               >
                 {col.render ? col.render(item, i) : item[col.key]}

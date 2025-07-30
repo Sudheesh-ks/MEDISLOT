@@ -1,13 +1,13 @@
-import { useContext } from "react";
-import { assets } from "../../assets/admin/assets";
-import { DoctorContext } from "../../context/DoctorContext";
-import { useNavigate } from "react-router-dom";
-import { logoutDoctorAPI } from "../../services/doctorServices";
-import { clearDoctorAccessToken } from "../../context/tokenManagerDoctor";
+import { useContext } from 'react';
+import { assets } from '../../assets/admin/assets';
+import { DoctorContext } from '../../context/DoctorContext';
+import { useNavigate } from 'react-router-dom';
+import { logoutDoctorAPI } from '../../services/doctorServices';
+import { clearDoctorAccessToken } from '../../context/tokenManagerDoctor';
 
 const DoctorNavbar = () => {
   const ctx = useContext(DoctorContext);
-  if (!ctx) throw new Error("DoctorContext missing");
+  if (!ctx) throw new Error('DoctorContext missing');
 
   const { setDToken, profileData } = ctx;
   const nav = useNavigate();
@@ -15,17 +15,17 @@ const DoctorNavbar = () => {
   const logout = async () => {
     try {
       await logoutDoctorAPI();
-      setDToken("");
-      localStorage.removeItem("doctorAccessToken");
-      localStorage.setItem("isDoctorLoggedOut", "true");
+      setDToken('');
+      localStorage.removeItem('doctorAccessToken');
+      localStorage.setItem('isDoctorLoggedOut', 'true');
       clearDoctorAccessToken();
-      nav("/doctor/login");
+      nav('/doctor/login');
     } catch (err) {
-      console.error("Doctor logout failed:", err);
+      console.error('Doctor logout failed:', err);
     }
   };
 
-  const glass = "bg-white/5 backdrop-blur ring-1 ring-white/10";
+  const glass = 'bg-white/5 backdrop-blur ring-1 ring-white/10';
 
   return (
     <header
@@ -40,12 +40,12 @@ const DoctorNavbar = () => {
           Doctor
         </span>
 
-        {profileData?.status === "pending" && (
+        {profileData?.status === 'pending' && (
           <span className="ml-3 px-3 py-1 text-xs font-semibold bg-yellow-400/20 text-yellow-300 ring-1 ring-yellow-400/40 rounded-full animate-pulse">
             ⏳ Waiting for approval
           </span>
         )}
-        {profileData?.status === "rejected" && (
+        {profileData?.status === 'rejected' && (
           <span className="ml-3 px-3 py-1 text-xs font-semibold bg-red-400/20 text-red-300 ring-1 ring-red-400/40 rounded-full">
             ❌ Registration rejected
           </span>

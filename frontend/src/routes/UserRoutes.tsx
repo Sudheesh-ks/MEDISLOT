@@ -1,24 +1,24 @@
-import { Route } from "react-router-dom";
+import { Route } from 'react-router-dom';
 
 // Layouts
-import UserLayout from "../layouts/UserLayout";
+import UserLayout from '../layouts/UserLayout';
 
 // User Pages
-import Home from "../pages/user/Home";
-import Doctors from "../pages/user/Doctors";
-import Contact from "../pages/user/Contact";
-import About from "../pages/user/About";
-import Login from "../pages/user/Login";
-import MyProfile from "../pages/user/MyProfile";
-import MyAppointments from "../pages/user/MyAppointments";
-import Appointment from "../pages/user/Appointment";
-import EmailVerificationPage from "../pages/user/EmailVerify";
-import OtpVerificationPage from "../pages/user/OTPVerification";
-import NewPasswordPage from "../pages/user/SetNewPassword";
-import GoogleCallback from "../pages/user/GoogleCallback";
-import Consultation from "../pages/user/Consultation";
-import ChatPage from "../pages/user/ChatPage";
-import UserLandingPage from "../pages/user/LandingPage";
+import Home from '../pages/user/Home';
+import Doctors from '../pages/user/Doctors';
+import Contact from '../pages/user/Contact';
+import About from '../pages/user/About';
+import Login from '../pages/user/Login';
+import MyProfile from '../pages/user/MyProfile';
+import MyAppointments from '../pages/user/MyAppointments';
+import Appointment from '../pages/user/Appointment';
+import EmailVerificationPage from '../pages/user/EmailVerify';
+import OtpVerificationPage from '../pages/user/OTPVerification';
+import NewPasswordPage from '../pages/user/SetNewPassword';
+import GoogleCallback from '../pages/user/GoogleCallback';
+import Consultation from '../pages/user/Consultation';
+import ChatPage from '../pages/user/ChatPage';
+import UserLandingPage from '../pages/user/LandingPage';
 
 const UserRoutes = () => {
   return (

@@ -1,7 +1,6 @@
 import { UserDTO } from "../dtos/user.dto";
 import { userDocument } from "../models/userModel";
 
-
 export const toUserDTO = (user: userDocument): UserDTO => {
   return {
     _id: user._id.toString(),
@@ -12,5 +11,6 @@ export const toUserDTO = (user: userDocument): UserDTO => {
     dob: user.dob,
     phone: user.phone,
     address: user.address,
+    isBlocked: user.isBlocked,
   };
 };

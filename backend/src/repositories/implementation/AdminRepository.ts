@@ -1,14 +1,10 @@
-import {
-  IAdminRepository,
-} from "../interface/IAdminRepository";
 import { BaseRepository } from "../BaseRepository";
 import adminModel, { AdminDocument } from "../../models/adminModel";
 import doctorModel, { DoctorDocument } from "../../models/doctorModel";
 import userModel, { userDocument } from "../../models/userModel";
-import appointmentModel, { AppointmentDocument } from "../../models/appointmentModel";
-import { DoctorTypes } from "../../types/doctor";
-import { userTypes } from "../../types/user";
-import { AppointmentTypes } from "../../types/appointment";
+import appointmentModel, {
+  AppointmentDocument,
+} from "../../models/appointmentModel";
 import { PaginationResult } from "../../types/pagination";
 
 export class AdminRepository extends BaseRepository<AdminDocument> {
@@ -23,11 +19,6 @@ export class AdminRepository extends BaseRepository<AdminDocument> {
   async findAdminById(id: string): Promise<AdminDocument | null> {
     return this.findById(id);
   }
-
-  // async saveDoctor(data: DoctorData): Promise<void> {
-  //   const newDoctor = new doctorModel(data);
-  //   await newDoctor.save();
-  // }
 
   async getAllDoctors(): Promise<DoctorDocument[]> {
     return doctorModel.find({}).select("-password");
@@ -85,14 +76,14 @@ export class AdminRepository extends BaseRepository<AdminDocument> {
     };
   }
 
-  async toggleUserBlock(userId: string): Promise<string> {
+  async toggleUserBlock(userId: string): Promise<userDocument> {
     const user = await userModel.findById(userId);
     if (!user) throw new Error("User not found");
 
     user.isBlocked = !user.isBlocked;
     await user.save();
 
-    return user.isBlocked ? "User blocked" : "User unblocked";
+    return user;
   }
 
   async getAllAppointments(): Promise<AppointmentDocument[]> {
