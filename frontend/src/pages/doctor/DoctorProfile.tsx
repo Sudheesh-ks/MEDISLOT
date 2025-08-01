@@ -1,22 +1,19 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { DoctorContext } from '../../context/DoctorContext';
 import { useNavigate } from 'react-router-dom';
-import { AppContext } from '../../context/AppContext';
 import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
 import { assets } from '../../assets/user/assets';
 import { showErrorToast } from '../../utils/errorHandler';
 import { updateDoctorProfileAPI } from '../../services/doctorServices';
+import { currencySymbol } from '../../utils/commonUtils';
 
 const DoctorProfile = () => {
   const ctx = useContext(DoctorContext);
-  const app = useContext(AppContext);
   const nav = useNavigate();
   if (!ctx) throw new Error('DoctorProfile within DoctorContext');
-  if (!app) throw new Error('DoctorProfile within AppContext');
 
   const { dToken, profileData, getProfileData } = ctx;
-  const { currencySymbol } = app;
 
   const [isEdit, setEdit] = useState(false);
   const [form, setForm] = useState(profileData);
@@ -39,10 +36,7 @@ const DoctorProfile = () => {
   const label = 'text-sm font-medium text-slate-400';
 
   const onField = (e: React.ChangeEvent<HTMLElement>) => {
-    const { name, value } = e.target as
-      | HTMLInputElement
-      | HTMLTextAreaElement
-      | HTMLSelectElement;
+    const { name, value } = e.target as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
     setForm((p) => (p ? { ...p, [name]: value } : p));
   };
   const setAddr = (k: 'line1' | 'line2', v: string) =>
@@ -51,10 +45,7 @@ const DoctorProfile = () => {
   const save = async () => {
     try {
       if (!dToken) return toast.error('Login to continue');
-      const { data } = await updateDoctorProfileAPI(
-        { ...form, available: avail },
-        image
-      );
+      const { data } = await updateDoctorProfileAPI({ ...form, available: avail }, image);
       toast.success(data.message);
       await getProfileData();
       setEdit(false);
@@ -68,10 +59,7 @@ const DoctorProfile = () => {
     return (
       <div className="m-5 text-center bg-yellow-900/30 border border-yellow-600 rounded-xl p-6 text-yellow-200 shadow-md">
         <h2 className="text-xl font-semibold mb-2">⏳ Awaiting Approval</h2>
-        <p>
-          Your registration is under review. The admin has not approved your
-          account yet.
-        </p>
+        <p>Your registration is under review. The admin has not approved your account yet.</p>
       </div>
     );
   if (profileData?.status === 'rejected')
@@ -100,12 +88,7 @@ const DoctorProfile = () => {
               src={image ? URL.createObjectURL(image) : profileData.image}
               className="w-36 h-36 rounded-xl object-cover opacity-80 ring-1 ring-white/10"
             />
-            {!image && (
-              <img
-                src={assets.upload_icon}
-                className="w-10 absolute bottom-2 right-2"
-              />
-            )}
+            {!image && <img src={assets.upload_icon} className="w-10 absolute bottom-2 right-2" />}
             <input
               id="doc-img"
               type="file"
@@ -196,12 +179,7 @@ const DoctorProfile = () => {
         <div className="flex items-center gap-3">
           <span className="font-medium text-slate-300">Fee:</span>
           {isEdit ? (
-            <input
-              name="fees"
-              value={form.fees}
-              onChange={onField}
-              className={`${input} w-24`}
-            />
+            <input name="fees" value={form.fees} onChange={onField} className={`${input} w-24`} />
           ) : (
             <span className="text-slate-100">
               {currencySymbol}
@@ -250,9 +228,7 @@ const DoctorProfile = () => {
           ) : (
             <span
               className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                avail
-                  ? 'bg-emerald-500/20 text-emerald-400'
-                  : 'bg-slate-600/40 text-slate-400'
+                avail ? 'bg-emerald-500/20 text-emerald-400' : 'bg-slate-600/40 text-slate-400'
               }`}
             >
               {avail ? 'Available' : 'Not Available'}

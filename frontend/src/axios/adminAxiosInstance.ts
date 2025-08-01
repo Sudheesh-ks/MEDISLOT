@@ -1,8 +1,5 @@
 import axios, { type AxiosRequestConfig } from 'axios';
-import {
-  getAdminAccessToken,
-  updateAdminAccessToken,
-} from '../context/tokenManagerAdmin';
+import { getAdminAccessToken, updateAdminAccessToken } from '../context/tokenManagerAdmin';
 
 export const adminApi = axios.create({
   baseURL: import.meta.env.VITE_BACKEND_URL,
@@ -49,7 +46,7 @@ adminApi.interceptors.response.use(
         {},
         { withCredentials: true }
       );
-      const newTok: string = data.accessToken ?? data.token; 
+      const newTok: string = data.accessToken ?? data.token;
       updateAdminAccessToken(newTok);
 
       onRefreshed(newTok);

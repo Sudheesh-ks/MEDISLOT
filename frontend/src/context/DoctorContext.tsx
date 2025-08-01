@@ -1,4 +1,4 @@
-import { createContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { toast } from 'react-toastify';
 import { showErrorToast } from '../utils/errorHandler';
@@ -38,16 +38,12 @@ interface DoctorContextType {
   confirmAppointment: (appointmentId: string) => Promise<void>;
   cancelAppointment: (appointmentId: string) => Promise<void>;
   profileData: DoctorProfileType | null;
-  setProfileData: React.Dispatch<
-    React.SetStateAction<DoctorProfileType | null>
-  >;
+  setProfileData: React.Dispatch<React.SetStateAction<DoctorProfileType | null>>;
   getProfileData: () => Promise<void>;
   loading: boolean;
 }
 
-export const DoctorContext = createContext<DoctorContextType>(
-  {} as DoctorContextType
-);
+export const DoctorContext = createContext<DoctorContextType>({} as DoctorContextType);
 
 interface DoctorContextProviderProps {
   children: ReactNode;
@@ -56,11 +52,9 @@ interface DoctorContextProviderProps {
 const DoctorContextProvider = ({ children }: DoctorContextProviderProps) => {
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
-const [dToken, setDToken] = useState(getDoctorAccessToken() ?? '');
+  const [dToken, setDToken] = useState(getDoctorAccessToken() ?? '');
   const [appointments, setAppointments] = useState<AppointmentTypes[]>([]);
-  const [profileData, setProfileData] = useState<DoctorProfileType | null>(
-    null
-  );
+  const [profileData, setProfileData] = useState<DoctorProfileType | null>(null);
   const [loading, setLoading] = useState(true);
 
   const setToken = (newToken: string | null) => {
@@ -97,7 +91,7 @@ const [dToken, setDToken] = useState(getDoctorAccessToken() ?? '');
           currentPage: data.currentPage,
           totalPages: data.totalPages,
           hasNextPage: data.hasNextPage,
-          hasPrevPage: data.hasPrevPage
+          hasPrevPage: data.hasPrevPage,
         };
       } else {
         toast.error(data.message);
@@ -114,9 +108,7 @@ const [dToken, setDToken] = useState(getDoctorAccessToken() ?? '');
       const { data } = await AppointmentConfirmAPI(appointmentId);
       if (data.success) {
         toast.success(data.message);
-                  setAppointments((prev) =>
-    prev.filter((a) => a._id !== appointmentId)
-  );
+        setAppointments((prev) => prev.filter((a) => a._id !== appointmentId));
       } else {
         toast.error(data.message);
       }
@@ -130,9 +122,7 @@ const [dToken, setDToken] = useState(getDoctorAccessToken() ?? '');
       const { data } = await AppointmentCancelAPI(appointmentId);
       if (data.success) {
         toast.success(data.message);
-                  setAppointments((prev) =>
-    prev.filter((a) => a._id !== appointmentId)
-  );
+        setAppointments((prev) => prev.filter((a) => a._id !== appointmentId));
       } else {
         toast.error(data.message);
       }
@@ -164,10 +154,7 @@ const [dToken, setDToken] = useState(getDoctorAccessToken() ?? '');
           setToken(null);
         }
       } catch (err: any) {
-        console.warn(
-          'Doctor token refresh failed',
-          err.response?.data || err.message
-        );
+        console.warn('Doctor token refresh failed', err.response?.data || err.message);
         setToken(null);
       } finally {
         setLoading(false);
@@ -177,9 +164,9 @@ const [dToken, setDToken] = useState(getDoctorAccessToken() ?? '');
     const wasLoggedOut = localStorage.getItem('isDoctorLoggedOut') === 'true';
 
     if (!getDoctorAccessToken()) {
-       if (!wasLoggedOut) {
-      tryRefresh();
-    }
+      if (!wasLoggedOut) {
+        tryRefresh();
+      }
     } else {
       getProfileData().finally(() => setLoading(false));
     }
@@ -201,9 +188,9 @@ const [dToken, setDToken] = useState(getDoctorAccessToken() ?? '');
     loading,
   };
 
-  return (
-    <DoctorContext.Provider value={value}>{children}</DoctorContext.Provider>
-  );
+  return <DoctorContext.Provider value={value}>{children}</DoctorContext.Provider>;
 };
+
+export const useDoctorContext = () => useContext(DoctorContext);
 
 export default DoctorContextProvider;

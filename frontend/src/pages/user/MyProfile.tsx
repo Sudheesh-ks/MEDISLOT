@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from 'react';
-import { AppContext } from '../../context/AppContext';
+import { UserContext } from '../../context/UserContext';
 import { assets } from '../../assets/user/assets';
 import { toast } from 'react-toastify';
 import { updateUserProfileAPI } from '../../services/userProfileServices';
@@ -9,21 +9,24 @@ import { showErrorToast } from '../../utils/errorHandler';
 
 const MyProfile = () => {
   const nav = useNavigate();
-  const context = useContext(AppContext);
-  if (!context) throw new Error('MyProfile must be within AppContext');
+  const context = useContext(UserContext);
+  if (!context) throw new Error('MyProfile must be within UserContext');
   const { userData, setUserData, token, loadUserProfileData } = context;
 
   const [isEdit, setEdit] = useState(false);
   const [image, setImage] = useState<File | null>(null);
+
+  useEffect(() => {
+    if (!token) nav('/');
+  }, [token, nav]);
+
   if (!userData) return null;
 
   const save = async () => {
     try {
       if (!token) return toast.error('Login to continue');
-      if (!isValidPhone(userData.phone))
-        return toast.error('Phone must be 10 digits');
-      if (!isValidDateOfBirth(userData.dob))
-        return toast.error('Enter a valid birth date');
+      if (!isValidPhone(userData.phone)) return toast.error('Phone must be 10 digits');
+      if (!isValidDateOfBirth(userData.dob)) return toast.error('Enter a valid birth date');
 
       const { message } = await updateUserProfileAPI(
         token,
@@ -45,30 +48,18 @@ const MyProfile = () => {
     }
   };
 
-  useEffect(() => {
-    if (!token) nav('/');
-  }, [token, nav]);
-
   const input =
     'bg-transparent ring-1 ring-white/10 rounded px-2 py-1 mt-1 text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500';
 
   return (
     <div className="max-w-lg mx-auto py-24 px-4 text-slate-200">
       {isEdit ? (
-        <label
-          htmlFor="avatar"
-          className="inline-block cursor-pointer relative"
-        >
+        <label htmlFor="avatar" className="inline-block cursor-pointer relative">
           <img
             src={image ? URL.createObjectURL(image) : userData.image}
             className="w-36 h-36 object-cover rounded-xl ring-1 ring-white/10 opacity-80"
           />
-          {!image && (
-            <img
-              src={assets.upload_icon}
-              className="w-10 absolute bottom-2 right-2"
-            />
-          )}
+          {!image && <img src={assets.upload_icon} className="w-10 absolute bottom-2 right-2" />}
           <input
             id="avatar"
             type="file"
@@ -88,9 +79,7 @@ const MyProfile = () => {
         <input
           className={'mt-4 text-3xl font-semibold ' + input}
           value={userData.name}
-          onChange={(e) =>
-            setUserData((p) => (p ? { ...p, name: e.target.value } : p))
-          }
+          onChange={(e) => setUserData((p) => (p ? { ...p, name: e.target.value } : p))}
         />
       ) : (
         <h2 className="mt-4 text-3xl font-semibold">{userData.name}</h2>
@@ -109,9 +98,7 @@ const MyProfile = () => {
             <input
               className={input}
               value={userData.phone}
-              onChange={(e) =>
-                setUserData((p) => (p ? { ...p, phone: e.target.value } : p))
-              }
+              onChange={(e) => setUserData((p) => (p ? { ...p, phone: e.target.value } : p))}
             />
           ) : (
             <span className="text-cyan-300">{userData.phone}</span>
@@ -167,9 +154,7 @@ const MyProfile = () => {
             <select
               className={input}
               value={userData.gender}
-              onChange={(e) =>
-                setUserData((p) => (p ? { ...p, gender: e.target.value } : p))
-              }
+              onChange={(e) => setUserData((p) => (p ? { ...p, gender: e.target.value } : p))}
             >
               <option>Male</option>
               <option>Female</option>
@@ -184,9 +169,7 @@ const MyProfile = () => {
               type="date"
               className={input}
               value={userData.dob}
-              onChange={(e) =>
-                setUserData((p) => (p ? { ...p, dob: e.target.value } : p))
-              }
+              onChange={(e) => setUserData((p) => (p ? { ...p, dob: e.target.value } : p))}
             />
           ) : (
             <span className="text-slate-400">{userData.dob}</span>

@@ -1,31 +1,29 @@
 import { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { AppContext } from '../../context/AppContext';
+import { UserContext } from '../../context/UserContext';
 import type { DoctorProfileType } from '../../types/doctor';
 
 const TopDoctors = () => {
   const navigate = useNavigate();
-  const context = useContext(AppContext);
-  if (!context)
-    throw new Error('TopDoctors must be used within an AppContextProvider');
+  const context = useContext(UserContext);
+  if (!context) throw new Error('TopDoctors must be used within an UserContextProvider');
   const { getDoctorsPaginated } = context;
 
   const [doctors, setDoctors] = useState<DoctorProfileType[]>([]);
-useEffect(() => {
-  let mounted = true;
-  (async () => {
-    try {
-      const res = await getDoctorsPaginated(1, 10);
-      if (mounted) setDoctors(res.data);
-    } catch(error) {
-      console.log(error);
-    }
-  })();
-  return () => {
-    mounted = false;
-  };
-}, [getDoctorsPaginated]);
-
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const res = await getDoctorsPaginated(1, 10);
+        if (mounted) setDoctors(res.data);
+      } catch (error) {
+        console.log(error);
+      }
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, [getDoctorsPaginated]);
 
   return (
     <section className="max-w-7xl mx-auto px-4 md:px-10 py-24 animate-fade">
@@ -75,7 +73,7 @@ useEffect(() => {
       <div className="flex justify-center">
         <button
           onClick={() => {
-            navigate('/doctors');
+            navigate('/all-doctors');
             scrollTo({ top: 0, behavior: 'smooth' });
           }}
           className="mt-16 bg-gradient-to-r from-cyan-500 to-fuchsia-600 text-white px-10 py-3 rounded-full hover:-translate-y-0.5 transition-transform"

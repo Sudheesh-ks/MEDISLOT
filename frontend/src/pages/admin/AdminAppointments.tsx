@@ -1,24 +1,22 @@
 import { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AdminContext } from '../../context/AdminContext';
-import { AppContext } from '../../context/AppContext';
 import { assets } from '../../assets/admin/assets';
 import { motion } from 'framer-motion';
 import SearchBar from '../../components/common/SearchBar';
 import Pagination from '../../components/common/Pagination';
 import DataTable from '../../components/common/DataTable';
 import { updateItemInList } from '../../utils/stateHelper.util';
+import { calculateAge, currencySymbol, slotDateFormat } from '../../utils/commonUtils';
 
 const glass = 'bg-white/5 backdrop-blur ring-1 ring-white/10';
 
 const AdminAppointments = () => {
   const nav = useNavigate();
   const adminCtx = useContext(AdminContext);
-  const appCtx = useContext(AppContext);
-  if (!adminCtx || !appCtx) throw new Error('Missing contexts');
+  if (!adminCtx) throw new Error('Missing contexts');
 
   const { aToken, getAppointmentsPaginated, cancelAppointment } = adminCtx;
-  const { calculateAge, slotDateFormat, currencySymbol } = appCtx;
 
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
@@ -49,8 +47,7 @@ const AdminAppointments = () => {
   const filtered = rows.filter((it) => {
     const q = search.toLowerCase();
     return (
-      it.userData?.name?.toLowerCase().includes(q) ||
-      it.docData?.name?.toLowerCase().includes(q)
+      it.userData?.name?.toLowerCase().includes(q) || it.docData?.name?.toLowerCase().includes(q)
     );
   });
 
@@ -126,9 +123,7 @@ const AdminAppointments = () => {
         it.cancelled ? (
           <span className="text-xs font-semibold text-red-400">Cancelled</span>
         ) : it.isConfirmed ? (
-          <span className="text-xs font-semibold text-emerald-400">
-            Confirmed
-          </span>
+          <span className="text-xs font-semibold text-emerald-400">Confirmed</span>
         ) : (
           <motion.img
             whileTap={{ scale: 0.9 }}
@@ -137,7 +132,7 @@ const AdminAppointments = () => {
             onClick={(e) => {
               e.stopPropagation();
               cancelAppointment(it._id);
-setRows((prev) => updateItemInList(prev, it._id, { cancelled: true }));
+              setRows((prev) => updateItemInList(prev, it._id, { cancelled: true }));
             }}
           />
         ),
@@ -151,16 +146,12 @@ setRows((prev) => updateItemInList(prev, it._id, { cancelled: true }));
       </h2>
 
       <div className={`${glass} rounded-xl p-3 mb-6`}>
-        <SearchBar
-          placeholder="Search by patient or doctor name"
-          onSearch={setSearch}
-        />
+        <SearchBar placeholder="Search by patient or doctor name" onSearch={setSearch} />
       </div>
 
       <DataTable
         data={[...filtered].sort(
-          (a, b) =>
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         )}
         columns={columns}
         loading={loading}
@@ -170,13 +161,7 @@ setRows((prev) => updateItemInList(prev, it._id, { cancelled: true }));
         className="hover:bg-white/5"
       />
 
-      {pages > 1 && (
-        <Pagination
-          currentPage={page}
-          totalPages={pages}
-          onPageChange={setPage}
-        />
-      )}
+      {pages > 1 && <Pagination currentPage={page} totalPages={pages} onPageChange={setPage} />}
     </div>
   );
 };

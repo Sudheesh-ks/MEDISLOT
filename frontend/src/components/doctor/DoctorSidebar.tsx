@@ -80,9 +80,7 @@ const AdminSidebar = () => {
                    transition-all duration-300 group-hover/item:scale-[1.03]
                    ${
                      isActive
-                       ? 'text-white bg-gradient-to-r ' +
-                         gradient +
-                         ' shadow-lg'
+                       ? 'text-white bg-gradient-to-r ' + gradient + ' shadow-lg'
                        : 'text-slate-300 hover:bg-white/10'
                    }`
                 }
@@ -93,11 +91,7 @@ const AdminSidebar = () => {
                       className={`
                         absolute inset-0 bg-gradient-to-r ${gradient}
                         transition-opacity duration-300 pointer-events-none
-                        ${
-                          isActive
-                            ? 'opacity-20'
-                            : 'opacity-0 group-hover/item:opacity-10'
-                        }
+                        ${isActive ? 'opacity-20' : 'opacity-0 group-hover/item:opacity-10'}
                       `}
                     />
 
@@ -119,11 +113,7 @@ const AdminSidebar = () => {
                       {icon}
                     </span>
 
-                    {!isCollapsed && (
-                      <span className="relative font-medium text-sm">
-                        {label}
-                      </span>
-                    )}
+                    {!isCollapsed && <span className="relative font-medium text-sm">{label}</span>}
 
                     {isCollapsed && (
                       <span

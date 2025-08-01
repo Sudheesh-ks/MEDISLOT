@@ -32,10 +32,7 @@ const DoctorNavbar = () => {
       className={`sticky top-0 z-40 flex justify-between items-center px-4 sm:px-10 py-3 ${glass}`}
     >
       <div className="flex items-center gap-3">
-        <img
-          src={assets.logo_dark ?? assets.logo}
-          className="w-32 sm:w-40 cursor-pointer"
-        />
+        <img src={assets.logo_dark ?? assets.logo} className="w-32 sm:w-40 cursor-pointer" />
         <span className="px-2.5 py-0.5 rounded-full ring-1 ring-white/20 text-xs font-medium text-slate-100 bg-white/10">
           Doctor
         </span>

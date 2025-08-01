@@ -23,12 +23,7 @@ import UserLandingPage from '../pages/user/LandingPage';
 const UserRoutes = () => {
   return (
     <>
-      <Route
-        path="/"
-        element={
-            <UserLandingPage />
-        }
-      />
+      <Route path="/" element={<UserLandingPage />} />
       <Route
         path="/home"
         element={
@@ -43,7 +38,7 @@ const UserRoutes = () => {
       <Route path="/reset-password" element={<NewPasswordPage />} />
       <Route path="/auth/google/callback" element={<GoogleCallback />} />
       <Route
-        path="/doctors"
+        path="/all-doctors"
         element={
           <UserLayout>
             <Doctors />
@@ -51,7 +46,7 @@ const UserRoutes = () => {
         }
       />
       <Route
-        path="/doctors/:speciality"
+        path="/all-doctors/:speciality"
         element={
           <UserLayout>
             <Doctors />

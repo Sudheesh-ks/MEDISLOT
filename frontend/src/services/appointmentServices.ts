@@ -28,12 +28,8 @@ export const getAppointmentsPaginatedAPI = async (token: string, page = 1, limit
   });
 };
 
-
 // Cancel an appointment
-export const cancelAppointmentAPI = async (
-  appointmentId: string,
-  token: string
-) => {
+export const cancelAppointmentAPI = async (appointmentId: string, token: string) => {
   return api.patch(
     APPOINTMENT_API.CANCEL(appointmentId),
     {},
@@ -41,13 +37,9 @@ export const cancelAppointmentAPI = async (
   );
 };
 
-
-export const getAvailableSlotsAPI = async (
-  doctorId: string,
-  date: string          
-) => {
+export const getAvailableSlotsAPI = async (doctorId: string, date: string) => {
   const { data } = await api.get(APPOINTMENT_API.AVAILABLE_FOR_USER, {
     params: { doctorId, date },
   });
-  return data.data;     
+  return data.data;
 };

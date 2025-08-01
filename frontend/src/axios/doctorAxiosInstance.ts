@@ -1,8 +1,5 @@
 import axios, { type AxiosRequestConfig } from 'axios';
-import {
-  getDoctorAccessToken,
-  updateDoctorAccessToken,
-} from '../context/tokenManagerDoctor';
+import { getDoctorAccessToken, updateDoctorAccessToken } from '../context/tokenManagerDoctor';
 
 export const doctorApi = axios.create({
   baseURL: import.meta.env.VITE_BACKEND_URL,
@@ -49,7 +46,7 @@ doctorApi.interceptors.response.use(
         {},
         { withCredentials: true }
       );
-      const newTok: string = data.accessToken ?? data.token; 
+      const newTok: string = data.accessToken ?? data.token;
       updateDoctorAccessToken(newTok);
 
       onRefreshed(newTok);

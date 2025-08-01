@@ -3,13 +3,13 @@ import SpecialityMenu from '../../components/user/SpecialityMenu';
 import TopDoctors from '../../components/user/TopDoctors';
 import Banner from '../../components/user/Banner';
 import { useContext, useEffect } from 'react';
-import { AppContext } from '../../context/AppContext';
+import { UserContext } from '../../context/UserContext';
 import { useNavigate } from 'react-router-dom';
 
 const Home = () => {
   const navigate = useNavigate();
-  const ctx = useContext(AppContext);
-  if (!ctx) throw new Error('Home must be used within an AppContextProvider');
+  const ctx = useContext(UserContext);
+  if (!ctx) throw new Error('Home must be used within an UserContextProvider');
 
   const { token } = ctx;
 

@@ -14,5 +14,3 @@ export interface userData {
   phone: string;
   isBlocked: boolean;
 }
-
-

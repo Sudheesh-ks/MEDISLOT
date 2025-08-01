@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { AppContext } from '../../context/AppContext';
+import { UserContext } from '../../context/UserContext';
 import { resetPasswordAPI } from '../../services/authServices';
 import axios from 'axios';
 
@@ -9,8 +9,8 @@ const NewPasswordPage = () => {
   const nav = useNavigate();
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
-  const ctx = useContext(AppContext);
-  if (!ctx) throw new Error('NewPasswordPage must be in AppContext');
+  const ctx = useContext(UserContext);
+  if (!ctx) throw new Error('NewPasswordPage must be in UserContext');
   const { token } = ctx;
 
   const submit = async (e: React.FormEvent) => {

@@ -35,7 +35,9 @@ const Pagination: React.FC<PaginationProps> = ({ currentPage, totalPages, onPage
 
       {getPages().map((p, idx) =>
         p === '…' ? (
-          <span key={`ellipsis-${idx}`} className="px-2 text-slate-400">…</span>
+          <span key={`ellipsis-${idx}`} className="px-2 text-slate-400">
+            …
+          </span>
         ) : (
           <button
             key={p}

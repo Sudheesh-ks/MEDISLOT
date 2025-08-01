@@ -1,26 +1,21 @@
 import { assets } from '../../assets/user/assets';
 import { useNavigate } from 'react-router-dom';
 import React, { useContext } from 'react';
-import { AppContext } from '../../context/AppContext';
+import { UserContext } from '../../context/UserContext';
 import { NotifContext } from '../../context/NotificationContext';
 
 type ChatCardProps = { doctorId?: string };
 
 const ChatCard: React.FC<ChatCardProps> = ({ doctorId }) => {
   const nav = useNavigate();
-  const { userData } = useContext(AppContext)!;
+  const { userData } = useContext(UserContext)!;
   const { unread } = useContext(NotifContext);
-  const chatKey =
-    userData?._id && doctorId ? `${userData._id}_${doctorId}` : '';
-  const unreadCount = chatKey ? unread[chatKey] ?? 0 : 0;
+  const chatKey = userData?._id && doctorId ? `${userData._id}_${doctorId}` : '';
+  const unreadCount = chatKey ? (unread[chatKey] ?? 0) : 0;
   return (
     <div className="flex flex-col bg-white/5 backdrop-blur ring-1 ring-white/10 rounded-3xl overflow-hidden h-full">
       <div className="h-72 overflow-hidden">
-        <img
-          src={assets.contact_image}
-          alt="Chat cover"
-          className="w-full h-full object-cover"
-        />
+        <img src={assets.contact_image} alt="Chat cover" className="w-full h-full object-cover" />
       </div>
 
       <div className="p-6 flex-1 flex flex-col justify-between">
@@ -29,9 +24,7 @@ const ChatCard: React.FC<ChatCardProps> = ({ doctorId }) => {
             Start Messaging
             <img src={assets.message_icon} alt="msg" className="h-5 w-5" />
           </h3>
-          <p className="text-sm text-slate-400">
-            You have some new messages from the doctor.
-          </p>
+          <p className="text-sm text-slate-400">You have some new messages from the doctor.</p>
         </div>
 
         <button

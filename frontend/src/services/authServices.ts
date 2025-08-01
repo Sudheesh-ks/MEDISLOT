@@ -2,11 +2,7 @@ import { api } from '../axios/axiosInstance';
 import { AUTH_API } from '../constants/apiRoutes';
 
 // Register
-export const registerUserAPI = async (
-  name: string,
-  email: string,
-  password: string
-) => {
+export const registerUserAPI = async (name: string, email: string, password: string) => {
   return await api.post(AUTH_API.REGISTER, { name, email, password });
 };
 
@@ -22,7 +18,7 @@ export const logoutUserAPI = () => {
 
 // Refresh token
 export const refreshAccessTokenAPI = async () => {
-  return await api.post(AUTH_API.REFRESH); 
+  return await api.post(AUTH_API.REFRESH);
 };
 
 // OTP Verification
@@ -41,9 +37,6 @@ export const verifyEmailAPI = async (email: string) => {
 };
 
 // Reset password
-export const resetPasswordAPI = async (
-  email: string,
-  newPassword: string
-) => {
+export const resetPasswordAPI = async (email: string, newPassword: string) => {
   return api.post(AUTH_API.RESET_PASSWORD, { email, newPassword });
 };

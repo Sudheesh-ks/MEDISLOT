@@ -7,8 +7,7 @@ import { logoutAdminAPI } from '../../services/adminServices';
 
 const AdminNavbar = () => {
   const ctx = useContext(AdminContext);
-  if (!ctx)
-    throw new Error('AdminContext must be used within AdminContextProvider');
+  if (!ctx) throw new Error('AdminContext must be used within AdminContextProvider');
 
   const { setAToken } = ctx;
   const nav = useNavigate();

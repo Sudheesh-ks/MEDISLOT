@@ -4,15 +4,10 @@ const Footer = () => (
   <footer className="bg-slate-950 text-slate-400">
     <div className="max-w-7xl mx-auto grid md:grid-cols-3 gap-12 px-6 md:px-10 py-16">
       <div>
-        <img
-          src={assets.logo_dark ?? assets.logo}
-          alt="logo"
-          className="w-40 mb-4"
-        />
+        <img src={assets.logo_dark ?? assets.logo} alt="logo" className="w-40 mb-4" />
         <p className="max-w-sm leading-7">
-          MediSlot brings world class healthcare to your fingertips with instant
-          booking, secure video consults, and digital records — all wrapped in a
-          stunning experience.
+          MediSlot brings world class healthcare to your fingertips with instant booking, secure
+          video consults, and digital records — all wrapped in a stunning experience.
         </p>
       </div>
 

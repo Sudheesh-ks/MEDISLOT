@@ -57,16 +57,11 @@ const DoctorLogin = () => {
         className="w-full max-w-lg flex flex-col sm:flex-row rounded-3xl overflow-hidden shadow-xl"
       >
         <div className="hidden sm:block w-1/2">
-          <img
-            src={assets.about_image}
-            className="w-full h-full object-cover"
-          />
+          <img src={assets.about_image} className="w-full h-full object-cover" />
         </div>
 
         <div className={`flex-1 p-8 space-y-6 ${glass}`}>
-          <h1 className="text-2xl font-semibold text-center text-cyan-400">
-            Doctor Login
-          </h1>
+          <h1 className="text-2xl font-semibold text-center text-cyan-400">Doctor Login</h1>
 
           <div>
             <label className="text-sm">Email</label>

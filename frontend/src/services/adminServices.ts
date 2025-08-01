@@ -25,11 +25,7 @@ export const approveDoctorAPI = async (doctorId: string, token: string) => {
   );
 };
 
-export const rejectDoctorAPI = async (
-  doctorId: string,
-  reason: string,
-  token: string
-) => {
+export const rejectDoctorAPI = async (doctorId: string, reason: string, token: string) => {
   return await api.patch(
     ADMIN_API.REJECT_DOCTOR(doctorId),
     { reason },
@@ -50,26 +46,15 @@ export const adminAddDoctorAPI = async (formData: FormData, token: string) => {
   });
 };
 
-export const getDoctorsPaginatedAPI = async (
-  page: number,
-  limit: number,
-  token: string
-) => {
-  return await api.get(
-    `${ADMIN_API.DOCTORS_PAGINATED}?page=${page}&limit=${limit}`,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
+export const getDoctorsPaginatedAPI = async (page: number, limit: number, token: string) => {
+  return await api.get(`${ADMIN_API.DOCTORS_PAGINATED}?page=${page}&limit=${limit}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 };
 
-export const changeAvailabilityAPI = async (
-  docId: string,
-  isAvailable: boolean,
-  token: string
-) => {
+export const changeAvailabilityAPI = async (docId: string, isAvailable: boolean, token: string) => {
   return await api.patch(
     ADMIN_API.CHANGE_AVAILABILITY(docId),
     { isAvailable },
@@ -81,26 +66,15 @@ export const changeAvailabilityAPI = async (
   );
 };
 
-export const getUsersPaginatedAPI = async (
-  page: number,
-  limit: number,
-  token: string
-) => {
-  return await api.get(
-    `${ADMIN_API.USERS_PAGINATED}?page=${page}&limit=${limit}`,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
+export const getUsersPaginatedAPI = async (page: number, limit: number, token: string) => {
+  return await api.get(`${ADMIN_API.USERS_PAGINATED}?page=${page}&limit=${limit}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 };
 
-export const toggleUserBlockAPI = async (
-  userId: string,
-  block: boolean,
-  token: string
-) => {
+export const toggleUserBlockAPI = async (userId: string, block: boolean, token: string) => {
   return await api.patch(
     ADMIN_API.BLOCK_USER(userId),
     { block },
@@ -112,25 +86,15 @@ export const toggleUserBlockAPI = async (
   );
 };
 
-export const getAppointmentsPaginatedAPI = async (
-  page: number,
-  limit: number,
-  token: string
-) => {
-  return await api.get(
-    `${ADMIN_API.APPOINTMENTS_PAGINATED}?page=${page}&limit=${limit}`,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
+export const getAppointmentsPaginatedAPI = async (page: number, limit: number, token: string) => {
+  return await api.get(`${ADMIN_API.APPOINTMENTS_PAGINATED}?page=${page}&limit=${limit}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
 };
 
-export const adminCancelAppointmentAPI = async (
-  appointmentId: string,
-  token: string
-) => {
+export const adminCancelAppointmentAPI = async (appointmentId: string, token: string) => {
   return await api.patch(
     ADMIN_API.CANCEL_APPOINTMENT(appointmentId),
     {},

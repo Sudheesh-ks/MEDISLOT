@@ -4,11 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { registerDoctorAPI } from '../../services/doctorServices';
 import { showErrorToast } from '../../utils/errorHandler';
-import {
-  isValidEmail,
-  isValidName,
-  isValidPassword,
-} from '../../utils/validator';
+import { isValidEmail, isValidName, isValidPassword } from '../../utils/validator';
 import { DoctorContext } from '../../context/DoctorContext';
 
 const glass = 'bg-white/5 backdrop-blur ring-1 ring-white/10';
@@ -63,12 +59,7 @@ const SelectField = ({
     <label htmlFor={id} className={labelCls}>
       {label}
     </label>
-    <select
-      id={id}
-      value={value}
-      onChange={(e) => setValue(e.target.value)}
-      className={inputCls}
-    >
+    <select id={id} value={value} onChange={(e) => setValue(e.target.value)} className={inputCls}>
       {options.map((o) => (
         <option key={o}>{o}</option>
       ))}
@@ -122,10 +113,7 @@ const DoctorRegister = () => {
       fd.append('about', about);
       fd.append('speciality', speciality);
       fd.append('degree', degree);
-      fd.append(
-        'address',
-        JSON.stringify({ line1: address1, line2: address2 })
-      );
+      fd.append('address', JSON.stringify({ line1: address1, line2: address2 }));
 
       const { data } = await registerDoctorAPI(fd);
       if (data.success) {
@@ -147,9 +135,7 @@ const DoctorRegister = () => {
       </div>
 
       <div className={`w-full max-w-5xl ${glass} rounded-3xl p-6 shadow-xl`}>
-        <h2 className="text-2xl font-semibold text-center mb-6">
-          Doctor Registration
-        </h2>
+        <h2 className="text-2xl font-semibold text-center mb-6">Doctor Registration</h2>
 
         <form onSubmit={onSubmitHandler} className="space-y-6">
           <div className="flex items-center gap-4">
@@ -167,25 +153,12 @@ const DoctorRegister = () => {
                 onChange={(e) => e.target.files && setDocImg(e.target.files[0])}
               />
             </label>
-            <div className="text-xs text-slate-400">
-              Click image to upload profile photo
-            </div>
+            <div className="text-xs text-slate-400">Click image to upload profile photo</div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <InputField
-              id="name"
-              label="Full Name"
-              value={name}
-              setValue={setName}
-            />
-            <InputField
-              id="email"
-              label="Email"
-              value={email}
-              setValue={setEmail}
-              type="email"
-            />
+            <InputField id="name" label="Full Name" value={name} setValue={setName} />
+            <InputField id="email" label="Email" value={email} setValue={setEmail} type="email" />
             <InputField
               id="password"
               label="Password"
@@ -198,10 +171,7 @@ const DoctorRegister = () => {
               label="Experience"
               value={experience}
               setValue={setExperience}
-              options={Array.from(
-                { length: 15 },
-                (_, i) => `${i + 1} Year${i ? 's' : ''}`
-              )}
+              options={Array.from({ length: 15 }, (_, i) => `${i + 1} Year${i ? 's' : ''}`)}
             />
             <SelectField
               id="speciality"
@@ -217,31 +187,10 @@ const DoctorRegister = () => {
                 'Gastroenterologist',
               ]}
             />
-            <InputField
-              id="degree"
-              label="Degree"
-              value={degree}
-              setValue={setDegree}
-            />
-            <InputField
-              id="fees"
-              label="Fees (₹)"
-              value={fees}
-              setValue={setFees}
-              type="number"
-            />
-            <InputField
-              id="addr1"
-              label="Address Line 1"
-              value={address1}
-              setValue={setAddress1}
-            />
-            <InputField
-              id="addr2"
-              label="Address Line 2"
-              value={address2}
-              setValue={setAddress2}
-            />
+            <InputField id="degree" label="Degree" value={degree} setValue={setDegree} />
+            <InputField id="fees" label="Fees (₹)" value={fees} setValue={setFees} type="number" />
+            <InputField id="addr1" label="Address Line 1" value={address1} setValue={setAddress1} />
+            <InputField id="addr2" label="Address Line 2" value={address2} setValue={setAddress2} />
           </div>
 
           <div>

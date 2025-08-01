@@ -1,22 +1,16 @@
 import axios, { type AxiosRequestConfig } from 'axios';
-import {
-  getUserAccessToken,
-  updateUserAccessToken,
-} from '../context/tokenManagerUser';
-
+import { getUserAccessToken, updateUserAccessToken } from '../context/tokenManagerUser';
 
 export const api = axios.create({
   baseURL: import.meta.env.VITE_BACKEND_URL,
   withCredentials: true,
 });
 
-
 api.interceptors.request.use((cfg) => {
   const token = getUserAccessToken();
   if (token) cfg.headers.Authorization = `Bearer ${token}`;
   return cfg;
 });
-
 
 let isRefreshing = false;
 let queue: ((tok: string) => void)[] = [];
@@ -30,7 +24,6 @@ function onRefreshed(tok: string) {
   queue = [];
   isRefreshing = false;
 }
-
 
 api.interceptors.response.use(
   (res) => res,
@@ -55,11 +48,11 @@ api.interceptors.response.use(
     try {
       const { data } = await axios.post(
         `${import.meta.env.VITE_BACKEND_URL}/api/user/refresh-token`,
-        {}, 
+        {},
         { withCredentials: true }
       );
 
-      const newTok: string = data.accessToken ?? data.token; 
+      const newTok: string = data.accessToken ?? data.token;
       updateUserAccessToken(newTok);
 
       onRefreshed(newTok);

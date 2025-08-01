@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { assets } from '../../assets/user/assets';
 import { useNavigate } from 'react-router-dom';
-import { AppContext } from '../../context/AppContext';
+import { UserContext } from '../../context/UserContext';
 import { isValidEmail, isValidPassword } from '../../utils/validator';
 import { loginUserAPI, registerUserAPI } from '../../services/authServices';
 import { toast } from 'react-toastify';
@@ -10,8 +10,8 @@ import LoadingButton from '../../components/common/LoadingButton';
 
 const Login: React.FC = () => {
   const nav = useNavigate();
-  const ctx = useContext(AppContext);
-  if (!ctx) throw new Error('Login must be used within AppContextProvider');
+  const ctx = useContext(UserContext);
+  if (!ctx) throw new Error('Login must be used within UserContextProvider');
   const { backendUrl, token, setToken, loadUserProfileData } = ctx;
 
   const [state, setState] = useState<'Sign Up' | 'Login'>('Sign Up');
@@ -28,9 +28,7 @@ const Login: React.FC = () => {
 
     if (!isValidEmail(email)) return toast.error('Enter a valid email.');
     if (!isValidPassword(password))
-      return toast.error(
-        'Password must be ≥ 8 chars, incl. 1 number & 1 symbol.'
-      );
+      return toast.error('Password must be ≥ 8 chars, incl. 1 number & 1 symbol.');
 
     try {
       setLoading(true);
@@ -99,8 +97,7 @@ const Login: React.FC = () => {
             {state === 'Sign Up' ? 'Create Account' : 'Login'}
           </h2>
           <p className="text-slate-400">
-            Please {state === 'Sign Up' ? 'sign up' : 'login'} to book
-            appointment
+            Please {state === 'Sign Up' ? 'sign up' : 'login'} to book appointment
           </p>
 
           {state === 'Sign Up' && (

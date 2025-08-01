@@ -27,11 +27,7 @@ const Banner = () => {
         </div>
 
         <div className="hidden md:block md:w-1/2 animate-fade">
-          <img
-            src={assets.appointment_img}
-            alt="appointment"
-            className="w-full max-w-md mx-auto"
-          />
+          <img src={assets.appointment_img} alt="appointment" className="w-full max-w-md mx-auto" />
         </div>
       </div>
     </section>

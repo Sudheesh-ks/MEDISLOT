@@ -13,8 +13,7 @@ const AdminLogin = () => {
   const nav = useNavigate();
 
   const ctx = useContext(AdminContext);
-  if (!ctx)
-    throw new Error('AdminContext must be used within AdminContextProvider');
+  if (!ctx) throw new Error('AdminContext must be used within AdminContextProvider');
   const { aToken, setAToken } = ctx;
 
   useEffect(() => {
@@ -49,9 +48,7 @@ const AdminLogin = () => {
       <div className="absolute bottom-0 right-0 w-80 h-80 bg-indigo-500/20 rounded-full blur-3xl animate-blob animation-delay-2000" />
 
       <form onSubmit={handleSubmit}>
-        <div
-          className={`flex flex-col sm:flex-row ${glass} shadow-xl rounded-3xl overflow-hidden`}
-        >
+        <div className={`flex flex-col sm:flex-row ${glass} shadow-xl rounded-3xl overflow-hidden`}>
           <div className="hidden sm:block w-full sm:w-96 shrink-0">
             <img
               src={assets.about_image}

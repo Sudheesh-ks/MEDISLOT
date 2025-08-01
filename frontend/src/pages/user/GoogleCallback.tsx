@@ -1,16 +1,16 @@
 import React, { useEffect, useContext } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { AppContext } from '../../context/AppContext';
+import { UserContext } from '../../context/UserContext';
 import { updateUserAccessToken } from '../../context/tokenManagerUser';
 import { toast } from 'react-toastify';
 
 const GoogleCallback = () => {
   const [params] = useSearchParams();
   const navigate = useNavigate();
-  const context = useContext(AppContext);
+  const context = useContext(UserContext);
 
   if (!context) {
-    throw new Error('Must use within AppContext');
+    throw new Error('Must use within UserContext');
   }
 
   const { setToken } = context;
@@ -44,7 +44,7 @@ const styles: Record<string, React.CSSProperties> = {
     justifyContent: 'center',
     height: '100vh',
     backgroundColor: '#f9fafb',
-    fontFamily: '\'Segoe UI\', Tahoma, Geneva, Verdana, sans-serif',
+    fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
   },
   spinner: {
     border: '6px solid #eee',

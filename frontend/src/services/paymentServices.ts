@@ -3,10 +3,7 @@ import { PAYMENT_API } from '../constants/apiRoutes';
 import type { RazorpayPaymentResponse } from '../types/razorpay';
 
 // Initiate Razorpay payment
-export const PaymentRazorpayAPI = async (
-  appointmentId: string,
-  token: string
-) => {
+export const PaymentRazorpayAPI = async (appointmentId: string, token: string) => {
   return api.post(
     PAYMENT_API.RAZORPAY_INIT,
     { appointmentId },

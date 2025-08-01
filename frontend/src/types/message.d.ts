@@ -13,7 +13,7 @@ export interface Message {
   mediaType?: string;
 
   deliveredTo?: { userId: string; at: string }[];
-  readBy?:      { userId: string; at: string }[];
+  readBy?: { userId: string; at: string }[];
 
   createdAt: string;
   deleted?: boolean;

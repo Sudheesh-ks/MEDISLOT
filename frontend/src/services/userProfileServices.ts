@@ -10,11 +10,7 @@ export const getUserProfileAPI = async (token: string) => {
 };
 
 // Update user profile
-export const updateUserProfileAPI = async (
-  token: string,
-  data: any,
-  image: File | null
-) => {
+export const updateUserProfileAPI = async (token: string, data: any, image: File | null) => {
   try {
     const formData = new FormData();
     formData.append('name', data.name);
@@ -38,7 +34,6 @@ export const updateUserProfileAPI = async (
   }
 };
 
-
-export const getUserByIDAPI = async(id: string) => {
+export const getUserByIDAPI = async (id: string) => {
   return await api.get(USER_PROFILE_API.USERBY_ID(id));
 };

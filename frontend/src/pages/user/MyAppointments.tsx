@@ -1,5 +1,5 @@
 import { useContext, useEffect, useState } from 'react';
-import { AppContext } from '../../context/AppContext';
+import { UserContext } from '../../context/UserContext';
 import { toast } from 'react-toastify';
 import {
   cancelAppointmentAPI,
@@ -12,21 +12,20 @@ import customParseFormat from 'dayjs/plugin/customParseFormat';
 import { NotifContext } from '../../context/NotificationContext';
 import { updateItemInList } from '../../utils/stateHelper.util';
 import Pagination from '../../components/common/Pagination';
+import { slotDateFormat } from '../../utils/commonUtils';
 dayjs.extend(customParseFormat);
-
 
 const to12h = (t: string) => dayjs(t, 'HH:mm').format('hh:mm A').toLowerCase();
 
-
 const MyAppointments = () => {
-  const ctx = useContext(AppContext);
-  if (!ctx) throw new Error('MyAppointments must be within AppContext');
-  const { token, slotDateFormat, userData } = ctx;
+  const ctx = useContext(UserContext);
+  if (!ctx) throw new Error('MyAppointments must be within UserContext');
+  const { token, userData } = ctx;
   const notif = useContext(NotifContext);
 
   const [appointments, setAppointments] = useState<any[]>([]);
   const [page, setPage] = useState(1);
-const [totalPages, setTotalPages] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
 
   const nav = useNavigate();
 
@@ -35,52 +34,44 @@ const [totalPages, setTotalPages] = useState(1);
     return null;
   }
 
-const fetchAppointments = async (pageToFetch = 1) => {
-  try {
-    const { data } = await getAppointmentsPaginatedAPI(token, pageToFetch);
-    if (data.success) {
-      setAppointments(data.data); 
-      setTotalPages(data.totalPages);
-      setPage(data.currentPage);
+  const fetchAppointments = async (pageToFetch = 1) => {
+    try {
+      const { data } = await getAppointmentsPaginatedAPI(token, pageToFetch);
+      if (data.success) {
+        setAppointments(data.data);
+        setTotalPages(data.totalPages);
+        setPage(data.currentPage);
+      }
+    } catch (err) {
+      showErrorToast(err);
     }
-  } catch (err) {
-    showErrorToast(err);
-  }
-};
-
+  };
 
   const cancelAppointment = async (id: string) => {
     try {
       const { data } = await cancelAppointmentAPI(id, token);
       if (data.success) {
         toast.success(data.message);
-         setAppointments((prev) =>
-        updateItemInList(prev, id, { cancelled: true })
-      );
+        setAppointments((prev) => updateItemInList(prev, id, { cancelled: true }));
       } else toast.error(data.message);
     } catch (err) {
       showErrorToast(err);
     }
   };
 
+  useEffect(() => {
+    fetchAppointments(page);
+  }, [token]);
 
-useEffect(() => {
-  fetchAppointments(page);
-}, [token]);
+  const handlePageChange = (newPage: number) => {
+    fetchAppointments(newPage);
+  };
 
-const handlePageChange = (newPage: number) => {
-  fetchAppointments(newPage);
-};
-
-
-  const btn =
-    'text-sm sm:min-w-48 py-2 border rounded transition-transform hover:-translate-y-0.5';
+  const btn = 'text-sm sm:min-w-48 py-2 border rounded transition-transform hover:-translate-y-0.5';
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 px-4 md:px-10 py-24">
-      <h1 className="pb-4 mb-8 text-2xl font-bold border-b border-white/10">
-        My Appointments
-      </h1>
+      <h1 className="pb-4 mb-8 text-2xl font-bold border-b border-white/10">My Appointments</h1>
 
       {appointments.map((a) => (
         <div
@@ -97,13 +88,13 @@ const handlePageChange = (newPage: number) => {
             <p>{a.docData.speciality}</p>
 
             <p className="text-xs">
-              <span className="font-medium">Address:</span>{' '}
-              {a.docData.address.line1}, {a.docData.address.line2}
+              <span className="font-medium">Address:</span> {a.docData.address.line1},{' '}
+              {a.docData.address.line2}
             </p>
 
             <p className="text-xs">
-              <span className="font-medium">Date & Time:</span>{' '}
-              {slotDateFormat(a.slotDate)} | {to12h(a.slotTime)}
+              <span className="font-medium">Date & Time:</span> {slotDateFormat(a.slotDate)} |{' '}
+              {to12h(a.slotTime)}
             </p>
           </div>
 
@@ -128,7 +119,6 @@ const handlePageChange = (newPage: number) => {
               </div>
             )}
 
-
             {!a.cancelled ? (
               <button
                 onClick={() => cancelAppointment(a._id)}
@@ -141,18 +131,12 @@ const handlePageChange = (newPage: number) => {
                 Appointment Cancelled
               </span>
             )}
-
           </div>
         </div>
       ))}
       {totalPages > 1 && (
-  <Pagination
-    currentPage={page}
-    totalPages={totalPages}
-    onPageChange={handlePageChange}
-  />
-)}
-
+        <Pagination currentPage={page} totalPages={totalPages} onPageChange={handlePageChange} />
+      )}
     </div>
   );
 };

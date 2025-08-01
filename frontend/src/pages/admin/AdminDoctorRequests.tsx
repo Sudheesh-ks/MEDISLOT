@@ -52,9 +52,7 @@ const AdminDoctorRequests = () => {
 
   const doApprove = async (id: string) => {
     await approveDoctor(id);
-    setRows((prev) =>
-      updateItemInList(prev, id, { status: 'approved' })
-    );
+    setRows((prev) => updateItemInList(prev, id, { status: 'approved' }));
   };
 
   const openModal = (id: string) => {
@@ -66,9 +64,7 @@ const AdminDoctorRequests = () => {
   const submitReject = async () => {
     if (!currentId) return;
     await rejectDoctor(currentId, reason.trim());
-    setRows((prev) =>
-      updateItemInList(prev, currentId, { status: 'rejected' })
-    );
+    setRows((prev) => updateItemInList(prev, currentId, { status: 'rejected' }));
     setShowModal(false);
   };
 
@@ -89,16 +85,11 @@ const AdminDoctorRequests = () => {
       <h1 className="text-lg font-medium mb-4">Doctor Requests</h1>
 
       <div className="mb-6 max-w-sm">
-        <SearchBar
-          placeholder="Search by name or speciality"
-          onSearch={setQuery}
-        />
+        <SearchBar placeholder="Search by name or speciality" onSearch={setQuery} />
       </div>
 
       {load ? (
-        <div className="text-center py-10 text-slate-400 text-sm">
-          Loading doctor requests…
-        </div>
+        <div className="text-center py-10 text-slate-400 text-sm">Loading doctor requests…</div>
       ) : pending.length ? (
         <>
           <div className="w-full flex flex-wrap gap-6">
@@ -114,9 +105,7 @@ const AdminDoctorRequests = () => {
                 <img src={doc.image} className="w-full h-40 object-cover" />
                 <div className="p-4 space-y-1">
                   <p className="text-base font-semibold truncate">{doc.name}</p>
-                  <p className="text-sm text-slate-400 truncate">
-                    {doc.speciality}
-                  </p>
+                  <p className="text-sm text-slate-400 truncate">{doc.speciality}</p>
 
                   <div className="mt-4 flex justify-end gap-2">
                     <button
@@ -137,13 +126,7 @@ const AdminDoctorRequests = () => {
             ))}
           </div>
 
-          {pages > 1 && (
-            <Pagination
-              currentPage={page}
-              totalPages={pages}
-              onPageChange={setPage}
-            />
-          )}
+          {pages > 1 && <Pagination currentPage={page} totalPages={pages} onPageChange={setPage} />}
         </>
       ) : (
         <div className="text-center py-10 text-slate-400 text-sm">
@@ -154,9 +137,7 @@ const AdminDoctorRequests = () => {
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
           <div className="bg-slate-800 w-full max-w-md rounded-xl p-6 shadow-2xl">
-            <h3 className="text-lg font-semibold mb-4 text-slate-100">
-              Reject Doctor
-            </h3>
+            <h3 className="text-lg font-semibold mb-4 text-slate-100">Reject Doctor</h3>
 
             <label className="block text-sm text-slate-300 mb-1">
               Reason <span className="text-red-500">*</span>

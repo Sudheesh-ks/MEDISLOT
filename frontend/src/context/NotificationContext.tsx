@@ -1,22 +1,9 @@
-import React, {
-  createContext,
-  useState,
-  useEffect,
-  useCallback,
-  useContext,
-  useMemo,
-} from 'react';
+import React, { createContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { matchPath, useLocation } from 'react-router-dom';
 import io, { Socket } from 'socket.io-client';
 import { toast } from 'react-toastify';
 
-import { AppContext } from './AppContext';
-import { DoctorContext } from './DoctorContext';
-import { AdminContext } from './AdminContext';
-
-
-const SOCKET_URL =
-  import.meta.env.VITE_SOCKET_URL ?? 'http://localhost:4000';
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL ?? 'http://localhost:4000';
 
 type UnreadMap = Record<string, number>;
 
@@ -36,35 +23,27 @@ export const NotifContext = createContext<NotifCtx>({
   myRole: 'user',
 });
 
+interface NotifProviderProps {
+  children: React.ReactNode;
+  currentUser: { _id?: string } | null;
+}
+
 const storageKeyFor = (id?: string | null) => (id ? `unread_${id}` : null);
 
-export const NotifProvider: React.FC<React.PropsWithChildren> = ({
-  children,
-}) => {
+export const NotifProvider: React.FC<NotifProviderProps> = ({ children, currentUser }) => {
   const { pathname } = useLocation();
 
-  const { userData } = useContext(AppContext)!;
-  const { profileData } = useContext(DoctorContext);
-  const { dashData } = useContext(AdminContext)!;
-
-  const isDoctorRoute = pathname.startsWith('/doctor');
-  const isAdminRoute = pathname.startsWith('/admin');
-
-  const myRole: 'user' | 'doctor' | 'admin' = isAdminRoute
+  const myRole: 'user' | 'doctor' | 'admin' = pathname.startsWith('/admin')
     ? 'admin'
-    : isDoctorRoute
-    ? 'doctor'
-    : 'user';
+    : pathname.startsWith('/doctor')
+      ? 'doctor'
+      : 'user';
 
-  const myId =
-    myRole === 'user'
-      ? userData?._id
-      : myRole === 'doctor'
-      ? profileData?._id
-      : dashData?._id;
+  const myId = currentUser?._id ?? null;
 
   const [unread, setUnread] = useState<UnreadMap>({});
-                        
+  const [socket, setSocket] = useState<Socket | null>(null);
+
   const storageKey = useMemo(() => storageKeyFor(myId), [myId]);
 
   useEffect(() => {
@@ -87,8 +66,7 @@ export const NotifProvider: React.FC<React.PropsWithChildren> = ({
   }, [storageKey, unread]);
 
   const inc = useCallback(
-    (chatId: string) =>
-      setUnread((u) => ({ ...u, [chatId]: (u[chatId] ?? 0) + 1 })),
+    (chatId: string) => setUnread((u) => ({ ...u, [chatId]: (u[chatId] ?? 0) + 1 })),
     []
   );
 
@@ -101,8 +79,6 @@ export const NotifProvider: React.FC<React.PropsWithChildren> = ({
     []
   );
 
-  const [socket, setSocket] = useState<Socket | null>(null);
-
   useEffect(() => {
     if (!myId) return;
 
@@ -112,11 +88,7 @@ export const NotifProvider: React.FC<React.PropsWithChildren> = ({
     });
     setSocket(s);
 
-    const onDm = (p: {
-      chatId: string;
-      from: { id: string; role: string };
-      preview: string;
-    }) => {
+    const onDm = (p: { chatId: string; from: { id: string; role: string }; preview: string }) => {
       if (myRole === 'admin') return;
       if (p.from.id === myId) return;
       if (p.from.role === myRole) return;
@@ -136,7 +108,7 @@ export const NotifProvider: React.FC<React.PropsWithChildren> = ({
       s.disconnect();
       setSocket(null);
     };
-  }, [myId, myRole, pathname, inc]); 
+  }, [myId, myRole, pathname, inc]);
 
   return (
     <NotifContext.Provider value={{ unread, inc, markRead, socket, myRole }}>

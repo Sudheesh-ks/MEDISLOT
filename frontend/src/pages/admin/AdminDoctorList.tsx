@@ -62,16 +62,11 @@ const AdminDoctorList = () => {
 
       {/* search */}
       <div className="mb-6 max-w-sm">
-        <SearchBar
-          placeholder="Search by name or speciality"
-          onSearch={setQuery}
-        />
+        <SearchBar placeholder="Search by name or speciality" onSearch={setQuery} />
       </div>
 
       {load ? (
-        <div className="text-center py-10 text-slate-400 text-sm">
-          Loading doctors…
-        </div>
+        <div className="text-center py-10 text-slate-400 text-sm">Loading doctors…</div>
       ) : filtered.length ? (
         <>
           <div className="w-full flex flex-wrap gap-6">
@@ -90,9 +85,7 @@ const AdminDoctorList = () => {
                 />
                 <div className="p-4 space-y-1">
                   <p className="text-base font-semibold truncate">{doc.name}</p>
-                  <p className="text-sm text-slate-400 truncate">
-                    {doc.speciality}
-                  </p>
+                  <p className="text-sm text-slate-400 truncate">{doc.speciality}</p>
 
                   {doc.available ? (
                     <span className="inline-flex items-center gap-1 text-xs text-emerald-400">
@@ -111,18 +104,10 @@ const AdminDoctorList = () => {
           </div>
 
           {/* pagination */}
-          {pages > 1 && (
-            <Pagination
-              currentPage={page}
-              totalPages={pages}
-              onPageChange={setPage}
-            />
-          )}
+          {pages > 1 && <Pagination currentPage={page} totalPages={pages} onPageChange={setPage} />}
         </>
       ) : (
-        <div className="text-center py-10 text-slate-400 text-sm">
-          No matching doctors found.
-        </div>
+        <div className="text-center py-10 text-slate-400 text-sm">No matching doctors found.</div>
       )}
     </div>
   );

@@ -4,11 +4,7 @@ const VideoCallCard = () => (
   <div className="flex flex-col bg-white/5 backdrop-blur ring-1 ring-white/10 rounded-3xl overflow-hidden h-full">
     {/* Header image */}
     <div className="h-72 overflow-hidden">
-      <img
-        src={assets.about_image}
-        alt="Video cover"
-        className="w-full h-full object-cover"
-      />
+      <img src={assets.about_image} alt="Video cover" className="w-full h-full object-cover" />
     </div>
 
     {/* Body */}

@@ -43,14 +43,14 @@ const AdminUsersList = () => {
   };
 
   const doToggle = async (id: string) => {
-  await toggleBlockUser(id); 
+    await toggleBlockUser(id);
 
-  setRows((prev) =>
-  updateItemInList(prev, id, (item: any) => ({
-    ...item,
-    isBlocked: !item.isBlocked,
-  }))
-);
+    setRows((prev) =>
+      updateItemInList(prev, id, (item: any) => ({
+        ...item,
+        isBlocked: !item.isBlocked,
+      }))
+    );
   };
 
   const filtered = rows.filter(
@@ -88,9 +88,7 @@ const AdminUsersList = () => {
       key: 'mail',
       header: 'Email',
       width: '3fr',
-      render: (it: any) => (
-        <span className="text-slate-400 text-sm">{it.email}</span>
-      ),
+      render: (it: any) => <span className="text-slate-400 text-sm">{it.email}</span>,
     },
     {
       key: 'st',
@@ -99,11 +97,7 @@ const AdminUsersList = () => {
       render: (it: any) => (
         <span
           className={`px-3 py-0.5 text-xs rounded-full font-semibold
-            ${
-              it.isBlocked
-                ? 'bg-red-500/20 text-red-400'
-                : 'bg-emerald-500/20 text-emerald-400'
-            }`}
+            ${it.isBlocked ? 'bg-red-500/20 text-red-400' : 'bg-emerald-500/20 text-emerald-400'}`}
         >
           {it.isBlocked ? 'Blocked' : 'Active'}
         </span>
@@ -153,13 +147,7 @@ const AdminUsersList = () => {
         className="hover:bg-white/5"
       />
 
-      {pages > 1 && (
-        <Pagination
-          currentPage={page}
-          totalPages={pages}
-          onPageChange={setPage}
-        />
-      )}
+      {pages > 1 && <Pagination currentPage={page} totalPages={pages} onPageChange={setPage} />}
     </div>
   );
 };

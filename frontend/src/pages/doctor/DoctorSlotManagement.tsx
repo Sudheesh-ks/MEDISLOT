@@ -12,18 +12,10 @@ import {
   X,
   Calendar as CalendarIcon,
 } from 'lucide-react';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from '../../components/doctor/SlotCard';
+import { Card, CardContent, CardHeader, CardTitle } from '../../components/doctor/SlotCard';
 import { Button } from '../../components/doctor/Button';
 import { Input } from '../../components/doctor/SlotInput';
-import {
-  getDaySlotsAPI,
-  upsertDaySlotsAPI,
-} from '../../services/doctorServices';
+import { getDaySlotsAPI, upsertDaySlotsAPI } from '../../services/doctorServices';
 import { toast } from 'react-toastify';
 import { DoctorContext } from '../../context/DoctorContext';
 
@@ -56,7 +48,7 @@ export default function DoctorSlotManager() {
     return days;
   }, [month]);
 
- const addRange = () => {
+  const addRange = () => {
     const newStart = dayjs(start, 'HH:mm');
     const newEnd = dayjs(end, 'HH:mm');
 
@@ -82,13 +74,10 @@ export default function DoctorSlotManager() {
 
   const toggleAvailability = (i: number) =>
     setRanges((r) =>
-      r.map((range, idx) =>
-        idx === i ? { ...range, isAvailable: !range.isAvailable } : range
-      )
+      r.map((range, idx) => (idx === i ? { ...range, isAvailable: !range.isAvailable } : range))
     );
 
-  const deleteRange = (i: number) =>
-    setRanges((r) => r.filter((_, idx) => idx !== i));
+  const deleteRange = (i: number) => setRanges((r) => r.filter((_, idx) => idx !== i));
 
   const saveSchedule = async () => {
     if (!selectedDate) return;
@@ -109,7 +98,7 @@ export default function DoctorSlotManager() {
     setRanges([{ start: '00:00', end: '23:59', isAvailable: false }]);
     setConfirmLeave(false);
 
-        if (selectedDate) {
+    if (selectedDate) {
       setDayStatus((s) => ({
         ...s,
         [selectedDate.format('YYYY-MM-DD')]: false,
@@ -121,9 +110,7 @@ export default function DoctorSlotManager() {
     if (!selectedDate) return;
     (async () => {
       try {
-        const dayRanges = await getDaySlotsAPI(
-          selectedDate.format('YYYY-MM-DD')
-        );
+        const dayRanges = await getDaySlotsAPI(selectedDate.format('YYYY-MM-DD'));
         setRanges(dayRanges ?? []);
       } catch {
         toast.error('Failed to load day slots');
@@ -168,10 +155,7 @@ export default function DoctorSlotManager() {
     return (
       <div className="m-5 text-center bg-yellow-900/30 border border-yellow-600 rounded-xl p-6 text-yellow-200 shadow-md">
         <h2 className="text-xl font-semibold mb-2">⏳ Awaiting Approval</h2>
-        <p>
-          Your registration is under review. The admin has not approved your
-          account yet.
-        </p>
+        <p>Your registration is under review. The admin has not approved your account yet.</p>
       </div>
     );
   if (profileData?.status === 'rejected')
@@ -208,11 +192,7 @@ export default function DoctorSlotManager() {
             <CardTitle className="text-lg md:text-xl font-semibold">
               {month.format('MMMM YYYY')}
             </CardTitle>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setMonth((m) => m.add(1, 'month'))}
-            >
+            <Button variant="ghost" size="icon" onClick={() => setMonth((m) => m.add(1, 'month'))}>
               <ChevronRight className="w-5 h-5" />
             </Button>
           </CardHeader>
@@ -226,24 +206,22 @@ export default function DoctorSlotManager() {
 
             <div className="grid grid-cols-7 gap-1">
               {monthDays.map((d) => {
-                const iso = d.format('YYYY-MM-DD');                 
-                const hasFree = dayStatus[iso];                      
+                const iso = d.format('YYYY-MM-DD');
+                const hasFree = dayStatus[iso];
                 const dotColour =
-                  hasFree === undefined  ? 'bg-rose-400' :           
-                  hasFree                ? 'bg-emerald-400' : 'bg-rose-400'; 
+                  hasFree === undefined
+                    ? 'bg-rose-400'
+                    : hasFree
+                      ? 'bg-emerald-400'
+                      : 'bg-rose-400';
                 const isCurrentMonth = d.month() === month.month();
-                const isSelected =
-                  selectedDate && d.isSame(selectedDate, 'day');
+                const isSelected = selectedDate && d.isSame(selectedDate, 'day');
                 return (
                   <button
                     key={d.toString()}
                     onClick={() => setSelectedDate(d)}
                     className={`relative h-12 rounded-lg flex flex-col items-center justify-center transition
-                      ${
-                        isSelected
-                          ? 'bg-[#5f6FFF] text-white'
-                          : 'hover:bg-gray-700/50'
-                      }
+                      ${isSelected ? 'bg-[#5f6FFF] text-white' : 'hover:bg-gray-700/50'}
                       ${!isCurrentMonth ? 'opacity-40' : ''}`}
                   >
                     <span className="text-sm font-medium">{d.date()}</span>
@@ -258,28 +236,18 @@ export default function DoctorSlotManager() {
         <Card className="rounded-2xl shadow-lg h-fit sticky top-24">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              {selectedDate
-                ? selectedDate.format('DD MMM, YYYY')
-                : 'Pick a date'}
+              {selectedDate ? selectedDate.format('DD MMM, YYYY') : 'Pick a date'}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="flex gap-4 items-end">
               <div className="flex flex-col gap-1 w-full max-w-[128px]">
                 <label className="text-xs uppercase tracking-wide">Start</label>
-                <Input
-                  type="time"
-                  value={start}
-                  onChange={(e) => setStart(e.target.value)}
-                />
+                <Input type="time" value={start} onChange={(e) => setStart(e.target.value)} />
               </div>
               <div className="flex flex-col gap-1 w-full max-w-[128px]">
                 <label className="text-xs uppercase tracking-wide">End</label>
-                <Input
-                  type="time"
-                  value={end}
-                  onChange={(e) => setEnd(e.target.value)}
-                />
+                <Input type="time" value={end} onChange={(e) => setEnd(e.target.value)} />
               </div>
 
               <Button variant="secondary" className="mt-6" onClick={addRange}>
@@ -289,30 +257,19 @@ export default function DoctorSlotManager() {
 
             <ul className="space-y-3 max-h-64 overflow-y-auto pr-2">
               {ranges.map((r, i) => (
-                <li
-                  key={i}
-                  className="flex items-center justify-between bg-muted p-3 rounded-xl"
-                >
+                <li key={i} className="flex items-center justify-between bg-muted p-3 rounded-xl">
                   <span className="text-sm font-medium">
                     {to12h(r.start)} – {to12h(r.end)}
                   </span>
                   <div className="flex items-center gap-2">
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      onClick={() => toggleAvailability(i)}
-                    >
+                    <Button size="icon" variant="ghost" onClick={() => toggleAvailability(i)}>
                       {r.isAvailable ? (
                         <Check className="w-4 h-4 text-emerald-400" />
                       ) : (
                         <X className="w-4 h-4 text-rose-400" />
                       )}
                     </Button>
-                    <Button
-                      size="icon"
-                      variant="ghost"
-                      onClick={() => deleteRange(i)}
-                    >
+                    <Button size="icon" variant="ghost" onClick={() => deleteRange(i)}>
                       <Trash2 className="w-4 h-4" />
                     </Button>
                   </div>
@@ -354,10 +311,7 @@ export default function DoctorSlotManager() {
               Patients will not be able to book any slots for this day.
             </p>
             <div className="flex justify-center gap-4">
-              <Button
-                variant="secondary"
-                onClick={() => setConfirmLeave(false)}
-              >
+              <Button variant="secondary" onClick={() => setConfirmLeave(false)}>
                 Cancel
               </Button>
               <Button variant="destructive" onClick={markDayUnavailable}>

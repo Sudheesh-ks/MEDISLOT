@@ -2,6 +2,9 @@ import js from '@eslint/js';
 import tseslint from 'typescript-eslint';
 import pluginReact from 'eslint-plugin-react';
 import globals from 'globals';
+import pluginPrettier from 'eslint-plugin-prettier';
+import prettier from 'eslint-config-prettier';
+
 
 export default [
   js.configs.recommended,
@@ -22,6 +25,7 @@ export default [
     },
     plugins: {
       react: pluginReact,
+      prettier: pluginPrettier,
     },
     rules: {
       'no-unused-vars': 'warn',
@@ -35,6 +39,7 @@ export default [
       '@typescript-eslint/no-unsafe-return': 'off',
       '@typescript-eslint/no-unsafe-assignment': 'off',
       '@typescript-eslint/no-unsafe-member-access': 'off',
+      'prettier/prettier': 'warn',
     },
     settings: {
       react: {
@@ -42,6 +47,7 @@ export default [
       },
     },
   },
+  prettier,
   {
     ignores: ['dist', 'node_modules', 'build'],
   },

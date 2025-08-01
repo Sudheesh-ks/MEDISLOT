@@ -56,10 +56,7 @@ export const getDoctorProfileAPI = () => {
 };
 
 // Update doctor profile
-export const updateDoctorProfileAPI = (
-  formData: any,
-  image: File | null
-) => {
+export const updateDoctorProfileAPI = (formData: any, image: File | null) => {
   const data = new FormData();
 
   data.append('doctId', formData._id);
@@ -70,7 +67,7 @@ export const updateDoctorProfileAPI = (
   data.append('about', formData.about);
   data.append('fees', String(formData.fees));
   data.append('address', JSON.stringify(formData.address));
-data.append('available', (formData.available ?? false).toString());
+  data.append('available', (formData.available ?? false).toString());
 
   if (image) {
     data.append('image', image);
@@ -84,18 +81,18 @@ data.append('available', (formData.available ?? false).toString());
 };
 
 export const getDoctorSlotsAPI = (year: number, month: number) =>
-  api.get(DOCTOR_API.SLOTS, { params: { year, month } });          
+  api.get(DOCTOR_API.SLOTS, { params: { year, month } });
 
 export const upsertDaySlotsAPI = (
   date: string,
   slots: { start: string; end: string; isAvailable: boolean }[],
   isCancelled: boolean
-) => api.post(SLOT_API.SLOTS, { date, slots, isCancelled });     
+) => api.post(SLOT_API.SLOTS, { date, slots, isCancelled });
 
 export const addDoctorSlotsAPI = upsertDaySlotsAPI;
 
 export const getDaySlotsAPI = async (date: string) => {
-  const res = await api.get(`${SLOT_API.SLOTS}/day`, { params: { date } }); 
+  const res = await api.get(`${SLOT_API.SLOTS}/day`, { params: { date } });
   return res.data.data as {
     start: string;
     end: string;

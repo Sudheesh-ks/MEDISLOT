@@ -99,16 +99,8 @@ const AdminSidebar = () => {
                 to={it.to}
                 className={({ isActive }) =>
                   `relative flex items-center gap-4 p-3 rounded-xl overflow-hidden transition-all duration-300
-                   ${
-                     isActive
-                       ? 'text-slate-100'
-                       : 'text-slate-400 hover:text-slate-200'
-                   }
-                   ${
-                     isActive
-                       ? 'bg-white/10 ring-1 ring-white/10'
-                       : 'hover:bg-white/5'
-                   }`
+                   ${isActive ? 'text-slate-100' : 'text-slate-400 hover:text-slate-200'}
+                   ${isActive ? 'bg-white/10 ring-1 ring-white/10' : 'hover:bg-white/5'}`
                 }
               >
                 {({ isActive }) => (
@@ -116,9 +108,7 @@ const AdminSidebar = () => {
                     <div
                       className={`absolute inset-0 bg-gradient-to-r ${grad}
                                   ${
-                                    isActive
-                                      ? 'opacity-10'
-                                      : 'opacity-0 group-hover/item:opacity-5'
+                                    isActive ? 'opacity-10' : 'opacity-0 group-hover/item:opacity-5'
                                   }
                                   transition-opacity duration-300`}
                     />
@@ -138,11 +128,7 @@ const AdminSidebar = () => {
                                   }`}
                     >
                       <span
-                        className={`${
-                          isActive
-                            ? 'text-white'
-                            : 'group-hover/item:text-white'
-                        }`}
+                        className={`${isActive ? 'text-white' : 'group-hover/item:text-white'}`}
                       >
                         {it.icon}
                       </span>
@@ -150,9 +136,7 @@ const AdminSidebar = () => {
 
                     {/* label */}
                     {!isCollapsed && (
-                      <span className="relative font-medium text-sm">
-                        {it.label}
-                      </span>
+                      <span className="relative font-medium text-sm">{it.label}</span>
                     )}
 
                     {/* tooltip */}
@@ -192,8 +176,7 @@ const AdminSidebar = () => {
             <div>
               <p className="text-sm font-medium">System Status</p>
               <p className="text-xs text-emerald-400 flex items-center gap-1">
-                <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full" /> All
-                systems operational
+                <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full" /> All systems operational
               </p>
             </div>
           </div>

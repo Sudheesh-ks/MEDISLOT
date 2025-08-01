@@ -1,13 +1,9 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { AppContext } from '../../context/AppContext';
+import { UserContext } from '../../context/UserContext';
 import { NotifContext } from '../../context/NotificationContext';
 import { getDoctorsByIDAPI } from '../../services/doctorServices';
-import {
-  getPresence,
-  uploadChatFile,
-  userChat,
-} from '../../services/chatService';
+import { getPresence, uploadChatFile, userChat } from '../../services/chatService';
 import type { Message } from '../../types/message';
 
 const timeOf = (iso?: string) =>
@@ -22,7 +18,7 @@ const timeOf = (iso?: string) =>
 const fileName = (url: string) => url.split('/').pop()?.split('?')[0] ?? 'file';
 
 const ChatPage: React.FC = () => {
-  const { userData } = useContext(AppContext)!;
+  const { userData } = useContext(UserContext)!;
   const { socket, markRead } = useContext(NotifContext);
 
   const { doctorId } = useParams<{ doctorId: string }>();
@@ -72,13 +68,7 @@ const ChatPage: React.FC = () => {
   useEffect(() => {
     if (!socket) return;
 
-    const onPresence = ({
-      userId: id,
-      online,
-    }: {
-      userId: string;
-      online: boolean;
-    }) => {
+    const onPresence = ({ userId: id, online }: { userId: string; online: boolean }) => {
       if (id === doctorId) setIsDoctorOnline(online);
     };
 
@@ -99,11 +89,9 @@ const ChatPage: React.FC = () => {
     socket.emit('read', { chatId });
 
     // To get all the messages
-    userChat
-      .fetchHistory(chatId)
-      .then(({ data }) => data.success && setMessages(data.messages));
+    userChat.fetchHistory(chatId).then(({ data }) => data.success && setMessages(data.messages));
 
-      // To get the newly messages
+    // To get the newly messages
     const onReceive = (m: Message) => setMessages((p) => [...p, m]);
     const onDelivered = (d: any) =>
       setMessages((p) =>
@@ -111,15 +99,12 @@ const ChatPage: React.FC = () => {
           m._id === d.messageId
             ? {
                 ...m,
-                deliveredTo: [
-                  ...(m.deliveredTo ?? []),
-                  { userId: d.userId, at: d.at },
-                ],
+                deliveredTo: [...(m.deliveredTo ?? []), { userId: d.userId, at: d.at }],
               }
             : m
         )
       );
-      // To mark as read
+    // To mark as read
     const onReadBy = (d: any) =>
       setMessages((p) =>
         p.map((m) =>
@@ -131,15 +116,13 @@ const ChatPage: React.FC = () => {
             : m
         )
       );
-      // Typing indicators
+    // Typing indicators
     const onTyping = () => setIsTyping(true);
     const onStopTyping = () => setIsTyping(false);
 
     // To delete a message
     const onDeleted = (d: { messageId: string }) =>
-      setMessages((p) =>
-        p.map((m) => (m._id === d.messageId ? { ...m, deleted: true } : m))
-      );
+      setMessages((p) => p.map((m) => (m._id === d.messageId ? { ...m, deleted: true } : m)));
 
     socket.on('receiveMessage', onReceive);
     socket.on('delivered', onDelivered);
@@ -200,17 +183,12 @@ const ChatPage: React.FC = () => {
 
   const openConfirm = (id: string) => setPendingId(id);
   const confirmDelete = () => {
-    if (pendingId && socket)
-      socket.emit('deleteMessage', { chatId, messageId: pendingId });
+    if (pendingId && socket) socket.emit('deleteMessage', { chatId, messageId: pendingId });
     setPendingId(null);
   };
 
   if (!doctorProfile)
-    return (
-      <div className="flex h-screen items-center justify-center text-slate-100">
-        Loading…
-      </div>
-    );
+    return <div className="flex h-screen items-center justify-center text-slate-100">Loading…</div>;
 
   return (
     <div className="flex h-screen bg-slate-950 text-slate-100">
@@ -239,9 +217,7 @@ const ChatPage: React.FC = () => {
             className="w-10 h-10 rounded-full object-cover ring-1 ring-white/10"
           />
           <div>
-            <h3 className="text-lg font-semibold text-slate-100">
-              {doctorProfile.name}
-            </h3>
+            <h3 className="text-lg font-semibold text-slate-100">{doctorProfile.name}</h3>
             <p
               className={`mt-2 text-xs font-medium ${
                 isDoctorOnline ? 'text-emerald-400' : 'text-slate-500'
@@ -256,10 +232,7 @@ const ChatPage: React.FC = () => {
           {messages.map((m) => {
             const isUser = m.senderRole === 'user';
             return (
-              <div
-                key={m._id}
-                className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}
-              >
+              <div key={m._id} className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
                 <div
                   className={`relative group flex max-w-xs items-end space-x-2 ${
                     isUser ? 'flex-row-reverse' : ''
@@ -278,10 +251,7 @@ const ChatPage: React.FC = () => {
                   )}
 
                   {!isUser && (
-                    <img
-                      src={doctorProfile.avatar}
-                      className="w-8 h-8 rounded-full object-cover"
-                    />
+                    <img src={doctorProfile.avatar} className="w-8 h-8 rounded-full object-cover" />
                   )}
                   <div
                     className={`px-4 py-2 rounded-2xl text-sm ${
@@ -291,16 +261,11 @@ const ChatPage: React.FC = () => {
                     }`}
                   >
                     {m.deleted ? (
-                      <em className="text-xs text-slate-400">
-                        message removed
-                      </em>
+                      <em className="text-xs text-slate-400">message removed</em>
                     ) : m.kind === 'text' || m.kind === 'emoji' ? (
                       <p className="break-words">{m.text}</p>
                     ) : m.kind === 'image' ? (
-                      <img
-                        src={m.mediaUrl}
-                        className="max-w-[200px] rounded"
-                      />
+                      <img src={m.mediaUrl} className="max-w-[200px] rounded" />
                     ) : (
                       <a
                         href={m.mediaUrl}
@@ -321,24 +286,15 @@ const ChatPage: React.FC = () => {
                             d="M12 4v4h4M16 20H8a2 2 0 01-2-2V6a2 2 0 012-2h6l4 4v10a2 2 0 01-2 2z"
                           />
                         </svg>
-                        <span className="max-w-[140px] truncate">
-                          {fileName(m.mediaUrl!)}
-                        </span>
+                        <span className="max-w-[140px] truncate">{fileName(m.mediaUrl!)}</span>
                       </a>
                     )}
 
                     <p
-                      className={`text-[10px] mt-1 ${
-                        isUser ? 'text-slate-200' : 'text-slate-400'
-                      }`}
+                      className={`text-[10px] mt-1 ${isUser ? 'text-slate-200' : 'text-slate-400'}`}
                     >
                       {timeOf(m.createdAt)}{' '}
-                      {isUser &&
-                        (m.readBy?.length
-                          ? '✓✓'
-                          : m.deliveredTo?.length
-                          ? '✓'
-                          : '')}
+                      {isUser && (m.readBy?.length ? '✓✓' : m.deliveredTo?.length ? '✓' : '')}
                     </p>
                   </div>
                 </div>
@@ -346,9 +302,7 @@ const ChatPage: React.FC = () => {
             );
           })}
 
-          {isTyping && (
-            <p className="text-xs text-slate-400 italic">Doctor is typing…</p>
-          )}
+          {isTyping && <p className="text-xs text-slate-400 italic">Doctor is typing…</p>}
 
           <div ref={messagesEndRef} />
         </section>
@@ -409,9 +363,7 @@ const ChatPage: React.FC = () => {
                   />
                 </svg>
               )}
-              <span className="max-w-[120px] truncate text-xs">
-                {pickedFile.name}
-              </span>
+              <span className="max-w-[120px] truncate text-xs">{pickedFile.name}</span>
               <button
                 type="button"
                 onClick={() => {
@@ -439,12 +391,7 @@ const ChatPage: React.FC = () => {
             disabled={!newMessage.trim() && !pickedFile}
             className="p-3 rounded-full bg-gradient-to-r from-cyan-500 to-fuchsia-600 disabled:opacity-40 hover:-translate-y-0.5 transition-transform"
           >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={2}
-            >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2}>
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -462,9 +409,7 @@ const ChatPage: React.FC = () => {
             onClick={() => setPendingId(null)}
           />
           <div className="relative z-50 w-72 rounded-2xl bg-slate-900 p-6 text-center ring-1 ring-white/10 shadow-2xl">
-            <h4 className="mb-4 text-lg font-semibold text-slate-100">
-              Delete message?
-            </h4>
+            <h4 className="mb-4 text-lg font-semibold text-slate-100">Delete message?</h4>
             <p className="mb-6 text-sm text-slate-400">
               This will remove the message for everyone.
             </p>

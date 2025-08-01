@@ -1,6 +1,5 @@
 import { useContext, useEffect, useState } from 'react';
 import { DoctorContext } from '../../context/DoctorContext';
-import { AppContext } from '../../context/AppContext';
 import { assets } from '../../assets/admin/assets';
 import { useNavigate } from 'react-router-dom';
 import SearchBar from '../../components/common/SearchBar';
@@ -8,10 +7,10 @@ import DataTable from '../../components/common/DataTable';
 import Pagination from '../../components/common/Pagination';
 import { NotifContext } from '../../context/NotificationContext';
 import { updateItemInList } from '../../utils/stateHelper.util';
+import { calculateAge, currencySymbol, slotDateFormat } from '../../utils/commonUtils';
 
 const DoctorAppointments = () => {
   const ctx = useContext(DoctorContext);
-  const app = useContext(AppContext);
   const navigate = useNavigate();
   const notif = useContext(NotifContext);
 
@@ -24,15 +23,8 @@ const DoctorAppointments = () => {
   const perPage = 6;
 
   if (!ctx) throw new Error('DoctorContext missing');
-  if (!app) throw new Error('AppContext missing');
-  const {
-    dToken,
-    getAppointmentsPaginated,
-    confirmAppointment,
-    cancelAppointment,
-    profileData,
-  } = ctx;
-  const { calculateAge, slotDateFormat, currencySymbol } = app;
+  const { dToken, getAppointmentsPaginated, confirmAppointment, cancelAppointment, profileData } =
+    ctx;
 
   useEffect(() => {
     if (dToken) fetchRows();
@@ -62,16 +54,14 @@ const DoctorAppointments = () => {
 
   const doConfirm = async (id: string) => {
     await confirmAppointment(id);
-setRows((prev) => updateItemInList(prev, id, { isConfirmed: true }));
+    setRows((prev) => updateItemInList(prev, id, { isConfirmed: true }));
   };
   const doCancel = async (id: string) => {
     await cancelAppointment(id);
-setRows((prev) => updateItemInList(prev, id, { cancelled: true }));
+    setRows((prev) => updateItemInList(prev, id, { cancelled: true }));
   };
 
-  const filtered = rows.filter((r) =>
-    r.userData.name.toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = rows.filter((r) => r.userData.name.toLowerCase().includes(search.toLowerCase()));
 
   const cols = [
     {
@@ -87,10 +77,7 @@ setRows((prev) => updateItemInList(prev, id, { cancelled: true }));
       width: '2fr',
       render: (it: any) => (
         <div className="flex items-center gap-2">
-          <img
-            className="w-12 h-12 rounded-full object-cover"
-            src={it.userData.image}
-          />
+          <img className="w-12 h-12 rounded-full object-cover" src={it.userData.image} />
           <p>{it.userData.name}</p>
         </div>
       ),
@@ -102,9 +89,7 @@ setRows((prev) => updateItemInList(prev, id, { cancelled: true }));
       render: (it: any) => (
         <span
           className={`text-xs px-2 py-0.5 rounded-full ring-1 ${
-            it.payment
-              ? 'ring-emerald-500 text-emerald-400'
-              : 'ring-red-500 text-red-400'
+            it.payment ? 'ring-emerald-500 text-emerald-400' : 'ring-red-500 text-red-400'
           }`}
         >
           {it.payment ? 'Paid' : 'failed'}
@@ -184,10 +169,7 @@ setRows((prev) => updateItemInList(prev, id, { cancelled: true }));
     return (
       <div className="m-5 text-center bg-yellow-900/30 border border-yellow-600 rounded-xl p-6 text-yellow-200 shadow-md">
         <h2 className="text-xl font-semibold mb-2">⏳ Awaiting Approval</h2>
-        <p>
-          Your registration is under review. The admin has not approved your
-          account yet.
-        </p>
+        <p>Your registration is under review. The admin has not approved your account yet.</p>
       </div>
     );
   if (profileData?.status === 'rejected')
@@ -223,18 +205,10 @@ setRows((prev) => updateItemInList(prev, id, { cancelled: true }));
             gridCols="grid-cols-[0.5fr_2fr_1fr_1fr_3fr_1fr_1fr]"
             containerClassName="max-h-[80vh] min-h-[50vh]"
           />
-          {pages > 1 && (
-            <Pagination
-              currentPage={page}
-              totalPages={pages}
-              onPageChange={setPage}
-            />
-          )}
+          {pages > 1 && <Pagination currentPage={page} totalPages={pages} onPageChange={setPage} />}
         </>
       ) : (
-        <div className="text-slate-400 mt-10 text-center w-full">
-          No appointments found.
-        </div>
+        <div className="text-slate-400 mt-10 text-center w-full">No appointments found.</div>
       )}
     </div>
   );

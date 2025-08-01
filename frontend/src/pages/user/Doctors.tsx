@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { AppContext } from '../../context/AppContext';
+import { UserContext } from '../../context/UserContext';
 import type { Doctor } from '../../assets/user/assets';
 import SearchBar from '../../components/common/SearchBar';
 import Pagination from '../../components/common/Pagination';
@@ -8,6 +8,7 @@ import Pagination from '../../components/common/Pagination';
 const Doctors = () => {
   const nav = useNavigate();
   const { speciality } = useParams();
+  const ctx = useContext(UserContext);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilter, setShowFilter] = useState(false);
@@ -19,8 +20,7 @@ const Doctors = () => {
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
 
-  const ctx = useContext(AppContext);
-  if (!ctx) throw new Error('Doctors must be used within an AppContextProvider');
+  if (!ctx) throw new Error('Doctors must be used within an UserContextProvider');
   const { getDoctorsPaginated } = ctx;
 
   const itemsPerPage = 6;
@@ -46,7 +46,8 @@ const Doctors = () => {
 
   useEffect(() => {
     let list = speciality ? doctors.filter((d) => d.speciality === speciality) : doctors;
-    if (searchQuery.trim()) list = list.filter((d) => d.name.toLowerCase().includes(searchQuery.toLowerCase()));
+    if (searchQuery.trim())
+      list = list.filter((d) => d.name.toLowerCase().includes(searchQuery.toLowerCase()));
     setFiltered(list);
   }, [doctors, speciality, searchQuery]);
 

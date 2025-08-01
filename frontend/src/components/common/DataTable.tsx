@@ -43,9 +43,7 @@ const DataTable: React.FC<DataTableProps> = ({
   showHeader = true,
   containerClassName = '',
 }) => {
-  const defaultGrid = `grid-cols-[${columns
-    .map((c) => c.width ?? '1fr')
-    .join('_')}]`;
+  const defaultGrid = `grid-cols-[${columns.map((c) => c.width ?? '1fr').join('_')}]`;
 
   const glass = 'bg-white/5 backdrop-blur ring-1 ring-white/10';
   const divider = 'border-white/10';
@@ -63,9 +61,7 @@ const DataTable: React.FC<DataTableProps> = ({
           {columns.map((col) => (
             <p
               key={col.key}
-              className={`${col.hideOnMobile ? 'max-sm:hidden' : ''} ${
-                col.className ?? ''
-              }`}
+              className={`${col.hideOnMobile ? 'max-sm:hidden' : ''} ${col.className ?? ''}`}
             >
               {col.header}
             </p>
@@ -94,9 +90,7 @@ const DataTable: React.FC<DataTableProps> = ({
             {columns.map((col) => (
               <div
                 key={col.key}
-                className={`${col.hideOnMobile ? 'max-sm:hidden' : ''} ${
-                  col.className ?? ''
-                }`}
+                className={`${col.hideOnMobile ? 'max-sm:hidden' : ''} ${col.className ?? ''}`}
               >
                 {col.render ? col.render(item, i) : item[col.key]}
               </div>

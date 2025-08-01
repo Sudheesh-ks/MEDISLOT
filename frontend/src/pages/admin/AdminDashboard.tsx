@@ -1,24 +1,21 @@
 import { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AdminContext } from '../../context/AdminContext';
-import { AppContext } from '../../context/AppContext';
 import { assets } from '../../assets/admin/assets';
 import type { AppointmentTypes } from '../../types/appointment';
 import { motion } from 'framer-motion';
 import { updateItemInList } from '../../utils/stateHelper.util';
+import { slotDateFormat } from '../../utils/commonUtils';
 
 const glass = 'bg-white/5 backdrop-blur ring-1 ring-white/10';
-const cardBase =
-  'cursor-pointer text-white p-6 rounded-xl shadow-md flex items-center gap-4';
+const cardBase = 'cursor-pointer text-white p-6 rounded-xl shadow-md flex items-center gap-4';
 
 const AdminDashboard = () => {
   const nav = useNavigate();
   const ctx = useContext(AdminContext);
-  const app = useContext(AppContext);
-  if (!ctx || !app) throw new Error('Missing contexts');
+  if (!ctx) throw new Error('Missing contexts');
 
   const { aToken, dashData, getDashData, cancelAppointment } = ctx;
-  const { slotDateFormat } = app;
   const [latest, setLatest] = useState<any[]>([]);
 
   useEffect(() => {
@@ -102,15 +99,11 @@ const AdminDashboard = () => {
               />
               <div className="flex-1 text-sm">
                 <p className="font-semibold">{it.docData.name}</p>
-                <p className="text-slate-400 text-xs">
-                  {slotDateFormat(it.slotDate)}
-                </p>
+                <p className="text-slate-400 text-xs">{slotDateFormat(it.slotDate)}</p>
               </div>
 
               {it.cancelled ? (
-                <span className="text-sm font-semibold text-red-400">
-                  Cancelled
-                </span>
+                <span className="text-sm font-semibold text-red-400">Cancelled</span>
               ) : (
                 <motion.img
                   whileTap={{ scale: 0.9 }}
@@ -118,7 +111,7 @@ const AdminDashboard = () => {
                   className="w-6 cursor-pointer hover:opacity-80"
                   onClick={async () => {
                     await cancelAppointment(it._id!);
-                     setLatest((prev) => updateItemInList(prev, it._id!, { cancelled: true }));
+                    setLatest((prev) => updateItemInList(prev, it._id!, { cancelled: true }));
                   }}
                 />
               )}

@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import dayjs from 'dayjs';
-import { AppContext } from '../../context/AppContext';
+import { UserContext } from '../../context/UserContext';
 import { assets } from '../../assets/user/assets';
 import RelatedDoctors from '../../components/user/RelatedDoctors';
 import { toast } from 'react-toastify';
@@ -17,6 +17,7 @@ import type { RazorpayOptions, RazorpayPaymentResponse } from '../../types/razor
 import { PaymentRazorpayAPI, VerifyRazorpayAPI } from '../../services/paymentServices';
 import { getDoctorsByIDAPI } from '../../services/doctorServices';
 import type { DoctorProfileType } from '../../types/doctor';
+import { currencySymbol } from '../../utils/commonUtils';
 
 const ymd = (d: Date) =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -28,9 +29,9 @@ const Appointment = () => {
 
   const nav = useNavigate();
   const { docId } = useParams();
-  const ctx = useContext(AppContext);
+  const ctx = useContext(UserContext);
   if (!ctx) throw new Error('AppContext missing');
-  const { currencySymbol, token } = ctx;
+  const { token } = ctx;
 
   if (!token) {
     toast.error('Please login to continue…');
@@ -181,7 +182,9 @@ const Appointment = () => {
             {info?.name} <img src={assets.verified_icon} className="w-5" />
           </h2>
           <div className="flex items-center gap-2 text-sm text-slate-400">
-            <span>{info?.degree} • {info?.speciality}</span>
+            <span>
+              {info?.degree} • {info?.speciality}
+            </span>
             <span className="py-0.5 px-2 rounded-full ring-1 ring-white/10">
               {info?.experience}
             </span>
@@ -193,7 +196,8 @@ const Appointment = () => {
           <p className="text-slate-400">
             Appointment fee:{' '}
             <span className="text-slate-100 font-semibold">
-              {currencySymbol}{info?.fees}
+              {currencySymbol}
+              {info?.fees}
             </span>
           </p>
         </div>

@@ -21,20 +21,18 @@ const Contact = () => (
         <p>54709 Willms Station Suite 350, Washington USA</p>
 
         <p>
-          Tel: <a href="tel:+14155550132" className="hover:text-cyan-400">(415) 555‑0132</a>
+          Tel:{' '}
+          <a href="tel:+14155550132" className="hover:text-cyan-400">
+            (415) 555‑0132
+          </a>
           <br />
           Email:{' '}
-          <a
-            href="mailto:medislot@gmail.com"
-            className="hover:text-cyan-400"
-          >
+          <a href="mailto:medislot@gmail.com" className="hover:text-cyan-400">
             medislot@gmail.com
           </a>
         </p>
 
-        <h2 className="text-lg font-semibold text-slate-100">
-          Careers at MediSlot
-        </h2>
+        <h2 className="text-lg font-semibold text-slate-100">Careers at MediSlot</h2>
         <p>Learn more about our teams and open roles.</p>
 
         <button

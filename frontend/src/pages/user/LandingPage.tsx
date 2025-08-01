@@ -14,20 +14,17 @@ const UserLandingPage: React.FC = () => {
     {
       icon: '🩺',
       title: 'Top Specialists',
-      description:
-        'Browse and consult highly experienced doctors across all specialties.',
+      description: 'Browse and consult highly experienced doctors across all specialties.',
     },
     {
       icon: '💸',
       title: 'Affordable Fees',
-      description:
-        'Quality healthcare at budgets you can afford. No hidden charges.',
+      description: 'Quality healthcare at budgets you can afford. No hidden charges.',
     },
     {
       icon: '⏰',
       title: 'Instant Booking',
-      description:
-        'Schedule consultations in just a few clicks, anytime, anywhere.',
+      description: 'Schedule consultations in just a few clicks, anytime, anywhere.',
     },
     {
       icon: '🖥️',
@@ -105,8 +102,8 @@ const UserLandingPage: React.FC = () => {
             </h1>
 
             <p className="text-lg sm:text-xl mb-10 text-slate-400 max-w-md">
-              Consult top doctors from the comfort of your home. Fast, secure,
-              and affordable medical advice at your fingertips.
+              Consult top doctors from the comfort of your home. Fast, secure, and affordable
+              medical advice at your fingertips.
             </p>
 
             <button
@@ -141,9 +138,7 @@ const UserLandingPage: React.FC = () => {
 
       <section id="features" className="py-16">
         <div className="max-w-6xl mx-auto px-5">
-          <h2 className="text-center text-4xl font-bold mb-12">
-            Why Choose MediSlot?
-          </h2>
+          <h2 className="text-center text-4xl font-bold mb-12">Why Choose MediSlot?</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 px-8">
             {features.map((f, i) => (
               <div

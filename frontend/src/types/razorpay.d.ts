@@ -6,8 +6,8 @@ export interface RazorpayPaymentResponse {
 
 export interface RazorpayOptions {
   key: string;
-  amount: number;          
-  currency: string;        
+  amount: number;
+  currency: string;
   name: string;
   description?: string;
   order_id: string;
@@ -19,7 +19,7 @@ export interface RazorpayOptions {
     contact?: string;
   };
   theme?: { color?: string };
-    modal?: {
+  modal?: {
     ondismiss: () => void;
   };
 }

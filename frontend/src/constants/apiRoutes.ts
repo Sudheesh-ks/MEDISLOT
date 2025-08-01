@@ -4,25 +4,21 @@ export const ADMIN_API = {
   LOGOUT: '/api/admin/logout',
   DOCTORS: '/api/admin/doctors',
   DOCTORS_PAGINATED: '/api/admin/doctors/paginated',
-  APPROVE_DOCTOR: (doctorId: string) =>
-    `/api/admin/doctors/${doctorId}/approve`,
+  APPROVE_DOCTOR: (doctorId: string) => `/api/admin/doctors/${doctorId}/approve`,
   REJECT_DOCTOR: (doctorId: string) => `/api/admin/doctors/${doctorId}/reject`,
-  CHANGE_AVAILABILITY: (doctorId: string) =>
-    `/api/admin/doctors/${doctorId}/availability`,
+  CHANGE_AVAILABILITY: (doctorId: string) => `/api/admin/doctors/${doctorId}/availability`,
   USERS: '/api/admin/users',
   USERS_PAGINATED: '/api/admin/users/paginated',
   BLOCK_USER: (userId: string) => `/api/admin/users/${userId}/block`,
   APPOINTMENTS: '/api/admin/appointments',
   APPOINTMENTS_PAGINATED: '/api/admin/appointments/paginated',
-  CANCEL_APPOINTMENT: (appointmentId: string) =>
-    `/api/admin/appointments/${appointmentId}/cancel`,
+  CANCEL_APPOINTMENT: (appointmentId: string) => `/api/admin/appointments/${appointmentId}/cancel`,
   DASHBOARD: '/api/admin/dashboard',
 };
 
 export const APPOINTMENT_API = {
   BASE: '/api/user/appointments',
-  CANCEL: (appointmentId: string) =>
-    `/api/user/appointments/${appointmentId}/cancel`,
+  CANCEL: (appointmentId: string) => `/api/user/appointments/${appointmentId}/cancel`,
   AVAILABLE_FOR_USER: '/api/user/available-slots',
 };
 
@@ -54,8 +50,7 @@ export const DOCTOR_API = {
   APPOINTMENTS_PAGINATED: '/api/doctor/appointments/paginated',
   APPOINTMENT_CONFIRM: (appointmentId: string) =>
     `/api/doctor/appointments/${appointmentId}/confirm`,
-  APPOINTMENT_CANCEL: (appointmentId: string) =>
-    `/api/doctor/appointments/${appointmentId}/cancel`,
+  APPOINTMENT_CANCEL: (appointmentId: string) => `/api/doctor/appointments/${appointmentId}/cancel`,
 
   PROFILE: '/api/doctor/profile',
   PROFILE_UPDATE: '/api/doctor/profile/update',
@@ -79,7 +74,6 @@ export const USER_PROFILE_API = {
   UPDATE: '/api/user/profile',
   USERBY_ID: (id: string) => `/api/user/${id}`,
 };
-
 
 export const SLOT_API = {
   SLOTS: '/api/slots',

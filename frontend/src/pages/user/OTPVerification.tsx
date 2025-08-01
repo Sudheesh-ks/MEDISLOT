@@ -1,13 +1,13 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { AppContext } from '../../context/AppContext';
+import { UserContext } from '../../context/UserContext';
 import { resendOtpAPI, verifyOtpAPI } from '../../services/authServices';
 
 const OtpVerificationPage = () => {
   const navigate = useNavigate();
-  const ctx = useContext(AppContext);
-  if (!ctx) throw new Error('OtpVerification must be within AppContext');
+  const ctx = useContext(UserContext);
+  if (!ctx) throw new Error('OtpVerification must be within UserContext');
   const { token, setToken, loadUserProfileData } = ctx;
 
   const [otp, setOtp] = useState<string[]>(['', '', '', '', '', '']);
@@ -96,8 +96,7 @@ const OtpVerificationPage = () => {
       <div className="w-full max-w-sm bg-white/5 backdrop-blur ring-1 ring-white/10 p-8 rounded-3xl space-y-6 shadow-lg">
         <h1 className="text-2xl font-semibold">Enter Verification Code</h1>
         <p className="text-slate-400">
-          We’ve sent a 6‑digit code to{' '}
-          <span className="text-cyan-400">{email}</span>
+          We’ve sent a 6‑digit code to <span className="text-cyan-400">{email}</span>
         </p>
 
         <div>
@@ -114,9 +113,7 @@ const OtpVerificationPage = () => {
               />
             ))}
           </div>
-          {error && (
-            <p className="text-red-500 text-sm mt-2 text-center">{error}</p>
-          )}
+          {error && <p className="text-red-500 text-sm mt-2 text-center">{error}</p>}
         </div>
 
         <button type="submit" className={primaryBtn}>
@@ -126,11 +123,7 @@ const OtpVerificationPage = () => {
         <p className="text-center text-sm">
           Didn’t receive a code?{' '}
           <span
-            className={
-              canResend
-                ? 'text-cyan-400 cursor-pointer'
-                : 'opacity-50 cursor-not-allowed'
-            }
+            className={canResend ? 'text-cyan-400 cursor-pointer' : 'opacity-50 cursor-not-allowed'}
             onClick={resendOtp}
           >
             Resend {canResend ? '' : `in ${timer}s`}
