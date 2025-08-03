@@ -19,6 +19,7 @@ export interface IAdminRepository {
   ): Promise<PaginationResult<userDocument>>;
   toggleUserBlock(userId: string): Promise<userDocument>;
   getAllAppointments(): Promise<AppointmentDocument[]>;
+  getAppointmentById(id: string): Promise<AppointmentDocument | null>;
   getAppointmentsPaginated(
     page: number,
     limit: number

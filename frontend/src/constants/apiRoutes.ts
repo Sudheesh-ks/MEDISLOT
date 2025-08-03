@@ -13,6 +13,7 @@ export const ADMIN_API = {
   APPOINTMENTS: '/api/admin/appointments',
   APPOINTMENTS_PAGINATED: '/api/admin/appointments/paginated',
   CANCEL_APPOINTMENT: (appointmentId: string) => `/api/admin/appointments/${appointmentId}/cancel`,
+  WALLET: '/api/admin/wallet',
   DASHBOARD: '/api/admin/dashboard',
 };
 
@@ -54,6 +55,7 @@ export const DOCTOR_API = {
 
   PROFILE: '/api/doctor/profile',
   PROFILE_UPDATE: '/api/doctor/profile/update',
+  WALLET: '/api/doctor/wallet',
 };
 
 export const PAYMENT_API = {
@@ -73,6 +75,7 @@ export const USER_PROFILE_API = {
   GET: '/api/user/profile',
   UPDATE: '/api/user/profile',
   USERBY_ID: (id: string) => `/api/user/${id}`,
+  WALLET: '/api/user/wallet',
 };
 
 export const SLOT_API = {

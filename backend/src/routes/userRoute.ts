@@ -41,6 +41,13 @@ userRouter.put(
   authRole(["user"]),
   userController.updateProfile.bind(userController)
 );
+
+userRouter.get(
+  "/wallet",
+  authRole(["user"]),
+  userController.getUserWallet.bind(userController)
+);
+
 userRouter.post(
   "/appointments",
   authRole(["user"]),

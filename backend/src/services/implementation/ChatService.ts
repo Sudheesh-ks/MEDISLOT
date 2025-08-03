@@ -7,14 +7,14 @@ import { v2 as cloudinary } from "cloudinary";
 import streamifier from "streamifier";
 
 export class ChatService implements IChatService {
-  constructor(private repo: IChatRepository) {}
+  constructor(private readonly _chatRepository: IChatRepository) {}
 
   async fetchChatHistory(
     chatId: string,
     limit = 1000,
     before?: Date
   ): Promise<MessageDTO[]> {
-    const messages = await this.repo.getMessagesByChatId(chatId, limit, before);
+    const messages = await this._chatRepository.getMessagesByChatId(chatId, limit, before);
     return messages.map(toMessageDTO);
   }
 
@@ -29,20 +29,20 @@ export class ChatService implements IChatService {
     mediaType?: string;
     replyTo?: string;
   }): Promise<MessageDTO> {
-    const message = await this.repo.createMessage(dto);
+    const message = await this._chatRepository.createMessage(dto);
     return toMessageDTO(message);
   }
 
   delivered(messageId: string, userId: string): Promise<void> {
-    return this.repo.markDelivered(messageId, userId);
+    return this._chatRepository.markDelivered(messageId, userId);
   }
 
   read(chatId: string, userId: string): Promise<void> {
-    return this.repo.markRead(chatId, userId);
+    return this._chatRepository.markRead(chatId, userId);
   }
 
   delete(messageId: string): Promise<void> {
-    return this.repo.softDelete(messageId);
+    return this._chatRepository.softDelete(messageId);
   }
 
   async uploadFile(

@@ -147,7 +147,6 @@ const UserContextProvider: React.FC<UserContextProviderProps> = ({ children }) =
     }
   }, []);
 
-
   const value: UserContextType = {
     getDoctorsPaginated,
     backendUrl,

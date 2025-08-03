@@ -12,6 +12,7 @@ import AdminAppointments from '../pages/admin/AdminAppointments';
 import AdminDoctorList from '../pages/admin/AdminDoctorList';
 import AdminInbox from '../pages/admin/AdminInbox';
 import AdminDoctorRequests from '../pages/admin/AdminDoctorRequests';
+import AdminWallet from '../pages/admin/AdminWallet';
 
 const AdminRoutes = () => {
   return (
@@ -50,14 +51,14 @@ const AdminRoutes = () => {
           </AdminLayout>
         }
       />
-      {/* <Route
-        path="/admin/update-doctor"
+      <Route
+        path="/admin/wallet"
         element={
           <AdminLayout>
-            <AdminUpdateDoctor />
+            <AdminWallet />
           </AdminLayout>
         }
-      /> */}
+      />
       <Route
         path="/admin/all-doctors"
         element={

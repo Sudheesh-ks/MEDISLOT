@@ -12,6 +12,7 @@ import DoctorConsultation from '../pages/doctor/DoctorConsultation';
 import DocChatPage from '../pages/doctor/DocChatPage';
 import DoctorRegister from '../pages/doctor/DoctorRegister';
 import DoctorSlotManager from '../pages/doctor/DoctorSlotManagement';
+import DoctorWallet from '../pages/doctor/DoctorWallet';
 
 const DoctorRoutes = () => {
   return (
@@ -39,6 +40,14 @@ const DoctorRoutes = () => {
         element={
           <DoctorLayout>
             <DoctorProfile />
+          </DoctorLayout>
+        }
+      />
+      <Route
+        path="/doctor/wallet"
+        element={
+          <DoctorLayout>
+            <DoctorWallet />
           </DoctorLayout>
         }
       />

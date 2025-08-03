@@ -5,6 +5,7 @@ import { adminTypes } from "../../types/admin";
 import { DoctorDTO } from "../../dtos/doctor.dto";
 import { AdminDTO } from "../../dtos/admin.dto";
 import { PaginationResult } from "../../types/pagination";
+import { WalletDTO } from "../../dtos/wallet.dto";
 
 export interface DoctorInput extends DoctorTypes {
   imageFile?: Express.Multer.File;
@@ -43,4 +44,5 @@ export interface IAdminService {
   cancelAppointment(appointmentId: string): Promise<void>;
   approveDoctor(doctorId: string): Promise<string>;
   rejectDoctor(doctorId: string, reason?: string): Promise<string>;
+  getAdminWallet(): Promise<WalletDTO>;
 }

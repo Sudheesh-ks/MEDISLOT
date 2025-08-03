@@ -37,3 +37,7 @@ export const updateUserProfileAPI = async (token: string, data: any, image: File
 export const getUserByIDAPI = async (id: string) => {
   return await api.get(USER_PROFILE_API.USERBY_ID(id));
 };
+
+export const getUserWallet = async () => {
+  return await api.get(USER_PROFILE_API.WALLET);
+};

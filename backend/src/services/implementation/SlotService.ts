@@ -7,10 +7,10 @@ import { SlotRange } from "../../types/slots";
 dayjs.extend(customParse);
 
 export class DoctorSlotService implements ISlotService {
-  constructor(private readonly _slotRepo: SlotRepository) {}
+  constructor(private readonly _slotRepository: SlotRepository) {}
 
   async getMonthlySlots(doctorId: string, year: number, month: number) {
-    return this._slotRepo.getSlotsByMonth(doctorId, year, month);
+    return this._slotRepository.getSlotsByMonth(doctorId, year, month);
   }
 
   private validateRanges(ranges: SlotRange[]) {
@@ -37,15 +37,15 @@ export class DoctorSlotService implements ISlotService {
     isCancelled: boolean
   ) {
     this.validateRanges(slots);
-    return this._slotRepo.upsertSlot(doctorId, date, slots, isCancelled);
+    return this._slotRepository.upsertSlot(doctorId, date, slots, isCancelled);
   }
 
   async deleteDaySlot(doctorId: string, date: string) {
-    return this._slotRepo.deleteSlot(doctorId, date);
+    return this._slotRepository.deleteSlot(doctorId, date);
   }
 
   async getDayAvailability(doctorId: string, date: string) {
-    const doc = await this._slotRepo.getSlotByDate(doctorId, date);
+    const doc = await this._slotRepository.getSlotByDate(doctorId, date);
     return doc?.slots ?? [];
   }
 }

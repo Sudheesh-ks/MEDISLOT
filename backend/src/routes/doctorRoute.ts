@@ -4,9 +4,11 @@ import { DoctorService } from "../services/implementation/DoctorService";
 import { DoctorRepository } from "../repositories/implementation/DoctorRepository";
 import upload from "../middlewares/multer";
 import authRole from "../middlewares/authRole";
+import { WalletRepository } from "../repositories/implementation/WalletRepository";
 
 const doctorRepository = new DoctorRepository();
-const doctorService = new DoctorService(doctorRepository);
+const walletRepository = new WalletRepository();
+const doctorService = new DoctorService(doctorRepository, walletRepository);
 const doctorController = new DoctorController(doctorService);
 
 const doctorRouter = express.Router();
@@ -74,6 +76,12 @@ doctorRouter.patch(
   authRole(["doctor"]),
   upload.single("image"),
   doctorController.updateDoctorProfile.bind(doctorController)
+);
+
+doctorRouter.get(
+  "/wallet",
+  authRole(["doctor"]),
+  doctorController.getDoctorWallet.bind(doctorController)
 );
 
 doctorRouter.get("/:id", doctorController.getDoctorById.bind(doctorController));

@@ -32,16 +32,21 @@ import { sendOTP } from "../../utils/mail.util";
 import { AppointmentDTO } from "../../dtos/appointment.dto";
 import { toAppointmentDTO } from "../../mappers/appointment.mapper";
 import { PaginationResult } from "../../types/pagination";
+import { WalletRepository } from "../../repositories/implementation/WalletRepository";
+import { WalletDTO } from "../../dtos/wallet.dto";
 
 export interface UserDocument extends userTypes {
   _id: string;
 }
 
+const adminId = process.env.ADMIN_ID;
+
 export class UserService implements IUserService {
   constructor(
-    private _userRepository: IUserRepository,
-    private _paymentService = new PaymentService(),
-    private _slotRepository = new SlotRepository()
+    private readonly _userRepository: IUserRepository,
+    private readonly _paymentService = new PaymentService(),
+    private readonly _slotRepository = new SlotRepository(),
+    private readonly _walletRepository = new WalletRepository()
   ) {}
 
   async register(name: string, email: string, password: string): Promise<void> {
@@ -315,6 +320,14 @@ export class UserService implements IUserService {
     return doctor;
   }
 
+    async getUserWallet(userId: string): Promise<WalletDTO> {
+      const doctor = await this._userRepository.findUserById(userId);
+      if (!doctor) throw new Error('Doctor not found');
+  
+      const wallet = await this._walletRepository.getOrCreateWallet(userId, 'user');
+      return wallet;
+    }
+
   async bookAppointment({
     userId,
     docId,
@@ -384,7 +397,30 @@ export class UserService implements IUserService {
       throw new Error("Unauthorized cancellation");
     }
 
-    await this._userRepository.cancelAppointment(userId, appointmentId);
+    
+
+     const amount = appointment.amount; // Assuming you store fee in appointment
+  if (!amount || amount <= 0) return;
+
+  const doctorId = appointment.docData._id.toString();
+  const reason = `Refund for Cancelled Appointment (${appointment._id}) of ${appointment.docData.name}`;
+
+  // console.log(adminId);
+  // console.log(doctorId);
+  // console.log(uId)
+
+  // Credit full amount to user wallet
+  await this._walletRepository.creditWallet(userId.toString(), "user", amount, reason);
+
+  // Debit 80% from doctor
+  const doctorShare = amount * 0.8;
+  await this._walletRepository.debitWallet(doctorId, "doctor", doctorShare, reason);
+
+  // Debit 20% from admin
+  const adminShare = amount * 0.2;
+  await this._walletRepository.debitWallet(adminId!, "admin", adminShare, reason);
+
+  await this._userRepository.cancelAppointment(userId, appointmentId);
   }
 
   async startPayment(
@@ -441,6 +477,31 @@ export class UserService implements IUserService {
     }
 
     await this._userRepository.markAppointmentPaid(appointmentId);
+
+     const amount = appointment.amount;
+  const adminShare = Math.round(amount * 0.2);
+  const doctorShare = amount - adminShare;
+
+  if (!adminId) {
+  throw new Error("Admin wallet ID not configured");
+}
+
+
+  // Credit Admin Wallet
+  await this._walletRepository.creditWallet(
+    adminId, 
+    "admin",
+    adminShare,
+    `Admin share for appointment ${appointmentId} from ${appointment.userData.name} to ${appointment.docData.name}`
+  );
+
+  // Credit Doctor Wallet
+  await this._walletRepository.creditWallet(
+    appointment.docId.toString(),
+    "doctor",
+    doctorShare,
+    `Doctor share for appointment ${appointmentId} from ${appointment.userData.name}`
+  );
   }
 
   async getAvailableSlotsByDate(

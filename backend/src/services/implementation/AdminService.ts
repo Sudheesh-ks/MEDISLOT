@@ -18,12 +18,16 @@ import { AdminDTO } from "../../dtos/admin.dto";
 import { toAdminDTO } from "../../mappers/admin.mapper";
 import { PaginationResult } from "../../types/pagination";
 import { HttpResponse } from "../../constants/responseMessage.constants";
+import { WalletDTO } from "../../dtos/wallet.dto";
+import { toWalletDTO } from "../../mappers/wallet.mapper";
+import { IWalletRepository } from "../../repositories/interface/IWalletRepository";
 dotenv.config();
 
 export class AdminService implements IAdminService {
   constructor(
     private readonly _adminRepository: IAdminRepository,
-    private readonly _doctorRepository: IDoctorRepository
+    private readonly _doctorRepository: IDoctorRepository,
+    private readonly _walletRepository: IWalletRepository
   ) {}
 
   async login(
@@ -204,6 +208,48 @@ export class AdminService implements IAdminService {
   }
 
   async cancelAppointment(appointmentId: string): Promise<void> {
+
+    if (!appointmentId) throw new Error("Missing required fields");
+
+    const appointment = await this._adminRepository.getAppointmentById(appointmentId);
+    if (!appointment) {
+      throw new Error("Cancellation Failed");
+    }
+
+     const amount = appointment.amount; // Assuming you store fee in appointment
+  if (!amount || amount <= 0) return;
+
+
+  const adminId = process.env.ADMIN_ID;
+  const userId = appointment.userData._id.toString();
+  const doctorId = appointment.docData._id.toString();
+  const reason = `Refund for Cancelled Appointment (${appointment._id}) of ${appointment.docData.name}`;
+
+  // console.log(adminId);
+  // console.log(doctorId);
+  // console.log(uId)
+
+  // Credit full amount to user wallet
+  await this._walletRepository.creditWallet(userId, "user", amount, reason);
+
+  // Debit 80% from doctor
+  const doctorShare = amount * 0.8;
+  await this._walletRepository.debitWallet(doctorId, "doctor", doctorShare, reason);
+
+  // Debit 20% from admin
+  const adminShare = amount * 0.2;
+  await this._walletRepository.debitWallet(adminId!, "admin", adminShare, reason);
+
     await this._adminRepository.cancelAppointment(appointmentId);
   }
+
+  async getAdminWallet(): Promise<WalletDTO> {
+  const adminId = process.env.ADMIN_ID;
+  if (!adminId) throw new Error("ADMIN_USER_ID is not set in environment");
+
+  const wallet = await this._walletRepository.getOrCreateWallet(adminId, "admin");
+  if (!wallet) throw new Error("Admin wallet not found");
+
+  return toWalletDTO(wallet);
+}
 }

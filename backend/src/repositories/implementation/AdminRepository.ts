@@ -90,6 +90,10 @@ export class AdminRepository extends BaseRepository<AdminDocument> {
     return appointmentModel.find({});
   }
 
+  async getAppointmentById(id: string): Promise<AppointmentDocument | null> {
+    return appointmentModel.findById(id);
+  }
+
   async getAppointmentsPaginated(
     page: number,
     limit: number

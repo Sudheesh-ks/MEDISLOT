@@ -284,6 +284,21 @@ export class UserController implements IUserController {
     }
   }
 
+
+      async getUserWallet(req: Request, res: Response): Promise<void> {
+    try {
+      const userId = (req as any).userId;
+      const wallet = await this._userService.getUserWallet(userId);
+      logger.info(`Wallet fetched for user: ${userId}`);
+      res.status(200).json(wallet);
+    } catch (error) {
+      logger.error(`Get wallet error: ${error}`);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });    }
+  }
+
   async bookAppointment(req: Request, res: Response): Promise<void> {
     try {
       const userId = (req as any).userId;

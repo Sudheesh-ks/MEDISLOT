@@ -19,6 +19,7 @@ import GoogleCallback from '../pages/user/GoogleCallback';
 import Consultation from '../pages/user/Consultation';
 import ChatPage from '../pages/user/ChatPage';
 import UserLandingPage from '../pages/user/LandingPage';
+import Wallet from '../pages/user/Wallet';
 
 const UserRoutes = () => {
   return (
@@ -74,6 +75,14 @@ const UserRoutes = () => {
         element={
           <UserLayout>
             <MyProfile />
+          </UserLayout>
+        }
+      />
+      <Route
+        path="/wallet"
+        element={
+          <UserLayout>
+            <Wallet />
           </UserLayout>
         }
       />

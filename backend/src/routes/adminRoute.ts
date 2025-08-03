@@ -8,11 +8,13 @@ import { AdminService } from "../services/implementation/AdminService";
 import { AdminController } from "../controllers/implementation/AdminController";
 
 import { DoctorRepository } from "../repositories/implementation/DoctorRepository";
+import { WalletRepository } from "../repositories/implementation/WalletRepository";
 
 // Admin Layer
 const adminRepository = new AdminRepository();
 const doctorRepository = new DoctorRepository();
-const adminService = new AdminService(adminRepository, doctorRepository);
+const walletRepository = new WalletRepository();
+const adminService = new AdminService(adminRepository, doctorRepository, walletRepository);
 const adminController = new AdminController(adminService);
 
 const adminRouter = express.Router();
@@ -63,6 +65,13 @@ adminRouter.patch(
   authRole(["admin"]),
   adminController.adminCancelAppointment.bind(adminController)
 );
+
+adminRouter.get(
+  "/wallet",
+  authRole(["admin"]),
+  adminController.getAdminWallet.bind(adminController)
+);
+
 
 adminRouter.get(
   "/dashboard",

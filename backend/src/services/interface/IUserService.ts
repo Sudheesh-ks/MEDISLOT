@@ -1,6 +1,7 @@
 import { AppointmentDTO } from "../../dtos/appointment.dto";
 import { DoctorDTO } from "../../dtos/doctor.dto";
 import { UserDTO } from "../../dtos/user.dto";
+import { WalletDTO } from "../../dtos/wallet.dto";
 import { PaginationResult } from "../../types/pagination";
 import { SlotRange } from "../../types/slots";
 import { userTypes } from "../../types/user";
@@ -35,6 +36,7 @@ export interface IUserService {
     data: Partial<userTypes>,
     imageFile?: Express.Multer.File
   ): Promise<void>;
+  getUserWallet(userId: string): Promise<WalletDTO>
   checkEmailExists(email: string): Promise<boolean>;
   hashPassword(password: string): Promise<string>;
   finalizeRegister(userTypes: {

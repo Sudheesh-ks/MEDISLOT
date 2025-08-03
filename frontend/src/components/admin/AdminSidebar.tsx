@@ -10,6 +10,7 @@ const AdminSidebar = () => {
     appointment_icon: '📅',
     doctor_request: '⚠️',
     doctor_icon: '🧑🏻‍⚕️',
+    wallet_icon: '💳',
     inbox_icon: '✉️',
   };
 
@@ -34,6 +35,11 @@ const AdminSidebar = () => {
       to: '/admin/all-doctors',
       icon: assets.doctor_icon,
       label: 'Doctor List',
+    },
+    {
+      to: '/admin/wallet',
+      icon: assets.wallet_icon,
+      label: 'Wallet',
     },
     { to: '/admin/inbox', icon: assets.inbox_icon, label: 'Inbox' },
   ];
@@ -163,34 +169,6 @@ const AdminSidebar = () => {
           ))}
         </ul>
       </nav>
-
-      {/* status */}
-      {!isCollapsed ? (
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-white/10">
-          <div className={`${glass} p-3 flex items-center gap-3 rounded-xl`}>
-            <div
-              className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold shadow-lg bg-gradient-to-r ${grad}`}
-            >
-              <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
-            </div>
-            <div>
-              <p className="text-sm font-medium">System Status</p>
-              <p className="text-xs text-emerald-400 flex items-center gap-1">
-                <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full" /> All systems operational
-              </p>
-            </div>
-          </div>
-        </div>
-      ) : (
-        <div className="absolute bottom-4 left-1/2 -translate-x-1/2">
-          <button
-            className={`w-12 h-12 rounded-full shadow-lg hover:shadow-xl flex items-center justify-center
-                        bg-gradient-to-r ${grad} text-white hover:scale-110 transition-transform duration-300`}
-          >
-            <span className="w-2 h-2 bg-white rounded-full animate-pulse" />
-          </button>
-        </div>
-      )}
     </aside>
   );
 };
