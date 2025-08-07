@@ -21,6 +21,7 @@ export const APPOINTMENT_API = {
   BASE: '/api/user/appointments',
   CANCEL: (appointmentId: string) => `/api/user/appointments/${appointmentId}/cancel`,
   AVAILABLE_FOR_USER: '/api/user/available-slots',
+  ACTIVE_APPOINTMENT: '/api/user/appointments/active',
 };
 
 export const AUTH_API = {
@@ -52,6 +53,7 @@ export const DOCTOR_API = {
   APPOINTMENT_CONFIRM: (appointmentId: string) =>
     `/api/doctor/appointments/${appointmentId}/confirm`,
   APPOINTMENT_CANCEL: (appointmentId: string) => `/api/doctor/appointments/${appointmentId}/cancel`,
+  ACTIVE_APPOINTMENT: '/api/doctor/appointments/active',
 
   PROFILE: '/api/doctor/profile',
   PROFILE_UPDATE: '/api/doctor/profile/update',

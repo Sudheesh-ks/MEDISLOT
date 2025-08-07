@@ -25,7 +25,7 @@ const ymd = (d: Date) =>
 const to12h = (t: string) => dayjs(`1970-01-01T${t}`).format('hh:mm A').toLowerCase();
 
 const Appointment = () => {
-  type TimeSlot = { datetime: Date; time: string };
+  type TimeSlot = { datetime: Date; slotStartTime: string; slotEndTime: string };
 
   const nav = useNavigate();
   const { docId } = useParams();
@@ -80,7 +80,7 @@ const Appointment = () => {
           const [hour, minute] = r.start.split(':').map(Number);
           const dt = new Date(dateObj);
           dt.setHours(hour, minute, 0, 0);
-          return { datetime: dt, time: r.start };
+          return { datetime: dt, slotStartTime: r.start, slotEndTime: r.end };
         });
       slotCache.current.set(key, slots);
       return slots;
@@ -147,11 +147,17 @@ const Appointment = () => {
   };
 
   const book = async () => {
-    const target = slots[dayIdx]?.find((s) => s.time === slotTime);
+    const target = slots[dayIdx]?.find((s) => s.slotStartTime === slotTime);
     if (!target) return toast.error('No slot selected');
 
     try {
-      const res = await appointmentBookingAPI(docId!, ymd(target.datetime), slotTime, token);
+      const res = await appointmentBookingAPI(
+        docId!,
+        ymd(target.datetime),
+        target.slotStartTime,
+        target.slotEndTime,
+        token
+      );
 
       if (!res.data.success) return toast.error(res.data.message);
 
@@ -267,14 +273,14 @@ const Appointment = () => {
             slots[dayIdx].map((s, i) => (
               <button
                 key={i}
-                onClick={() => setSlotTime(s.time)}
+                onClick={() => setSlotTime(s.slotStartTime)}
                 className={`px-6 py-2 rounded-full text-sm transition-colors ${
-                  slotTime === s.time
+                  slotTime === s.slotStartTime
                     ? 'bg-gradient-to-r from-cyan-500 to-fuchsia-600 text-white'
                     : 'ring-1 ring-white/10 text-slate-400'
                 }`}
               >
-                {to12h(s.time)}
+                {to12h(s.slotStartTime)}
               </button>
             ))
           ) : (

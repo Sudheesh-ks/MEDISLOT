@@ -24,7 +24,12 @@ const appointmentSchema: Schema<AppointmentDocument> = new mongoose.Schema(
       required: true,
     },
 
-    slotTime: {
+    slotStartTime: {
+      type: String,
+      required: true,
+    },
+
+    slotEndTime: {
       type: String,
       required: true,
     },

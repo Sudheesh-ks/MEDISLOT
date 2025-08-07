@@ -65,6 +65,13 @@ userRouter.patch(
   userController.cancelAppointment.bind(userController)
 );
 
+
+userRouter.get(
+  "/appointments/active",
+  authRole(["user"]),
+  userController.getActiveAppointment.bind(userController)
+);
+
 userRouter.post(
   "/payments/razorpay",
   authRole(["user"]),

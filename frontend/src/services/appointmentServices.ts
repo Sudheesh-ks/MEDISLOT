@@ -5,12 +5,13 @@ import { APPOINTMENT_API } from '../constants/apiRoutes';
 export const appointmentBookingAPI = async (
   docId: string,
   slotDate: string,
-  slotTime: string,
+  slotStartTime: string,
+  slotEndTime: string,
   token: string
 ) => {
   return api.post(
     APPOINTMENT_API.BASE,
-    { docId, slotDate, slotTime },
+    { docId, slotDate, slotStartTime, slotEndTime },
     { headers: { Authorization: `Bearer ${token}` } }
   );
 };
@@ -20,6 +21,11 @@ export const getAppointmentsAPI = async (token: string) => {
   return api.get(APPOINTMENT_API.BASE, {
     headers: { Authorization: `Bearer ${token}` },
   });
+};
+
+export const getActiveAppointmentAPI = async () => {
+  const res = await api.get(APPOINTMENT_API.ACTIVE_APPOINTMENT);
+  return res.data;
 };
 
 export const getAppointmentsPaginatedAPI = async (token: string, page = 1, limit = 5) => {

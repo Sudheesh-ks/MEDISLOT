@@ -13,6 +13,8 @@ import DocChatPage from '../pages/doctor/DocChatPage';
 import DoctorRegister from '../pages/doctor/DoctorRegister';
 import DoctorSlotManager from '../pages/doctor/DoctorSlotManagement';
 import DoctorWallet from '../pages/doctor/DoctorWallet';
+import DoctorVideoCall from '../pages/doctor/DoctorVideoCall';
+import DoctorConsultationEndedPage from '../pages/doctor/DoctorConsultationEndedPage';
 
 const DoctorRoutes = () => {
   return (
@@ -60,13 +62,16 @@ const DoctorRoutes = () => {
         }
       />
       <Route
-        path="/doctor/consultation/:userId"
+        path="/doctor/consultation/:userId/:appointmentId"
         element={
           <DoctorLayout>
             <DoctorConsultation />
           </DoctorLayout>
         }
       />
+
+      <Route path="/doctor/video-room/:appointmentId" element={<DoctorVideoCall />} />
+      <Route path="/doctor/consultation-end/" element={<DoctorConsultationEndedPage />} />
       <Route path="/doctor/chats/:userId" element={<DocChatPage />} />
     </>
   );

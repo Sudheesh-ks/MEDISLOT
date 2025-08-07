@@ -105,6 +105,28 @@ export class DoctorRepository
     };
   }
 
+  async findActiveAppointment(docId: string): Promise<AppointmentDocument | null> {
+  const now = new Date();
+
+  const appointments = await appointmentModel.find({
+    docId,
+    payment: true,
+    cancelled: false,
+  });
+
+  for (const appt of appointments) {
+    const start = new Date(`${appt.slotDate}T${appt.slotStartTime}:00`);
+    const end = new Date(`${appt.slotDate}T${appt.slotEndTime}:00`);
+
+    if (now >= start && now <= end) {
+      return appt;
+    }
+  }
+
+  return null;
+}
+
+
   async getDoctorProfileById(id: string): Promise<DoctorDocument | null> {
     return doctorModel.findById(id).select("-password");
   }

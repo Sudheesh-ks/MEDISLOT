@@ -302,13 +302,14 @@ export class UserController implements IUserController {
   async bookAppointment(req: Request, res: Response): Promise<void> {
     try {
       const userId = (req as any).userId;
-      const { docId, slotDate, slotTime } = req.body;
+      const { docId, slotDate, slotStartTime, slotEndTime } = req.body;
 
       const appointment = await this._userService.bookAppointment({
         userId,
         docId,
         slotDate,
-        slotTime,
+        slotStartTime,
+        slotEndTime
       });
       logger.info(`Appointment booked for user ${userId}`);
       res.status(HttpStatus.OK).json({
@@ -349,6 +350,36 @@ export class UserController implements IUserController {
       });
     }
   }
+
+ async getActiveAppointment(req: Request, res: Response): Promise<void> {
+  try {
+    const userId = (req as any).userId;
+    const appointment = await this._userService.getActiveAppointment(userId);
+
+    if (!appointment) {
+       res.json({ active: false });
+       return
+    }
+
+    logger.info(`Appointment is active`);
+
+     res.status(HttpStatus.OK).json({
+      active: true,
+      appointmentId: appointment._id,
+      userId: appointment.userData._id,
+      doctorId: appointment.docData._id,
+    });
+    return;
+
+  } catch (error) {
+    logger.error(`Get active appointment error: ${error}`);
+     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: (error as Error).message,
+    });
+  }
+}
+
 
   async cancelAppointment(req: Request, res: Response): Promise<void> {
     try {

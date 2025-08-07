@@ -31,6 +31,7 @@ export interface IUserRepository {
     page: number,
     limit: number
   ): Promise<PaginationResult<AppointmentDocument>>;
+  findActiveAppointment(userId: string): Promise<AppointmentDocument | null>;
   cancelAppointment(userId: string, appointmentId: string): Promise<void>;
   findPayableAppointment(
     userId: string,

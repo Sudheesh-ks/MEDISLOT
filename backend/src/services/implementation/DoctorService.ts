@@ -298,6 +298,13 @@ export class DoctorService implements IDoctorService {
     await this._doctorRepository.cancelAppointment(appointmentId);
   }
 
+async getActiveAppointment(docId: string): Promise<AppointmentDTO | null> {
+  if (!docId) throw new Error("User not found");
+
+  const appointment = await this._doctorRepository.findActiveAppointment(docId);
+  return appointment ? toAppointmentDTO(appointment) : null;
+}
+
   async getDoctorProfile(docId: string): Promise<DoctorDTO> {
     const doctor = await this._doctorRepository.getDoctorProfileById(docId);
     if (!doctor) throw new Error("Doctor not found");

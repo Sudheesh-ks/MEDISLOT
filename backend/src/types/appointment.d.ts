@@ -9,7 +9,8 @@ export interface AppointmentTypes {
   userId: string;
   docId: string;
   slotDate: string;
-  slotTime: string;
+  slotStartTime: string;
+  slotEndTime: string;
   userData: userDocument;
   docData: DoctorDocument;
   amount: number;

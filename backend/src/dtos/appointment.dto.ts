@@ -6,7 +6,8 @@ export interface AppointmentDTO {
   userData: UserDTO;
   docData: DoctorDTO;
   slotDate: string;
-  slotTime: string;
+  slotStartTime: string;
+  slotEndTime: string;
   amount: number;
   date: number;
   cancelled?: boolean;

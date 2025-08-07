@@ -66,6 +66,12 @@ doctorRouter.patch(
 );
 
 doctorRouter.get(
+  "/appointments/active",
+  authRole(["doctor"]),
+  doctorController.getActiveAppointment.bind(doctorController)
+);
+
+doctorRouter.get(
   "/profile",
   authRole(["doctor"]),
   doctorController.doctorProfile.bind(doctorController)

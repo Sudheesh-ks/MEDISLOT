@@ -20,6 +20,8 @@ import Consultation from '../pages/user/Consultation';
 import ChatPage from '../pages/user/ChatPage';
 import UserLandingPage from '../pages/user/LandingPage';
 import Wallet from '../pages/user/Wallet';
+import UserVideoCall from '../pages/user/UserVideoCallRoom';
+import ConsultationEndedPage from '../pages/user/ConsultationEndedpage';
 
 const UserRoutes = () => {
   return (
@@ -103,13 +105,15 @@ const UserRoutes = () => {
         }
       />
       <Route
-        path="/consultation/:doctorId"
+        path="/consultation/:doctorId/:appointmentId"
         element={
           <UserLayout>
             <Consultation />
           </UserLayout>
         }
       />
+      <Route path="/video-room/:appointmentId" element={<UserVideoCall />} />
+      <Route path="/consultation-end" element={<ConsultationEndedPage />} />
       <Route path="/chats/:doctorId" element={<ChatPage />} />
     </>
   );

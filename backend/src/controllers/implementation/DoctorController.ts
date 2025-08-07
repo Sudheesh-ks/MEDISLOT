@@ -292,6 +292,35 @@ export class DoctorController implements IDoctorController {
     }
   }
 
+  async getActiveAppointment(req: Request, res: Response): Promise<void> {
+  try {
+    const docId = (req as any).docId;
+    const appointment = await this._doctorService.getActiveAppointment(docId);
+
+    if (!appointment) {
+       res.json({ active: false });
+       return
+    }
+
+    logger.info(`Appointment is active`);
+
+     res.status(HttpStatus.OK).json({
+      active: true,
+      appointmentId: appointment._id,
+      userId: appointment.userData._id,
+      doctorId: appointment.docData._id,
+    });
+    return;
+
+  } catch (error) {
+    logger.error(`Get active appointment error: ${error}`);
+     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: (error as Error).message,
+    });
+  }
+}
+
   async doctorProfile(req: Request, res: Response): Promise<void> {
     try {
       const doctId = (req as any).docId;

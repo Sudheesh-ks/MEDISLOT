@@ -94,14 +94,14 @@ const MyAppointments = () => {
 
             <p className="text-xs">
               <span className="font-medium">Date & Time:</span> {slotDateFormat(a.slotDate)} |{' '}
-              {to12h(a.slotTime)}
+              {to12h(a.slotStartTime)}
             </p>
           </div>
 
           <div className="flex flex-col gap-2 items-end">
             {!a.cancelled && a.payment && a.isConfirmed && (
               <button
-                onClick={() => nav(`/consultation/${a.docData._id}`)}
+                onClick={() => nav(`/consultation/${a.docData._id}/${a._id}`)}
                 className={`${btn} bg-gradient-to-r from-cyan-500 to-fuchsia-600 text-white relative`}
               >
                 Go to Consultation

@@ -50,18 +50,23 @@ export interface IUserService {
     userId,
     docId,
     slotDate,
-    slotTime,
+    slotStartTime,
+    slotEndTime
   }: {
     userId: string;
     docId: string;
     slotDate: string;
-    slotTime: string;
+    slotStartTime: string;
+    slotEndTime: string;
   }): Promise<AppointmentDTO>;
   listUserAppointmentsPaginated(
     userId: string,
     page: number,
     limit: number
   ): Promise<PaginationResult<AppointmentDTO>>;
+  getActiveAppointment(
+      userId: string
+    ): Promise<AppointmentDTO | null>;
   cancelAppointment(userId: string, appointmentId: string): Promise<void>;
   startPayment(userId: string, appointmentId: string): Promise<{ order: any }>;
   verifyPayment(

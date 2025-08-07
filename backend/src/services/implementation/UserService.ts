@@ -332,14 +332,16 @@ export class UserService implements IUserService {
     userId,
     docId,
     slotDate,
-    slotTime,
+    slotStartTime,
+    slotEndTime
   }: {
     userId: string;
     docId: string;
     slotDate: string;
-    slotTime: string;
+    slotStartTime: string;
+    slotEndTime: string;
   }): Promise<AppointmentDTO> {
-    if (!userId || !docId || !slotDate || !slotTime) {
+    if (!userId || !docId || !slotDate || !slotStartTime || !slotEndTime) {
       throw new Error("All fields are required");
     }
 
@@ -353,7 +355,8 @@ export class UserService implements IUserService {
       userId,
       docId,
       slotDate,
-      slotTime,
+      slotStartTime,
+      slotEndTime,
       userData: user,
       docData: doctor,
       amount: doctor.fees,
@@ -381,6 +384,14 @@ export class UserService implements IUserService {
       data: paginatedData.data.map(toAppointmentDTO),
     };
   }
+
+async getActiveAppointment(userId: string): Promise<AppointmentDTO | null> {
+  if (!userId) throw new Error("User not found");
+
+  const appointment = await this._userRepository.findActiveAppointment(userId);
+  return appointment ? toAppointmentDTO(appointment) : null;
+}
+
 
   async cancelAppointment(
     userId: string,

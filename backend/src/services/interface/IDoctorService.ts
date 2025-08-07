@@ -26,6 +26,9 @@ export interface IDoctorService {
   ): Promise<PaginationResult<AppointmentDTO>>;
   confirmAppointment(docId: string, appointmentId: string): Promise<void>;
   cancelAppointment(docId: string, appointmentId: string): Promise<void>;
+  getActiveAppointment(
+      docId: string
+    ): Promise<AppointmentDTO | null>;
   getDoctorProfile(docId: string): Promise<DoctorDTO>;
   updateDoctorProfile(data: {
     doctId: string;

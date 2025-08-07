@@ -106,5 +106,50 @@ export function registerChatSocket(io: Server, chatService: ChatService) {
         }
       }
     });
+
+
+    // ✅ Added for video call: join room
+socket.on("join-video-room", (appointmentId: string) => {
+  socket.join(appointmentId);
+  const clientsInRoom = Array.from(io.sockets.adapter.rooms.get(appointmentId) || []);
+
+  console.log(`User ${socket.id} joined video room ${appointmentId}`);
+  console.log("Clients in room:", clientsInRoom);
+
+  if (clientsInRoom.length === 1) {
+    socket.emit("joined-room");
+  } else {
+    socket.emit("joined-room");
+    socket.to(appointmentId).emit("other-user-joined");
+  }
+});
+
+    // ✅ Added for video call: offer
+    socket.on(
+      "webrtc-offer",
+      ({ appointmentId, offer, receiverId, senderId }) => {
+        socket.to(appointmentId).emit("webrtc-offer", { offer, senderId });
+      }
+    );
+
+    // ✅ Added for video call: answer
+    socket.on("webrtc-answer", ({ appointmentId, answer, senderId }) => {
+      socket.to(appointmentId).emit("webrtc-answer", { answer, senderId });
+    });
+
+    // ✅ Added for video call: ICE candidate
+    socket.on("ice-candidate", ({ appointmentId, candidate, senderId }) => {
+      socket.to(appointmentId).emit("ice-candidate", {
+        candidate,
+        senderId,
+      });
+    });
+
+    // ✅ Added for video call: end call
+    socket.on("end-call", ({ appointmentId }) => {
+      socket.to(appointmentId).emit("end-call");
+    });
+
   });
+  
 }

@@ -8,6 +8,7 @@ import Pagination from '../../components/common/Pagination';
 import { NotifContext } from '../../context/NotificationContext';
 import { updateItemInList } from '../../utils/stateHelper.util';
 import { calculateAge, currencySymbol, slotDateFormat } from '../../utils/commonUtils';
+import { to12h } from '../../utils/slotManagementHelper';
 
 const DoctorAppointments = () => {
   const ctx = useContext(DoctorContext);
@@ -107,7 +108,7 @@ const DoctorAppointments = () => {
       key: 'dt',
       header: 'Date & Time',
       width: '3fr',
-      render: (it: any) => `${slotDateFormat(it.slotDate)}, ${it.slotTime}`,
+      render: (it: any) => `${slotDateFormat(it.slotDate)}, ${to12h(it.slotStartTime)}`,
     },
     {
       key: 'fees',
@@ -131,7 +132,7 @@ const DoctorAppointments = () => {
           <button
             onClick={(e) => {
               e.stopPropagation();
-              navigate(`/doctor/consultation/${it.userData._id}`);
+              navigate(`/doctor/consultation/${it.userData._id}/${it._id}`);
             }}
             className="bg-gradient-to-r from-cyan-500 to-fuchsia-600 px-4 py-1.5 text-sm rounded-lg text-white shadow relative"
           >

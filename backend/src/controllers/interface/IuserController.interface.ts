@@ -12,6 +12,7 @@ export interface IUserController {
   getUserWallet(req: Request, res: Response): Promise<void>;
   bookAppointment(req: Request, res: Response): Promise<void>;
   listAppointment(req: Request, res: Response): Promise<void>;
+  getActiveAppointment(req: Request, res: Response): Promise<void>;
   cancelAppointment(req: Request, res: Response): Promise<void>;
   refreshToken(req: Request, res: Response): Promise<void>;
   logout(req: Request, res: Response): Promise<void>;

@@ -51,7 +51,7 @@ export class UserRepository
   async bookAppointment(
     appointmentData: AppointmentTypes
   ): Promise<AppointmentDocument> {
-    const { userId, docId, slotDate, slotTime } = appointmentData;
+    const { userId, docId, slotDate, slotStartTime, slotEndTime } = appointmentData;
 
     const doctor = await doctorModel.findById(docId);
     if (!doctor || !doctor.available) throw new Error("Doctor not available");
@@ -64,7 +64,7 @@ export class UserRepository
       throw new Error("No available slots for this date");
 
     const slotIndex = slotDoc.slots.findIndex(
-      (slot) => slot.start === slotTime && !slot.booked
+      (slot) => slot.start === slotStartTime && slot.end === slotEndTime && !slot.booked
     );
     if (slotIndex === -1) throw new Error("Slot not available");
 
@@ -86,7 +86,8 @@ export class UserRepository
       userData,
       docData,
       amount: docData!.fees,
-      slotTime,
+      slotStartTime,
+      slotEndTime,
       slotDate,
       date: new Date(),
     });
@@ -128,6 +129,30 @@ export class UserRepository
     };
   }
 
+async findActiveAppointment(userId: string): Promise<AppointmentDocument | null> {
+  const now = new Date();
+
+  const appointments = await appointmentModel.find({
+    userId,
+    payment: true,
+    cancelled: false,
+  });
+
+  for (const appt of appointments) {
+    const start = new Date(`${appt.slotDate}T${appt.slotStartTime}:00`);
+    const end = new Date(`${appt.slotDate}T${appt.slotEndTime}:00`);
+
+    if (now >= start && now <= end) {
+      return appt;
+    }
+  }
+
+  return null;
+}
+
+
+
+
   async findDoctorById(id: string): Promise<DoctorDocument | null> {
     return doctorModel.findById(id).select("-password") as any;
   }
@@ -150,14 +175,14 @@ export class UserRepository
     appointment.cancelled = true;
     await appointment.save();
 
-    const { docId, slotDate, slotTime } = appointment;
+    const { docId, slotDate, slotStartTime } = appointment;
     const slotDoc = await slotModel.findOne({
       doctorId: docId,
       date: slotDate,
     });
     if (slotDoc) {
       const slotIndex = slotDoc.slots.findIndex(
-        (slot) => slot.start === slotTime && slot.booked
+        (slot) => slot.start === slotStartTime && slot.booked
       );
       if (slotIndex !== -1) {
         slotDoc.slots[slotIndex].booked = false;

@@ -5,6 +5,7 @@ import AdminContextProvider from './AdminContext';
 import DoctorContextProvider, { useDoctorContext } from './DoctorContext';
 import UserContextProvider, { useUserContext } from './UserContext';
 import { NotifProvider } from './NotificationContext';
+import { VideoCallProvider } from './VideoCallContext';
 
 function UserNotificationWrapper({ children }: { children: React.ReactNode }) {
   const { userData } = useUserContext();
@@ -26,14 +27,18 @@ export function RoleContextWrapper({ children }: { children: React.ReactNode }) 
   if (location.pathname.startsWith('/doctor')) {
     return (
       <DoctorContextProvider>
-        <DoctorNotificationWrapper>{children}</DoctorNotificationWrapper>
+        <DoctorNotificationWrapper>
+          <VideoCallProvider>{children}</VideoCallProvider>
+        </DoctorNotificationWrapper>
       </DoctorContextProvider>
     );
   }
 
   return (
     <UserContextProvider>
-      <UserNotificationWrapper>{children}</UserNotificationWrapper>
+      <UserNotificationWrapper>
+        <VideoCallProvider>{children}</VideoCallProvider>
+      </UserNotificationWrapper>
     </UserContextProvider>
   );
 }

@@ -24,6 +24,7 @@ export interface IDoctorRepository {
   findAppointmentById(id: string): Promise<AppointmentDocument | null>;
   markAppointmentAsConfirmed(id: string): Promise<void>;
   cancelAppointment(id: string): Promise<void>;
+  findActiveAppointment(docId: string): Promise<AppointmentDocument | null>;
   getDoctorProfileById(id: string): Promise<DoctorDocument | null>;
   updateDoctorProfile(
     id: string,
