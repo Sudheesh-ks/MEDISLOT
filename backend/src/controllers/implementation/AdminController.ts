@@ -4,9 +4,13 @@ import { IAdminController } from "../interface/IadminController.interface";
 import { HttpStatus } from "../../constants/status.constants";
 import { HttpResponse } from "../../constants/responseMessage.constants";
 import logger from "../../utils/logger";
+import { NotificationService } from "../../services/implementation/NotificationService";
 
 export class AdminController implements IAdminController {
-  constructor(private _adminService: IAdminService) {}
+  constructor(
+    private _adminService: IAdminService,
+    private _notificationService: NotificationService,
+  ) {}
 
   // For Admin login
   async loginAdmin(req: Request, res: Response): Promise<void> {
@@ -250,4 +254,72 @@ export class AdminController implements IAdminController {
         .json({ success: false, message: (error as Error).message });
     }
   }
+
+
+  async getNotificationHistory(req: Request, res: Response): Promise<void> {
+      try {
+        const role = req.query.role as 'user' | 'doctor' | 'admin';
+        const userId = (req as any).adminId;
+        const limit = req.query.limit ? Number(req.query.limit) : 10;
+        const before = req.query.before ? new Date(String(req.query.before)) : undefined;
+        const type = req.query.type ? String(req.query.type) : undefined;
+  
+        logger.info(`Fetching notifications for user=${userId}, role=${role}, limit=${limit}, before=${before}, type=${type}`);
+  
+        const notifications = await this._notificationService.fetchNotificationHistory(userId, role, limit, before, type);
+        res.status(HttpStatus.OK).json({ success: true, notifications });
+      } catch (error) {
+        logger.error(`Error fetching notifications: ${(error as Error).message}`);
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+          success: false,
+          message: (error as Error).message,
+        });
+      }
+    }
+  
+    async markSingleAsRead(req: Request, res: Response): Promise<void> {
+      try {
+        const { id } = req.params;
+        logger.info(`Marking notification ${id} as read`);
+        await this._notificationService.markAsRead(id);
+        res.status(HttpStatus.OK).json({ success: true });
+      } catch (error) {
+        logger.error(`Error marking notification as read: ${(error as Error).message}`);
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+          success: false,
+          message: (error as Error).message,
+        });
+      }
+    }
+  
+    async markAllAsRead(req: Request, res: Response): Promise<void> {
+      try {
+          const role = req.query.role as 'user' | 'doctor' | 'admin';
+        const userId = (req as any).adminId;
+        logger.info(`Marking all notifications as read for user ${userId}`);
+        await this._notificationService.markAllAsRead(userId, role);
+        res.status(HttpStatus.OK).json({ success: true });
+      } catch (error) {
+        logger.error(`Error marking all notifications as read: ${(error as Error).message}`);
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+          success: false,
+          message: (error as Error).message,
+        });
+      }
+    }
+  
+    async getUnreadCount(req: Request, res: Response): Promise<void> {
+      try {
+          const role = req.query.role as 'user' | 'doctor' | 'admin';
+        const userId = (req as any).adminId;
+        const count = await this._notificationService.getUnreadCount(userId, role);
+        res.status(HttpStatus.OK).json({ success: true, count });
+      } catch (error) {
+        logger.error(`Error fetching unread count: ${(error as Error).message}`);
+        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+          success: false,
+          message: (error as Error).message,
+        });
+      }
+    }
 }

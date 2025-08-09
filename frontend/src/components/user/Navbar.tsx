@@ -5,6 +5,7 @@ import { UserContext } from '../../context/UserContext';
 import { clearUserAccessToken } from '../../context/tokenManagerUser';
 import { logoutUserAPI } from '../../services/authServices';
 import { NotifContext } from '../../context/NotificationContext';
+import NotificationBell from '../common/NotificationBell';
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -57,6 +58,8 @@ const Navbar = () => {
         </ul>
 
         {token && userData ? (
+           <div className="flex items-center gap-8">
+          <NotificationBell role='user' />
           <div className="relative">
             <button
               onClick={() => setOpen(!open)}
@@ -103,6 +106,7 @@ const Navbar = () => {
                 </button>
               </div>
             )}
+          </div>
           </div>
         ) : (
           <button

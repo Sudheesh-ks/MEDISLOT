@@ -34,6 +34,7 @@ import { toAppointmentDTO } from "../../mappers/appointment.mapper";
 import { PaginationResult } from "../../types/pagination";
 import { WalletRepository } from "../../repositories/implementation/WalletRepository";
 import { WalletDTO } from "../../dtos/wallet.dto";
+import { NotificationService } from "./NotificationService";
 
 export interface UserDocument extends userTypes {
   _id: string;
@@ -46,7 +47,8 @@ export class UserService implements IUserService {
     private readonly _userRepository: IUserRepository,
     private readonly _paymentService = new PaymentService(),
     private readonly _slotRepository = new SlotRepository(),
-    private readonly _walletRepository = new WalletRepository()
+    private readonly _walletRepository = new WalletRepository(),
+    private readonly _notificationService = new NotificationService(),
   ) {}
 
   async register(name: string, email: string, password: string): Promise<void> {
@@ -432,6 +434,25 @@ async getActiveAppointment(userId: string): Promise<AppointmentDTO | null> {
   await this._walletRepository.debitWallet(adminId!, "admin", adminShare, reason);
 
   await this._userRepository.cancelAppointment(userId, appointmentId);
+
+  await this._notificationService.sendNotification({
+  recipientId: doctorId,
+  recipientRole: 'doctor',
+  type: 'appointment',
+  title: 'Appointment Canceled',
+  message: `User ${appointment.userData.name} canceled the appointment. ₹${doctorShare} refunded to user from your wallet.`,
+  link: '/doctor/appointments',
+});
+
+await this._notificationService.sendNotification({
+  recipientId: adminId,
+  recipientRole: 'admin',
+  type: 'appointment',
+  title: 'Appointment Canceled by User',
+  message: `Appointment between ${appointment.userData.name} and ${appointment.docData.name} was canceled. ₹${adminShare} refunded to user from your wallet.`,
+  link: '/admin/appointments',
+});
+
   }
 
   async startPayment(

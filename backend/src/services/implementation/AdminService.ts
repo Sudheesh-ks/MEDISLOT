@@ -21,13 +21,15 @@ import { HttpResponse } from "../../constants/responseMessage.constants";
 import { WalletDTO } from "../../dtos/wallet.dto";
 import { toWalletDTO } from "../../mappers/wallet.mapper";
 import { IWalletRepository } from "../../repositories/interface/IWalletRepository";
+import { INotificationService } from "../interface/INotificationService";
 dotenv.config();
 
 export class AdminService implements IAdminService {
   constructor(
     private readonly _adminRepository: IAdminRepository,
     private readonly _doctorRepository: IDoctorRepository,
-    private readonly _walletRepository: IWalletRepository
+    private readonly _walletRepository: IWalletRepository,
+    private readonly _notificationService: INotificationService,
   ) {}
 
   async login(
@@ -179,6 +181,14 @@ export class AdminService implements IAdminService {
       throw new Error(HttpResponse.BLOCK_STATUS_INVALID);
     }
 
+    await this._notificationService.sendNotification({
+  recipientId: userId,
+  recipientRole: 'user',
+  type: 'system',
+  title: 'You have been blocked',
+  message: 'Your account has been blocked by the Admin.',
+});
+
     const user = await this._adminRepository.toggleUserBlock(userId);
     return toUserDTO(user);
   }
@@ -239,6 +249,25 @@ export class AdminService implements IAdminService {
   // Debit 20% from admin
   const adminShare = amount * 0.2;
   await this._walletRepository.debitWallet(adminId!, "admin", adminShare, reason);
+
+
+  await this._notificationService.sendNotification({
+  recipientId: doctorId,
+  recipientRole: 'doctor',
+  type: 'appointment',
+  title: 'Appointment Canceled by Admin',
+  message: `Admin canceled your appointment with ${appointment.userData.name}. ₹${doctorShare} refunded to user from your wallet.`,
+  link: '/doctor/appointments',
+});
+
+await this._notificationService.sendNotification({
+  recipientId: userId,
+  recipientRole: 'user',
+  type: 'appointment',
+  title: 'Appointment Canceled by Admin',
+  message: `Admin canceled your appointment with ${appointment.docData.name}. ₹${amount} refunded to your wallet.`,
+  link: '/appointments',
+});
 
     await this._adminRepository.cancelAppointment(appointmentId);
   }

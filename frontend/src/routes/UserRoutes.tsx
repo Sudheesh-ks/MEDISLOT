@@ -22,6 +22,7 @@ import UserLandingPage from '../pages/user/LandingPage';
 import Wallet from '../pages/user/Wallet';
 import UserVideoCall from '../pages/user/UserVideoCallRoom';
 import ConsultationEndedPage from '../pages/user/ConsultationEndedpage';
+import NotificationsPage from '../pages/user/NotificationPage';
 
 const UserRoutes = () => {
   return (
@@ -77,6 +78,14 @@ const UserRoutes = () => {
         element={
           <UserLayout>
             <MyProfile />
+          </UserLayout>
+        }
+      />
+      <Route
+        path="/notifications"
+        element={
+          <UserLayout>
+            <NotificationsPage />
           </UserLayout>
         }
       />

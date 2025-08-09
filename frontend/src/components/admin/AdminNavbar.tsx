@@ -4,6 +4,7 @@ import { AdminContext } from '../../context/AdminContext';
 import { useNavigate } from 'react-router-dom';
 import { clearAdminAccessToken } from '../../context/tokenManagerAdmin';
 import { logoutAdminAPI } from '../../services/adminServices';
+import NotificationBell from '../common/NotificationBell';
 
 const AdminNavbar = () => {
   const ctx = useContext(AdminContext);
@@ -42,6 +43,9 @@ const AdminNavbar = () => {
       </div>
 
       {/* logout */}
+
+      <div className="flex items-center gap-4">
+  <NotificationBell role='admin' />
       <button
         onClick={logout}
         className="bg-gradient-to-r from-cyan-500 to-fuchsia-600 text-white text-sm px-8 py-2 rounded-full
@@ -49,6 +53,7 @@ const AdminNavbar = () => {
       >
         Logout
       </button>
+</div>
     </header>
   );
 };

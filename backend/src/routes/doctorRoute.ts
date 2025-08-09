@@ -5,11 +5,13 @@ import { DoctorRepository } from "../repositories/implementation/DoctorRepositor
 import upload from "../middlewares/multer";
 import authRole from "../middlewares/authRole";
 import { WalletRepository } from "../repositories/implementation/WalletRepository";
+import { NotificationService } from "../services/implementation/NotificationService";
 
 const doctorRepository = new DoctorRepository();
 const walletRepository = new WalletRepository();
-const doctorService = new DoctorService(doctorRepository, walletRepository);
-const doctorController = new DoctorController(doctorService);
+const notificationService = new NotificationService();
+const doctorService = new DoctorService(doctorRepository, walletRepository, notificationService);
+const doctorController = new DoctorController(doctorService, notificationService);
 
 const doctorRouter = express.Router();
 
@@ -90,6 +92,39 @@ doctorRouter.get(
   doctorController.getDoctorWallet.bind(doctorController)
 );
 
+
+
+doctorRouter.get(
+  "/notifications",
+  authRole(["doctor"]),
+  doctorController.getNotificationHistory.bind(doctorController)
+);
+
+// Get unread count
+doctorRouter.get(
+  "/notifications/unread-count",
+  authRole(["doctor"]),
+  doctorController.getUnreadCount.bind(doctorController)
+);
+
+// Mark all as read
+doctorRouter.patch(
+  "/notifications/read-all",
+  authRole(["doctor"]),
+  doctorController.markAllAsRead.bind(doctorController)
+);
+
+// Mark single notification as read
+doctorRouter.patch(
+  "/notifications/:id/read",
+  authRole(["doctor"]),
+  doctorController.markSingleAsRead.bind(doctorController)
+);
+
+
+
 doctorRouter.get("/:id", doctorController.getDoctorById.bind(doctorController));
+
+
 
 export default doctorRouter;

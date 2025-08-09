@@ -117,3 +117,58 @@ export const adminDashboardAPI = async (token: string) => {
     },
   });
 };
+
+
+export const getAdminNotificationsAPI = async (
+  params: { limit?: number; before?: string; type?: string },
+  token: string
+) => {
+  const searchParams = new URLSearchParams();
+  searchParams.append("role", "admin");
+  if (params.limit) searchParams.append("limit", String(params.limit));
+  if (params.before) searchParams.append("before", params.before);
+  if (params.type) searchParams.append("type", params.type);
+
+  const res = await api.get(
+    `${ADMIN_API.NOTIFICATIONS}?${searchParams.toString()}`,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+  return res.data.notifications;
+};
+
+
+export const markAdminNotificationAsReadAPI = async (id: string, token: string) => {
+  return api.patch(
+    `${ADMIN_API.NOTIFICATION_MARK_READ(id)}?role=admin`,
+    {},
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+};
+
+export const markAllAdminNotificationsAsReadAPI = async (token: string) => {
+  return api.patch(
+    `${ADMIN_API.NOTIFICATION_MARK_ALL_READ}?role=admin`,
+    {},
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+};
+
+
+export const getAdminUnreadCountAPI = async () => {
+  const res = await api.get(`${ADMIN_API.NOTIFICATIONS_UNREAD_COUNT}`);
+  return res.data;
+};
+
+

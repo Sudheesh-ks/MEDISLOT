@@ -9,13 +9,15 @@ import { AdminController } from "../controllers/implementation/AdminController";
 
 import { DoctorRepository } from "../repositories/implementation/DoctorRepository";
 import { WalletRepository } from "../repositories/implementation/WalletRepository";
+import { NotificationService } from "../services/implementation/NotificationService";
 
 // Admin Layer
 const adminRepository = new AdminRepository();
 const doctorRepository = new DoctorRepository();
 const walletRepository = new WalletRepository();
-const adminService = new AdminService(adminRepository, doctorRepository, walletRepository);
-const adminController = new AdminController(adminService);
+const notificationService = new NotificationService();
+const adminService = new AdminService(adminRepository, doctorRepository, walletRepository, notificationService);
+const adminController = new AdminController(adminService, notificationService);
 
 const adminRouter = express.Router();
 
@@ -78,5 +80,34 @@ adminRouter.get(
   authRole(["admin"]),
   adminController.adminDashboard.bind(adminController)
 );
+
+
+adminRouter.get(
+  "/notifications",
+  authRole(["admin"]),
+  adminController.getNotificationHistory.bind(adminController)
+);
+
+// Get unread count
+adminRouter.get(
+  "/notifications/unread-count",
+  authRole(["admin"]),
+  adminController.getUnreadCount.bind(adminController)
+);
+
+// Mark all as read
+adminRouter.patch(
+  "/notifications/read-all",
+  authRole(["admin"]),
+  adminController.markAllAsRead.bind(adminController)
+);
+
+// Mark single notification as read
+adminRouter.patch(
+  "/notifications/:id/read",
+  authRole(["admin"]),
+  adminController.markSingleAsRead.bind(adminController)
+);
+
 
 export default adminRouter;

@@ -19,6 +19,7 @@ import { HttpResponse } from "../../constants/responseMessage.constants";
 import { WalletDTO } from "../../dtos/wallet.dto";
 import { toWalletDTO } from "../../mappers/wallet.mapper";
 import { IWalletRepository } from "../../repositories/interface/IWalletRepository";
+import { INotificationService } from "../interface/INotificationService";
 
 export interface DoctorDocument extends DoctorTypes {
   _id: string;
@@ -28,6 +29,7 @@ export class DoctorService implements IDoctorService {
   constructor(
     private readonly _doctorRepository: IDoctorRepository,
     private readonly _walletRepository: IWalletRepository,
+    private readonly _notificationService: INotificationService,
   ) {}
 
   async registerDoctor(data: DoctorTypes): Promise<void> {
@@ -258,6 +260,27 @@ export class DoctorService implements IDoctorService {
       throw new Error("Mark Failed");
     }
 
+      const adminId = process.env.ADMIN_ID;
+  const userId = appointment.userData._id.toString();
+
+    await this._notificationService.sendNotification({
+  recipientId: userId,
+  recipientRole: 'user',
+  type: 'appointment',
+  title: 'Appointment Confirmed',
+  message: `${appointment.docData.name} has confirmed your appointment.`,
+  link: '/appointments',
+});
+
+await this._notificationService.sendNotification({
+  recipientId: adminId,
+  recipientRole: 'admin',
+  type: 'appointment',
+  title: 'Appointment Confirmed by Doctor',
+  message: `${appointment.docData.name} confirmed appointment with ${appointment.userData.name}.`,
+  link: '/admin/appointments',
+});
+
     await this._doctorRepository.markAppointmentAsConfirmed(appointmentId);
   }
 
@@ -294,6 +317,24 @@ export class DoctorService implements IDoctorService {
   // Debit 20% from admin
   const adminShare = amount * 0.2;
   await this._walletRepository.debitWallet(adminId!, "admin", adminShare, reason);
+
+  await this._notificationService.sendNotification({
+  recipientId: userId,
+  recipientRole: 'user',
+  type: 'appointment',
+  title: 'Appointment Canceled by Doctor',
+  message: `${appointment.docData.name} canceled your appointment. ₹${amount} refunded.`,
+  link: '/appointments',
+});
+
+await this._notificationService.sendNotification({
+  recipientId: adminId,
+  recipientRole: 'admin',
+  type: 'appointment',
+  title: 'Doctor Canceled Appointment',
+  message: `${appointment.docData.name} canceled the appointment with ${appointment.userData.name}. ₹${adminShare} refunded to user from your wallet.`,
+  link: '/admin/appointments',
+});
 
     await this._doctorRepository.cancelAppointment(appointmentId);
   }

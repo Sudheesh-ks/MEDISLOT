@@ -108,3 +108,31 @@ export const getDaySlotsAPI = async (date: string) => {
     isAvailable: boolean;
   }[];
 };
+
+
+export const getDoctorNotificationsAPI = async (
+  params: { limit?: number; before?: string; type?: string }
+) => {
+  const res = await api.get(DOCTOR_API.NOTIFICATIONS, {
+    params: { role: 'doctor', ...params },
+  });
+  return res.data.notifications;
+};
+
+export const markDoctorNotificationAsReadAPI = async (id: string) => {
+  return api.patch(DOCTOR_API.NOTIFICATION_MARK_READ(id), null, {
+    params: { role: 'doctor' },
+  });
+};
+
+export const markAllDoctorNotificationsAsReadAPI = async () => {
+  return api.patch(DOCTOR_API.NOTIFICATION_MARK_ALL_READ, null, {
+    params: { role: 'doctor' },
+  });
+};
+
+
+export const getDoctorUnreadCountAPI = async () => {
+  const res = await api.get(`${DOCTOR_API.NOTIFICATIONS_UNREAD_COUNT}`);
+  return res.data;
+};

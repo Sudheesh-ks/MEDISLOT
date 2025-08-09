@@ -13,6 +13,7 @@ import AdminDoctorList from '../pages/admin/AdminDoctorList';
 import AdminInbox from '../pages/admin/AdminInbox';
 import AdminDoctorRequests from '../pages/admin/AdminDoctorRequests';
 import AdminWallet from '../pages/admin/AdminWallet';
+import AdminNotificationsPage from '../pages/admin/AdminNotificationPage';
 
 const AdminRoutes = () => {
   return (
@@ -72,6 +73,14 @@ const AdminRoutes = () => {
         element={
           <AdminLayout>
             <AdminInbox />
+          </AdminLayout>
+        }
+      />
+      <Route
+        path="/admin/notifications"
+        element={
+          <AdminLayout>
+            <AdminNotificationsPage />
           </AdminLayout>
         }
       />

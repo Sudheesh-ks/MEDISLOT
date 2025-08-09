@@ -4,6 +4,7 @@ import { DoctorContext } from '../../context/DoctorContext';
 import { useNavigate } from 'react-router-dom';
 import { logoutDoctorAPI } from '../../services/doctorServices';
 import { clearDoctorAccessToken } from '../../context/tokenManagerDoctor';
+import NotificationBell from '../common/NotificationBell';
 
 const DoctorNavbar = () => {
   const ctx = useContext(DoctorContext);
@@ -49,12 +50,23 @@ const DoctorNavbar = () => {
         )}
       </div>
 
+      {/* <button
+        onClick={logout}
+        className="bg-gradient-to-r from-cyan-500 to-fuchsia-600 text-white text-sm px-8 py-2 rounded-full shadow hover:-translate-y-0.5 transition-transform"
+      >
+        Logout
+      </button> */}
+      {profileData && (
+  <div className="flex items-center gap-4">
+    <NotificationBell role='doctor' />
       <button
         onClick={logout}
         className="bg-gradient-to-r from-cyan-500 to-fuchsia-600 text-white text-sm px-8 py-2 rounded-full shadow hover:-translate-y-0.5 transition-transform"
       >
         Logout
       </button>
+  </div>
+)}
     </header>
   );
 };

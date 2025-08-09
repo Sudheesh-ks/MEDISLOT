@@ -15,6 +15,7 @@ import DoctorSlotManager from '../pages/doctor/DoctorSlotManagement';
 import DoctorWallet from '../pages/doctor/DoctorWallet';
 import DoctorVideoCall from '../pages/doctor/DoctorVideoCall';
 import DoctorConsultationEndedPage from '../pages/doctor/DoctorConsultationEndedPage';
+import DoctorNotificationsPage from '../pages/doctor/DoctorNotificationPage';
 
 const DoctorRoutes = () => {
   return (
@@ -42,6 +43,14 @@ const DoctorRoutes = () => {
         element={
           <DoctorLayout>
             <DoctorProfile />
+          </DoctorLayout>
+        }
+      />
+      <Route
+        path="/doctor/notifications"
+        element={
+          <DoctorLayout>
+            <DoctorNotificationsPage />
           </DoctorLayout>
         }
       />
