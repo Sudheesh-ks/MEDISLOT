@@ -1,7 +1,10 @@
 import { useState, useEffect, useContext } from 'react';
-import { getAdminNotificationsAPI, markAdminNotificationAsReadAPI, markAllAdminNotificationsAsReadAPI } from '../../services/adminServices';
+import {
+  getAdminNotificationsAPI,
+  markAdminNotificationAsReadAPI,
+  markAllAdminNotificationsAsReadAPI,
+} from '../../services/adminServices';
 import { AdminContext } from '../../context/AdminContext';
-
 
 const AdminNotifications = () => {
   const [type, setType] = useState<'all' | 'appointment' | 'system' | 'prescription'>('all');
@@ -11,10 +14,10 @@ const AdminNotifications = () => {
   const [hasMore, setHasMore] = useState(true);
   const pageSize = 10;
 
-    const adminCtx = useContext(AdminContext);
-    if (!adminCtx) throw new Error('Missing contexts');
-  
-    const { aToken } = adminCtx;
+  const adminCtx = useContext(AdminContext);
+  if (!adminCtx) throw new Error('Missing contexts');
+
+  const { aToken } = adminCtx;
 
   const fetchNotifications = async (reset = false) => {
     setLoading(true);
@@ -25,7 +28,7 @@ const AdminNotifications = () => {
 
       const fetched = await getAdminNotificationsAPI(params, aToken);
       if (reset) setNotifications(fetched);
-      else setNotifications(prev => [...prev, ...fetched]);
+      else setNotifications((prev) => [...prev, ...fetched]);
 
       if (fetched.length < pageSize) {
         setHasMore(false);
@@ -48,7 +51,7 @@ const AdminNotifications = () => {
   const handleMarkAsRead = async (id: string) => {
     try {
       await markAdminNotificationAsReadAPI(id, aToken);
-      setNotifications(prev => prev.map(n => n._id === id ? { ...n, isRead: true } : n));
+      setNotifications((prev) => prev.map((n) => (n._id === id ? { ...n, isRead: true } : n)));
     } catch (err) {
       console.error('Error marking notification as read:', err);
     }
@@ -57,7 +60,7 @@ const AdminNotifications = () => {
   const handleMarkAllAsRead = async () => {
     try {
       await markAllAdminNotificationsAsReadAPI(aToken);
-      setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+      setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
     } catch (err) {
       console.error('Error marking all notifications as read:', err);
     }
@@ -88,13 +91,14 @@ const AdminNotifications = () => {
       </div>
 
       <ul className="space-y-4">
-        {notifications.map(notif => (
+        {notifications.map((notif) => (
           <li
             key={notif._id}
-            className={`p-4 rounded-lg shadow border ${notif.isRead
-              ? 'bg-slate-800 text-slate-400'
-              : 'bg-slate-700 text-white border-white/10'
-              }`}
+            className={`p-4 rounded-lg shadow border ${
+              notif.isRead
+                ? 'bg-slate-800 text-slate-400'
+                : 'bg-slate-700 text-white border-white/10'
+            }`}
           >
             <div className="flex justify-between items-start gap-4">
               <div>

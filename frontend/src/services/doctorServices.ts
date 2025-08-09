@@ -109,10 +109,11 @@ export const getDaySlotsAPI = async (date: string) => {
   }[];
 };
 
-
-export const getDoctorNotificationsAPI = async (
-  params: { limit?: number; before?: string; type?: string }
-) => {
+export const getDoctorNotificationsAPI = async (params: {
+  limit?: number;
+  before?: string;
+  type?: string;
+}) => {
   const res = await api.get(DOCTOR_API.NOTIFICATIONS, {
     params: { role: 'doctor', ...params },
   });
@@ -130,7 +131,6 @@ export const markAllDoctorNotificationsAsReadAPI = async () => {
     params: { role: 'doctor' },
   });
 };
-
 
 export const getDoctorUnreadCountAPI = async () => {
   const res = await api.get(`${DOCTOR_API.NOTIFICATIONS_UNREAD_COUNT}`);

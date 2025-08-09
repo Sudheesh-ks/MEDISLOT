@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
-import { getDoctorNotificationsAPI, markAllDoctorNotificationsAsReadAPI, markDoctorNotificationAsReadAPI } from '../../services/doctorServices';
-
+import {
+  getDoctorNotificationsAPI,
+  markAllDoctorNotificationsAsReadAPI,
+  markDoctorNotificationAsReadAPI,
+} from '../../services/doctorServices';
 
 const DoctorNotifications = () => {
   const [type, setType] = useState<'all' | 'appointment' | 'system' | 'prescription'>('all');
@@ -9,7 +12,6 @@ const DoctorNotifications = () => {
   const [before, setBefore] = useState<string | undefined>();
   const [hasMore, setHasMore] = useState(true);
   const pageSize = 10;
-
 
   const fetchNotifications = async (reset = false) => {
     setLoading(true);
@@ -20,7 +22,7 @@ const DoctorNotifications = () => {
 
       const fetched = await getDoctorNotificationsAPI(params);
       if (reset) setNotifications(fetched);
-      else setNotifications(prev => [...prev, ...fetched]);
+      else setNotifications((prev) => [...prev, ...fetched]);
 
       if (fetched.length < pageSize) {
         setHasMore(false);
@@ -43,7 +45,7 @@ const DoctorNotifications = () => {
   const handleMarkAsRead = async (id: string) => {
     try {
       await markDoctorNotificationAsReadAPI(id);
-      setNotifications(prev => prev.map(n => n._id === id ? { ...n, isRead: true } : n));
+      setNotifications((prev) => prev.map((n) => (n._id === id ? { ...n, isRead: true } : n)));
     } catch (err) {
       console.error('Error marking notification as read:', err);
     }
@@ -52,7 +54,7 @@ const DoctorNotifications = () => {
   const handleMarkAllAsRead = async () => {
     try {
       await markAllDoctorNotificationsAsReadAPI();
-      setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+      setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
     } catch (err) {
       console.error('Error marking all notifications as read:', err);
     }
@@ -83,13 +85,14 @@ const DoctorNotifications = () => {
       </div>
 
       <ul className="space-y-4">
-        {notifications.map(notif => (
+        {notifications.map((notif) => (
           <li
             key={notif._id}
-            className={`p-4 rounded-lg shadow border ${notif.isRead
-              ? 'bg-slate-800 text-slate-400'
-              : 'bg-slate-700 text-white border-white/10'
-              }`}
+            className={`p-4 rounded-lg shadow border ${
+              notif.isRead
+                ? 'bg-slate-800 text-slate-400'
+                : 'bg-slate-700 text-white border-white/10'
+            }`}
           >
             <div className="flex justify-between items-start gap-4">
               <div>

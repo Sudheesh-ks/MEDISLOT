@@ -8,7 +8,7 @@ interface ConsultationEndedPageProps {
 const ConsultationEndedCard = ({ role }: ConsultationEndedPageProps) => {
   const [feedback, setFeedback] = useState('');
   const [submitted, setSubmitted] = useState(false);
-//   const { appointmentId } = useParams();
+  //   const { appointmentId } = useParams();
   const navigate = useNavigate();
 
   const handleSubmit = async () => {
@@ -23,9 +23,9 @@ const ConsultationEndedCard = ({ role }: ConsultationEndedPageProps) => {
 
   const handleGoBack = () => {
     if (role === 'user') {
-      navigate('/home'); 
+      navigate('/home');
     } else {
-      navigate('/doctor/dashboard'); 
+      navigate('/doctor/dashboard');
     }
   };
 

@@ -1,7 +1,10 @@
 import { useState, useEffect, useContext } from 'react';
 import { UserContext } from '../../context/UserContext';
-import { getUserNotificationsAPI, markAllUserNotificationsAsReadAPI, markUserNotificationAsReadAPI } from '../../services/userProfileServices';
-
+import {
+  getUserNotificationsAPI,
+  markAllUserNotificationsAsReadAPI,
+  markUserNotificationAsReadAPI,
+} from '../../services/userProfileServices';
 
 const UserNotifications = () => {
   const [type, setType] = useState<'all' | 'appointment' | 'system' | 'prescription'>('all');
@@ -11,14 +14,14 @@ const UserNotifications = () => {
   const [hasMore, setHasMore] = useState(true);
   const pageSize = 10;
 
-    const userContext = useContext(UserContext);
-    if (!userContext) throw new Error('Missing contexts');
-  
-    const { token } = userContext;
+  const userContext = useContext(UserContext);
+  if (!userContext) throw new Error('Missing contexts');
 
-    if(!token){
-        console.log("token is missing")
-    }
+  const { token } = userContext;
+
+  if (!token) {
+    console.log('token is missing');
+  }
 
   const fetchNotifications = async (reset = false) => {
     setLoading(true);
@@ -29,7 +32,7 @@ const UserNotifications = () => {
 
       const fetched = await getUserNotificationsAPI(params, token!);
       if (reset) setNotifications(fetched);
-      else setNotifications(prev => [...prev, ...fetched]);
+      else setNotifications((prev) => [...prev, ...fetched]);
 
       if (fetched.length < pageSize) {
         setHasMore(false);
@@ -52,7 +55,7 @@ const UserNotifications = () => {
   const handleMarkAsRead = async (id: string) => {
     try {
       await markUserNotificationAsReadAPI(id, token!);
-      setNotifications(prev => prev.map(n => n._id === id ? { ...n, isRead: true } : n));
+      setNotifications((prev) => prev.map((n) => (n._id === id ? { ...n, isRead: true } : n)));
     } catch (err) {
       console.error('Error marking notification as read:', err);
     }
@@ -61,7 +64,7 @@ const UserNotifications = () => {
   const handleMarkAllAsRead = async () => {
     try {
       await markAllUserNotificationsAsReadAPI(token!);
-      setNotifications(prev => prev.map(n => ({ ...n, isRead: true })));
+      setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
     } catch (err) {
       console.error('Error marking all notifications as read:', err);
     }
@@ -92,13 +95,14 @@ const UserNotifications = () => {
       </div>
 
       <ul className="space-y-4">
-        {notifications.map(notif => (
+        {notifications.map((notif) => (
           <li
             key={notif._id}
-            className={`p-4 rounded-lg shadow border ${notif.isRead
-              ? 'bg-slate-800 text-slate-400'
-              : 'bg-slate-700 text-white border-white/10'
-              }`}
+            className={`p-4 rounded-lg shadow border ${
+              notif.isRead
+                ? 'bg-slate-800 text-slate-400'
+                : 'bg-slate-700 text-white border-white/10'
+            }`}
           >
             <div className="flex justify-between items-start gap-4">
               <div>

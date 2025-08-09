@@ -15,10 +15,10 @@ export const ADMIN_API = {
   CANCEL_APPOINTMENT: (appointmentId: string) => `/api/admin/appointments/${appointmentId}/cancel`,
   WALLET: '/api/admin/wallet',
   DASHBOARD: '/api/admin/dashboard',
-    NOTIFICATIONS: "/api/admin/notifications",
+  NOTIFICATIONS: '/api/admin/notifications',
   NOTIFICATION_MARK_READ: (id: string) => `/api/admin/notifications/${id}/read`,
-  NOTIFICATION_MARK_ALL_READ: "/api/admin/notifications/read-all",
-    NOTIFICATIONS_UNREAD_COUNT: "/api/admin/notifications/unread-count",
+  NOTIFICATION_MARK_ALL_READ: '/api/admin/notifications/read-all',
+  NOTIFICATIONS_UNREAD_COUNT: '/api/admin/notifications/unread-count',
 };
 
 export const APPOINTMENT_API = {
@@ -63,10 +63,10 @@ export const DOCTOR_API = {
   PROFILE_UPDATE: '/api/doctor/profile/update',
   WALLET: '/api/doctor/wallet',
 
-  NOTIFICATIONS: "/api/doctor/notifications",
+  NOTIFICATIONS: '/api/doctor/notifications',
   NOTIFICATION_MARK_READ: (id: string) => `/api/doctor/notifications/${id}/read`,
-  NOTIFICATION_MARK_ALL_READ: "/api/doctor/notifications/read-all",
-    NOTIFICATIONS_UNREAD_COUNT: "/api/doctor/notifications/unread-count",
+  NOTIFICATION_MARK_ALL_READ: '/api/doctor/notifications/read-all',
+  NOTIFICATIONS_UNREAD_COUNT: '/api/doctor/notifications/unread-count',
 };
 
 export const PAYMENT_API = {
@@ -87,10 +87,10 @@ export const USER_PROFILE_API = {
   UPDATE: '/api/user/profile',
   USERBY_ID: (id: string) => `/api/user/${id}`,
   WALLET: '/api/user/wallet',
-  NOTIFICATIONS: "/api/user/notifications",
+  NOTIFICATIONS: '/api/user/notifications',
   NOTIFICATION_MARK_READ: (id: string) => `/api/user/notifications/${id}/read`,
-  NOTIFICATION_MARK_ALL_READ: "/api/user/notifications/read-all",
-    NOTIFICATIONS_UNREAD_COUNT: "/api/user/notifications/unread-count",
+  NOTIFICATION_MARK_ALL_READ: '/api/user/notifications/read-all',
+  NOTIFICATIONS_UNREAD_COUNT: '/api/user/notifications/unread-count',
 };
 
 export const SLOT_API = {

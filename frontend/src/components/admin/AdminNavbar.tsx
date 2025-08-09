@@ -45,15 +45,15 @@ const AdminNavbar = () => {
       {/* logout */}
 
       <div className="flex items-center gap-4">
-  <NotificationBell role='admin' />
-      <button
-        onClick={logout}
-        className="bg-gradient-to-r from-cyan-500 to-fuchsia-600 text-white text-sm px-8 py-2 rounded-full
+        <NotificationBell role="admin" />
+        <button
+          onClick={logout}
+          className="bg-gradient-to-r from-cyan-500 to-fuchsia-600 text-white text-sm px-8 py-2 rounded-full
                    hover:-translate-y-0.5 transition-transform shadow-lg"
-      >
-        Logout
-      </button>
-</div>
+        >
+          Logout
+        </button>
+      </div>
     </header>
   );
 };

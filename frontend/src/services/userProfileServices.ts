@@ -42,29 +42,23 @@ export const getUserWallet = async () => {
   return await api.get(USER_PROFILE_API.WALLET);
 };
 
-
-
 export const getUserNotificationsAPI = async (
   params: { limit?: number; before?: string; type?: string },
   token: string
 ) => {
   const searchParams = new URLSearchParams();
-  searchParams.append("role", "user");
-  if (params.limit) searchParams.append("limit", String(params.limit));
-  if (params.before) searchParams.append("before", params.before);
-  if (params.type) searchParams.append("type", params.type);
+  searchParams.append('role', 'user');
+  if (params.limit) searchParams.append('limit', String(params.limit));
+  if (params.before) searchParams.append('before', params.before);
+  if (params.type) searchParams.append('type', params.type);
 
-  const res = await api.get(
-    `${USER_PROFILE_API.NOTIFICATIONS}?${searchParams.toString()}`,
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
+  const res = await api.get(`${USER_PROFILE_API.NOTIFICATIONS}?${searchParams.toString()}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
   return res.data.notifications;
 };
-
 
 export const markUserNotificationAsReadAPI = async (id: string, token: string) => {
   return api.patch(
@@ -89,7 +83,6 @@ export const markAllUserNotificationsAsReadAPI = async (token: string) => {
     }
   );
 };
-
 
 export const getUserUnreadCountAPI = async () => {
   const res = await api.get(`${USER_PROFILE_API.NOTIFICATIONS_UNREAD_COUNT}`);

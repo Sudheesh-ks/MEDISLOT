@@ -28,7 +28,7 @@ const VideoCallRoom: React.FC<VideoCallRoomProps> = ({ role, backUrl }) => {
     // let isInitiator = false;
 
     socket.emit('join-video-room', appointmentId);
-    setupLocalMedia(); 
+    setupLocalMedia();
 
     const peerConnection = new RTCPeerConnection({
       iceServers: [{ urls: 'stun:stun.l.google.com:19302' }],

@@ -58,55 +58,55 @@ const Navbar = () => {
         </ul>
 
         {token && userData ? (
-           <div className="flex items-center gap-8">
-          <NotificationBell role='user' />
-          <div className="relative">
-            <button
-              onClick={() => setOpen(!open)}
-              className="flex items-center gap-2 text-slate-200"
-            >
-              <img src={userData.image} alt="avatar" className="w-8 h-8 rounded-full" />
-
-              {notif && Object.values(notif.unread).some((v) => v > 0) && (
-                <span className="absolute -top-2 -right-2 h-4 min-w-[16px] px-1 bg-red-500 text-xs rounded-full flex items-center justify-center">
-                  !
-                </span>
-              )}
-              <svg
-                className={`w-3 transition-transform ${open ? 'rotate-180' : 'rotate-0'}`}
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                strokeWidth={2}
+          <div className="flex items-center gap-8">
+            <NotificationBell role="user" />
+            <div className="relative">
+              <button
+                onClick={() => setOpen(!open)}
+                className="flex items-center gap-2 text-slate-200"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-            {open && (
-              <div className="absolute right-0 mt-3 w-40 rounded-xl bg-slate-800/90 ring-1 ring-white/10 backdrop-blur p-3 space-y-2 animate-fade">
-                <NavLink to="/my-profile" className="block text-slate-200 hover:text-white">
-                  Profile
-                </NavLink>
-                <NavLink
-                  to="/my-appointments"
-                  className="block text-slate-200 hover:text-white relative"
+                <img src={userData.image} alt="avatar" className="w-8 h-8 rounded-full" />
+
+                {notif && Object.values(notif.unread).some((v) => v > 0) && (
+                  <span className="absolute -top-2 -right-2 h-4 min-w-[16px] px-1 bg-red-500 text-xs rounded-full flex items-center justify-center">
+                    !
+                  </span>
+                )}
+                <svg
+                  className={`w-3 transition-transform ${open ? 'rotate-180' : 'rotate-0'}`}
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
                 >
-                  Appointments
-                  {notif && Object.values(notif.unread).some((v) => v > 0) && (
-                    <span className="absolute -top-2 -right-2 h-4 min-w-[16px] px-1 bg-red-500 text-xs rounded-full flex items-center justify-center">
-                      !
-                    </span>
-                  )}
-                </NavLink>
-                <button
-                  onClick={logout}
-                  className="block w-full text-left text-red-400 hover:text-red-300"
-                >
-                  Logout
-                </button>
-              </div>
-            )}
-          </div>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+              {open && (
+                <div className="absolute right-0 mt-3 w-40 rounded-xl bg-slate-800/90 ring-1 ring-white/10 backdrop-blur p-3 space-y-2 animate-fade">
+                  <NavLink to="/my-profile" className="block text-slate-200 hover:text-white">
+                    Profile
+                  </NavLink>
+                  <NavLink
+                    to="/my-appointments"
+                    className="block text-slate-200 hover:text-white relative"
+                  >
+                    Appointments
+                    {notif && Object.values(notif.unread).some((v) => v > 0) && (
+                      <span className="absolute -top-2 -right-2 h-4 min-w-[16px] px-1 bg-red-500 text-xs rounded-full flex items-center justify-center">
+                        !
+                      </span>
+                    )}
+                  </NavLink>
+                  <button
+                    onClick={logout}
+                    className="block w-full text-left text-red-400 hover:text-red-300"
+                  >
+                    Logout
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         ) : (
           <button
