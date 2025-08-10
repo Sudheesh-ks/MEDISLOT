@@ -4,14 +4,37 @@ import { AdminContext } from '../../context/AdminContext';
 import { assets } from '../../assets/admin/assets';
 import { motion } from 'framer-motion';
 import { Line, Bar } from 'react-chartjs-2';
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, BarElement, BarController, Tooltip, Legend } from 'chart.js';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  BarController,
+  Tooltip,
+  Legend,
+} from 'chart.js';
 import { updateItemInList } from '../../utils/stateHelper.util';
 import { slotDateFormat } from '../../utils/commonUtils';
 import type { DateRange } from '../../components/common/DateFilter';
-import { getAppointmentsStatsAPI, getLatestDoctorRequestsAPI, getRevenueStatsAPI, getTopDoctorsAPI } from '../../services/adminServices';
+import {
+  getAppointmentsStatsAPI,
+  getRevenueStatsAPI,
+  getTopDoctorsAPI,
+} from '../../services/adminServices';
 import DateFilter from '../../components/common/DateFilter';
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, BarController, Tooltip, Legend);
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  BarController,
+  Tooltip,
+  Legend
+);
 
 const glass = 'bg-white/5 backdrop-blur ring-1 ring-white/10';
 const cardBase = 'cursor-pointer text-white p-6 rounded-xl shadow-md flex items-center gap-4';
@@ -90,32 +113,50 @@ export default function AdminDashboard() {
     Promise.all([
       getAppointmentsStatsAPI(aToken, start, end),
       getTopDoctorsAPI(aToken, 5),
-      getRevenueStatsAPI(aToken, start, end)
+      getRevenueStatsAPI(aToken, start, end),
     ])
       .then(([a, t, r]) => {
         setAppointmentsData(a || []);
         setTopDoctors(t || []);
         setRevenueData(r || []);
       })
-      .catch(err => console.error(err))
+      .catch((err) => console.error(err))
       .finally(() => setLoadingStats(false));
   }, [aToken, dateRange]);
 
-  // 🆕 Fetch latest doctor requests — runs only when aToken changes
-  useEffect(() => {
-    if (!aToken) return;
-    getLatestDoctorRequestsAPI(aToken, 6)
-      .then(l => setLatest(l || []))
-      .catch(err => console.error(err));
-  }, [aToken]);
+  // // 🆕 Fetch latest doctor requests — runs only when aToken changes
+  // useEffect(() => {
+  //   if (!aToken) return;
+  //   getLatestDoctorRequestsAPI(aToken, 6)
+  //     .then(l => setLatest(l || []))
+  //     .catch(err => console.error(err));
+  // }, [aToken]);
 
   const stats = useMemo(
     () =>
       dashData
         ? [
-            { count: dashData.doctors, label: 'Doctors', icon: assets.doctor_icon, grad: 'from-cyan-500 to-fuchsia-600', path: '/admin/all-doctors' },
-            { count: dashData.appointments, label: 'Appointments', icon: assets.appointments_icon, grad: 'from-emerald-500 to-teal-500', path: '/admin/appointments' },
-            { count: dashData.patients, label: 'Patients', icon: assets.patients_icon, grad: 'from-indigo-500 to-violet-600', path: '/admin/user-management' },
+            {
+              count: dashData.doctors,
+              label: 'Doctors',
+              icon: assets.doctor_icon,
+              grad: 'from-cyan-500 to-fuchsia-600',
+              path: '/admin/all-doctors',
+            },
+            {
+              count: dashData.appointments,
+              label: 'Appointments',
+              icon: assets.appointments_icon,
+              grad: 'from-emerald-500 to-teal-500',
+              path: '/admin/appointments',
+            },
+            {
+              count: dashData.patients,
+              label: 'Patients',
+              icon: assets.patients_icon,
+              grad: 'from-indigo-500 to-violet-600',
+              path: '/admin/user-management',
+            },
           ]
         : [],
     [dashData]
@@ -123,108 +164,113 @@ export default function AdminDashboard() {
 
   const lineData = useMemo(
     () => ({
-      labels: appointmentsData.map(d => d.date),
-      datasets: [{ label: 'Appointments', data: appointmentsData.map(d => d.count), fill: false, tension: 0.3 }],
+      labels: appointmentsData.map((d) => d.date),
+      datasets: [
+        {
+          label: 'Appointments',
+          data: appointmentsData.map((d) => d.count),
+          fill: false,
+          tension: 0.3,
+        },
+      ],
     }),
     [appointmentsData]
   );
 
   const revenueLineData = useMemo(
     () => ({
-      labels: revenueData.map(d => d.date),
-      datasets: [{ label: 'Revenue', data: revenueData.map(d => d.revenue), fill: false, tension: 0.3 }],
+      labels: revenueData.map((d) => d.date),
+      datasets: [
+        { label: 'Revenue', data: revenueData.map((d) => d.revenue), fill: false, tension: 0.3 },
+      ],
     }),
     [revenueData]
   );
 
-const topDoctorsBarData = useMemo(
-  () => ({
-    labels: topDoctors.map((t: any) => t.doctorName || 'Unknown'),
-    datasets: [
-      {
-        label: 'Top 5 doctors',
-        data: topDoctors.map((t: any) => t.appointments),
-        backgroundColor: '#007bff', // Bright blue bars
-        borderRadius: 5,
-        borderWidth: 1,
-        borderColor: '#0056b3'
-      }
-    ]
-  }),
-  [topDoctors]
-);
-
+  const topDoctorsBarData = useMemo(
+    () => ({
+      labels: topDoctors.map((t: any) => t.doctorName || 'Unknown'),
+      datasets: [
+        {
+          label: 'Top 5 doctors',
+          data: topDoctors.map((t: any) => t.appointments),
+          backgroundColor: '#007bff', // Bright blue bars
+          borderRadius: 5,
+          borderWidth: 1,
+          borderColor: '#0056b3',
+        },
+      ],
+    }),
+    [topDoctors]
+  );
 
   const chartOptions = {
-  responsive: true,
-  plugins: {
-    legend: {
-      labels: {
-        color: '#007bff', // Bright blue legend labels
-        font: { size: 14 }
-      }
-    }
-  },
-  elements: {
-    line: {
-      borderWidth: 3, // Thicker line
-      borderColor: '#007bff' // Bright blue line
-    },
-    point: {
-      radius: 5,
-      backgroundColor: '#007bff', // Blue points
-      borderColor: '#fff',
-      borderWidth: 2
-    }
-  },
-  scales: {
-    x: {
-      grid: {
-        color: 'rgba(0, 123, 255, 0.1)' // Subtle blue grid
+    responsive: true,
+    plugins: {
+      legend: {
+        labels: {
+          color: '#007bff', // Bright blue legend labels
+          font: { size: 14 },
+        },
       },
-      ticks: {
-        color: '#007bff'
-      }
     },
-    y: {
-      grid: {
-        color: 'rgba(0, 123, 255, 0.1)'
+    elements: {
+      line: {
+        borderWidth: 3, // Thicker line
+        borderColor: '#007bff', // Bright blue line
       },
-      ticks: {
-        color: '#007bff'
-      }
-    }
-  }
-};
-
-
-const barOptions = {
-  responsive: true,
-  plugins: {
-    legend: {
-      labels: {
-        color: '#007bff',
-        font: { size: 14 }
-      }
-    }
-  },
-  scales: {
-    x: {
-      ticks: { color: '#007bff' },
-      grid: { color: 'rgba(0, 123, 255, 0.1)' }
+      point: {
+        radius: 5,
+        backgroundColor: '#007bff', // Blue points
+        borderColor: '#fff',
+        borderWidth: 2,
+      },
     },
-    y: {
-      ticks: { color: '#007bff' },
-      grid: { color: 'rgba(0, 123, 255, 0.1)' }
-    }
-  }
-};
+    scales: {
+      x: {
+        grid: {
+          color: 'rgba(0, 123, 255, 0.1)', // Subtle blue grid
+        },
+        ticks: {
+          color: '#007bff',
+        },
+      },
+      y: {
+        grid: {
+          color: 'rgba(0, 123, 255, 0.1)',
+        },
+        ticks: {
+          color: '#007bff',
+        },
+      },
+    },
+  };
 
-
+  const barOptions = {
+    responsive: true,
+    plugins: {
+      legend: {
+        labels: {
+          color: '#007bff',
+          font: { size: 14 },
+        },
+      },
+    },
+    scales: {
+      x: {
+        ticks: { color: '#007bff' },
+        grid: { color: 'rgba(0, 123, 255, 0.1)' },
+      },
+      y: {
+        ticks: { color: '#007bff' },
+        grid: { color: 'rgba(0, 123, 255, 0.1)' },
+      },
+    },
+  };
 
   return (
     <div className="m-5 space-y-10 text-slate-100">
-      {!dashData  || loadingStats ? (
+      {!dashData || loadingStats ? (
         <div className="text-center py-20 text-lg">Loading dashboard...</div>
       ) : (
         <>
@@ -287,7 +333,10 @@ const barOptions = {
                   transition={{ delay: idx * 0.03 }}
                   className="flex items-center gap-4 px-4 py-3 hover:bg-white/5"
                 >
-                  <img src={it.docData?.image} className="w-10 h-10 rounded-full object-cover ring-1 ring-white/10" />
+                  <img
+                    src={it.docData?.image}
+                    className="w-10 h-10 rounded-full object-cover ring-1 ring-white/10"
+                  />
                   <div className="flex-1 text-sm">
                     <p className="font-semibold">{it.docData?.name}</p>
                     <p className="text-slate-400 text-xs">{slotDateFormat(it.slotDate)}</p>
@@ -301,7 +350,7 @@ const barOptions = {
                       className="w-6 cursor-pointer hover:opacity-80"
                       onClick={async () => {
                         await cancelAppointment(it._id!);
-                        setLatest(prev => updateItemInList(prev, it._id!, { cancelled: true }));
+                        setLatest((prev) => updateItemInList(prev, it._id!, { cancelled: true }));
                       }}
                     />
                   )}
@@ -314,4 +363,3 @@ const barOptions = {
     </div>
   );
 }
-
