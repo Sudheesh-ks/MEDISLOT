@@ -83,6 +83,31 @@ adminRouter.get(
 
 
 adminRouter.get(
+  "/dashboard/latest-doctor-requests",
+  authRole(["admin"]),
+  adminController.getLatestDoctorRequests.bind(adminController)
+);
+
+adminRouter.get(
+  "/dashboard/stats/appointments",
+  authRole(["admin"]),
+  adminController.getAppointmentsStats.bind(adminController)
+);
+
+adminRouter.get(
+  "/dashboard/stats/top-doctors",
+  authRole(["admin"]),
+  adminController.getTopDoctors.bind(adminController)
+);
+
+adminRouter.get(
+  "/dashboard/stats/revenue",
+  authRole(["admin"]),
+  adminController.getRevenueStats.bind(adminController)
+);
+
+
+adminRouter.get(
   "/notifications",
   authRole(["admin"]),
   adminController.getNotificationHistory.bind(adminController)

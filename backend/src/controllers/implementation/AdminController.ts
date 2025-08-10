@@ -256,6 +256,51 @@ export class AdminController implements IAdminController {
   }
 
 
+  async getLatestDoctorRequests(req: Request, res: Response): Promise<void> {
+  try {
+    const limit = req.query.limit ? Number(req.query.limit) : 5;
+    const requests = await this._adminService.getLatestDoctorRequests(limit);
+    res.status(HttpStatus.OK).json({ success: true, requests });
+  } catch (err) {
+    logger.error(`Latest doctor requests failed: ${(err as Error).message}`);
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: (err as Error).message });
+  }
+}
+
+async getAppointmentsStats(req: Request, res: Response): Promise<void> {
+  try {
+    const { startDate, endDate } = req.query as any;
+    const data = await this._adminService.getAppointmentsStats(startDate, endDate);
+    res.status(HttpStatus.OK).json({ success: true, data });
+  } catch (err) {
+    logger.error(`Appointments stats failed: ${(err as Error).message}`);
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: (err as Error).message });
+  }
+}
+
+async getTopDoctors(req: Request, res: Response): Promise<void> {
+  try {
+    const { limit } = req.query as any;
+    const data = await this._adminService.getTopDoctors(Number(limit) || 5);
+    res.status(HttpStatus.OK).json({ success: true, data });
+  } catch (err) {
+    logger.error(`Top doctors failed: ${(err as Error).message}`);
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: (err as Error).message });
+  }
+}
+
+async getRevenueStats(req: Request, res: Response): Promise<void> {
+  try {
+    const { startDate, endDate } = req.query as any;
+    const data = await this._adminService.getRevenueStats(startDate, endDate);
+    res.status(HttpStatus.OK).json({ success: true, data });
+  } catch (err) {
+    logger.error(`Revenue stats failed: ${(err as Error).message}`);
+    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: (err as Error).message });
+  }
+}
+
+
   async getNotificationHistory(req: Request, res: Response): Promise<void> {
       try {
         const role = req.query.role as 'user' | 'doctor' | 'admin';

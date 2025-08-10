@@ -45,4 +45,14 @@ export interface IAdminService {
   approveDoctor(doctorId: string): Promise<string>;
   rejectDoctor(doctorId: string, reason?: string): Promise<string>;
   getAdminWallet(): Promise<WalletDTO>;
+  getLatestDoctorRequests(limit: number): Promise<DoctorDTO[]>;
+  getAppointmentsStats(
+  startDate?: string, 
+  endDate?: string
+): Promise<{ date: string; count: number }[]>;
+getTopDoctors(limit: number): Promise<{ doctorId: string; doctorName: string; appointments: number; revenue: number }[]>;
+getRevenueStats(
+  startDate?: string, 
+  endDate?: string
+): Promise<{ date: string; revenue: number }[]>;
 }

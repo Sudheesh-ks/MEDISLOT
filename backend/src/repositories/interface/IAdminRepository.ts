@@ -25,4 +25,16 @@ export interface IAdminRepository {
     limit: number
   ): Promise<PaginationResult<AppointmentDocument>>;
   cancelAppointment(appointmentId: string): Promise<void>;
+  getLatestDoctorRequests(
+      limit: number
+    ): Promise<DoctorDocument[]>;
+    getAppointmentsStats(
+    start?: string,
+    end?: string
+  ): Promise<{ date: string; count: number }[]>;
+  getTopDoctors(limit: number): Promise<{ doctorId: string; doctorName: string; appointments: number; revenue: number }[]>;
+  getRevenueStats(
+    start?: string,
+    end?: string
+  ): Promise<{ date: string; revenue: number }[]>;
 }

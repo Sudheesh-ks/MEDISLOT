@@ -281,4 +281,34 @@ await this._notificationService.sendNotification({
 
   return toWalletDTO(wallet);
 }
+
+
+// inside AdminService (add these methods)
+
+// inside AdminService
+
+async getLatestDoctorRequests(limit = 5): Promise<DoctorDTO[]> {
+  const requests = await this._adminRepository.getLatestDoctorRequests(limit);
+  return requests.map((doctor) => doctor as DoctorDTO); 
+}
+
+async getAppointmentsStats(
+  startDate?: string, 
+  endDate?: string
+): Promise<{ date: string; count: number }[]> {
+  return await this._adminRepository.getAppointmentsStats(startDate, endDate);
+}
+
+async getTopDoctors(limit = 5): Promise<{ doctorId: string; doctorName: string; appointments: number; revenue: number }[]> {
+  return await this._adminRepository.getTopDoctors(limit);
+}
+
+async getRevenueStats(
+  startDate?: string, 
+  endDate?: string
+): Promise<{ date: string; revenue: number }[]> {
+  return await this._adminRepository.getRevenueStats(startDate, endDate);
+}
+
+
 }

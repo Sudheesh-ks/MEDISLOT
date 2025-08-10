@@ -15,6 +15,10 @@ export const ADMIN_API = {
   CANCEL_APPOINTMENT: (appointmentId: string) => `/api/admin/appointments/${appointmentId}/cancel`,
   WALLET: '/api/admin/wallet',
   DASHBOARD: '/api/admin/dashboard',
+    DASHBOARD_LATEST_REQUESTS: "/api/admin/dashboard/latest-doctor-requests",
+  DASHBOARD_APPOINTMENTS_STATS: "/api/admin/dashboard/stats/appointments",
+  DASHBOARD_TOP_DOCTORS: "/api/admin/dashboard/stats/top-doctors",
+  DASHBOARD_REVENUE: "/api/admin/dashboard/stats/revenue",
   NOTIFICATIONS: '/api/admin/notifications',
   NOTIFICATION_MARK_READ: (id: string) => `/api/admin/notifications/${id}/read`,
   NOTIFICATION_MARK_ALL_READ: '/api/admin/notifications/read-all',
@@ -50,6 +54,7 @@ export const DOCTOR_API = {
   REFRESH: '/api/doctor/refresh-token',
   SLOTS: '/api/doctor/slots',
 
+  DASHBOARD: '/api/doctor/dashboard',
   DOCTORS: '/api/doctor',
   DOCTORS_PAGINATED: '/api/doctor/paginated',
   APPOINTMENTS: '/api/doctor/appointments',

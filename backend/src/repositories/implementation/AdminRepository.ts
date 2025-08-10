@@ -5,6 +5,7 @@ import userModel, { userDocument } from "../../models/userModel";
 import appointmentModel, {
   AppointmentDocument,
 } from "../../models/appointmentModel";
+import { PipelineStage } from "mongoose";
 import { PaginationResult } from "../../types/pagination";
 
 export class AdminRepository extends BaseRepository<AdminDocument> {
@@ -131,12 +132,12 @@ export class AdminRepository extends BaseRepository<AdminDocument> {
     appointment.cancelled = true;
     await appointment.save();
 
-    const { docId, slotDate, slotTime } = appointment;
+    const { docId, slotDate, slotStartTime } = appointment;
     const doctor = await doctorModel.findById(docId);
     if (doctor) {
       const slots = doctor.slots_booked || {};
       if (Array.isArray(slots[slotDate])) {
-        slots[slotDate] = slots[slotDate].filter((t: string) => t !== slotTime);
+        slots[slotDate] = slots[slotDate].filter((t: string) => t !== slotStartTime);
         if (!slots[slotDate].length) delete slots[slotDate];
         doctor.slots_booked = slots;
         doctor.markModified("slots_booked");
@@ -144,4 +145,120 @@ export class AdminRepository extends BaseRepository<AdminDocument> {
       }
     }
   }
+
+
+ async getLatestDoctorRequests(
+    limit = 5
+  ): Promise<DoctorDocument[]> {
+    const docs = await doctorModel
+  .find({ status: 'pending' })
+  .sort({ createdAt: -1 }) // latest first
+  .limit(5);
+
+    return docs as unknown as DoctorDocument[];
+  }
+
+  private _parseRange(start?: string, end?: string) {
+    let startDate: Date | undefined;
+    let endDate: Date | undefined;
+    if (start) startDate = new Date(start);
+    if (end) {
+      endDate = new Date(end);
+      endDate.setHours(23, 59, 59, 999);
+    }
+    return { startDate, endDate };
+  }
+
+  async getAppointmentsStats(
+    start?: string,
+    end?: string
+  ): Promise<{ date: string; count: number }[]> {
+    const { startDate, endDate } = this._parseRange(start, end);
+
+    const match: any = {};
+    if (startDate || endDate) match.createdAt = {};
+    if (startDate) match.createdAt.$gte = startDate;
+    if (endDate) match.createdAt.$lte = endDate;
+
+    const pipeline: any[] = [
+      { $match: match },
+      {
+        $group: {
+          _id: {
+            $dateToString: { format: "%Y-%m-%d", date: "$createdAt" },
+          },
+          count: { $sum: 1 },
+        },
+      },
+      { $sort: { _id: 1 } },
+    ];
+
+    const res = await appointmentModel.aggregate(pipeline).exec();
+    return res.map((r: any) => ({ date: r._id, count: r.count }));
+  }
+
+  async getTopDoctors(limit = 5): Promise<{ doctorId: string; doctorName: string; appointments: number; revenue: number }[]> {
+  const pipeline: PipelineStage[] = [
+      {
+    $addFields: {
+      docIdObj: { $toObjectId: "$docId" } // Convert to ObjectId
+    }
+  },
+    {
+      $group: {
+        _id: "$docIdObj",
+        appointments: { $sum: 1 },
+        revenue: { $sum: { $ifNull: ["$amount", 0] } },
+      },
+    },
+    { $sort: { appointments: -1 } },
+    { $limit: limit },
+    {
+      $lookup: {
+        from: "doctors",
+        localField: "_id",
+        foreignField: "_id",
+        as: "doctor",
+      },
+    },
+    { $unwind: { path: "$doctor", preserveNullAndEmptyArrays: true } },
+    {
+      $project: {
+        doctorId: "$_id",
+        doctorName: "$doctor.name",
+        appointments: 1,
+        revenue: 1,
+      },
+    },
+  ];
+
+  return await appointmentModel.aggregate(pipeline).exec();
+}
+
+
+  async getRevenueStats(
+    start?: string,
+    end?: string
+  ): Promise<{ date: string; revenue: number }[]> {
+    const { startDate, endDate } = this._parseRange(start, end);
+    const match: any = {};
+    if (startDate || endDate) match.createdAt = {};
+    if (startDate) match.createdAt.$gte = startDate;
+    if (endDate) match.createdAt.$lte = endDate;
+
+    const pipeline: PipelineStage[] = [
+      { $match: match },
+      {
+        $group: {
+          _id: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } },
+          revenue: { $sum: { $ifNull: ["$amount", 0] } },
+        },
+      },
+      { $sort: { _id: 1 } },
+    ];
+
+    const res = await appointmentModel.aggregate(pipeline).exec();
+    return res.map((r: any) => ({ date: r._id, revenue: r.revenue }));
+  }
+
 }

@@ -118,6 +118,44 @@ export const adminDashboardAPI = async (token: string) => {
   });
 };
 
+
+export const getLatestDoctorRequestsAPI = async (token: string, limit = 5) => {
+  const res = await api.get(`${ADMIN_API.DASHBOARD_LATEST_REQUESTS}?limit=${limit}`, {
+    headers: { Authorization: `Bearer ${token}` }
+  });
+  return res.data.requests;
+};
+
+export const getAppointmentsStatsAPI = async (token: string, startDate?: string, endDate?: string) => {
+  const params: any = {};
+  if (startDate) params.startDate = startDate;
+  if (endDate) params.endDate = endDate;
+  const res = await api.get(ADMIN_API.DASHBOARD_APPOINTMENTS_STATS, {
+    headers: { Authorization: `Bearer ${token}` },
+    params
+  });
+  return res.data.data; // array {date, count}
+};
+
+export const getTopDoctorsAPI = async (token: string, limit = 5) => {
+  const res = await api.get(ADMIN_API.DASHBOARD_TOP_DOCTORS, {
+    headers: { Authorization: `Bearer ${token}` },
+    params: { limit }
+  });
+  return res.data.data;
+};
+
+export const getRevenueStatsAPI = async (token: string, startDate?: string, endDate?: string) => {
+  const params: any = {};
+  if (startDate) params.startDate = startDate;
+  if (endDate) params.endDate = endDate;
+  const res = await api.get(ADMIN_API.DASHBOARD_REVENUE, {
+    headers: { Authorization: `Bearer ${token}` },
+    params
+  });
+  return res.data.data; // array {date, revenue}
+};
+
 export const getAdminNotificationsAPI = async (
   params: { limit?: number; before?: string; type?: string },
   token: string
