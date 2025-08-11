@@ -67,6 +67,11 @@ const MyAppointments = () => {
     fetchAppointments(newPage);
   };
 
+  const isSessionEnded = (slotDate: string, slotEndTime: string) => {
+    const endDateTime = dayjs(`${slotDate} ${slotEndTime}`, 'YYYY-MM-DD HH:mm');
+    return dayjs().isAfter(endDateTime.add(24, 'hour'));
+  };
+
   const btn = 'text-sm sm:min-w-48 py-2 border rounded transition-transform hover:-translate-y-0.5';
 
   return (
@@ -99,19 +104,33 @@ const MyAppointments = () => {
           </div>
 
           <div className="flex flex-col gap-2 items-end">
-            {!a.cancelled && a.payment && a.isConfirmed && (
-              <button
-                onClick={() => nav(`/consultation/${a.docData._id}/${a._id}`)}
-                className={`${btn} bg-gradient-to-r from-cyan-500 to-fuchsia-600 text-white relative`}
-              >
-                Go to Consultation
-                {notif?.unread?.[`${userData!._id}_${a.docData._id}`] > 0 && (
-                  <span className="absolute -top-2 -right-2 h-5 min-w-[20px] px-1 bg-red-500 text-xs rounded-full flex items-center justify-center">
-                    {notif.unread[`${userData!._id}_${a.docData._id}`]}
-                  </span>
-                )}
-              </button>
-            )}
+            {!a.cancelled &&
+              a.payment &&
+              a.isConfirmed &&
+              (isSessionEnded(a.slotDate, a.slotEndTime) ? (
+                <button disabled className={`${btn} bg-gray-600 text-white cursor-not-allowed`}>
+                  Session Ended
+                </button>
+              ) : (
+                <button
+                  onClick={() =>
+                    nav(`/consultation/${a.docData._id}/${a._id}`, {
+                      state: {
+                        slotDate: a.slotDate,
+                        slotEndTime: a.slotEndTime,
+                      },
+                    })
+                  }
+                  className={`${btn} bg-gradient-to-r from-cyan-500 to-fuchsia-600 text-white relative`}
+                >
+                  Go to Consultation
+                  {notif?.unread?.[`${userData!._id}_${a.docData._id}`] > 0 && (
+                    <span className="absolute -top-2 -right-2 h-5 min-w-[20px] px-1 bg-red-500 text-xs rounded-full flex items-center justify-center">
+                      {notif.unread[`${userData!._id}_${a.docData._id}`]}
+                    </span>
+                  )}
+                </button>
+              ))}
 
             {!a.cancelled && a.payment && !a.isConfirmed && (
               <div className="bg-yellow-400/10 text-yellow-400 text-xs font-semibold px-3 py-1 rounded-full border border-yellow-400/40 animate-pulse text-center">
