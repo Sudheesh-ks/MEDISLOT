@@ -87,7 +87,12 @@ const VideoCallRoom: React.FC<VideoCallRoomProps> = ({ role, backUrl }) => {
     socket.on('end-call', () => {
       cleanup();
       alert('Call ended by the other user.');
-      navigate(backUrl || (role === 'doctor' ? '/doctor/consultation-end' : '/consultation-end'));
+      navigate(
+        backUrl ||
+          (role === 'doctor'
+            ? `/doctor/consultation-end/${appointmentId}`
+            : `/consultation-end/${appointmentId}`)
+      );
     });
 
     return () => {
@@ -186,7 +191,10 @@ const VideoCallRoom: React.FC<VideoCallRoomProps> = ({ role, backUrl }) => {
               socket?.emit('end-call', { appointmentId });
               cleanup();
               navigate(
-                backUrl || (role === 'doctor' ? '/doctor/consultation-end' : '/consultation-end')
+                backUrl ||
+                  (role === 'doctor'
+                    ? `/doctor/consultation-end/${appointmentId}`
+                    : `/consultation-end/${appointmentId}`)
               );
             }}
             className="bg-red-600 hover:bg-red-500 p-3 rounded-full text-white text-xl"

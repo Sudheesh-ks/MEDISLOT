@@ -22,9 +22,5 @@ export const isValidPhone = (phone: string): boolean => {
 export const isValidDateOfBirth = (dob: string): boolean => {
   const selectedDate = new Date(dob);
   const today = new Date();
-  return (
-    selectedDate instanceof Date &&
-    !isNaN(selectedDate.getTime()) &&
-    selectedDate <= today
-  );
+  return selectedDate instanceof Date && !isNaN(selectedDate.getTime()) && selectedDate <= today;
 };

@@ -49,3 +49,7 @@ export const getAvailableSlotsAPI = async (doctorId: string, date: string) => {
   });
   return data.data;
 };
+
+export const submitFeedbackAPI = async (appointmentId: string, message: string) => {
+  return api.post(`/api/user/appointments/${appointmentId}/feedback`, { message });
+};

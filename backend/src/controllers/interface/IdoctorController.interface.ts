@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Request, Response } from 'express';
 
 export interface IDoctorController {
   getDoctorById(req: Request, res: Response): Promise<void>;

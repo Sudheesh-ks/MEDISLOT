@@ -1,8 +1,5 @@
-import { Types } from "mongoose";
-import { DoctorAppntTypes, DoctorTypes } from "./doctor";
-import { UserAppntTypes, userTypes } from "./user";
-import { DoctorDocument } from "../models/doctorModel";
-import { userDocument } from "../models/userModel";
+import { DoctorDocument } from '../models/doctorModel';
+import { userDocument } from '../models/userModel';
 
 export interface AppointmentTypes {
   _id?: string;

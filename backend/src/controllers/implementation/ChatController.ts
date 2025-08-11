@@ -1,8 +1,8 @@
-import { Request, Response } from "express";
-import { HttpStatus } from "../../constants/status.constants";
-import { IChatController } from "../interface/IchatController";
-import { IChatService } from "../../services/interface/IChatService";
-import logger from "../../utils/logger";
+import { Request, Response } from 'express';
+import { HttpStatus } from '../../constants/status.constants';
+import { IChatController } from '../interface/IchatController';
+import { IChatService } from '../../services/interface/IChatService';
+import logger from '../../utils/logger';
 
 export class ChatController implements IChatController {
   constructor(private chatService: IChatService) {}
@@ -11,19 +11,11 @@ export class ChatController implements IChatController {
     try {
       const { chatId } = req.params;
       const limit = req.query.limit ? Number(req.query.limit) : undefined;
-      const before = req.query.before
-        ? new Date(String(req.query.before))
-        : undefined;
+      const before = req.query.before ? new Date(String(req.query.before)) : undefined;
 
-      logger.info(
-        `Fetching chat history for chatId=${chatId}, limit=${limit}, before=${before}`
-      );
+      logger.info(`Fetching chat history for chatId=${chatId}, limit=${limit}, before=${before}`);
 
-      const messages = await this.chatService.fetchChatHistory(
-        chatId,
-        limit,
-        before
-      );
+      const messages = await this.chatService.fetchChatHistory(chatId, limit, before);
       res.status(HttpStatus.OK).json({ success: true, messages });
     } catch (error) {
       logger.error(`Error fetching chat history: ${(error as Error).message}`);

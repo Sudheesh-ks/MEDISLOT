@@ -1,14 +1,14 @@
-import { Server, Socket } from "socket.io";
-import { ChatService } from "../services/implementation/ChatService";
+import { Server, Socket } from 'socket.io';
+import { ChatService } from '../services/implementation/ChatService';
 
 const onlineUsers = new Map<string, Set<string>>();
 
 export function registerChatSocket(io: Server, chatService: ChatService) {
   // For connection
-  io.on("connection", (socket: Socket) => {
+  io.on('connection', (socket: Socket) => {
     const { userId, role } = socket.handshake.auth as {
       userId?: string;
-      role?: "user" | "doctor";
+      role?: 'user' | 'doctor';
     };
     if (!userId || !role) return socket.disconnect();
     // For joining
@@ -22,18 +22,18 @@ export function registerChatSocket(io: Server, chatService: ChatService) {
     const wasOffline = set.size === 0;
     set.add(socket.id);
     if (wasOffline) {
-      io.emit("presence", { userId, online: true });
+      io.emit('presence', { userId, online: true });
     }
 
-    socket.on("join", (chatId: string) => socket.join(chatId));
+    socket.on('join', (chatId: string) => socket.join(chatId));
 
     // For sending messages
     socket.on(
-      "sendMessage",
+      'sendMessage',
       async (msg: {
         chatId: string;
         receiverId: string;
-        kind: "text" | "image" | "file" | "emoji";
+        kind: 'text' | 'image' | 'file' | 'emoji';
         text?: string;
         mediaUrl?: string;
         mediaType?: string;
@@ -47,109 +47,93 @@ export function registerChatSocket(io: Server, chatService: ChatService) {
             replyTo: msg.replyTo,
           });
 
-          io.to(saved.chatId).emit("receiveMessage", saved);
+          io.to(saved.chatId).emit('receiveMessage', saved);
 
           if (msg.receiverId) {
             await chatService.delivered(saved.id!, msg.receiverId);
           }
 
           // await chatService.delivered(saved.id, msg.receiverId);
-          io.to(saved.chatId).emit("delivered", {
+          io.to(saved.chatId).emit('delivered', {
             messageId: saved.id,
             userId: msg.receiverId,
             at: new Date(),
           });
 
           // For notifications
-          io.to(msg.receiverId).emit("dmNotice", {
+          io.to(msg.receiverId).emit('dmNotice', {
             chatId: saved.chatId,
             from: { id: userId, role },
-            preview:
-              saved.text || (saved.kind === "image" ? "📷 image" : "📄 file"),
+            preview: saved.text || (saved.kind === 'image' ? '📷 image' : '📄 file'),
           });
         } catch (err) {
-          console.error("sendMessage error:", err);
+          console.error('sendMessage error:', err);
         }
       }
     );
 
     // For typing indicator
-    socket.on("typing", ({ chatId }) =>
-      socket.to(chatId).emit("typing", { userId })
-    );
+    socket.on('typing', ({ chatId }) => socket.to(chatId).emit('typing', { userId }));
 
     // For stopping type indicator
-    socket.on("stopTyping", ({ chatId }) =>
-      socket.to(chatId).emit("stopTyping", { userId })
-    );
+    socket.on('stopTyping', ({ chatId }) => socket.to(chatId).emit('stopTyping', { userId }));
 
     // For marking as read
-    socket.on("read", async ({ chatId }) => {
+    socket.on('read', async ({ chatId }) => {
       await chatService.read(chatId, userId);
-      socket.to(chatId).emit("readBy", { chatId, userId, at: new Date() });
+      socket.to(chatId).emit('readBy', { chatId, userId, at: new Date() });
     });
 
     // For deleting message
-    socket.on("deleteMessage", async ({ messageId, chatId }) => {
+    socket.on('deleteMessage', async ({ messageId, chatId }) => {
       await chatService.delete(messageId);
-      io.to(chatId).emit("messageDeleted", { messageId });
+      io.to(chatId).emit('messageDeleted', { messageId });
     });
 
     // For stating offline
-    socket.on("disconnect", () => {
+    socket.on('disconnect', () => {
       const set = onlineUsers.get(userId);
       if (set) {
         set.delete(socket.id);
         if (set.size === 0) {
           onlineUsers.delete(userId);
-          io.emit("presence", { userId, online: false });
+          io.emit('presence', { userId, online: false });
         }
       }
     });
 
+    socket.on('join-video-room', (appointmentId: string) => {
+      socket.join(appointmentId);
+      const clientsInRoom = Array.from(io.sockets.adapter.rooms.get(appointmentId) || []);
 
-    // ✅ Added for video call: join room
-socket.on("join-video-room", (appointmentId: string) => {
-  socket.join(appointmentId);
-  const clientsInRoom = Array.from(io.sockets.adapter.rooms.get(appointmentId) || []);
+      console.log(`User ${socket.id} joined video room ${appointmentId}`);
+      console.log('Clients in room:', clientsInRoom);
 
-  console.log(`User ${socket.id} joined video room ${appointmentId}`);
-  console.log("Clients in room:", clientsInRoom);
-
-  if (clientsInRoom.length === 1) {
-    socket.emit("joined-room");
-  } else {
-    socket.emit("joined-room");
-    socket.to(appointmentId).emit("other-user-joined");
-  }
-});
-
-    // ✅ Added for video call: offer
-    socket.on(
-      "webrtc-offer",
-      ({ appointmentId, offer, receiverId, senderId }) => {
-        socket.to(appointmentId).emit("webrtc-offer", { offer, senderId });
+      if (clientsInRoom.length === 1) {
+        socket.emit('joined-room');
+      } else {
+        socket.emit('joined-room');
+        socket.to(appointmentId).emit('other-user-joined');
       }
-    );
-
-    // ✅ Added for video call: answer
-    socket.on("webrtc-answer", ({ appointmentId, answer, senderId }) => {
-      socket.to(appointmentId).emit("webrtc-answer", { answer, senderId });
     });
 
-    // ✅ Added for video call: ICE candidate
-    socket.on("ice-candidate", ({ appointmentId, candidate, senderId }) => {
-      socket.to(appointmentId).emit("ice-candidate", {
+    socket.on('webrtc-offer', ({ appointmentId, offer, senderId }) => {
+      socket.to(appointmentId).emit('webrtc-offer', { offer, senderId });
+    });
+
+    socket.on('webrtc-answer', ({ appointmentId, answer, senderId }) => {
+      socket.to(appointmentId).emit('webrtc-answer', { answer, senderId });
+    });
+
+    socket.on('ice-candidate', ({ appointmentId, candidate, senderId }) => {
+      socket.to(appointmentId).emit('ice-candidate', {
         candidate,
         senderId,
       });
     });
 
-    // ✅ Added for video call: end call
-    socket.on("end-call", ({ appointmentId }) => {
-      socket.to(appointmentId).emit("end-call");
+    socket.on('end-call', ({ appointmentId }) => {
+      socket.to(appointmentId).emit('end-call');
     });
-
   });
-  
 }

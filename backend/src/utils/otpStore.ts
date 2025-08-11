@@ -1,8 +1,8 @@
-export type OtpPurpose = "register" | "reset-password";
+export type OtpPurpose = 'register' | 'reset-password';
 
 export interface RegistrationOtpData {
   otp: string;
-  purpose: "register";
+  purpose: 'register';
   userData: {
     name: string;
     email: string;
@@ -12,7 +12,7 @@ export interface RegistrationOtpData {
 
 export interface ForgotPasswordOtpData {
   otp: string;
-  purpose: "reset-password";
+  purpose: 'reset-password';
   email: string;
 }
 

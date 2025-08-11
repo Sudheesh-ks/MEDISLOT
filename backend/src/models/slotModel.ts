@@ -1,14 +1,14 @@
-import mongoose, { Schema, Types } from "mongoose";
-import { slotTypes } from "../types/slots";
+import mongoose, { Schema, Types } from 'mongoose';
+import { slotTypes } from '../types/slots';
 
-export interface SlotDocument extends Omit<slotTypes, "_id">, Document {
+export interface SlotDocument extends Omit<slotTypes, '_id'>, Document {
   _id: Types.ObjectId;
 }
 
 const SlotSchema: Schema<SlotDocument> = new mongoose.Schema({
   doctorId: {
     type: Schema.Types.ObjectId,
-    ref: "doctor",
+    ref: 'doctor',
     required: true,
   },
 
@@ -28,4 +28,4 @@ const SlotSchema: Schema<SlotDocument> = new mongoose.Schema({
   isCancelled: { type: Boolean, default: false },
 });
 
-export default mongoose.model<SlotDocument>("slot", SlotSchema);
+export default mongoose.model<SlotDocument>('slot', SlotSchema);

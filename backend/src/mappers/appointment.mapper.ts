@@ -1,7 +1,7 @@
-import { AppointmentDTO } from "../dtos/appointment.dto";
-import { AppointmentDocument } from "../models/appointmentModel";
-import { toDoctorDTO } from "./doctor.mapper";
-import { toUserDTO } from "./user.mapper";
+import { AppointmentDTO } from '../dtos/appointment.dto';
+import { AppointmentDocument } from '../models/appointmentModel';
+import { toDoctorDTO } from './doctor.mapper';
+import { toUserDTO } from './user.mapper';
 
 export const toAppointmentDTO = (a: AppointmentDocument): AppointmentDTO => {
   return {

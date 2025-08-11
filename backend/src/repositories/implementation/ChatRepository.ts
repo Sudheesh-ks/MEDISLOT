@@ -1,6 +1,6 @@
-import MessageModel, { MessageDocument } from "../../models/messageModel";
-import ChatModel from "../../models/chatModel";
-import { IChatRepository } from "../interface/IChatRepository";
+import MessageModel, { MessageDocument } from '../../models/messageModel';
+import ChatModel from '../../models/chatModel';
+import { IChatRepository } from '../interface/IChatRepository';
 
 export class ChatRepository implements IChatRepository {
   async getMessagesByChatId(
@@ -18,9 +18,7 @@ export class ChatRepository implements IChatRepository {
       .exec();
   }
 
-  async createMessage(
-    payload: Partial<MessageDocument>
-  ): Promise<MessageDocument> {
+  async createMessage(payload: Partial<MessageDocument>): Promise<MessageDocument> {
     const msg = await MessageModel.create(payload);
 
     await ChatModel.findByIdAndUpdate(
@@ -33,7 +31,7 @@ export class ChatRepository implements IChatRepository {
             { id: msg.senderId, role: msg.senderRole },
             {
               id: msg.receiverId,
-              role: msg.senderRole === "user" ? "doctor" : "user",
+              role: msg.senderRole === 'user' ? 'doctor' : 'user',
             },
           ],
         },
@@ -46,14 +44,14 @@ export class ChatRepository implements IChatRepository {
 
   async markDelivered(messageId: string, userId: string): Promise<void> {
     await MessageModel.updateOne(
-      { _id: messageId, "deliveredTo.userId": { $ne: userId } },
+      { _id: messageId, 'deliveredTo.userId': { $ne: userId } },
       { $push: { deliveredTo: { userId, at: new Date() } } }
     ).exec();
   }
 
   async markRead(chatId: string, userId: string): Promise<void> {
     await MessageModel.updateMany(
-      { chatId, "readBy.userId": { $ne: userId } },
+      { chatId, 'readBy.userId': { $ne: userId } },
       { $push: { readBy: { userId, at: new Date() } } }
     ).exec();
   }

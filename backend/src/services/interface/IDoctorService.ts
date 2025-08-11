@@ -1,19 +1,15 @@
-import { AppointmentTypes } from "../../types/appointment";
-import { DoctorTypes } from "../../types/doctor";
-import { DoctorDTO } from "../../dtos/doctor.dto";
-import { AppointmentDTO } from "../../dtos/appointment.dto";
-import { PaginationResult } from "../../types/pagination";
-import { WalletDTO } from "../../dtos/wallet.dto";
+import { DoctorTypes } from '../../types/doctor';
+import { DoctorDTO } from '../../dtos/doctor.dto';
+import { AppointmentDTO } from '../../dtos/appointment.dto';
+import { PaginationResult } from '../../types/pagination';
+import { WalletDTO } from '../../dtos/wallet.dto';
 
 export interface IDoctorService {
   registerDoctor(data: DoctorTypes): Promise<void>;
   getPublicDoctorById(id: string): Promise<DoctorDTO>;
   toggleAvailability(docId: string): Promise<void>;
   getAllDoctors(): Promise<DoctorDTO[]>;
-  getDoctorsPaginated(
-    page: number,
-    limit: number
-  ): Promise<PaginationResult<DoctorDTO>>;
+  getDoctorsPaginated(page: number, limit: number): Promise<PaginationResult<DoctorDTO>>;
   loginDoctor(data: {
     email: string;
     password: string;
@@ -26,9 +22,7 @@ export interface IDoctorService {
   ): Promise<PaginationResult<AppointmentDTO>>;
   confirmAppointment(docId: string, appointmentId: string): Promise<void>;
   cancelAppointment(docId: string, appointmentId: string): Promise<void>;
-  getActiveAppointment(
-      docId: string
-    ): Promise<AppointmentDTO | null>;
+  getActiveAppointment(docId: string): Promise<AppointmentDTO | null>;
   getDoctorProfile(docId: string): Promise<DoctorDTO>;
   updateDoctorProfile(data: {
     doctId: string;
@@ -38,7 +32,7 @@ export interface IDoctorService {
     experience: string;
     about: string;
     fees: number;
-    address: DoctorTypes["address"];
+    address: DoctorTypes['address'];
     imagePath?: string;
     available?: boolean;
   }): Promise<void>;

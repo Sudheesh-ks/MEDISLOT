@@ -1,4 +1,3 @@
-import { Types } from "mongoose";
 
 export interface Address {
   line1: string;

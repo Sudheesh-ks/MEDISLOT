@@ -1,7 +1,7 @@
-import { Schema, model, Types, Document } from "mongoose";
-import { MessageType } from "../types/message";
+import { Schema, model, Types, Document } from 'mongoose';
+import { MessageType } from '../types/message';
 
-export interface MessageDocument extends Omit<MessageType, "_id">, Document {
+export interface MessageDocument extends Omit<MessageType, '_id'>, Document {
   _id: Types.ObjectId;
 }
 
@@ -20,7 +20,7 @@ const MessageSchema = new Schema<MessageDocument>(
 
     senderRole: {
       type: String,
-      enum: ["user", "doctor"],
+      enum: ['user', 'doctor'],
       required: true,
     },
 
@@ -28,8 +28,8 @@ const MessageSchema = new Schema<MessageDocument>(
 
     kind: {
       type: String,
-      enum: ["text", "image", "file", "emoji"],
-      default: "text",
+      enum: ['text', 'image', 'file', 'emoji'],
+      default: 'text',
     },
 
     text: String,
@@ -38,7 +38,7 @@ const MessageSchema = new Schema<MessageDocument>(
 
     replyTo: {
       type: Schema.Types.ObjectId,
-      ref: "Message",
+      ref: 'Message',
     },
 
     deliveredTo: [{ userId: String, at: Date }],
@@ -57,4 +57,4 @@ const MessageSchema = new Schema<MessageDocument>(
 
 MessageSchema.index({ chatId: 1, createdAt: -1 });
 
-export default model<MessageDocument>("Message", MessageSchema);
+export default model<MessageDocument>('Message', MessageSchema);

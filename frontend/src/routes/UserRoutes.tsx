@@ -122,7 +122,7 @@ const UserRoutes = () => {
         }
       />
       <Route path="/video-room/:appointmentId" element={<UserVideoCall />} />
-      <Route path="/consultation-end" element={<ConsultationEndedPage />} />
+      <Route path="/consultation-end/:appointmentId" element={<ConsultationEndedPage />} />
       <Route path="/chats/:doctorId" element={<ChatPage />} />
     </>
   );

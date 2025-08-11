@@ -1,18 +1,14 @@
-import { AppointmentDocument } from "../../models/appointmentModel";
-import { DoctorDocument } from "../../models/doctorModel";
-import { AppointmentTypes } from "../../types/appointment";
-import { DoctorTypes } from "../../types/doctor";
-import { PaginationResult } from "../../types/pagination";
+import { AppointmentDocument } from '../../models/appointmentModel';
+import { DoctorDocument } from '../../models/doctorModel';
+import { DoctorTypes } from '../../types/doctor';
+import { PaginationResult } from '../../types/pagination';
 
 export interface IDoctorRepository {
   registerDoctor(data: DoctorTypes): Promise<DoctorDocument>;
   findById(id: string): Promise<DoctorDocument | null>;
   updateAvailability(id: string, available: boolean): Promise<void>;
   findAllDoctors(): Promise<DoctorDocument[]>;
-  getDoctorsPaginated(
-    page: number,
-    limit: number
-  ): Promise<PaginationResult<DoctorDocument>>;
+  getDoctorsPaginated(page: number, limit: number): Promise<PaginationResult<DoctorDocument>>;
   findByEmail(email: string): Promise<DoctorDocument | null>;
   save(doctor: DoctorDocument): Promise<void>;
   findAppointmentsByDoctorId(docId: string): Promise<AppointmentDocument[]>;
@@ -31,16 +27,26 @@ export interface IDoctorRepository {
     updateData: Partial<
       Pick<
         DoctorTypes,
-        | "name"
-        | "speciality"
-        | "degree"
-        | "experience"
-        | "about"
-        | "fees"
-        | "address"
-        | "image"
-        | "available"
+        | 'name'
+        | 'speciality'
+        | 'degree'
+        | 'experience'
+        | 'about'
+        | 'fees'
+        | 'address'
+        | 'image'
+        | 'available'
       >
     >
   ): Promise<void>;
+  getRevenueOverTime(
+    doctorId: string,
+    start?: string,
+    end?: string
+  ): Promise<{ date: string; revenue: number }[]>;
+  getAppointmentsOverTime(
+    doctorId: string,
+    start?: string,
+    end?: string
+  ): Promise<{ date: string; count: number }[]>;
 }

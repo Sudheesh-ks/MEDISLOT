@@ -1,8 +1,8 @@
-import { Request, Response } from "express";
-import { DoctorSlotService } from "../../services/implementation/SlotService";
-import logger from "../../utils/logger";
-import { HttpStatus } from "../../constants/status.constants";
-import { ISlotController } from "../interface/IslotController";
+import { Request, Response } from 'express';
+import { DoctorSlotService } from '../../services/implementation/SlotService';
+import logger from '../../utils/logger';
+import { HttpStatus } from '../../constants/status.constants';
+import { ISlotController } from '../interface/IslotController';
 
 export class SlotController implements ISlotController {
   constructor(private slotService: DoctorSlotService) {}
@@ -12,12 +12,7 @@ export class SlotController implements ISlotController {
       const doctorId = (req as any).docId;
       const { date, slots, isCancelled } = req.body;
 
-      const data = await this.slotService.updateDaySlot(
-        doctorId,
-        date,
-        slots,
-        isCancelled
-      );
+      const data = await this.slotService.updateDaySlot(doctorId, date, slots, isCancelled);
       logger.info(`Updated slots for ${doctorId} on ${date}`);
 
       res.status(HttpStatus.OK).json({ success: true, data });
@@ -35,10 +30,7 @@ export class SlotController implements ISlotController {
       const doctorId = (req as any).docId;
       const { date } = req.query;
 
-      const data = await this.slotService.getDayAvailability(
-        doctorId,
-        date as string
-      );
+      const data = await this.slotService.getDayAvailability(doctorId, date as string);
       logger.info(`Fetched day slot for ${doctorId} on ${date}`);
 
       res.status(HttpStatus.OK).json({ success: true, data });

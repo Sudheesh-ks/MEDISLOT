@@ -1,9 +1,8 @@
-import { NotificationDTO } from "../../dtos/notification.dto";
-import { toNotificationDTO } from "../../mappers/notification.mapper";
-import { NotificationRepository } from "../../repositories/implementation/NotificationRepository";
-import { NotificationTypes } from "../../types/notificationTypes";
-import { INotificationService } from "../interface/INotificationService";
-
+import { NotificationDTO } from '../../dtos/notification.dto';
+import { toNotificationDTO } from '../../mappers/notification.mapper';
+import { NotificationRepository } from '../../repositories/implementation/NotificationRepository';
+import { NotificationTypes } from '../../types/notificationTypes';
+import { INotificationService } from '../interface/INotificationService';
 
 export class NotificationService implements INotificationService {
   constructor(private readonly _repo = new NotificationRepository()) {}
@@ -20,7 +19,13 @@ export class NotificationService implements INotificationService {
     before?: Date,
     type?: string
   ): Promise<NotificationDTO[]> {
-    const notifications = await this._repo.getNotifications(recipientId, recipientRole, limit, before, type);
+    const notifications = await this._repo.getNotifications(
+      recipientId,
+      recipientRole,
+      limit,
+      before,
+      type
+    );
     return notifications.map(toNotificationDTO);
   }
 

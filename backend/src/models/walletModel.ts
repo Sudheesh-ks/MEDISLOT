@@ -1,8 +1,7 @@
-import mongoose, { Schema, Document, Model, Types } from "mongoose";
-import { WalletTypes } from "../types/wallet";
+import mongoose, { Schema, Document, Model, Types } from 'mongoose';
+import { WalletTypes } from '../types/wallet';
 
-
-export interface WalletDocument extends Omit<WalletTypes, "_id">, Document {
+export interface WalletDocument extends Omit<WalletTypes, '_id'>, Document {
   _id: Types.ObjectId;
 }
 
@@ -10,12 +9,12 @@ const walletSchema: Schema<WalletDocument> = new mongoose.Schema({
   ownerId: {
     type: mongoose.Schema.Types.ObjectId,
     required: true,
-    refPath: "ownerType",
+    refPath: 'ownerType',
   },
   ownerType: {
     type: String,
     required: true,
-    enum: ["user", "doctor", "admin"],
+    enum: ['user', 'doctor', 'admin'],
   },
   balance: {
     type: Number,
@@ -26,7 +25,7 @@ const walletSchema: Schema<WalletDocument> = new mongoose.Schema({
     {
       type: {
         type: String,
-        enum: ["credit", "debit"],
+        enum: ['credit', 'debit'],
         required: true,
       },
       amount: {
@@ -44,9 +43,6 @@ const walletSchema: Schema<WalletDocument> = new mongoose.Schema({
   ],
 });
 
-const walletModel: Model<WalletDocument> = mongoose.model<WalletDocument>(
-  "wallet",
-  walletSchema
-);
+const walletModel: Model<WalletDocument> = mongoose.model<WalletDocument>('wallet', walletSchema);
 
 export default walletModel;

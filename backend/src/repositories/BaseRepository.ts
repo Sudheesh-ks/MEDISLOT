@@ -1,4 +1,4 @@
-import { Model, FilterQuery, UpdateQuery, Document } from "mongoose";
+import { Model, FilterQuery, UpdateQuery, Document } from 'mongoose';
 
 export class BaseRepository<T extends Document> {
   constructor(protected model: Model<T>) {}

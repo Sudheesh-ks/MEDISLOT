@@ -80,7 +80,10 @@ const DoctorRoutes = () => {
       />
 
       <Route path="/doctor/video-room/:appointmentId" element={<DoctorVideoCall />} />
-      <Route path="/doctor/consultation-end/" element={<DoctorConsultationEndedPage />} />
+      <Route
+        path="/doctor/consultation-end/:appointmentId"
+        element={<DoctorConsultationEndedPage />}
+      />
       <Route path="/doctor/chats/:userId" element={<DocChatPage />} />
     </>
   );

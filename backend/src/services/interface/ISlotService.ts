@@ -1,4 +1,4 @@
-import { SlotDocument } from "../../models/slotModel";
+import { SlotDocument } from '../../models/slotModel';
 
 export interface ISlotService {
   getMonthlySlots(doctorId: string, year: number, month: number): Promise<any>;

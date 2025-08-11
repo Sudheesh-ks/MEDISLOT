@@ -1,5 +1,5 @@
-import { WalletDTO } from "../dtos/wallet.dto";
-import { WalletDocument } from "../models/walletModel";
+import { WalletDTO } from '../dtos/wallet.dto';
+import { WalletDocument } from '../models/walletModel';
 
 export const toWalletDTO = (wallet: WalletDocument): WalletDTO => ({
   ownerId: wallet.ownerId.toString(),

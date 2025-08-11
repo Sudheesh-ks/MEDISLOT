@@ -1,11 +1,7 @@
-import { MessageDocument } from "../../models/messageModel";
+import { MessageDocument } from '../../models/messageModel';
 
 export interface IChatRepository {
-  getMessagesByChatId(
-    chatId: string,
-    limit?: number,
-    before?: Date
-  ): Promise<MessageDocument[]>;
+  getMessagesByChatId(chatId: string, limit?: number, before?: Date): Promise<MessageDocument[]>;
 
   createMessage(payload: Partial<MessageDocument>): Promise<MessageDocument>;
 

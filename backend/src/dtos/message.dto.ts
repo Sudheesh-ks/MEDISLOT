@@ -1,4 +1,4 @@
-import { MessageKind } from "../types/message";
+import { MessageKind } from '../types/message';
 
 export interface MessageDTO {
   _id?: string;
@@ -6,7 +6,7 @@ export interface MessageDTO {
   chatId: string;
   senderId: string;
   receiverId?: string;
-  senderRole: "user" | "doctor";
+  senderRole: 'user' | 'doctor';
   text?: string;
   kind: MessageKind;
   mediaUrl?: string;

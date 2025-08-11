@@ -1,7 +1,7 @@
-import passport from "passport";
-import { Profile, Strategy as GoogleStrategy } from "passport-google-oauth20";
-import dotenv from "dotenv";
-import userModel from "../models/userModel";
+import passport from 'passport';
+import { Profile, Strategy as GoogleStrategy } from 'passport-google-oauth20';
+import dotenv from 'dotenv';
+import userModel from '../models/userModel';
 
 dotenv.config();
 
@@ -16,10 +16,10 @@ passport.use(
       try {
         const email = profile.emails?.[0]?.value;
         if (!email) {
-          return done(new Error("No email found in Google profile"));
+          return done(new Error('No email found in Google profile'));
         }
 
-        let user = await userModel.findOne({ email });
+        const user = await userModel.findOne({ email });
 
         if (user) {
           if (!user.googleId) {
@@ -38,7 +38,7 @@ passport.use(
           return done(null, newUser);
         }
       } catch (error) {
-        console.error("Google Auth Error:", error);
+        console.error('Google Auth Error:', error);
         return done(error);
       }
     }

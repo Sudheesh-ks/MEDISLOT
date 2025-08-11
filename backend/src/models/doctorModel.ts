@@ -1,7 +1,7 @@
-import mongoose, { Schema, Document, Model } from "mongoose";
-import { DoctorTypes } from "../types/doctor";
+import mongoose, { Schema, Document, Model } from 'mongoose';
+import { DoctorTypes } from '../types/doctor';
 
-export interface DoctorDocument extends Omit<DoctorTypes, "_id">, Document {
+export interface DoctorDocument extends Omit<DoctorTypes, '_id'>, Document {
   _id: string;
 }
 
@@ -65,8 +65,8 @@ const doctorSchema: Schema<DoctorDocument> = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ["pending", "approved", "rejected"],
-      default: "pending",
+      enum: ['pending', 'approved', 'rejected'],
+      default: 'pending',
     },
 
     date: {
@@ -82,9 +82,6 @@ const doctorSchema: Schema<DoctorDocument> = new mongoose.Schema(
   { minimize: false }
 );
 
-const doctorModel: Model<DoctorDocument> = mongoose.model<DoctorDocument>(
-  "doctor",
-  doctorSchema
-);
+const doctorModel: Model<DoctorDocument> = mongoose.model<DoctorDocument>('doctor', doctorSchema);
 
 export default doctorModel;

@@ -1,25 +1,23 @@
-import { IDoctorRepository } from "../../repositories/interface/IDoctorRepository";
-import bcrypt from "bcrypt";
-import { IDoctorService } from "../interface/IDoctorService";
-import { AppointmentTypes } from "../../types/appointment";
-import { DoctorTypes } from "../../types/doctor";
-import { v2 as cloudinary } from "cloudinary";
-import fs from "fs";
+import { IDoctorRepository } from '../../repositories/interface/IDoctorRepository';
+import bcrypt from 'bcrypt';
+import { IDoctorService } from '../interface/IDoctorService';
+import { DoctorTypes } from '../../types/doctor';
+import { v2 as cloudinary } from 'cloudinary';
+import fs from 'fs';
 import {
   generateAccessToken,
   generateRefreshToken,
   verifyRefreshToken,
-} from "../../utils/jwt.utils";
-import { DoctorDTO } from "../../dtos/doctor.dto";
-import { toDoctorDTO } from "../../mappers/doctor.mapper";
-import { AppointmentDTO } from "../../dtos/appointment.dto";
-import { toAppointmentDTO } from "../../mappers/appointment.mapper";
-import { PaginationResult } from "../../types/pagination";
-import { HttpResponse } from "../../constants/responseMessage.constants";
-import { WalletDTO } from "../../dtos/wallet.dto";
-import { toWalletDTO } from "../../mappers/wallet.mapper";
-import { IWalletRepository } from "../../repositories/interface/IWalletRepository";
-import { INotificationService } from "../interface/INotificationService";
+} from '../../utils/jwt.utils';
+import { DoctorDTO } from '../../dtos/doctor.dto';
+import { toDoctorDTO } from '../../mappers/doctor.mapper';
+import { AppointmentDTO } from '../../dtos/appointment.dto';
+import { toAppointmentDTO } from '../../mappers/appointment.mapper';
+import { PaginationResult } from '../../types/pagination';
+import { HttpResponse } from '../../constants/responseMessage.constants';
+import { WalletDTO } from '../../dtos/wallet.dto';
+import { IWalletRepository } from '../../repositories/interface/IWalletRepository';
+import { INotificationService } from '../interface/INotificationService';
 
 export interface DoctorDocument extends DoctorTypes {
   _id: string;
@@ -29,22 +27,12 @@ export class DoctorService implements IDoctorService {
   constructor(
     private readonly _doctorRepository: IDoctorRepository,
     private readonly _walletRepository: IWalletRepository,
-    private readonly _notificationService: INotificationService,
+    private readonly _notificationService: INotificationService
   ) {}
 
   async registerDoctor(data: DoctorTypes): Promise<void> {
-    const {
-      name,
-      email,
-      password,
-      speciality,
-      degree,
-      experience,
-      about,
-      fees,
-      address,
-      image,
-    } = data;
+    const { name, email, password, speciality, degree, experience, about, fees, address, image } =
+      data;
 
     if (
       !name ||
@@ -58,17 +46,17 @@ export class DoctorService implements IDoctorService {
       !address ||
       !image
     ) {
-      throw new Error("All Fields Required");
+      throw new Error('All Fields Required');
     }
 
     const existing = await this._doctorRepository.findByEmail(email);
-    if (existing) throw new Error("Email already registered");
+    if (existing) throw new Error('Email already registered');
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    let imageUrl = "";
+    let imageUrl = '';
     const uploadResult = await cloudinary.uploader.upload(image, {
-      resource_type: "image",
+      resource_type: 'image',
     });
     imageUrl = uploadResult.secure_url;
 
@@ -84,17 +72,17 @@ export class DoctorService implements IDoctorService {
       address,
       image: imageUrl,
       date: new Date(),
-      status: "pending",
+      status: 'pending',
     };
 
     await this._doctorRepository.registerDoctor(doctorData);
   }
 
   async getPublicDoctorById(id: string): Promise<DoctorDTO> {
-    if (!id) throw new Error("Doctor ID is required");
+    if (!id) throw new Error('Doctor ID is required');
 
     const doctor = await this._doctorRepository.getDoctorProfileById(id);
-    if (!doctor) throw new Error("Doctor not found");
+    if (!doctor) throw new Error('Doctor not found');
 
     const {
       _id,
@@ -126,10 +114,10 @@ export class DoctorService implements IDoctorService {
   }
 
   async toggleAvailability(docId: string): Promise<void> {
-    if (!docId) throw new Error("Doctor ID is required");
+    if (!docId) throw new Error('Doctor ID is required');
 
     const doctor = await this._doctorRepository.findById(docId);
-    if (!doctor) throw new Error("Doctor not found");
+    if (!doctor) throw new Error('Doctor not found');
 
     await this._doctorRepository.updateAvailability(docId, !doctor.available);
   }
@@ -143,14 +131,8 @@ export class DoctorService implements IDoctorService {
     const page = parseInt(query.page as string) || 1;
     const limit = parseInt(query.limit as string) || 6;
 
-    const {
-      data,
-      totalCount,
-      currentPage,
-      totalPages,
-      hasNextPage,
-      hasPrevPage,
-    } = await this._doctorRepository.getDoctorsPaginated(page, limit);
+    const { data, totalCount, currentPage, totalPages, hasNextPage, hasPrevPage } =
+      await this._doctorRepository.getDoctorsPaginated(page, limit);
 
     const mappedData = data.map(toDoctorDTO);
 
@@ -170,23 +152,21 @@ export class DoctorService implements IDoctorService {
   }): Promise<{ token: string; refreshToken: string }> {
     const { email, password } = data;
 
-    if (!email || !password) throw new Error("Email and password required");
+    if (!email || !password) throw new Error('Email and password required');
 
     const doctor = await this._doctorRepository.findByEmail(email);
-    if (!doctor) throw new Error("Doctor not found");
+    if (!doctor) throw new Error('Doctor not found');
 
     const match = await bcrypt.compare(password, doctor.password);
-    if (!match) throw new Error("Incorrect password");
+    if (!match) throw new Error('Incorrect password');
 
-    const token = generateAccessToken(doctor._id!, doctor.email, "doctor");
+    const token = generateAccessToken(doctor._id!, doctor.email, 'doctor');
     const refreshToken = generateRefreshToken(doctor._id!);
 
     return { token, refreshToken };
   }
 
-  async refreshToken(
-    refreshToken?: string
-  ): Promise<{ token: string; refreshToken: string }> {
+  async refreshToken(refreshToken?: string): Promise<{ token: string; refreshToken: string }> {
     if (!refreshToken) {
       throw new Error(HttpResponse.REFRESH_TOKEN_MISSING);
     }
@@ -199,26 +179,21 @@ export class DoctorService implements IDoctorService {
     }
 
     const doctor = await this.getDoctorProfile(decoded.id);
-    if (!doctor) throw new Error("Doctor not found");
+    if (!doctor) throw new Error('Doctor not found');
 
-    const newAccessToken = generateAccessToken(
-      doctor._id!,
-      doctor.email,
-      "doctor"
-    );
+    const newAccessToken = generateAccessToken(doctor._id!, doctor.email, 'doctor');
     const newRefreshToken = generateRefreshToken(doctor._id!);
 
     return { token: newAccessToken, refreshToken: newRefreshToken };
   }
 
   async getDoctorAppointments(docId: string): Promise<AppointmentDTO[]> {
-    if (!docId) throw new Error("Doctor ID is required");
+    if (!docId) throw new Error('Doctor ID is required');
 
     const doctor = await this._doctorRepository.findById(docId);
-    if (!doctor) throw new Error("Doctor not found");
+    if (!doctor) throw new Error('Doctor not found');
 
-    const appointments =
-      await this._doctorRepository.findAppointmentsByDoctorId(docId);
+    const appointments = await this._doctorRepository.findAppointmentsByDoctorId(docId);
     return appointments.map(toAppointmentDTO);
   }
 
@@ -227,19 +202,15 @@ export class DoctorService implements IDoctorService {
     pageQuery: string,
     limitQuery: string
   ): Promise<PaginationResult<AppointmentDTO>> {
-    if (!docId) throw new Error("Doctor ID is required");
+    if (!docId) throw new Error('Doctor ID is required');
 
     const doctor = await this._doctorRepository.findById(docId);
-    if (!doctor) throw new Error("Doctor not found");
+    if (!doctor) throw new Error('Doctor not found');
 
     const page = parseInt(pageQuery) || 1;
     const limit = parseInt(limitQuery) || 6;
 
-    const paginatedData = await this._doctorRepository.getAppointmentsPaginated(
-      docId,
-      page,
-      limit
-    );
+    const paginatedData = await this._doctorRepository.getAppointmentsPaginated(docId, page, limit);
 
     return {
       ...paginatedData,
@@ -247,184 +218,160 @@ export class DoctorService implements IDoctorService {
     };
   }
 
-  async confirmAppointment(
-    docId: string,
-    appointmentId: string
-  ): Promise<void> {
-    if (!docId || !appointmentId) throw new Error("Missing required fields");
+  async confirmAppointment(docId: string, appointmentId: string): Promise<void> {
+    if (!docId || !appointmentId) throw new Error('Missing required fields');
 
-    const appointment = await this._doctorRepository.findAppointmentById(
-      appointmentId
-    );
+    const appointment = await this._doctorRepository.findAppointmentById(appointmentId);
     if (!appointment || appointment.docId.toString() !== docId.toString()) {
-      throw new Error("Mark Failed");
+      throw new Error('Mark Failed');
     }
 
-      const adminId = process.env.ADMIN_ID;
-  const userId = appointment.userData._id.toString();
+    const adminId = process.env.ADMIN_ID;
+    const userId = appointment.userData._id.toString();
 
     await this._notificationService.sendNotification({
-  recipientId: userId,
-  recipientRole: 'user',
-  type: 'appointment',
-  title: 'Appointment Confirmed',
-  message: `${appointment.docData.name} has confirmed your appointment.`,
-  link: '/appointments',
-});
+      recipientId: userId,
+      recipientRole: 'user',
+      type: 'appointment',
+      title: 'Appointment Confirmed',
+      message: `${appointment.docData.name} has confirmed your appointment.`,
+      link: '/appointments',
+    });
 
-await this._notificationService.sendNotification({
-  recipientId: adminId,
-  recipientRole: 'admin',
-  type: 'appointment',
-  title: 'Appointment Confirmed by Doctor',
-  message: `${appointment.docData.name} confirmed appointment with ${appointment.userData.name}.`,
-  link: '/admin/appointments',
-});
+    await this._notificationService.sendNotification({
+      recipientId: adminId,
+      recipientRole: 'admin',
+      type: 'appointment',
+      title: 'Appointment Confirmed by Doctor',
+      message: `${appointment.docData.name} confirmed appointment with ${appointment.userData.name}.`,
+      link: '/admin/appointments',
+    });
 
     await this._doctorRepository.markAppointmentAsConfirmed(appointmentId);
   }
 
   async cancelAppointment(docId: string, appointmentId: string): Promise<void> {
-    if (!docId || !appointmentId) throw new Error("Missing required fields");
+    if (!docId || !appointmentId) throw new Error('Missing required fields');
 
-    const appointment = await this._doctorRepository.findAppointmentById(
-      appointmentId
-    );
+    const appointment = await this._doctorRepository.findAppointmentById(appointmentId);
     if (!appointment || appointment.docId.toString() !== docId.toString()) {
-      throw new Error("Cancellation Failed");
+      throw new Error('Cancellation Failed');
     }
 
-     const amount = appointment.amount; // Assuming you store fee in appointment
-  if (!amount || amount <= 0) return;
+    const amount = appointment.amount; // Assuming you store fee in appointment
+    if (!amount || amount <= 0) return;
 
+    const adminId = process.env.ADMIN_ID;
+    const userId = appointment.userData._id.toString();
+    const doctorId = appointment.docData._id.toString();
+    const reason = `Refund for Cancelled Appointment (${appointment._id}) of ${appointment.docData.name}`;
 
-  const adminId = process.env.ADMIN_ID;
-  const userId = appointment.userData._id.toString();
-  const doctorId = appointment.docData._id.toString();
-  const reason = `Refund for Cancelled Appointment (${appointment._id}) of ${appointment.docData.name}`;
+    // console.log(adminId);
+    // console.log(doctorId);
+    // console.log(uId)
 
-  // console.log(adminId);
-  // console.log(doctorId);
-  // console.log(uId)
+    // Credit full amount to user wallet
+    await this._walletRepository.creditWallet(userId, 'user', amount, reason);
 
-  // Credit full amount to user wallet
-  await this._walletRepository.creditWallet(userId, "user", amount, reason);
+    // Debit 80% from doctor
+    const doctorShare = amount * 0.8;
+    await this._walletRepository.debitWallet(doctorId, 'doctor', doctorShare, reason);
 
-  // Debit 80% from doctor
-  const doctorShare = amount * 0.8;
-  await this._walletRepository.debitWallet(doctorId, "doctor", doctorShare, reason);
+    // Debit 20% from admin
+    const adminShare = amount * 0.2;
+    await this._walletRepository.debitWallet(adminId!, 'admin', adminShare, reason);
 
-  // Debit 20% from admin
-  const adminShare = amount * 0.2;
-  await this._walletRepository.debitWallet(adminId!, "admin", adminShare, reason);
+    await this._notificationService.sendNotification({
+      recipientId: userId,
+      recipientRole: 'user',
+      type: 'appointment',
+      title: 'Appointment Canceled by Doctor',
+      message: `${appointment.docData.name} canceled your appointment. ₹${amount} refunded.`,
+      link: '/appointments',
+    });
 
-  await this._notificationService.sendNotification({
-  recipientId: userId,
-  recipientRole: 'user',
-  type: 'appointment',
-  title: 'Appointment Canceled by Doctor',
-  message: `${appointment.docData.name} canceled your appointment. ₹${amount} refunded.`,
-  link: '/appointments',
-});
-
-await this._notificationService.sendNotification({
-  recipientId: adminId,
-  recipientRole: 'admin',
-  type: 'appointment',
-  title: 'Doctor Canceled Appointment',
-  message: `${appointment.docData.name} canceled the appointment with ${appointment.userData.name}. ₹${adminShare} refunded to user from your wallet.`,
-  link: '/admin/appointments',
-});
+    await this._notificationService.sendNotification({
+      recipientId: adminId,
+      recipientRole: 'admin',
+      type: 'appointment',
+      title: 'Doctor Canceled Appointment',
+      message: `${appointment.docData.name} canceled the appointment with ${appointment.userData.name}. ₹${adminShare} refunded to user from your wallet.`,
+      link: '/admin/appointments',
+    });
 
     await this._doctorRepository.cancelAppointment(appointmentId);
   }
 
-async getActiveAppointment(docId: string): Promise<AppointmentDTO | null> {
-  if (!docId) throw new Error("User not found");
+  async getActiveAppointment(docId: string): Promise<AppointmentDTO | null> {
+    if (!docId) throw new Error('User not found');
 
-  const appointment = await this._doctorRepository.findActiveAppointment(docId);
-  return appointment ? toAppointmentDTO(appointment) : null;
-}
+    const appointment = await this._doctorRepository.findActiveAppointment(docId);
+    return appointment ? toAppointmentDTO(appointment) : null;
+  }
 
   async getDoctorProfile(docId: string): Promise<DoctorDTO> {
     const doctor = await this._doctorRepository.getDoctorProfileById(docId);
-    if (!doctor) throw new Error("Doctor not found");
+    if (!doctor) throw new Error('Doctor not found');
     return toDoctorDTO(doctor);
   }
 
-  async updateDoctorProfile(
-    body: any,
-    imageFile?: Express.Multer.File
-  ): Promise<void> {
-    const {
-      doctId,
-      name,
-      speciality,
-      degree,
-      experience,
-      about,
-      fees,
-      address,
-      available,
-    } = body;
+  async updateDoctorProfile(body: any, imageFile?: Express.Multer.File): Promise<void> {
+    const { doctId, name, speciality, degree, experience, about, fees, address, available } = body;
 
-    if (!doctId) throw new Error("Doctor ID is required");
+    if (!doctId) throw new Error('Doctor ID is required');
 
     const doctor = await this._doctorRepository.findById(doctId);
-    if (!doctor) throw new Error("Doctor not found");
+    if (!doctor) throw new Error('Doctor not found');
 
-    if (!name || typeof name !== "string" || !name.trim())
-      throw new Error("Name is required");
+    if (!name || typeof name !== 'string' || !name.trim()) throw new Error('Name is required');
 
     if (!speciality || !degree || !speciality.trim() || !degree.trim())
-      throw new Error("Speciality and degree are required");
+      throw new Error('Speciality and degree are required');
 
     const parsedExperience = parseInt(experience);
     if (isNaN(parsedExperience) || parsedExperience < 0)
-      throw new Error("Experience must be a valid non-negative number");
+      throw new Error('Experience must be a valid non-negative number');
 
     if (about && about.length > 500)
-      throw new Error("About section is too long (max 500 characters)");
+      throw new Error('About section is too long (max 500 characters)');
 
     const parsedFees = parseFloat(fees);
     if (isNaN(parsedFees) || parsedFees <= 0)
-      throw new Error("Fees must be a valid number greater than 0");
+      throw new Error('Fees must be a valid number greater than 0');
 
     let parsedAddress;
     try {
-      parsedAddress =
-        typeof address === "string" ? JSON.parse(address) : address;
+      parsedAddress = typeof address === 'string' ? JSON.parse(address) : address;
       if (
         !parsedAddress ||
-        typeof parsedAddress !== "object" ||
+        typeof parsedAddress !== 'object' ||
         !parsedAddress.line1?.trim() ||
         !parsedAddress.line2?.trim()
       ) {
         throw new Error();
       }
-    } catch (err) {
-      throw new Error("Address must include both line1 and line2");
+    } catch (error) {
+      console.log(error);
+      throw new Error('Address must include both line1 and line2');
     }
 
-    const isAvailable =
-      available !== undefined
-        ? String(available).toLowerCase() === "true"
-        : doctor.available;
+    // const isAvailable =
+    //   available !== undefined ? String(available).toLowerCase() === 'true' : doctor.available;
 
     let imageUrl = doctor.image;
 
     if (imageFile?.path) {
       try {
         const uploadResult = await cloudinary.uploader.upload(imageFile.path, {
-          resource_type: "image",
+          resource_type: 'image',
         });
         imageUrl = uploadResult.secure_url;
         fs.unlink(imageFile.path, (err) => {
-          if (err) console.error("Failed to delete local file:", err);
+          if (err) console.error('Failed to delete local file:', err);
         });
       } catch (uploadError) {
-        console.error("Cloudinary upload failed:", uploadError);
-        throw new Error("Image upload failed");
+        console.error('Cloudinary upload failed:', uploadError);
+        throw new Error('Image upload failed');
       }
     }
 
@@ -438,7 +385,7 @@ async getActiveAppointment(docId: string): Promise<AppointmentDTO | null> {
       address: parsedAddress,
       image: imageUrl,
       ...(available !== undefined && {
-        available: String(available) === "true",
+        available: String(available) === 'true',
       }),
     });
   }
@@ -449,5 +396,23 @@ async getActiveAppointment(docId: string): Promise<AppointmentDTO | null> {
 
     const wallet = await this._walletRepository.getOrCreateWallet(doctorId, 'doctor');
     return wallet;
+  }
+
+  async getDashboardData(doctorId: string, startDate: string, endDate: string) {
+    const revenueData = await this._doctorRepository.getRevenueOverTime(
+      doctorId,
+      startDate,
+      endDate
+    );
+    const appointmentData = await this._doctorRepository.getAppointmentsOverTime(
+      doctorId,
+      startDate,
+      endDate
+    );
+
+    return {
+      revenueData,
+      appointmentData,
+    };
   }
 }

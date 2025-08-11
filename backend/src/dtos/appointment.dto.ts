@@ -1,5 +1,5 @@
-import { DoctorDTO } from "./doctor.dto";
-import { UserDTO } from "./user.dto";
+import { DoctorDTO } from './doctor.dto';
+import { UserDTO } from './user.dto';
 
 export interface AppointmentDTO {
   _id?: string;

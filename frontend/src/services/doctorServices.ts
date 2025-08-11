@@ -136,3 +136,9 @@ export const getDoctorUnreadCountAPI = async () => {
   const res = await api.get(`${DOCTOR_API.NOTIFICATIONS_UNREAD_COUNT}`);
   return res.data;
 };
+
+export const getDoctorDashboardDataAPI = (start?: string, end?: string) => {
+  return api.get('/api/doctor/dashboard', {
+    params: { start, end },
+  });
+};

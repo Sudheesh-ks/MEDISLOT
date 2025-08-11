@@ -1,6 +1,6 @@
-import NotificationModel, { NotificationDocument } from "../../models/notificationModel";
-import { NotificationTypes } from "../../types/notificationTypes";
-import { INotificationRepository } from "../interface/INotificationRepository";
+import NotificationModel, { NotificationDocument } from '../../models/notificationModel';
+import { NotificationTypes } from '../../types/notificationTypes';
+import { INotificationRepository } from '../interface/INotificationRepository';
 
 export class NotificationRepository implements INotificationRepository {
   async createNotification(data: Partial<NotificationTypes>): Promise<NotificationDocument> {
@@ -18,10 +18,7 @@ export class NotificationRepository implements INotificationRepository {
     if (before) query.createdAt = { $lt: before };
     if (type) query.type = type;
 
-    return NotificationModel.find(query)
-      .sort({ createdAt: -1 })
-      .limit(limit)
-      .exec();
+    return NotificationModel.find(query).sort({ createdAt: -1 }).limit(limit).exec();
   }
 
   async countUnread(recipientId: string, recipientRole: string): Promise<number> {
@@ -33,6 +30,9 @@ export class NotificationRepository implements INotificationRepository {
   }
 
   async markAllAsRead(recipientId: string, recipientRole: string): Promise<void> {
-    await NotificationModel.updateMany({ recipientId, recipientRole, isRead: false }, { isRead: true });
+    await NotificationModel.updateMany(
+      { recipientId, recipientRole, isRead: false },
+      { isRead: true }
+    );
   }
 }

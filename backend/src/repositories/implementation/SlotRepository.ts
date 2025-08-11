@@ -1,5 +1,4 @@
-import slotModel from "../../models/slotModel";
-import { slotTypes } from "../../types/slots";
+import slotModel from '../../models/slotModel';
 
 export class SlotRepository {
   async getSlotsByDoctor(doctorId: string) {
@@ -7,8 +6,8 @@ export class SlotRepository {
   }
 
   async getSlotsByMonth(doctorId: string, year: number, month: number) {
-    const start = new Date(year, month - 1, 1).toISOString().split("T")[0];
-    const end = new Date(year, month, 0).toISOString().split("T")[0];
+    const start = new Date(year, month - 1, 1).toISOString().split('T')[0];
+    const end = new Date(year, month, 0).toISOString().split('T')[0];
     return slotModel
       .find({
         doctorId,

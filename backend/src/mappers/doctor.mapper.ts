@@ -1,5 +1,5 @@
-import { DoctorDTO } from "../dtos/doctor.dto";
-import { DoctorDocument } from "../models/doctorModel";
+import { DoctorDTO } from '../dtos/doctor.dto';
+import { DoctorDocument } from '../models/doctorModel';
 
 export const toDoctorDTO = (doc: DoctorDocument): DoctorDTO => {
   return {

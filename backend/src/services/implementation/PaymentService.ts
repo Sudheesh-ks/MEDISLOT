@@ -1,8 +1,8 @@
-import Razorpay from "razorpay";
+import Razorpay from 'razorpay';
 
 export interface RazorpayOrderPayload {
   fees: number;
-  currency: "INR";
+  currency: 'INR';
   receipt: string;
 }
 
@@ -19,7 +19,7 @@ export class PaymentService {
   async createOrder(amountPaise: number, receipt: string) {
     const order = await this.razorpay.orders.create({
       amount: amountPaise,
-      currency: process.env.CURRENCY || "INR",
+      currency: process.env.CURRENCY || 'INR',
       receipt,
     });
     return order;

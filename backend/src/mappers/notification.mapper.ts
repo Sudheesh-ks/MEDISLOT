@@ -1,5 +1,5 @@
-import { NotificationDTO } from "../dtos/notification.dto";
-import { NotificationDocument } from "../models/notificationModel";
+import { NotificationDTO } from '../dtos/notification.dto';
+import { NotificationDocument } from '../models/notificationModel';
 
 export const toNotificationDTO = (doc: NotificationDocument): NotificationDTO => ({
   _id: doc._id.toString(),

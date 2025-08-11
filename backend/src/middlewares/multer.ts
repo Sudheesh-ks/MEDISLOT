@@ -1,5 +1,5 @@
-import { Request, Response, NextFunction } from "express";
-import multer, { StorageEngine } from "multer";
+import { Request } from 'express';
+import multer, { StorageEngine } from 'multer';
 
 const storage: StorageEngine = multer.diskStorage({
   filename: function (req: Request, file, callback) {

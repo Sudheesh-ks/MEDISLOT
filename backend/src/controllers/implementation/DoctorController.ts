@@ -1,17 +1,17 @@
-import { Request, Response } from "express";
-import { DoctorService } from "../../services/implementation/DoctorService";
-import { IDoctorController } from "../interface/IdoctorController.interface";
-import { HttpStatus } from "../../constants/status.constants";
-import { HttpResponse } from "../../constants/responseMessage.constants";
-import { DoctorTypes } from "../../types/doctor";
-import { DoctorSlotService } from "../../services/implementation/SlotService";
-import logger from "../../utils/logger";
-import { NotificationService } from "../../services/implementation/NotificationService";
+import { Request, Response } from 'express';
+import { DoctorService } from '../../services/implementation/DoctorService';
+import { IDoctorController } from '../interface/IdoctorController.interface';
+import { HttpStatus } from '../../constants/status.constants';
+import { HttpResponse } from '../../constants/responseMessage.constants';
+import { DoctorTypes } from '../../types/doctor';
+import logger from '../../utils/logger';
+import { NotificationService } from '../../services/implementation/NotificationService';
+
 
 export class DoctorController implements IDoctorController {
   constructor(
     private _doctorService: DoctorService,
-    private _notificationService: NotificationService,
+    private _notificationService: NotificationService
   ) {}
 
   async registerDoctor(req: Request, res: Response): Promise<void> {
@@ -21,7 +21,7 @@ export class DoctorController implements IDoctorController {
       if (!imageFile) {
         res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
-          message: "Doctor image is required",
+          message: 'Doctor image is required',
         });
         return;
       }
@@ -58,9 +58,7 @@ export class DoctorController implements IDoctorController {
 
   async getDoctorById(req: Request, res: Response): Promise<void> {
     try {
-      const doctor = await this._doctorService.getPublicDoctorById(
-        req.params.id
-      );
+      const doctor = await this._doctorService.getPublicDoctorById(req.params.id);
       logger.info(`Fetched doctor by ID: ${req.params.id}`);
 
       res.status(HttpStatus.OK).json({ success: true, doctor });
@@ -97,7 +95,7 @@ export class DoctorController implements IDoctorController {
   async doctorList(req: Request, res: Response): Promise<void> {
     try {
       const doctors = await this._doctorService.getAllDoctors();
-      logger.info("Fetched all doctors");
+      logger.info('Fetched all doctors');
 
       res.status(HttpStatus.OK).json({ success: true, doctors });
     } catch (error) {
@@ -113,13 +111,11 @@ export class DoctorController implements IDoctorController {
   async getDoctorsPaginated(req: Request, res: Response): Promise<void> {
     try {
       const result = await this._doctorService.getDoctorsPaginated(req.query);
-      logger.info("Fetched paginated doctors list");
+      logger.info('Fetched paginated doctors list');
 
       res.status(HttpStatus.OK).json({ success: true, ...result });
     } catch (error) {
-      logger.error(
-        `Error in paginated doctor fetch: ${(error as Error).message}`
-      );
+      logger.error(`Error in paginated doctor fetch: ${(error as Error).message}`);
 
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
@@ -130,14 +126,13 @@ export class DoctorController implements IDoctorController {
 
   async loginDoctor(req: Request, res: Response): Promise<void> {
     try {
-      const { token: accessToken, refreshToken } =
-        await this._doctorService.loginDoctor(req.body);
+      const { token: accessToken, refreshToken } = await this._doctorService.loginDoctor(req.body);
 
-      res.cookie("refreshToken_doctor", refreshToken, {
+      res.cookie('refreshToken_doctor', refreshToken, {
         httpOnly: true,
-        path: "/api/doctor/refresh-token",
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
+        path: '/api/doctor/refresh-token',
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       });
       logger.info(`Doctor login: ${req.body.email}`);
@@ -163,14 +158,14 @@ export class DoctorController implements IDoctorController {
         req.cookies?.refreshToken_doctor
       );
 
-      res.cookie("refreshToken_doctor", refreshToken, {
+      res.cookie('refreshToken_doctor', refreshToken, {
         httpOnly: true,
-        path: "/api/doctor/refresh-token",
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
+        path: '/api/doctor/refresh-token',
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
         maxAge: 7 * 24 * 60 * 60 * 1000,
       });
-      logger.info("Doctor token refreshed");
+      logger.info('Doctor token refreshed');
 
       res.status(HttpStatus.OK).json({
         success: true,
@@ -187,13 +182,13 @@ export class DoctorController implements IDoctorController {
   }
 
   async logoutDoctor(req: Request, res: Response): Promise<void> {
-    res.clearCookie("refreshToken_doctor", {
+    res.clearCookie('refreshToken_doctor', {
       httpOnly: true,
-      path: "/api/doctor/refresh-token",
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      path: '/api/doctor/refresh-token',
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
     });
-    logger.info("Doctor logged out");
+    logger.info('Doctor logged out');
 
     res.status(HttpStatus.OK).json({
       success: true,
@@ -206,16 +201,12 @@ export class DoctorController implements IDoctorController {
     try {
       const docId = (req as any).docId;
 
-      const appointments = await this._doctorService.getDoctorAppointments(
-        docId
-      );
+      const appointments = await this._doctorService.getDoctorAppointments(docId);
       logger.info(`Fetched appointments for doctor: ${docId}`);
 
       res.status(HttpStatus.OK).json({ success: true, appointments });
     } catch (error) {
-      logger.error(
-        `Error fetching doctor appointments: ${(error as Error).message}`
-      );
+      logger.error(`Error fetching doctor appointments: ${(error as Error).message}`);
 
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
@@ -225,10 +216,7 @@ export class DoctorController implements IDoctorController {
   }
 
   // For getting doctor appointments
-  async appointmentsDoctorPaginated(
-    req: Request,
-    res: Response
-  ): Promise<void> {
+  async appointmentsDoctorPaginated(req: Request, res: Response): Promise<void> {
     try {
       const docId = (req as any).docId;
 
@@ -241,9 +229,7 @@ export class DoctorController implements IDoctorController {
 
       res.status(HttpStatus.OK).json({ success: true, ...result });
     } catch (error) {
-      logger.error(
-        `Error fetching paginated appointments: ${(error as Error).message}`
-      );
+      logger.error(`Error fetching paginated appointments: ${(error as Error).message}`);
 
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
@@ -297,33 +283,32 @@ export class DoctorController implements IDoctorController {
   }
 
   async getActiveAppointment(req: Request, res: Response): Promise<void> {
-  try {
-    const docId = (req as any).docId;
-    const appointment = await this._doctorService.getActiveAppointment(docId);
+    try {
+      const docId = (req as any).docId;
+      const appointment = await this._doctorService.getActiveAppointment(docId);
 
-    if (!appointment) {
-       res.json({ active: false });
-       return
+      if (!appointment) {
+        res.json({ active: false });
+        return;
+      }
+
+      logger.info(`Appointment is active`);
+
+      res.status(HttpStatus.OK).json({
+        active: true,
+        appointmentId: appointment._id,
+        userId: appointment.userData._id,
+        doctorId: appointment.docData._id,
+      });
+      return;
+    } catch (error) {
+      logger.error(`Get active appointment error: ${error}`);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
     }
-
-    logger.info(`Appointment is active`);
-
-     res.status(HttpStatus.OK).json({
-      active: true,
-      appointmentId: appointment._id,
-      userId: appointment.userData._id,
-      doctorId: appointment.docData._id,
-    });
-    return;
-
-  } catch (error) {
-    logger.error(`Get active appointment error: ${error}`);
-     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: (error as Error).message,
-    });
   }
-}
 
   async doctorProfile(req: Request, res: Response): Promise<void> {
     try {
@@ -334,22 +319,17 @@ export class DoctorController implements IDoctorController {
       res.json({ success: true, profileData });
     } catch (error) {
       logger.error(`Doctor profile fetch failed: ${(error as Error).message}`);
-      res
-        .status(500)
-        .json({ success: false, message: (error as Error).message });
+      res.status(500).json({ success: false, message: (error as Error).message });
     }
   }
 
   async updateDoctorProfile(req: Request, res: Response): Promise<void> {
     try {
-      const result = await this._doctorService.updateDoctorProfile(
-        req.body,
-        req.file
-      );
+      const result = await this._doctorService.updateDoctorProfile(req.body, req.file);
       logger.info(`Doctor profile updated: ${(req as any).docId}`);
       res.status(HttpStatus.OK).json({
         success: true,
-        message: "Doctor profile updated successfully",
+        message: 'Doctor profile updated successfully',
       });
     } catch (error) {
       logger.error(`Update doctor profile failed: ${(error as Error).message}`);
@@ -361,7 +341,7 @@ export class DoctorController implements IDoctorController {
     }
   }
 
-    async getDoctorWallet(req: Request, res: Response) {
+  async getDoctorWallet(req: Request, res: Response) {
     try {
       const doctorId = (req as any).docId;
       const wallet = await this._doctorService.getDoctorWallet(doctorId);
@@ -373,73 +353,99 @@ export class DoctorController implements IDoctorController {
         success: false,
         message: (error as Error).message,
       });
-        }
+    }
   }
 
   async getNotificationHistory(req: Request, res: Response): Promise<void> {
-      try {
-        const role = req.query.role as 'user' | 'doctor' | 'admin';
-        const userId = (req as any).docId;
-        const limit = req.query.limit ? Number(req.query.limit) : 10;
-        const before = req.query.before ? new Date(String(req.query.before)) : undefined;
-        const type = req.query.type ? String(req.query.type) : undefined;
-  
-        logger.info(`Fetching notifications for user=${userId}, role=${role}, limit=${limit}, before=${before}, type=${type}`);
-  
-        const notifications = await this._notificationService.fetchNotificationHistory(userId, role, limit, before, type);
-        res.status(HttpStatus.OK).json({ success: true, notifications });
-      } catch (error) {
-        logger.error(`Error fetching notifications: ${(error as Error).message}`);
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-          success: false,
-          message: (error as Error).message,
-        });
-      }
+    try {
+      const role = req.query.role as 'user' | 'doctor' | 'admin';
+      const userId = (req as any).docId;
+      const limit = req.query.limit ? Number(req.query.limit) : 10;
+      const before = req.query.before ? new Date(String(req.query.before)) : undefined;
+      const type = req.query.type ? String(req.query.type) : undefined;
+
+      logger.info(
+        `Fetching notifications for user=${userId}, role=${role}, limit=${limit}, before=${before}, type=${type}`
+      );
+
+      const notifications = await this._notificationService.fetchNotificationHistory(
+        userId,
+        role,
+        limit,
+        before,
+        type
+      );
+      res.status(HttpStatus.OK).json({ success: true, notifications });
+    } catch (error) {
+      logger.error(`Error fetching notifications: ${(error as Error).message}`);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
     }
-  
-    async markSingleAsRead(req: Request, res: Response): Promise<void> {
-      try {
-        const { id } = req.params;
-        logger.info(`Marking notification ${id} as read`);
-        await this._notificationService.markAsRead(id);
-        res.status(HttpStatus.OK).json({ success: true });
-      } catch (error) {
-        logger.error(`Error marking notification as read: ${(error as Error).message}`);
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-          success: false,
-          message: (error as Error).message,
-        });
-      }
+  }
+
+  async markSingleAsRead(req: Request, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+      logger.info(`Marking notification ${id} as read`);
+      await this._notificationService.markAsRead(id);
+      res.status(HttpStatus.OK).json({ success: true });
+    } catch (error) {
+      logger.error(`Error marking notification as read: ${(error as Error).message}`);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
     }
-  
-    async markAllAsRead(req: Request, res: Response): Promise<void> {
-      try {
-          const role = req.query.role as 'user' | 'doctor' | 'admin';
-        const userId = (req as any).docId;
-        logger.info(`Marking all notifications as read for user ${userId}`);
-        await this._notificationService.markAllAsRead(userId, role);
-        res.status(HttpStatus.OK).json({ success: true });
-      } catch (error) {
-        logger.error(`Error marking all notifications as read: ${(error as Error).message}`);
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-          success: false,
-          message: (error as Error).message,
-        });
-      }
+  }
+
+  async markAllAsRead(req: Request, res: Response): Promise<void> {
+    try {
+      const role = req.query.role as 'user' | 'doctor' | 'admin';
+      const userId = (req as any).docId;
+      logger.info(`Marking all notifications as read for user ${userId}`);
+      await this._notificationService.markAllAsRead(userId, role);
+      res.status(HttpStatus.OK).json({ success: true });
+    } catch (error) {
+      logger.error(`Error marking all notifications as read: ${(error as Error).message}`);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
     }
-  
-    async getUnreadCount(req: Request, res: Response): Promise<void> {
-      try {
-          const role = req.query.role as 'user' | 'doctor' | 'admin';
-        const userId = (req as any).docId;
-        const count = await this._notificationService.getUnreadCount(userId, role);
-        res.status(HttpStatus.OK).json({ success: true, count });
-      } catch (error) {
-        logger.error(`Error fetching unread count: ${(error as Error).message}`);
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-          success: false,
-          message: (error as Error).message,
-        });
-      }
+  }
+
+  async getUnreadCount(req: Request, res: Response): Promise<void> {
+    try {
+      const role = req.query.role as 'user' | 'doctor' | 'admin';
+      const userId = (req as any).docId;
+      const count = await this._notificationService.getUnreadCount(userId, role);
+      res.status(HttpStatus.OK).json({ success: true, count });
+    } catch (error) {
+      logger.error(`Error fetching unread count: ${(error as Error).message}`);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
     }
+  }
+
+  async getDashboardData(req: Request, res: Response): Promise<void> {
+    try {
+      const doctorId = (req as any).docId;
+      if (!doctorId) {
+        res.status(HttpStatus.UNAUTHORIZED).json({ message: 'Unauthorized' });
+        return;
+      }
+
+      const { start, end } = req.query as any;
+
+      const data = await this._doctorService.getDashboardData(doctorId, start, end);
+      res.status(HttpStatus.OK).json(data);
+    } catch (error) {
+      logger.error('Error fetching doctor dashboard data', error);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Internal Server Error' });
+    }
+  }
 }

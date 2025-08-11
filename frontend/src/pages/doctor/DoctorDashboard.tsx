@@ -1,131 +1,212 @@
-// import { useContext, useEffect } from 'react';
-// import { useNavigate } from 'react-router-dom';
-// import { DoctorContext } from '../../context/DoctorContext';
-// import { AdminContext } from '../../context/AdminContext';
-// import { assets } from '../../assets/admin/assets';
-// import type { AppointmentTypes } from '../../types/appointment';
-// import { motion } from 'framer-motion';
-// import { slotDateFormat } from '../../utils/commonUtils';
+import { useEffect, useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import { Line } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+import type { DateRange } from '../../components/common/DateFilter';
+import DateFilter from '../../components/common/DateFilter';
+import { assets } from '../../assets/admin/assets';
+import { getDoctorDashboardDataAPI } from '../../services/doctorServices';
 
-const DoctorDashboard = () => {
-  // const nav = useNavigate();
-  // const ctx = useContext(DoctorContext);
-  // const adm = useContext(AdminContext);
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend);
 
-  // if (!ctx || !adm) throw new Error('context missing');
+const glass = 'bg-white/5 backdrop-blur ring-1 ring-white/10';
+const cardBase = 'text-white p-6 rounded-xl shadow-md flex items-center gap-4';
 
-  // // const { dToken, cancelAppointment, profileData } = ctx;
-  // // const { dashData, getDashData } = adm;
+export default function DoctorDashboard() {
+  const navigate = useNavigate();
+  const [dateRange, setDateRange] = useState<DateRange>({ type: 'today' });
+  const [appointmentsData, setAppointmentsData] = useState<{ date: string; count: number }[]>([]);
+  const [revenueData, setRevenueData] = useState<{ date: string; revenue: number }[]>([]);
+  const [loadingStats, setLoadingStats] = useState(false);
+  const [totalAppointments, setTotalAppointments] = useState(0);
+  const [totalRevenue, setTotalRevenue] = useState(0);
 
-  // useEffect(() => {
-  //   // if (dToken) getDashData();
-  // }, [dToken]);
-  // useEffect(() => {
-  //   if (!dToken) nav('/doctor/login');
-  // }, [dToken]);
+  const computeRange = (range: DateRange) => {
+    const today = new Date();
+    const start = new Date();
+    let end = new Date();
+    switch (range.type) {
+      case 'today':
+        start.setHours(0, 0, 0, 0);
+        end.setHours(23, 59, 59, 999);
+        break;
+      case 'yesterday':
+        start.setDate(today.getDate() - 1);
+        start.setHours(0, 0, 0, 0);
+        end = new Date(start);
+        end.setHours(23, 59, 59, 999);
+        break;
+      case 'lastweek':
+        start.setDate(today.getDate() - 7);
+        start.setHours(0, 0, 0, 0);
+        end.setHours(23, 59, 59, 999);
+        break;
+      case 'lastmonth':
+        start.setMonth(today.getMonth() - 1);
+        start.setHours(0, 0, 0, 0);
+        end.setHours(23, 59, 59, 999);
+        break;
+      case 'custom':
+        if (range.startDate) start.setTime(new Date(range.startDate).getTime());
+        else start.setTime(0);
+        if (range.endDate) {
+          end = new Date(range.endDate);
+          end.setHours(23, 59, 59, 999);
+        } else end = new Date();
+        break;
+      default:
+        start.setDate(today.getDate() - 7);
+        start.setHours(0, 0, 0, 0);
+        end.setHours(23, 59, 59, 999);
+    }
+    return { start: start.toISOString(), end: end.toISOString() };
+  };
 
-  // if (profileData?.status === 'pending')
-  //   return (
-  //     <div className="m-5 text-center bg-yellow-900/30 border border-yellow-600 rounded-xl p-6 text-yellow-200 shadow-md">
-  //       <h2 className="text-xl font-semibold mb-2">⏳ Awaiting Approval</h2>
-  //       <p>Your registration is under review. The admin has not approved your account yet.</p>
-  //     </div>
-  //   );
+  // 📊 Fetch dashboard data
+  useEffect(() => {
+    const { start, end } = computeRange(dateRange);
+    setLoadingStats(true);
+    getDoctorDashboardDataAPI(start, end)
+      .then((res) => {
+        const data = res.data;
+        setAppointmentsData(
+          data.appointmentData?.map((d: { date: string; count: number }) => ({
+            date: d.date,
+            count: d.count,
+          })) || []
+        );
+        setRevenueData(
+          data.revenueData?.map((d: { date: string; revenue: number }) => ({
+            date: d.date,
+            revenue: d.revenue,
+          })) || []
+        );
 
-  // if (profileData?.status === 'rejected')
-  //   return (
-  //     <div className="m-5 text-center bg-red-900/30 border border-red-600 rounded-xl p-6 text-red-300 shadow-md">
-  //       <h2 className="text-xl font-semibold mb-2">❌ Registration Rejected</h2>
-  //       <p>Please contact support for clarification.</p>
-  //     </div>
-  //   );
+        setTotalAppointments(
+          data.appointmentData?.reduce((acc: number, cur: any) => acc + cur.count, 0) || 0
+        );
+        setTotalRevenue(
+          data.revenueData?.reduce((acc: number, cur: any) => acc + cur.revenue, 0) || 0
+        );
+      })
+      .catch((err) => console.error(err))
+      .finally(() => setLoadingStats(false));
+  }, [dateRange]);
 
-  // if (profileData?.status !== 'approved') return null;
+  const lineData = useMemo(
+    () => ({
+      labels: appointmentsData.map((d) => d.date),
+      datasets: [
+        {
+          label: 'Appointments',
+          data: appointmentsData.map((d) => d.count),
+          fill: false,
+          tension: 0.3,
+          borderColor: '#007bff',
+          backgroundColor: '#007bff',
+        },
+      ],
+    }),
+    [appointmentsData]
+  );
 
-  // const glass = 'bg-white/5 backdrop-blur ring-1 ring-white/10';
+  const revenueLineData = useMemo(
+    () => ({
+      labels: revenueData.map((d) => d.date),
+      datasets: [
+        {
+          label: 'Revenue',
+          data: revenueData.map((d) => d.revenue),
+          fill: false,
+          tension: 0.3,
+          borderColor: '#28a745',
+          backgroundColor: '#28a745',
+        },
+      ],
+    }),
+    [revenueData]
+  );
+
+  const chartOptions = {
+    responsive: true,
+    plugins: {
+      legend: { labels: { color: '#fff' } },
+    },
+    scales: {
+      x: { ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+      y: { ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,0.1)' } },
+    },
+  };
 
   return (
-    <div>
-      <h1>Doctor Dashboard</h1>
+    <div className="m-5 space-y-10 text-slate-100">
+      {loadingStats ? (
+        <div className="text-center py-20 text-lg">Loading dashboard...</div>
+      ) : (
+        <>
+          {/* Stats Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6">
+            <motion.div
+              onClick={() => navigate('/doctor/appointments')}
+              whileHover={{ scale: 1.05 }}
+              transition={{ type: 'spring', stiffness: 300 }}
+              className={`${cardBase} bg-gradient-to-r from-emerald-500 to-teal-500`}
+            >
+              <img src={assets.appointments_icon} className="w-12 h-12" />
+              <div>
+                <p className="text-2xl font-bold">{totalAppointments}</p>
+                <p className="text-sm opacity-80">Appointments</p>
+              </div>
+            </motion.div>
+
+            <motion.div
+              onClick={() => navigate('/doctor/wallet')}
+              whileHover={{ scale: 1.05 }}
+              transition={{ type: 'spring', stiffness: 300 }}
+              className={`${cardBase} bg-gradient-to-r from-indigo-500 to-violet-600`}
+            >
+              <img src={assets.earning_icon} className="w-12 h-12" />
+              <div>
+                <p className="text-2xl font-bold">${totalRevenue}</p>
+                <p className="text-sm opacity-80">Total Revenue</p>
+              </div>
+            </motion.div>
+          </div>
+
+          {/* Charts */}
+          <div className={`${glass} rounded-xl overflow-hidden p-6`}>
+            <div className="flex items-center justify-between">
+              <p className="font-semibold text-lg">Performance Overview</p>
+              <DateFilter value={dateRange} onChange={setDateRange} />
+            </div>
+
+            <div className="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="bg-slate-800 p-4 rounded">
+                <p className="text-sm font-semibold mb-2">Appointments Trend</p>
+                <div style={{ height: 200 }}>
+                  <Line data={lineData} options={chartOptions} />
+                </div>
+              </div>
+
+              <div className="bg-slate-800 p-4 rounded">
+                <p className="text-sm font-semibold mb-2">Revenue</p>
+                <div style={{ height: 200 }}>
+                  <Line data={revenueLineData} options={chartOptions} />
+                </div>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </div>
-    //   // dashData && (
-    //   //   <div className="m-5 space-y-10 text-slate-100">
-    //   //     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-    //   //       {[
-    //   //         {
-    //   //           count: `₹${dashData.totalEarnings}`,
-    //   //           label: 'Total Earnings',
-    //   //           icon: assets.earning_icon,
-    //   //           grad: 'from-yellow-400 to-orange-500',
-    //   //           path: '/doctor/earnings',
-    //   //         },
-    //   //         {
-    //   //           count: dashData.appointments,
-    //   //           label: 'Appointments',
-    //   //           icon: assets.appointments_icon,
-    //   //           grad: 'from-cyan-500 to-indigo-500',
-    //   //           path: '/doctor/appointments',
-    //   //         },
-    //   //         {
-    //   //           count: dashData.upcomingAppointments || 0,
-    //   //           label: 'Patients',
-    //   //           icon: assets.patients_icon,
-    //   //           grad: 'from-emerald-400 to-teal-500',
-    //   //           path: '/doctor/appointments',
-    //   //         },
-    //   //       ].map((card, i) => (
-    //   //         <motion.div
-    //   //           key={i}
-    //   //           whileHover={{ scale: 1.05 }}
-    //   //           transition={{ type: 'spring', stiffness: 300 }}
-    //   //           onClick={() => nav(card.path)}
-    //   //           className={`cursor-pointer bg-gradient-to-r ${card.grad} p-6 rounded-xl shadow-lg flex items-center gap-4`}
-    //   //         >
-    //   //           <img src={card.icon} className="w-12 h-12" />
-    //   //           <div>
-    //   //             <p className="text-2xl font-bold">{card.count}</p>
-    //   //             <p className="text-sm opacity-80">{card.label}</p>
-    //   //           </div>
-    //   //         </motion.div>
-    //   //       ))}
-    //   //     </div>
-
-    //   //     <div className={`${glass} rounded-xl overflow-hidden`}>
-    //   //       <div className="flex items-center gap-2.5 px-6 py-4 border-b border-white/10">
-    //   //         <img src={assets.list_icon} className="w-6" />
-    //   //         <p className="font-semibold text-lg">Recent Appointments</p>
-    //   //       </div>
-
-    //   //       <div className="divide-y divide-white/10">
-    //   //         {dashData.latestAppointments.map((a: AppointmentTypes, i: number) => (
-    //   //           <motion.div
-    //   //             key={i}
-    //   //             initial={{ opacity: 0, y: 10 }}
-    //   //             animate={{ opacity: 1, y: 0 }}
-    //   //             transition={{ delay: i * 0.1 }}
-    //   //             className="flex items-center gap-4 px-6 py-4 hover:bg-white/5 transition-colors"
-    //   //           >
-    //   //             <img src={a.userData.image} className="w-10 h-10 rounded-full" />
-    //   //             <div className="flex-1 text-sm">
-    //   //               <p className="font-semibold">{a.userData.name}</p>
-    //   //               <p className="text-slate-400 text-xs">{slotDateFormat(a.slotDate)}</p>
-    //   //             </div>
-    //   //             {a.cancelled ? (
-    //   //               <p className="text-red-400 text-sm font-semibold">Cancelled</p>
-    //   //             ) : (
-    //   //               <img
-    //   //                 src={assets.cancel_icon}
-    //   //                 onClick={() => cancelAppointment(a._id!)}
-    //   //                 className="w-6 cursor-pointer hover:scale-110 transition-transform"
-    //   //               />
-    //   //             )}
-    //   //           </motion.div>
-    //   //         ))}
-    //   //       </div>
-    //   //     </div>
-    //   //   </div>
-    //   // )
   );
-};
-
-export default DoctorDashboard;
+}

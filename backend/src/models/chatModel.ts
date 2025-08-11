@@ -1,4 +1,4 @@
-import { Schema, model } from "mongoose";
+import { Schema, model } from 'mongoose';
 
 const chatSchema = new Schema({
   _id: String,
@@ -12,7 +12,7 @@ const chatSchema = new Schema({
 
   lastMessage: {
     type: Schema.Types.ObjectId,
-    ref: "Message",
+    ref: 'Message',
   },
 
   lastMessageAt: Date,
@@ -23,4 +23,4 @@ const chatSchema = new Schema({
   },
 });
 
-export default model("Chat", chatSchema);
+export default model('Chat', chatSchema);

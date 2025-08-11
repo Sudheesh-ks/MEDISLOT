@@ -1,19 +1,14 @@
-import { MessageDTO } from "../../dtos/message.dto";
-import { MessageDocument } from "../../models/messageModel";
-import { MessageKind } from "../../types/message";
+import { MessageDTO } from '../../dtos/message.dto';
+import { MessageKind } from '../../types/message';
 
 export interface IChatService {
-  fetchChatHistory(
-    chatId: string,
-    limit?: number,
-    before?: Date
-  ): Promise<MessageDTO[]>;
+  fetchChatHistory(chatId: string, limit?: number, before?: Date): Promise<MessageDTO[]>;
 
   sendMessage(dto: {
     chatId: string;
     senderId: string;
     receiverId: string;
-    senderRole: "user" | "doctor";
+    senderRole: 'user' | 'doctor';
     kind: MessageKind;
     text?: string;
     mediaUrl?: string;
@@ -21,9 +16,7 @@ export interface IChatService {
     replyTo?: string;
   }): Promise<MessageDTO>;
 
-  uploadFile(
-    file?: Express.Multer.File
-  ): Promise<{ result: string; mime: string }>;
+  uploadFile(file?: Express.Multer.File): Promise<{ result: string; mime: string }>;
   delivered(messageId: string, userId: string): Promise<void>;
   read(chatId: string, userId: string): Promise<void>;
   delete(messageId: string): Promise<void>;

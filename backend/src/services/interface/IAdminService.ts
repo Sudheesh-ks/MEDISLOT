@@ -1,11 +1,11 @@
-import { UserDTO } from "../../dtos/user.dto";
-import { AppointmentDTO } from "../../dtos/appointment.dto";
-import { DoctorTypes } from "../../types/doctor";
-import { adminTypes } from "../../types/admin";
-import { DoctorDTO } from "../../dtos/doctor.dto";
-import { AdminDTO } from "../../dtos/admin.dto";
-import { PaginationResult } from "../../types/pagination";
-import { WalletDTO } from "../../dtos/wallet.dto";
+import { UserDTO } from '../../dtos/user.dto';
+import { AppointmentDTO } from '../../dtos/appointment.dto';
+import { DoctorTypes } from '../../types/doctor';
+import { DoctorDTO } from '../../dtos/doctor.dto';
+import { AdminDTO } from '../../dtos/admin.dto';
+import { PaginationResult } from '../../types/pagination';
+import { WalletDTO } from '../../dtos/wallet.dto';
+import { FeedbackDTO } from '../../dtos/feedback.dto';
 
 export interface DoctorInput extends DoctorTypes {
   imageFile?: Express.Multer.File;
@@ -26,33 +26,30 @@ export interface IAdminService {
   getAdminById(id: string): Promise<AdminDTO | null>;
   validateCredentials(email: string, password: string): Promise<AdminDTO>;
   getDoctors(): Promise<DoctorDTO[]>;
-  getDoctorsPaginated(
-    page: string,
-    limit: string
-  ): Promise<PaginationResult<DoctorDTO>>;
+  getDoctorsPaginated(page: string, limit: string): Promise<PaginationResult<DoctorDTO>>;
   getUsers(): Promise<UserDTO[]>;
-  getUsersPaginated(
-    page: string,
-    limit: string
-  ): Promise<PaginationResult<UserDTO>>;
+  getUsersPaginated(page: string, limit: string): Promise<PaginationResult<UserDTO>>;
   toggleUserBlock(userId: string, block: boolean): Promise<UserDTO>;
   listAppointments(): Promise<AppointmentDTO[]>;
-  listAppointmentsPaginated(
-    page: number,
-    limit: number
-  ): Promise<PaginationResult<AppointmentDTO>>;
+  listAppointmentsPaginated(page: number, limit: number): Promise<PaginationResult<AppointmentDTO>>;
   cancelAppointment(appointmentId: string): Promise<void>;
   approveDoctor(doctorId: string): Promise<string>;
   rejectDoctor(doctorId: string, reason?: string): Promise<string>;
   getAdminWallet(): Promise<WalletDTO>;
   getLatestDoctorRequests(limit: number): Promise<DoctorDTO[]>;
   getAppointmentsStats(
-  startDate?: string, 
-  endDate?: string
-): Promise<{ date: string; count: number }[]>;
-getTopDoctors(limit: number): Promise<{ doctorId: string; doctorName: string; appointments: number; revenue: number }[]>;
-getRevenueStats(
-  startDate?: string, 
-  endDate?: string
-): Promise<{ date: string; revenue: number }[]>;
+    startDate?: string,
+    endDate?: string
+  ): Promise<{ date: string; count: number }[]>;
+  getTopDoctors(
+    limit: number
+  ): Promise<{ doctorId: string; doctorName: string; appointments: number; revenue: number }[]>;
+  getRevenueStats(
+    startDate?: string,
+    endDate?: string
+  ): Promise<{ date: string; revenue: number }[]>;
+  getAllFeedbacks(
+    page: number,
+    limit: number
+  ): Promise<{ feedbacks: FeedbackDTO[]; totalPages: number; currentPage: number }>;
 }

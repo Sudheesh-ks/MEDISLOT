@@ -1,8 +1,7 @@
-import { Types } from "mongoose";
 
 export interface slotTypes {
   _id?: string;
-  doctorId: Object;
+  doctorId: object;
   date: string;
   slots: {
     isAvailable: boolean;

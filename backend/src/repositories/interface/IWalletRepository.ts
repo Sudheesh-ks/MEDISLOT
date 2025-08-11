@@ -1,8 +1,14 @@
-import { WalletDocument } from "../../models/walletModel";
+import { WalletDocument } from '../../models/walletModel';
 
 export interface IWalletRepository {
-  getOrCreateWallet(ownerId: string, ownerType: "user" | "doctor" | "admin"): Promise<WalletDocument>;
+  getOrCreateWallet(
+    ownerId: string,
+    ownerType: 'user' | 'doctor' | 'admin'
+  ): Promise<WalletDocument>;
   creditWallet(ownerId: string, ownerType: string, amount: number, reason: string): Promise<void>;
   debitWallet(ownerId: string, ownerType: string, amount: number, reason: string): Promise<void>;
-  findWalletByOwner(ownerId: string, ownerType: "admin" | "doctor" | "user"): Promise<WalletDocument | null>;
+  findWalletByOwner(
+    ownerId: string,
+    ownerType: 'admin' | 'doctor' | 'user'
+  ): Promise<WalletDocument | null>;
 }

@@ -1,7 +1,7 @@
-import mongoose, { Schema, Model, Document, Types } from "mongoose";
-import { adminTypes } from "../types/admin";
+import mongoose, { Schema, Model, Document, Types } from 'mongoose';
+import { adminTypes } from '../types/admin';
 
-export interface AdminDocument extends Omit<adminTypes, "_id">, Document {
+export interface AdminDocument extends Omit<adminTypes, '_id'>, Document {
   _id: Types.ObjectId;
 }
 
@@ -18,6 +18,6 @@ const adminSchema: Schema<AdminDocument> = new mongoose.Schema({
   },
 });
 
-const adminModel: Model<AdminDocument> = mongoose.model("admin", adminSchema);
+const adminModel: Model<AdminDocument> = mongoose.model('admin', adminSchema);
 
 export default adminModel;

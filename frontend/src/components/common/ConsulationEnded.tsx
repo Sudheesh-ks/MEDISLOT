@@ -1,21 +1,28 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { submitFeedbackAPI } from '../../services/appointmentServices';
+import { toast } from 'react-toastify';
 
-interface ConsultationEndedPageProps {
+interface ConsultationEndedCardProps {
   role: 'user' | 'doctor';
+  appointmentId: string;
 }
 
-const ConsultationEndedCard = ({ role }: ConsultationEndedPageProps) => {
+const ConsultationEndedCard = ({ role, appointmentId }: ConsultationEndedCardProps) => {
   const [feedback, setFeedback] = useState('');
   const [submitted, setSubmitted] = useState(false);
-  //   const { appointmentId } = useParams();
   const navigate = useNavigate();
 
   const handleSubmit = async () => {
     if (!feedback.trim()) return;
 
     try {
-      setSubmitted(true);
+      const { data } = await submitFeedbackAPI(appointmentId, feedback);
+      if (data.success) {
+        toast.success(data.message);
+        setFeedback('');
+        setSubmitted(true);
+      }
     } catch (err) {
       console.error('Error submitting feedback', err);
     }

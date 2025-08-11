@@ -1,15 +1,15 @@
-import { Request, Response } from "express";
-import { IAdminService } from "../../services/interface/IAdminService";
-import { IAdminController } from "../interface/IadminController.interface";
-import { HttpStatus } from "../../constants/status.constants";
-import { HttpResponse } from "../../constants/responseMessage.constants";
-import logger from "../../utils/logger";
-import { NotificationService } from "../../services/implementation/NotificationService";
+import { Request, Response } from 'express';
+import { IAdminService } from '../../services/interface/IAdminService';
+import { IAdminController } from '../interface/IadminController.interface';
+import { HttpStatus } from '../../constants/status.constants';
+import { HttpResponse } from '../../constants/responseMessage.constants';
+import logger from '../../utils/logger';
+import { NotificationService } from '../../services/implementation/NotificationService';
 
 export class AdminController implements IAdminController {
   constructor(
     private _adminService: IAdminService,
-    private _notificationService: NotificationService,
+    private _notificationService: NotificationService
   ) {}
 
   // For Admin login
@@ -21,11 +21,11 @@ export class AdminController implements IAdminController {
       );
       logger.info(`Admin login success: ${req.body.email}`);
       res
-        .cookie("refreshToken_admin", refreshToken, {
+        .cookie('refreshToken_admin', refreshToken, {
           httpOnly: true,
-          secure: process.env.NODE_ENV === "production",
-          sameSite: "strict",
-          path: "/api/admin/refresh-token",
+          secure: process.env.NODE_ENV === 'production',
+          sameSite: 'strict',
+          path: '/api/admin/refresh-token',
           maxAge: 7 * 24 * 60 * 60 * 1000,
         })
         .status(HttpStatus.OK)
@@ -47,16 +47,15 @@ export class AdminController implements IAdminController {
 
   async refreshAdminToken(req: Request, res: Response): Promise<void> {
     try {
-      const { accessToken, refreshToken } =
-        await this._adminService.refreshAdminToken(
-          req.cookies?.refreshToken_admin
-        );
+      const { accessToken, refreshToken } = await this._adminService.refreshAdminToken(
+        req.cookies?.refreshToken_admin
+      );
 
-      res.cookie("refreshToken_admin", refreshToken, {
+      res.cookie('refreshToken_admin', refreshToken, {
         httpOnly: true,
-        path: "/api/admin/refresh-token",
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
+        path: '/api/admin/refresh-token',
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
         maxAge: 7 * 24 * 60 * 60 * 1000,
       });
 
@@ -65,7 +64,7 @@ export class AdminController implements IAdminController {
         token: accessToken,
       });
     } catch (error) {
-      logger.error("Refresh admin token failed", { error });
+      logger.error('Refresh admin token failed', { error });
       res.status(HttpStatus.UNAUTHORIZED).json({
         success: false,
         message: (error as Error).message || HttpResponse.REFRESH_TOKEN_FAILED,
@@ -75,14 +74,14 @@ export class AdminController implements IAdminController {
 
   // For Admin Logout
   async logoutAdmin(req: Request, res: Response): Promise<void> {
-    res.clearCookie("refreshToken_admin", {
+    res.clearCookie('refreshToken_admin', {
       httpOnly: true,
-      path: "/api/admin/refresh-token",
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      path: '/api/admin/refresh-token',
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
     });
 
-    logger.info("Admin logout successful");
+    logger.info('Admin logout successful');
     res.status(HttpStatus.OK).json({
       success: true,
       message: HttpResponse.LOGOUT_SUCCESS,
@@ -98,7 +97,7 @@ export class AdminController implements IAdminController {
       );
       res.status(HttpStatus.OK).json({ success: true, ...result });
     } catch (error) {
-      logger.error("Failed to fetch doctors paginated", { error });
+      logger.error('Failed to fetch doctors paginated', { error });
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: (error as Error).message,
@@ -114,7 +113,7 @@ export class AdminController implements IAdminController {
       );
       res.status(HttpStatus.OK).json({ success: true, ...result });
     } catch (error) {
-      logger.error("Failed to fetch users paginated", { error });
+      logger.error('Failed to fetch users paginated', { error });
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: (error as Error).message,
@@ -132,7 +131,7 @@ export class AdminController implements IAdminController {
       const data = await this._adminService.toggleUserBlock(userId, block!);
       res.status(HttpStatus.OK).json({ success: true, data });
     } catch (error) {
-      logger.error("Failed to toggle user block", { error });
+      logger.error('Failed to toggle user block', { error });
       res.status(HttpStatus.BAD_REQUEST).json({
         success: false,
         message: (error as Error).message,
@@ -179,10 +178,7 @@ export class AdminController implements IAdminController {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 8;
 
-      const result = await this._adminService.listAppointmentsPaginated(
-        page,
-        limit
-      );
+      const result = await this._adminService.listAppointmentsPaginated(page, limit);
       logger.info(`Admin fetched appointments page: ${page}`);
       res.status(HttpStatus.OK).json({ success: true, ...result });
     } catch (error) {
@@ -205,30 +201,27 @@ export class AdminController implements IAdminController {
         .status(HttpStatus.OK)
         .json({ success: true, message: HttpResponse.APPOINTMENT_CANCELLED });
     } catch (error) {
-      logger.error(
-        `Failed to cancel appointment: ${(error as Error).message}`,
-        { stack: (error as Error).stack }
-      );
+      logger.error(`Failed to cancel appointment: ${(error as Error).message}`, {
+        stack: (error as Error).stack,
+      });
       res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .json({ success: false, message: (error as Error).message });
     }
   }
 
-
   async getAdminWallet(req: Request, res: Response): Promise<void> {
-  try {
-    const wallet = await this._adminService.getAdminWallet();
-          logger.info(`Wallet fetched for admin`);
-    res.status(200).json(wallet);
-  } catch (error) {
-    logger.error(`Get wallet error: ${error}`);
+    try {
+      const wallet = await this._adminService.getAdminWallet();
+      logger.info(`Wallet fetched for admin`);
+      res.status(200).json(wallet);
+    } catch (error) {
+      logger.error(`Get wallet error: ${error}`);
       res
         .status(HttpStatus.INTERNAL_SERVER_ERROR)
         .json({ success: false, message: (error as Error).message });
+    }
   }
-}
-
 
   // For admin dashboard
   async adminDashboard(req: Request, res: Response): Promise<void> {
@@ -255,116 +248,156 @@ export class AdminController implements IAdminController {
     }
   }
 
-
   async getLatestDoctorRequests(req: Request, res: Response): Promise<void> {
-  try {
-    const limit = req.query.limit ? Number(req.query.limit) : 5;
-    const requests = await this._adminService.getLatestDoctorRequests(limit);
-    res.status(HttpStatus.OK).json({ success: true, requests });
-  } catch (err) {
-    logger.error(`Latest doctor requests failed: ${(err as Error).message}`);
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: (err as Error).message });
+    try {
+      const limit = req.query.limit ? Number(req.query.limit) : 5;
+      const requests = await this._adminService.getLatestDoctorRequests(limit);
+      res.status(HttpStatus.OK).json({ success: true, requests });
+    } catch (err) {
+      logger.error(`Latest doctor requests failed: ${(err as Error).message}`);
+      res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ success: false, message: (err as Error).message });
+    }
   }
-}
 
-async getAppointmentsStats(req: Request, res: Response): Promise<void> {
-  try {
-    const { startDate, endDate } = req.query as any;
-    const data = await this._adminService.getAppointmentsStats(startDate, endDate);
-    res.status(HttpStatus.OK).json({ success: true, data });
-  } catch (err) {
-    logger.error(`Appointments stats failed: ${(err as Error).message}`);
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: (err as Error).message });
+  async getAppointmentsStats(req: Request, res: Response): Promise<void> {
+    try {
+      const { startDate, endDate } = req.query as any;
+      const data = await this._adminService.getAppointmentsStats(startDate, endDate);
+      res.status(HttpStatus.OK).json({ success: true, data });
+    } catch (err) {
+      logger.error(`Appointments stats failed: ${(err as Error).message}`);
+      res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ success: false, message: (err as Error).message });
+    }
   }
-}
 
-async getTopDoctors(req: Request, res: Response): Promise<void> {
-  try {
-    const { limit } = req.query as any;
-    const data = await this._adminService.getTopDoctors(Number(limit) || 5);
-    res.status(HttpStatus.OK).json({ success: true, data });
-  } catch (err) {
-    logger.error(`Top doctors failed: ${(err as Error).message}`);
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: (err as Error).message });
+  async getTopDoctors(req: Request, res: Response): Promise<void> {
+    try {
+      const { limit } = req.query as any;
+      const data = await this._adminService.getTopDoctors(Number(limit) || 5);
+      res.status(HttpStatus.OK).json({ success: true, data });
+    } catch (err) {
+      logger.error(`Top doctors failed: ${(err as Error).message}`);
+      res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ success: false, message: (err as Error).message });
+    }
   }
-}
 
-async getRevenueStats(req: Request, res: Response): Promise<void> {
-  try {
-    const { startDate, endDate } = req.query as any;
-    const data = await this._adminService.getRevenueStats(startDate, endDate);
-    res.status(HttpStatus.OK).json({ success: true, data });
-  } catch (err) {
-    logger.error(`Revenue stats failed: ${(err as Error).message}`);
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: (err as Error).message });
+  async getRevenueStats(req: Request, res: Response): Promise<void> {
+    try {
+      const { startDate, endDate } = req.query as any;
+      const data = await this._adminService.getRevenueStats(startDate, endDate);
+      res.status(HttpStatus.OK).json({ success: true, data });
+    } catch (err) {
+      logger.error(`Revenue stats failed: ${(err as Error).message}`);
+      res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ success: false, message: (err as Error).message });
+    }
   }
-}
-
 
   async getNotificationHistory(req: Request, res: Response): Promise<void> {
-      try {
-        const role = req.query.role as 'user' | 'doctor' | 'admin';
-        const userId = (req as any).adminId;
-        const limit = req.query.limit ? Number(req.query.limit) : 10;
-        const before = req.query.before ? new Date(String(req.query.before)) : undefined;
-        const type = req.query.type ? String(req.query.type) : undefined;
-  
-        logger.info(`Fetching notifications for user=${userId}, role=${role}, limit=${limit}, before=${before}, type=${type}`);
-  
-        const notifications = await this._notificationService.fetchNotificationHistory(userId, role, limit, before, type);
-        res.status(HttpStatus.OK).json({ success: true, notifications });
-      } catch (error) {
-        logger.error(`Error fetching notifications: ${(error as Error).message}`);
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-          success: false,
-          message: (error as Error).message,
-        });
-      }
+    try {
+      const role = req.query.role as 'user' | 'doctor' | 'admin';
+      const userId = (req as any).adminId;
+      const limit = req.query.limit ? Number(req.query.limit) : 10;
+      const before = req.query.before ? new Date(String(req.query.before)) : undefined;
+      const type = req.query.type ? String(req.query.type) : undefined;
+
+      logger.info(
+        `Fetching notifications for user=${userId}, role=${role}, limit=${limit}, before=${before}, type=${type}`
+      );
+
+      const notifications = await this._notificationService.fetchNotificationHistory(
+        userId,
+        role,
+        limit,
+        before,
+        type
+      );
+      res.status(HttpStatus.OK).json({ success: true, notifications });
+    } catch (error) {
+      logger.error(`Error fetching notifications: ${(error as Error).message}`);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
     }
-  
-    async markSingleAsRead(req: Request, res: Response): Promise<void> {
-      try {
-        const { id } = req.params;
-        logger.info(`Marking notification ${id} as read`);
-        await this._notificationService.markAsRead(id);
-        res.status(HttpStatus.OK).json({ success: true });
-      } catch (error) {
-        logger.error(`Error marking notification as read: ${(error as Error).message}`);
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-          success: false,
-          message: (error as Error).message,
-        });
-      }
+  }
+
+  async markSingleAsRead(req: Request, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+      logger.info(`Marking notification ${id} as read`);
+      await this._notificationService.markAsRead(id);
+      res.status(HttpStatus.OK).json({ success: true });
+    } catch (error) {
+      logger.error(`Error marking notification as read: ${(error as Error).message}`);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
     }
-  
-    async markAllAsRead(req: Request, res: Response): Promise<void> {
-      try {
-          const role = req.query.role as 'user' | 'doctor' | 'admin';
-        const userId = (req as any).adminId;
-        logger.info(`Marking all notifications as read for user ${userId}`);
-        await this._notificationService.markAllAsRead(userId, role);
-        res.status(HttpStatus.OK).json({ success: true });
-      } catch (error) {
-        logger.error(`Error marking all notifications as read: ${(error as Error).message}`);
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-          success: false,
-          message: (error as Error).message,
-        });
-      }
+  }
+
+  async markAllAsRead(req: Request, res: Response): Promise<void> {
+    try {
+      const role = req.query.role as 'user' | 'doctor' | 'admin';
+      const userId = (req as any).adminId;
+      logger.info(`Marking all notifications as read for user ${userId}`);
+      await this._notificationService.markAllAsRead(userId, role);
+      res.status(HttpStatus.OK).json({ success: true });
+    } catch (error) {
+      logger.error(`Error marking all notifications as read: ${(error as Error).message}`);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
     }
-  
-    async getUnreadCount(req: Request, res: Response): Promise<void> {
-      try {
-          const role = req.query.role as 'user' | 'doctor' | 'admin';
-        const userId = (req as any).adminId;
-        const count = await this._notificationService.getUnreadCount(userId, role);
-        res.status(HttpStatus.OK).json({ success: true, count });
-      } catch (error) {
-        logger.error(`Error fetching unread count: ${(error as Error).message}`);
-        res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-          success: false,
-          message: (error as Error).message,
-        });
-      }
+  }
+
+  async getUnreadCount(req: Request, res: Response): Promise<void> {
+    try {
+      const role = req.query.role as 'user' | 'doctor' | 'admin';
+      const userId = (req as any).adminId;
+      const count = await this._notificationService.getUnreadCount(userId, role);
+      res.status(HttpStatus.OK).json({ success: true, count });
+    } catch (error) {
+      logger.error(`Error fetching unread count: ${(error as Error).message}`);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
     }
+  }
+
+  // admin.controller.ts
+  async getAllFeedback(req: Request, res: Response): Promise<void> {
+    try {
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+
+      const result = await this._adminService.getAllFeedbacks(page, limit);
+
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: 'Feedback fetched successfully',
+        data: result.feedbacks,
+        pagination: {
+          totalPages: result.totalPages,
+          currentPage: result.currentPage,
+        },
+      });
+    } catch (error) {
+      logger.error('Error fetching feedback:', error);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: 'Something went wrong',
+      });
+    }
+  }
 }

@@ -1,6 +1,6 @@
-import { Types } from "mongoose";
+import { Types } from 'mongoose';
 
-export type MessageKind = "text" | "image" | "file" | "emoji";
+export type MessageKind = 'text' | 'image' | 'file' | 'emoji';
 export interface IStatus {
   userId: string;
   at: Date;
@@ -10,7 +10,7 @@ export interface MessageType {
   _id?: string;
   chatId: string;
   senderId: string;
-  senderRole: "user" | "doctor";
+  senderRole: 'user' | 'doctor';
   receiverId?: string;
 
   kind: MessageKind;

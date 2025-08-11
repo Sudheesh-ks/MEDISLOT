@@ -1,9 +1,9 @@
-import jwt from "jsonwebtoken";
+import jwt from 'jsonwebtoken';
 
 const JWT_SECRET = process.env.JWT_SECRET!;
 const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET!;
 
-type Role = "user" | "doctor" | "admin";
+type Role = 'user' | 'doctor' | 'admin';
 
 interface JwtPayload {
   id: string;
@@ -12,11 +12,11 @@ interface JwtPayload {
 }
 
 export const generateAccessToken = (id: string, email: string, role: Role) => {
-  return jwt.sign({ id, email, role }, JWT_SECRET, { expiresIn: "15m" });
+  return jwt.sign({ id, email, role }, JWT_SECRET, { expiresIn: '15m' });
 };
 
 export const generateRefreshToken = (id: string) => {
-  return jwt.sign({ id }, JWT_REFRESH_SECRET, { expiresIn: "7d" });
+  return jwt.sign({ id }, JWT_REFRESH_SECRET, { expiresIn: '7d' });
 };
 
 export const verifyAccessToken = (token: string): JwtPayload => {

@@ -205,3 +205,11 @@ export const getAdminUnreadCountAPI = async () => {
   const res = await api.get(`${ADMIN_API.NOTIFICATIONS_UNREAD_COUNT}`);
   return res.data;
 };
+
+export const getFeedbacksPaginatedAPI = async (page: number, limit: number, token: string) => {
+  return await api.get(`${ADMIN_API.FEEDBACKS}?page=${page}&limit=${limit}`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};

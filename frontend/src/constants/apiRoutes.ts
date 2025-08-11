@@ -23,6 +23,7 @@ export const ADMIN_API = {
   NOTIFICATION_MARK_READ: (id: string) => `/api/admin/notifications/${id}/read`,
   NOTIFICATION_MARK_ALL_READ: '/api/admin/notifications/read-all',
   NOTIFICATIONS_UNREAD_COUNT: '/api/admin/notifications/unread-count',
+  FEEDBACKS: '/api/admin/feedbacks',
 };
 
 export const APPOINTMENT_API = {

@@ -1,5 +1,5 @@
-import { UserDTO } from "../dtos/user.dto";
-import { userDocument } from "../models/userModel";
+import { UserDTO } from '../dtos/user.dto';
+import { userDocument } from '../models/userModel';
 
 export const toUserDTO = (user: userDocument): UserDTO => {
   return {

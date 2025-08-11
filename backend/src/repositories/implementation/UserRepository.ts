@@ -1,20 +1,14 @@
-import { IUserRepository } from "../../repositories/interface/IUserRepository";
-import userModel, { userDocument } from "../../models/userModel";
-import doctorModel, { DoctorDocument } from "../../models/doctorModel";
-import slotModel from "../../models/slotModel";
-import { AppointmentTypes } from "../../types/appointment";
-import appointmentModel, {
-  AppointmentDocument,
-} from "../../models/appointmentModel";
-import { DoctorTypes } from "../../types/doctor";
-import { BaseRepository } from "../BaseRepository";
-import { userTypes } from "../../types/user";
-import { PaginationResult } from "../../types/pagination";
+import { IUserRepository } from '../../repositories/interface/IUserRepository';
+import userModel, { userDocument } from '../../models/userModel';
+import doctorModel, { DoctorDocument } from '../../models/doctorModel';
+import slotModel from '../../models/slotModel';
+import { AppointmentTypes } from '../../types/appointment';
+import appointmentModel, { AppointmentDocument } from '../../models/appointmentModel';
+import { BaseRepository } from '../BaseRepository';
+import { userTypes } from '../../types/user';
+import { PaginationResult } from '../../types/pagination';
 
-export class UserRepository
-  extends BaseRepository<userDocument>
-  implements IUserRepository
-{
+export class UserRepository extends BaseRepository<userDocument> implements IUserRepository {
   constructor() {
     super(userModel);
   }
@@ -37,10 +31,7 @@ export class UserRepository
     await userModel.findByIdAndUpdate(id, { $set: data });
   }
 
-  async updatePasswordByEmail(
-    email: string,
-    newHashedPassword: string
-  ): Promise<boolean> {
+  async updatePasswordByEmail(email: string, newHashedPassword: string): Promise<boolean> {
     const updatedUser = await userModel.findOneAndUpdate(
       { email },
       { $set: { password: newHashedPassword } }
@@ -48,37 +39,28 @@ export class UserRepository
     return !!updatedUser;
   }
 
-  async bookAppointment(
-    appointmentData: AppointmentTypes
-  ): Promise<AppointmentDocument> {
+  async bookAppointment(appointmentData: AppointmentTypes): Promise<AppointmentDocument> {
     const { userId, docId, slotDate, slotStartTime, slotEndTime } = appointmentData;
 
     const doctor = await doctorModel.findById(docId);
-    if (!doctor || !doctor.available) throw new Error("Doctor not available");
+    if (!doctor || !doctor.available) throw new Error('Doctor not available');
 
     const slotDoc = await slotModel.findOne({
       doctorId: docId,
       date: slotDate,
     });
-    if (!slotDoc || slotDoc.isCancelled)
-      throw new Error("No available slots for this date");
+    if (!slotDoc || slotDoc.isCancelled) throw new Error('No available slots for this date');
 
     const slotIndex = slotDoc.slots.findIndex(
       (slot) => slot.start === slotStartTime && slot.end === slotEndTime && !slot.booked
     );
-    if (slotIndex === -1) throw new Error("Slot not available");
+    if (slotIndex === -1) throw new Error('Slot not available');
 
     slotDoc.slots[slotIndex].booked = true;
     await slotDoc.save();
 
-    const userData = await userModel
-      .findById(userId)
-      .select("-password")
-      .lean();
-    const docData = await doctorModel
-      .findById(docId)
-      .select("-password")
-      .lean();
+    const userData = await userModel.findById(userId).select('-password').lean();
+    const docData = await doctorModel.findById(docId).select('-password').lean();
 
     const appointment = new appointmentModel({
       userId,
@@ -95,9 +77,7 @@ export class UserRepository
     return await appointment.save();
   }
 
-  async findAppointmentById(
-    appointmentId: string
-  ): Promise<AppointmentDocument | null> {
+  async findAppointmentById(appointmentId: string): Promise<AppointmentDocument | null> {
     return await appointmentModel.findById(appointmentId).lean();
   }
 
@@ -111,8 +91,8 @@ export class UserRepository
 
     const data = await appointmentModel
       .find({ userId })
-      .populate("userId", "name email image dob")
-      .populate("docId", "name image speciality")
+      .populate('userId', 'name email image dob')
+      .populate('docId', 'name image speciality')
       .skip(skip)
       .limit(limit)
       .sort({ createdAt: -1 });
@@ -129,47 +109,41 @@ export class UserRepository
     };
   }
 
-async findActiveAppointment(userId: string): Promise<AppointmentDocument | null> {
-  const now = new Date();
+  async findActiveAppointment(userId: string): Promise<AppointmentDocument | null> {
+    const now = new Date();
 
-  const appointments = await appointmentModel.find({
-    userId,
-    payment: true,
-    cancelled: false,
-  });
+    const appointments = await appointmentModel.find({
+      userId,
+      payment: true,
+      cancelled: false,
+    });
 
-  for (const appt of appointments) {
-    const start = new Date(`${appt.slotDate}T${appt.slotStartTime}:00`);
-    const end = new Date(`${appt.slotDate}T${appt.slotEndTime}:00`);
+    for (const appt of appointments) {
+      const start = new Date(`${appt.slotDate}T${appt.slotStartTime}:00`);
+      const end = new Date(`${appt.slotDate}T${appt.slotEndTime}:00`);
 
-    if (now >= start && now <= end) {
-      return appt;
+      if (now >= start && now <= end) {
+        return appt;
+      }
     }
+
+    return null;
   }
-
-  return null;
-}
-
-
-
 
   async findDoctorById(id: string): Promise<DoctorDocument | null> {
-    return doctorModel.findById(id).select("-password") as any;
+    return doctorModel.findById(id).select('-password') as any;
   }
 
-  async cancelAppointment(
-    userId: string,
-    appointmentId: string
-  ): Promise<void> {
+  async cancelAppointment(userId: string, appointmentId: string): Promise<void> {
     const appointment = await appointmentModel.findById(appointmentId);
-    if (!appointment) throw new Error("Appointment not found");
+    if (!appointment) throw new Error('Appointment not found');
 
     if (appointment.userId.toString() !== userId.toString()) {
-      throw new Error("Unauthorized action");
+      throw new Error('Unauthorized action');
     }
 
     if (appointment.cancelled) {
-      throw new Error("Appointment already cancelled");
+      throw new Error('Appointment already cancelled');
     }
 
     appointment.cancelled = true;
@@ -191,28 +165,20 @@ async findActiveAppointment(userId: string): Promise<AppointmentDocument | null>
     }
   }
 
-  async findPayableAppointment(
-    userId: string,
-    appointmentId: string
-  ): Promise<any> {
-    const appointment = await appointmentModel.findById<AppointmentTypes>(
-      appointmentId
-    );
-    if (!appointment) throw new Error("Appointment not found");
+  async findPayableAppointment(userId: string, appointmentId: string): Promise<any> {
+    const appointment = await appointmentModel.findById<AppointmentTypes>(appointmentId);
+    if (!appointment) throw new Error('Appointment not found');
 
     if (appointment.userId.toString() !== userId.toString()) {
-      throw new Error("Unauthorized");
+      throw new Error('Unauthorized');
     }
 
-    if (appointment.cancelled) throw new Error("Appointment cancelled");
+    if (appointment.cancelled) throw new Error('Appointment cancelled');
 
     return appointment;
   }
 
-  async saveRazorpayOrderId(
-    appointmentId: string,
-    orderId: string
-  ): Promise<void> {
+  async saveRazorpayOrderId(appointmentId: string, orderId: string): Promise<void> {
     await appointmentModel.findByIdAndUpdate(appointmentId, {
       razorpayOrderId: orderId,
     });
@@ -227,7 +193,7 @@ async findActiveAppointment(userId: string): Promise<AppointmentDocument | null>
     year: number,
     month: number
   ): Promise<any[]> {
-    const regexMonth = String(month).padStart(2, "0");
+    const regexMonth = String(month).padStart(2, '0');
     const regex = new RegExp(`^${year}-${regexMonth}`);
 
     return slotModel
@@ -235,8 +201,8 @@ async findActiveAppointment(userId: string): Promise<AppointmentDocument | null>
         doctorId,
         date: { $regex: regex },
         isCancelled: false,
-        "slots.booked": false,
+        'slots.booked': false,
       })
-      .select("date slots");
+      .select('date slots');
   }
 }
