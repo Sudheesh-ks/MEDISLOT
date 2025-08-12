@@ -312,12 +312,29 @@ export class UserService implements IUserService {
     return doctor;
   }
 
-  async getUserWallet(userId: string): Promise<WalletDTO> {
-    const doctor = await this._userRepository.findUserById(userId);
-    if (!doctor) throw new Error('Doctor not found');
+  async getUserWalletPaginated(
+    ownerId: string,
+    ownerType: 'user' | 'doctor' | 'admin',
+    page: number,
+    limit: number
+  ): Promise<WalletDTO & { total: number }> {
+    const wallet = await this._walletRepository.getOrCreateWallet(ownerId, ownerType);
 
-    const wallet = await this._walletRepository.getOrCreateWallet(userId, 'user');
-    return wallet;
+    const total = wallet.history.length;
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + limit;
+
+    const paginatedHistory = wallet.history
+      .sort((a, b) => b.date.getTime() - a.date.getTime())
+      .slice(startIndex, endIndex);
+
+    return {
+      ownerId: wallet.ownerId,
+      ownerType: wallet.ownerType,
+      balance: wallet.balance,
+      history: paginatedHistory,
+      total,
+    };
   }
 
   async bookAppointment({
@@ -383,57 +400,60 @@ export class UserService implements IUserService {
     return appointment ? toAppointmentDTO(appointment) : null;
   }
 
-  async cancelAppointment(userId: string, appointmentId: string): Promise<void> {
-    if (!userId || !appointmentId) throw new Error('Missing required details');
+async cancelAppointment(userId: string, appointmentId: string): Promise<void> {
+  if (!userId || !appointmentId) throw new Error('Missing required details');
 
-    const appointment = await this._userRepository.findAppointmentById(appointmentId);
-    if (!appointment) throw new Error('Appointment not found');
+  const appointment = await this._userRepository.findAppointmentById(appointmentId);
+  if (!appointment) throw new Error('Appointment not found');
 
-    if (appointment.userId.toString() !== userId.toString()) {
-      throw new Error('Unauthorized cancellation');
-    }
-
-    const amount = appointment.amount; // Assuming you store fee in appointment
-    if (!amount || amount <= 0) return;
-
-    const doctorId = appointment.docData._id.toString();
-    const reason = `Refund for Cancelled Appointment (${appointment._id}) of ${appointment.docData.name}`;
-
-    // console.log(adminId);
-    // console.log(doctorId);
-    // console.log(uId)
-
-    // Credit full amount to user wallet
-    await this._walletRepository.creditWallet(userId.toString(), 'user', amount, reason);
-
-    // Debit 80% from doctor
-    const doctorShare = amount * 0.8;
-    await this._walletRepository.debitWallet(doctorId, 'doctor', doctorShare, reason);
-
-    // Debit 20% from admin
-    const adminShare = amount * 0.2;
-    await this._walletRepository.debitWallet(adminId!, 'admin', adminShare, reason);
-
-    await this._userRepository.cancelAppointment(userId, appointmentId);
-
-    await this._notificationService.sendNotification({
-      recipientId: doctorId,
-      recipientRole: 'doctor',
-      type: 'appointment',
-      title: 'Appointment Canceled',
-      message: `User ${appointment.userData.name} canceled the appointment. ₹${doctorShare} refunded to user from your wallet.`,
-      link: '/doctor/appointments',
-    });
-
-    await this._notificationService.sendNotification({
-      recipientId: adminId,
-      recipientRole: 'admin',
-      type: 'appointment',
-      title: 'Appointment Canceled by User',
-      message: `Appointment between ${appointment.userData.name} and ${appointment.docData.name} was canceled. ₹${adminShare} refunded to user from your wallet.`,
-      link: '/admin/appointments',
-    });
+  if (appointment.userId.toString() !== userId.toString()) {
+    throw new Error('Unauthorized cancellation');
   }
+
+  // 🛑 Only refund if payment was successful
+  if (!appointment.payment) {
+    await this._userRepository.cancelAppointment(userId, appointmentId);
+    return;
+  }
+
+  const amount = appointment.amount;
+  if (!amount || amount <= 0) return;
+
+  const doctorId = appointment.docData._id.toString();
+  const reason = `Refund for Cancelled Appointment (${appointment._id}) of ${appointment.docData.name}`;
+
+  // Credit full amount to user wallet
+  await this._walletRepository.creditWallet(userId.toString(), 'user', amount, reason);
+
+  // Debit 80% from doctor
+  const doctorShare = amount * 0.8;
+  await this._walletRepository.debitWallet(doctorId, 'doctor', doctorShare, reason);
+
+  // Debit 20% from admin
+  const adminShare = amount * 0.2;
+  await this._walletRepository.debitWallet(adminId!, 'admin', adminShare, reason);
+
+  await this._userRepository.cancelAppointment(userId, appointmentId);
+
+  await this._notificationService.sendNotification({
+    recipientId: doctorId,
+    recipientRole: 'doctor',
+    type: 'appointment',
+    title: 'Appointment Canceled',
+    message: `User ${appointment.userData.name} canceled the appointment. ₹${doctorShare} refunded to user from your wallet.`,
+    link: '/doctor/appointments',
+  });
+
+  await this._notificationService.sendNotification({
+    recipientId: adminId,
+    recipientRole: 'admin',
+    type: 'appointment',
+    title: 'Appointment Canceled by User',
+    message: `Appointment between ${appointment.userData.name} and ${appointment.docData.name} was canceled. ₹${adminShare} refunded to user from your wallet.`,
+    link: '/admin/appointments',
+  });
+}
+
 
   async startPayment(userId: string, appointmentId: string): Promise<{ order: any }> {
     if (!userId || !appointmentId) {

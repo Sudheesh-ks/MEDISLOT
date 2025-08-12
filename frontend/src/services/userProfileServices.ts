@@ -38,8 +38,8 @@ export const getUserByIDAPI = async (id: string) => {
   return await api.get(USER_PROFILE_API.USERBY_ID(id));
 };
 
-export const getUserWallet = async () => {
-  return await api.get(USER_PROFILE_API.WALLET);
+export const getUserWallet = async (page = 1, limit = 10) => {
+  return await api.get(`${USER_PROFILE_API.WALLET}?page=${page}&limit=${limit}`);
 };
 
 export const getUserNotificationsAPI = async (

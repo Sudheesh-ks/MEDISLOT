@@ -35,7 +35,12 @@ export interface IUserService {
     data: Partial<userTypes>,
     imageFile?: Express.Multer.File
   ): Promise<void>;
-  getUserWallet(userId: string): Promise<WalletDTO>;
+  getUserWalletPaginated(
+    ownerId: string,
+    ownerType: 'user' | 'doctor' | 'admin',
+    page: number,
+    limit: number
+  ): Promise<WalletDTO & { total: number }>;
   checkEmailExists(email: string): Promise<boolean>;
   hashPassword(password: string): Promise<string>;
   finalizeRegister(userTypes: { name: string; email: string; password: string }): Promise<UserDTO>;

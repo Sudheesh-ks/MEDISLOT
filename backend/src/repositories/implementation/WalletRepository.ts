@@ -19,6 +19,30 @@ export class WalletRepository extends BaseRepository<WalletDocument> implements 
     return wallet;
   }
 
+  async getWalletHistoryPaginated(
+    ownerId: string,
+    ownerType: 'user' | 'doctor' | 'admin',
+    page: number,
+    limit: number
+  ): Promise<{ history: any[]; total: number; balance: number }> {
+    const wallet = await this.getOrCreateWallet(ownerId, ownerType);
+
+    const total = wallet.history.length;
+    const startIndex = (page - 1) * limit;
+    const endIndex = startIndex + limit;
+
+    // Most recent first
+    const paginatedHistory = wallet.history
+      .sort((a, b) => b.date.getTime() - a.date.getTime())
+      .slice(startIndex, endIndex);
+
+    return {
+      history: paginatedHistory,
+      total,
+      balance: wallet.balance,
+    };
+  }
+
   async creditWallet(
     ownerId: string,
     ownerType: 'user' | 'doctor' | 'admin',

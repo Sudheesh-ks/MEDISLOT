@@ -2,6 +2,7 @@ import { useContext, useEffect, useState } from 'react';
 import { UserContext } from '../../context/UserContext';
 import { useNavigate } from 'react-router-dom';
 import { getUserWallet } from '../../services/userProfileServices';
+import Pagination from '../../components/common/Pagination';
 
 const Wallet = () => {
   const nav = useNavigate();
@@ -9,51 +10,46 @@ const Wallet = () => {
   if (!context) throw new Error('Wallet must be within UserContext');
   const { token } = context;
 
-  const [transactions, setTransactions] = useState([]);
+  const [transactions, setTransactions] = useState<WalletTypes[]>([]);
   const [walletBalance, setWalletBalance] = useState(0);
   const [filter, setFilter] = useState('all');
+  const [page, setPage] = useState(1);
+  const [limit] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
+
+  const fetchWallet = async (pageNum = 1) => {
+    try {
+      const res = await getUserWallet(pageNum, limit);
+      const wallet = res.data;
+
+      setWalletBalance(wallet.balance || 0);
+
+      const mappedTransactions = (wallet.history || []).map((entry, idx) => ({
+        id: `TXN${(pageNum - 1) * limit + idx + 1}`,
+        type: entry.type,
+        amount: entry.amount,
+        description: entry.reason || 'N/A',
+        date: new Date(entry.date).toLocaleDateString(),
+        time: new Date(entry.date).toLocaleTimeString(),
+      }));
+
+      setTransactions(mappedTransactions);
+      setTotalPages(Math.ceil(wallet.total / limit));
+    } catch (err) {
+      console.error('Failed to fetch wallet:', err);
+    }
+  };
 
   useEffect(() => {
     if (!token) {
       nav('/');
       return;
     }
-
-    const fetchWallet = async () => {
-      try {
-        const res = await getUserWallet();
-        const wallet = res.data;
-
-        setWalletBalance(wallet.balance || 0);
-
-        const mappedTransactions = (wallet.history || []).map((entry, idx) => ({
-          id: `TXN${idx + 1}`,
-          type: entry.type,
-          amount: entry.amount,
-          description: entry.reason || 'N/A',
-          date: new Date(entry.date).toLocaleDateString(),
-          time: new Date(entry.date).toLocaleTimeString(),
-          status: 'completed', // If your backend supports it, replace with entry.status
-        }));
-
-        setTransactions(mappedTransactions);
-      } catch (err) {
-        console.error('Failed to fetch wallet:', err);
-      }
-    };
-
-    fetchWallet();
-  }, [token, nav]);
-
-  const pendingAmount = transactions
-    .filter((t) => t.status === 'pending')
-    .reduce((acc, curr) => acc + curr.amount, 0);
-
-  const availableBalance = walletBalance - pendingAmount;
+    fetchWallet(page);
+  }, [token, nav, page]);
 
   const filteredTransactions = transactions.filter((transaction) => {
     if (filter === 'all') return true;
-    if (filter === 'pending') return transaction.status === 'pending';
     return transaction.type === filter;
   });
 
@@ -75,7 +71,9 @@ const Wallet = () => {
 
     return (
       <span
-        className={`px-2 py-1 rounded text-xs font-medium ${statusClasses[status] || 'bg-gray-600 text-white'}`}
+        className={`px-2 py-1 rounded text-xs font-medium ${
+          statusClasses[status] || 'bg-gray-600 text-white'
+        }`}
       >
         {status.charAt(0).toUpperCase() + status.slice(1)}
       </span>
@@ -109,12 +107,8 @@ const Wallet = () => {
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between items-center">
                   <span className="text-white/70">Available</span>
-                  <span className="font-semibold">${availableBalance.toFixed(2)}</span>
+                  <span className="font-semibold">${walletBalance.toFixed(2)}</span>
                 </div>
-                {/* <div className="flex justify-between items-center">
-                  <span className="text-white/70">Pending</span>
-                  <span className="font-semibold">${pendingAmount.toFixed(2)}</span>
-                </div> */}
               </div>
 
               <div className="mt-6 pt-4 border-t border-white/20">
@@ -134,7 +128,7 @@ const Wallet = () => {
 
               {/* Filter Buttons */}
               <div className="flex gap-2 flex-wrap">
-                {['all', 'credit', 'debit', 'pending'].map((filterType) => (
+                {['all', 'credit', 'debit'].map((filterType) => (
                   <button
                     key={filterType}
                     onClick={() => setFilter(filterType)}
@@ -203,9 +197,9 @@ const Wallet = () => {
                           {formatAmount(transaction.amount, transaction.type)}
                         </span>
                       </td>
-                      <td className="py-4 px-2 text-center">
+                      {/* <td className="py-4 px-2 text-center">
                         {getStatusBadge(transaction.status)}
-                      </td>
+                      </td> */}
                     </tr>
                   ))}
                 </tbody>
@@ -219,11 +213,17 @@ const Wallet = () => {
               </div>
             )}
 
-            {/* Load More Button */}
+            {/* Pagination */}
             <div className="mt-6 flex justify-center">
-              <button className="px-6 py-2 bg-gray-700 text-gray-300 rounded-lg hover:bg-gray-600 transition-colors duration-200">
-                Load More Transactions
-              </button>
+              <Pagination
+                currentPage={page}
+                totalPages={totalPages}
+                onPageChange={(newPage) => {
+                  if (newPage >= 1 && newPage <= totalPages) {
+                    setPage(newPage);
+                  }
+                }}
+              />
             </div>
           </div>
         </div>

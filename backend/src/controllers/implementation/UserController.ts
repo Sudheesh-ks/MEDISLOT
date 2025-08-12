@@ -276,9 +276,20 @@ export class UserController implements IUserController {
   async getUserWallet(req: Request, res: Response): Promise<void> {
     try {
       const userId = (req as any).userId;
-      const wallet = await this._userService.getUserWallet(userId);
-      logger.info(`Wallet fetched for user: ${userId}`);
-      res.status(200).json(wallet);
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
+
+      const walletData = await this._userService.getUserWalletPaginated(
+        userId,
+        'user',
+        page,
+        limit
+      );
+
+      res.status(200).json({
+        success: true,
+        ...walletData,
+      });
     } catch (error) {
       logger.error(`Get wallet error: ${error}`);
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
