@@ -1,6 +1,5 @@
 import { FeedbackDTO } from '../dtos/feedback.dto';
 import { FeedbackDocument } from '../models/feedbackModel';
-import { toUserDTO } from './user.mapper';
 
 export const toFeedbackDTO = (feedback: FeedbackDocument): FeedbackDTO => {
   return {

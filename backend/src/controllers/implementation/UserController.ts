@@ -572,4 +572,17 @@ export class UserController implements IUserController {
       });
     }
   }
+
+  // doctorController.ts or prescriptionController.ts
+  async getPrescriptionByAppointmentId(req: Request, res: Response): Promise<void> {
+    try {
+      const { appointmentId } = req.params;
+
+      const prescription = await this._userService.getPrescriptionByAppointmentId(appointmentId);
+
+      res.status(200).json({ success: true, data: prescription });
+    } catch (err: any) {
+      res.status(500).json({ success: false, message: err.message });
+    }
+  }
 }

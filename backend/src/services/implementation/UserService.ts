@@ -35,6 +35,9 @@ import { WalletRepository } from '../../repositories/implementation/WalletReposi
 import { WalletDTO } from '../../dtos/wallet.dto';
 import { NotificationService } from './NotificationService';
 import { FeedbackRepository } from '../../repositories/implementation/FeedbackRepository';
+import { PrescriptionDTO } from '../../dtos/prescription.dto';
+import { toPrescriptionDTO } from '../../mappers/prescription.mapper';
+import { PrescriptionRepository } from '../../repositories/implementation/PrescriptionRepository';
 
 export interface UserDocument extends userTypes {
   _id: string;
@@ -49,7 +52,8 @@ export class UserService implements IUserService {
     private readonly _slotRepository = new SlotRepository(),
     private readonly _walletRepository = new WalletRepository(),
     private readonly _notificationService = new NotificationService(),
-    private readonly _feedbackRepository = new FeedbackRepository()
+    private readonly _feedbackRepository = new FeedbackRepository(),
+    private readonly _prescriptionRepository = new PrescriptionRepository()
   ) {}
 
   async register(name: string, email: string, password: string): Promise<void> {
@@ -525,5 +529,12 @@ export class UserService implements IUserService {
       throw new Error('Appointment ID is required');
     }
     return this._feedbackRepository.submitFeedback(userId, apptId, message);
+  }
+
+  async getPrescriptionByAppointmentId(appointmentId: string): Promise<PrescriptionDTO | null> {
+    const prescriptionDoc = await this._prescriptionRepository.findByAppointmentId(appointmentId);
+    if (!prescriptionDoc) return null;
+
+    return toPrescriptionDTO(prescriptionDoc);
   }
 }

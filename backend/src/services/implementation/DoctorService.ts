@@ -18,6 +18,8 @@ import { HttpResponse } from '../../constants/responseMessage.constants';
 import { WalletDTO } from '../../dtos/wallet.dto';
 import { IWalletRepository } from '../../repositories/interface/IWalletRepository';
 import { INotificationService } from '../interface/INotificationService';
+import { Types } from 'mongoose';
+import { IPrescriptionRepository } from '../../repositories/interface/IPrescriptionRepository';
 
 export interface DoctorDocument extends DoctorTypes {
   _id: string;
@@ -27,7 +29,8 @@ export class DoctorService implements IDoctorService {
   constructor(
     private readonly _doctorRepository: IDoctorRepository,
     private readonly _walletRepository: IWalletRepository,
-    private readonly _notificationService: INotificationService
+    private readonly _notificationService: INotificationService,
+    private readonly _prescriptionRepository: IPrescriptionRepository
   ) {}
 
   async registerDoctor(data: DoctorTypes): Promise<void> {
@@ -355,9 +358,6 @@ export class DoctorService implements IDoctorService {
       throw new Error('Address must include both line1 and line2');
     }
 
-    // const isAvailable =
-    //   available !== undefined ? String(available).toLowerCase() === 'true' : doctor.available;
-
     let imageUrl = doctor.image;
 
     if (imageFile?.path) {
@@ -414,5 +414,19 @@ export class DoctorService implements IDoctorService {
       revenueData,
       appointmentData,
     };
+  }
+
+  async submitPrescription(doctorId: string, appointmentId: string, prescription: string) {
+    const appointment = await this._doctorRepository.findAppointmentById(appointmentId);
+    if (!appointment) {
+      throw new Error('Appointment not found');
+    }
+
+    return await this._prescriptionRepository.createPrescription({
+      appointmentId: appointment._id,
+      doctorId: new Types.ObjectId(doctorId),
+      patientId: appointment.userData._id,
+      prescription,
+    });
   }
 }

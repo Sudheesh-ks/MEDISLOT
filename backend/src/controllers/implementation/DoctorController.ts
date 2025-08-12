@@ -7,7 +7,6 @@ import { DoctorTypes } from '../../types/doctor';
 import logger from '../../utils/logger';
 import { NotificationService } from '../../services/implementation/NotificationService';
 
-
 export class DoctorController implements IDoctorController {
   constructor(
     private _doctorService: DoctorService,
@@ -325,7 +324,7 @@ export class DoctorController implements IDoctorController {
 
   async updateDoctorProfile(req: Request, res: Response): Promise<void> {
     try {
-      const result = await this._doctorService.updateDoctorProfile(req.body, req.file);
+      await this._doctorService.updateDoctorProfile(req.body, req.file);
       logger.info(`Doctor profile updated: ${(req as any).docId}`);
       res.status(HttpStatus.OK).json({
         success: true,
@@ -446,6 +445,32 @@ export class DoctorController implements IDoctorController {
     } catch (error) {
       logger.error('Error fetching doctor dashboard data', error);
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ message: 'Internal Server Error' });
+    }
+  }
+
+  async submitPrescription(req: Request, res: Response): Promise<void> {
+    try {
+      const doctorId = (req as any).docId;
+      console.log(doctorId);
+      const { appointmentId } = req.params;
+      const { prescription } = req.body;
+
+      if (!prescription) {
+        res
+          .status(HttpStatus.BAD_REQUEST)
+          .json({ success: false, message: 'Prescription text is required' });
+        return;
+      }
+
+      const saved = await this._doctorService.submitPrescription(
+        doctorId,
+        appointmentId,
+        prescription
+      );
+
+      res.status(HttpStatus.OK).json({ success: true, data: saved });
+    } catch (err: any) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: err.message });
     }
   }
 }

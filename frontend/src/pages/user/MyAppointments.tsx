@@ -4,6 +4,7 @@ import { toast } from 'react-toastify';
 import {
   cancelAppointmentAPI,
   getAppointmentsPaginatedAPI,
+  getPrescriptionAPI,
 } from '../../services/appointmentServices';
 import { showErrorToast } from '../../utils/errorHandler';
 import { useNavigate } from 'react-router-dom';
@@ -13,6 +14,7 @@ import { NotifContext } from '../../context/NotificationContext';
 import { updateItemInList } from '../../utils/stateHelper.util';
 import Pagination from '../../components/common/Pagination';
 import { slotDateFormat } from '../../utils/commonUtils';
+import { MessageSquare } from 'lucide-react';
 dayjs.extend(customParseFormat);
 
 const to12h = (t: string) => dayjs(t, 'HH:mm').format('hh:mm A').toLowerCase();
@@ -26,6 +28,8 @@ const MyAppointments = () => {
   const [appointments, setAppointments] = useState<any[]>([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [showPrescription, setShowPrescription] = useState(false);
+  const [selectedPrescription, setSelectedPrescription] = useState<any>(null);
 
   const nav = useNavigate();
 
@@ -59,12 +63,32 @@ const MyAppointments = () => {
     }
   };
 
+  const fetchPrescription = async (appointmentId: string) => {
+    try {
+      if (!token) throw new Error('Unauthorized');
+
+      const { data } = await getPrescriptionAPI(appointmentId, token);
+      if (data.success) {
+        console.log(data);
+        setSelectedPrescription(data.data.prescription);
+        setShowPrescription(true);
+      }
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   useEffect(() => {
     fetchAppointments(page);
   }, [token]);
 
   const handlePageChange = (newPage: number) => {
     fetchAppointments(newPage);
+  };
+
+  const hasAppointmentStarted = (slotDate: string, slotStartTime: string) => {
+    const startDateTime = dayjs(`${slotDate} ${slotStartTime}`, 'YYYY-MM-DD HH:mm');
+    return dayjs().isAfter(startDateTime);
   };
 
   const isSessionEnded = (slotDate: string, slotEndTime: string) => {
@@ -139,12 +163,24 @@ const MyAppointments = () => {
             )}
 
             {!a.cancelled ? (
-              <button
-                onClick={() => cancelAppointment(a._id)}
-                className={`${btn} border-red-500 text-red-400 hover:bg-red-500 hover:text-white`}
-              >
-                Cancel appointment
-              </button>
+              hasAppointmentStarted(a.slotDate, a.slotStartTime) ? (
+                <button
+                  onClick={() => {
+                    fetchPrescription(a._id);
+                    setShowPrescription(true);
+                  }}
+                  className={`${btn} border-green-500 text-green-400 hover:bg-green-500 hover:text-white`}
+                >
+                  View Prescription
+                </button>
+              ) : (
+                <button
+                  onClick={() => cancelAppointment(a._id)}
+                  className={`${btn} border-red-500 text-red-400 hover:bg-red-500 hover:text-white`}
+                >
+                  Cancel appointment
+                </button>
+              )
             ) : (
               <span className="border border-red-500 text-red-400 text-xs py-1 px-3 rounded">
                 Appointment Cancelled
@@ -155,6 +191,48 @@ const MyAppointments = () => {
       ))}
       {totalPages > 1 && (
         <Pagination currentPage={page} totalPages={totalPages} onPageChange={handlePageChange} />
+      )}
+
+      {showPrescription && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <div className="w-full max-w-2xl rounded-xl p-6 shadow-2xl max-h-[80vh] overflow-y-auto mx-4 border border-white/10 bg-slate-900">
+            <div className="flex justify-between items-start mb-4">
+              {/* <div className="flex items-center gap-3">
+                <div className="bg-white/10 p-2 rounded-full">
+                  <User className="w-5 h-5 text-slate-400" />
+                </div>
+                <div>
+                  <h3 className="text-lg font-semibold text-slate-100">
+                    {a?.name || 'Unknown User'}
+                  </h3>
+                  <p className="text-sm text-slate-400">{userData?.email || 'N/A'}</p>
+                </div>
+              </div> */}
+              <div className="bg-white/10 px-3 py-1 rounded-full">
+                <span className="text-slate-100 text-xs font-medium flex items-center gap-1">
+                  <MessageSquare className="w-3 h-3" />
+                  PRESCRIPTION
+                </span>
+              </div>
+            </div>
+            <div className="mb-4">
+              <p className="text-slate-200 leading-relaxed">
+                {selectedPrescription || 'No prescription available.'}
+              </p>
+            </div>
+            <div className="flex justify-between items-center pt-4 border-t border-white/10">
+              <button
+                onClick={() => {
+                  setSelectedPrescription('');
+                  setShowPrescription(false);
+                }}
+                className="px-3 py-1 rounded-full bg-white/10 text-slate-100 hover:bg-white/20"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

@@ -1,4 +1,3 @@
-
 interface CustomRequest extends Request {
   file?: Express.Multer.File;
 }

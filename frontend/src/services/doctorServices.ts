@@ -142,3 +142,9 @@ export const getDoctorDashboardDataAPI = (start?: string, end?: string) => {
     params: { start, end },
   });
 };
+
+export const submitPrescriptionAPI = (appointmentId: string, prescription: string) => {
+  return api.post(`/api/doctor/appointments/${appointmentId}/prescription`, {
+    prescription,
+  });
+};

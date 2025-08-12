@@ -6,11 +6,18 @@ import upload from '../middlewares/multer';
 import authRole from '../middlewares/authRole';
 import { WalletRepository } from '../repositories/implementation/WalletRepository';
 import { NotificationService } from '../services/implementation/NotificationService';
+import { PrescriptionRepository } from '../repositories/implementation/PrescriptionRepository';
 
 const doctorRepository = new DoctorRepository();
 const walletRepository = new WalletRepository();
 const notificationService = new NotificationService();
-const doctorService = new DoctorService(doctorRepository, walletRepository, notificationService);
+const prescriptionRepository = new PrescriptionRepository();
+const doctorService = new DoctorService(
+  doctorRepository,
+  walletRepository,
+  notificationService,
+  prescriptionRepository
+);
 const doctorController = new DoctorController(doctorService, notificationService);
 
 const doctorRouter = express.Router();
@@ -111,6 +118,12 @@ doctorRouter.get(
   '/dashboard',
   authRole(['doctor']),
   doctorController.getDashboardData.bind(doctorController)
+);
+
+doctorRouter.post(
+  '/appointments/:appointmentId/prescription',
+  authRole(['doctor']),
+  doctorController.submitPrescription.bind(doctorController)
 );
 
 doctorRouter.get('/:id', doctorController.getDoctorById.bind(doctorController));

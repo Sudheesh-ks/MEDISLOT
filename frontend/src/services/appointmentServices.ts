@@ -53,3 +53,9 @@ export const getAvailableSlotsAPI = async (doctorId: string, date: string) => {
 export const submitFeedbackAPI = async (appointmentId: string, message: string) => {
   return api.post(`/api/user/appointments/${appointmentId}/feedback`, { message });
 };
+
+export async function getPrescriptionAPI(appointmentId: string, token: string) {
+  return api.get(`/api/user/appointments/${appointmentId}/prescription`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+}

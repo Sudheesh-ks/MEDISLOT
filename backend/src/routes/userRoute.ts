@@ -106,6 +106,12 @@ userRouter.post(
   userController.submitFeedback.bind(userController)
 );
 
+userRouter.get(
+  '/appointments/:appointmentId/prescription',
+  authRole(['doctor', 'user']),
+  userController.getPrescriptionByAppointmentId.bind(userController)
+);
+
 userRouter.get('/:id', userController.getUserById.bind(userController));
 
 export default userRouter;

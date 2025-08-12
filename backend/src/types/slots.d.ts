@@ -1,4 +1,3 @@
-
 export interface slotTypes {
   _id?: string;
   doctorId: object;

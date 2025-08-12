@@ -135,10 +135,7 @@ export class AdminRepository extends BaseRepository<AdminDocument> implements IA
   }
 
   async getLatestDoctorRequests(limit = 5): Promise<DoctorDocument[]> {
-    const docs = await doctorModel
-      .find({ status: 'pending' })
-      .sort({ createdAt: -1 })
-      .limit(limit);
+    const docs = await doctorModel.find({ status: 'pending' }).sort({ createdAt: -1 }).limit(limit);
 
     return docs as unknown as DoctorDocument[];
   }
