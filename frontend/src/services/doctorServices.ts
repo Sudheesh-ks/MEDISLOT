@@ -111,15 +111,20 @@ export const getDaySlotsAPI = async (date: string) => {
   }[];
 };
 
-export const getDoctorNotificationsAPI = async (params: {
-  limit?: number;
-  before?: string;
-  type?: string;
-}) => {
-  const res = await api.get(DOCTOR_API.NOTIFICATIONS, {
-    params: { role: 'doctor', ...params },
+export const getDoctorNotificationsAPI = async (
+  params: { page?: number; limit?: number; type?: string },
+  token: string
+) => {
+  const searchParams = new URLSearchParams();
+  searchParams.append('role', 'doctor');
+  if (params.page) searchParams.append('page', String(params.page));
+  if (params.limit) searchParams.append('limit', String(params.limit));
+  if (params.type) searchParams.append('type', params.type);
+
+  const res = await api.get(`${DOCTOR_API.NOTIFICATIONS}?${searchParams.toString()}`, {
+    headers: { Authorization: `Bearer ${token}` },
   });
-  return res.data.notifications;
+  return res.data;
 };
 
 export const markDoctorNotificationAsReadAPI = async (id: string) => {

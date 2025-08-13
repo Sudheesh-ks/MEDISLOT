@@ -1,34 +1,35 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import {
   getDoctorNotificationsAPI,
   markAllDoctorNotificationsAsReadAPI,
   markDoctorNotificationAsReadAPI,
 } from '../../services/doctorServices';
+import Pagination from '../../components/common/Pagination';
+import { DoctorContext } from '../../context/DoctorContext';
 
 const DoctorNotifications = () => {
+
+    const ctx = useContext(DoctorContext);
+    if (!ctx) throw new Error('DoctorContext missing');
+    const { dToken } = ctx;
+
+
   const [type, setType] = useState<'all' | 'appointment' | 'system' | 'prescription'>('all');
   const [notifications, setNotifications] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-  const [before, setBefore] = useState<string | undefined>();
-  const [hasMore, setHasMore] = useState(true);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const pageSize = 10;
 
-  const fetchNotifications = async (reset = false) => {
+  const fetchNotifications = async () => {
     setLoading(true);
     try {
-      const params: any = { limit: pageSize };
+      const params: any = { page, limit: pageSize };
       if (type !== 'all') params.type = type;
-      if (!reset && before) params.before = before;
 
-      const fetched = await getDoctorNotificationsAPI(params);
-      if (reset) setNotifications(fetched);
-      else setNotifications((prev) => [...prev, ...fetched]);
-
-      if (fetched.length < pageSize) {
-        setHasMore(false);
-      } else {
-        setBefore(new Date(fetched[fetched.length - 1].createdAt).toISOString());
-      }
+      const fetched = await getDoctorNotificationsAPI(params, dToken);
+      setNotifications(fetched.notifications);
+      setTotalPages(fetched.totalPages);
     } catch (err) {
       console.error('Error fetching notifications:', err);
     } finally {
@@ -37,15 +38,15 @@ const DoctorNotifications = () => {
   };
 
   useEffect(() => {
-    setBefore(undefined);
-    setHasMore(true);
-    fetchNotifications(true);
-  }, [type]);
+    fetchNotifications();
+  }, [page, type]);
 
   const handleMarkAsRead = async (id: string) => {
     try {
       await markDoctorNotificationAsReadAPI(id);
-      setNotifications((prev) => prev.map((n) => (n._id === id ? { ...n, isRead: true } : n)));
+      setNotifications((prev) =>
+        prev.map((n) => (n._id === id ? { ...n, isRead: true } : n))
+      );
     } catch (err) {
       console.error('Error marking notification as read:', err);
     }
@@ -67,7 +68,10 @@ const DoctorNotifications = () => {
         <div className="flex gap-2 items-center">
           <select
             value={type}
-            onChange={(e) => setType(e.target.value as any)}
+            onChange={(e) => {
+              setType(e.target.value as any);
+              setPage(1); // reset to first page when filter changes
+            }}
             className="bg-slate-800 text-white px-4 py-2 rounded-lg"
           >
             <option value="all">All</option>
@@ -84,6 +88,9 @@ const DoctorNotifications = () => {
         </div>
       </div>
 
+ {loading ? (
+  <p className="text-slate-400 text-center">Loading notifications...</p>
+) : (
       <ul className="space-y-4">
         {notifications.map((notif) => (
           <li
@@ -113,17 +120,14 @@ const DoctorNotifications = () => {
           </li>
         ))}
       </ul>
+)}
 
-      {hasMore && (
-        <div className="flex justify-center mt-6">
-          <button
-            onClick={() => fetchNotifications()}
-            disabled={loading}
-            className="bg-slate-700 text-white px-4 py-2 rounded hover:bg-slate-600"
-          >
-            {loading ? 'Loading...' : 'Load More'}
-          </button>
-        </div>
+      {totalPages > 1 && (
+        <Pagination
+          currentPage={page}
+          totalPages={totalPages}
+          onPageChange={(newPage) => setPage(newPage)}
+        />
       )}
     </div>
   );

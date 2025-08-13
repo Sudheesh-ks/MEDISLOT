@@ -5,40 +5,29 @@ import {
   markAllUserNotificationsAsReadAPI,
   markUserNotificationAsReadAPI,
 } from '../../services/userProfileServices';
+import Pagination from '../../components/common/Pagination';
 
 const UserNotifications = () => {
   const [type, setType] = useState<'all' | 'appointment' | 'system' | 'prescription'>('all');
   const [notifications, setNotifications] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-  const [before, setBefore] = useState<string | undefined>();
-  const [hasMore, setHasMore] = useState(true);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const pageSize = 10;
 
   const userContext = useContext(UserContext);
   if (!userContext) throw new Error('Missing contexts');
-
   const { token } = userContext;
 
-  if (!token) {
-    console.log('token is missing');
-  }
-
-  const fetchNotifications = async (reset = false) => {
+  const fetchNotifications = async () => {
     setLoading(true);
     try {
-      const params: any = { limit: pageSize };
+      const params: any = { page, limit: pageSize };
       if (type !== 'all') params.type = type;
-      if (!reset && before) params.before = before;
 
       const fetched = await getUserNotificationsAPI(params, token!);
-      if (reset) setNotifications(fetched);
-      else setNotifications((prev) => [...prev, ...fetched]);
-
-      if (fetched.length < pageSize) {
-        setHasMore(false);
-      } else {
-        setBefore(new Date(fetched[fetched.length - 1].createdAt).toISOString());
-      }
+      setNotifications(fetched.notifications);
+      setTotalPages(fetched.totalPages);
     } catch (err) {
       console.error('Error fetching notifications:', err);
     } finally {
@@ -47,15 +36,15 @@ const UserNotifications = () => {
   };
 
   useEffect(() => {
-    setBefore(undefined);
-    setHasMore(true);
-    fetchNotifications(true);
-  }, [type]);
+    fetchNotifications();
+  }, [page, type]);
 
   const handleMarkAsRead = async (id: string) => {
     try {
       await markUserNotificationAsReadAPI(id, token!);
-      setNotifications((prev) => prev.map((n) => (n._id === id ? { ...n, isRead: true } : n)));
+      setNotifications((prev) =>
+        prev.map((n) => (n._id === id ? { ...n, isRead: true } : n))
+      );
     } catch (err) {
       console.error('Error marking notification as read:', err);
     }
@@ -73,11 +62,14 @@ const UserNotifications = () => {
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
       <div className="mb-4 flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-white">Admin Notifications</h2>
+        <h2 className="text-2xl font-bold text-white">User Notifications</h2>
         <div className="flex gap-2 items-center">
           <select
             value={type}
-            onChange={(e) => setType(e.target.value as any)}
+            onChange={(e) => {
+              setType(e.target.value as any);
+              setPage(1); // reset page when type changes
+            }}
             className="bg-slate-800 text-white px-4 py-2 rounded-lg"
           >
             <option value="all">All</option>
@@ -94,6 +86,9 @@ const UserNotifications = () => {
         </div>
       </div>
 
+ {loading ? (
+  <p className="text-slate-400 text-center">Loading notifications...</p>
+) : (
       <ul className="space-y-4">
         {notifications.map((notif) => (
           <li
@@ -123,17 +118,14 @@ const UserNotifications = () => {
           </li>
         ))}
       </ul>
+)}
 
-      {hasMore && (
-        <div className="flex justify-center mt-6">
-          <button
-            onClick={() => fetchNotifications()}
-            disabled={loading}
-            className="bg-slate-700 text-white px-4 py-2 rounded hover:bg-slate-600"
-          >
-            {loading ? 'Loading...' : 'Load More'}
-          </button>
-        </div>
+      {totalPages > 1 && (
+        <Pagination
+          currentPage={page}
+          totalPages={totalPages}
+          onPageChange={(newPage) => setPage(newPage)}
+        />
       )}
     </div>
   );

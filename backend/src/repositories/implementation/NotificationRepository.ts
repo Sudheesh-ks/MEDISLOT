@@ -7,19 +7,30 @@ export class NotificationRepository implements INotificationRepository {
     return NotificationModel.create(data);
   }
 
-  async getNotifications(
-    recipientId: string,
-    recipientRole: string,
-    limit = 10,
-    before?: Date,
-    type?: string
-  ): Promise<NotificationDocument[]> {
-    const query: any = { recipientId, recipientRole };
-    if (before) query.createdAt = { $lt: before };
-    if (type) query.type = type;
+async getNotificationsPaged(
+  recipientId: string,
+  recipientRole: string,
+  limit: number,
+  skip: number,
+  type?: string
+): Promise<NotificationDocument[]> {
+  const query: any = { recipientId, recipientRole };
+  if (type) query.type = type;
 
-    return NotificationModel.find(query).sort({ createdAt: -1 }).limit(limit).exec();
-  }
+  return NotificationModel.find(query)
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit)
+    .exec();
+}
+
+async countAll(recipientId: string, recipientRole: string, type?: string): Promise<number> {
+  const query: any = { recipientId, recipientRole };
+  if (type) query.type = type;
+
+  return NotificationModel.countDocuments(query);
+}
+
 
   async countUnread(recipientId: string, recipientRole: string): Promise<number> {
     return NotificationModel.countDocuments({ recipientId, recipientRole, isRead: false });

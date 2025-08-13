@@ -161,22 +161,21 @@ export const getRevenueStatsAPI = async (token: string, startDate?: string, endD
 };
 
 export const getAdminNotificationsAPI = async (
-  params: { limit?: number; before?: string; type?: string },
+  params: { page?: number; limit?: number; type?: string },
   token: string
 ) => {
   const searchParams = new URLSearchParams();
   searchParams.append('role', 'admin');
+  if (params.page) searchParams.append('page', String(params.page));
   if (params.limit) searchParams.append('limit', String(params.limit));
-  if (params.before) searchParams.append('before', params.before);
   if (params.type) searchParams.append('type', params.type);
 
   const res = await api.get(`${ADMIN_API.NOTIFICATIONS}?${searchParams.toString()}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    headers: { Authorization: `Bearer ${token}` },
   });
-  return res.data.notifications;
+  return res.data;
 };
+
 
 export const markAdminNotificationAsReadAPI = async (id: string, token: string) => {
   return api.patch(

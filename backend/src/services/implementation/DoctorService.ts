@@ -469,7 +469,7 @@ async getDoctorWalletPaginated(
       type: 'appointment',
       title: 'Doctor added prescription',
       message: `${appointment.docData.name} has added prescription for your appointment(${appointment._id}).`,
-      link: '/appointments',
+      link: '/prescription',
     });
 
         if (ioInstance) {

@@ -5,13 +5,14 @@ import {
   markAllAdminNotificationsAsReadAPI,
 } from '../../services/adminServices';
 import { AdminContext } from '../../context/AdminContext';
+import Pagination from '../../components/common/Pagination';
 
 const AdminNotifications = () => {
   const [type, setType] = useState<'all' | 'appointment' | 'system' | 'prescription'>('all');
   const [notifications, setNotifications] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
-  const [before, setBefore] = useState<string | undefined>();
-  const [hasMore, setHasMore] = useState(true);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const pageSize = 10;
 
   const adminCtx = useContext(AdminContext);
@@ -19,22 +20,14 @@ const AdminNotifications = () => {
 
   const { aToken } = adminCtx;
 
-  const fetchNotifications = async (reset = false) => {
+  const fetchNotifications = async () => {
     setLoading(true);
     try {
-      const params: any = { limit: pageSize };
-      if (type !== 'all') params.type = type;
-      if (!reset && before) params.before = before;
-
+          const params: any = { page, limit: pageSize };
+    if (type !== 'all') params.type = type;
       const fetched = await getAdminNotificationsAPI(params, aToken);
-      if (reset) setNotifications(fetched);
-      else setNotifications((prev) => [...prev, ...fetched]);
-
-      if (fetched.length < pageSize) {
-        setHasMore(false);
-      } else {
-        setBefore(new Date(fetched[fetched.length - 1].createdAt).toISOString());
-      }
+      setNotifications(fetched.notifications);
+      setTotalPages(fetched.totalPages);
     } catch (err) {
       console.error('Error fetching notifications:', err);
     } finally {
@@ -42,11 +35,10 @@ const AdminNotifications = () => {
     }
   };
 
+  // Refetch on page or type change
   useEffect(() => {
-    setBefore(undefined);
-    setHasMore(true);
-    fetchNotifications(true);
-  }, [type]);
+    fetchNotifications();
+  }, [page, type]);
 
   const handleMarkAsRead = async (id: string) => {
     try {
@@ -73,7 +65,10 @@ const AdminNotifications = () => {
         <div className="flex gap-2 items-center">
           <select
             value={type}
-            onChange={(e) => setType(e.target.value as any)}
+            onChange={(e) => {
+              setType(e.target.value as any);
+              setPage(1); // reset to first page when type changes
+            }}
             className="bg-slate-800 text-white px-4 py-2 rounded-lg"
           >
             <option value="all">All</option>
@@ -90,46 +85,48 @@ const AdminNotifications = () => {
         </div>
       </div>
 
-      <ul className="space-y-4">
-        {notifications.map((notif) => (
-          <li
-            key={notif._id}
-            className={`p-4 rounded-lg shadow border ${
-              notif.isRead
-                ? 'bg-slate-800 text-slate-400'
-                : 'bg-slate-700 text-white border-white/10'
-            }`}
-          >
-            <div className="flex justify-between items-start gap-4">
-              <div>
-                <p className="text-sm">{notif.message}</p>
-                <p className="text-xs text-slate-400 mt-1">
-                  {new Date(notif.createdAt).toLocaleString()}
-                </p>
-              </div>
-              {!notif.isRead && (
-                <button
-                  onClick={() => handleMarkAsRead(notif._id)}
-                  className="text-xs text-blue-400 hover:underline"
-                >
-                  Mark as read
-                </button>
-              )}
-            </div>
-          </li>
-        ))}
-      </ul>
-
-      {hasMore && (
-        <div className="flex justify-center mt-6">
-          <button
-            onClick={() => fetchNotifications()}
-            disabled={loading}
-            className="bg-slate-700 text-white px-4 py-2 rounded hover:bg-slate-600"
-          >
-            {loading ? 'Loading...' : 'Load More'}
-          </button>
+      {loading ? (
+  <p className="text-slate-400 text-center">Loading notifications...</p>
+) : (
+  <ul className="space-y-4">
+    {notifications.map((notif) => (
+      <li
+        key={notif._id}
+        className={`p-4 rounded-lg shadow border ${
+          notif.isRead
+            ? 'bg-slate-800 text-slate-400'
+            : 'bg-slate-700 text-white border-white/10'
+        }`}
+      >
+        <div className="flex justify-between items-start gap-4">
+          <div>
+            <p className="text-sm">{notif.message}</p>
+            <p className="text-xs text-slate-400 mt-1">
+              {new Date(notif.createdAt).toLocaleString()}
+            </p>
+          </div>
+          {!notif.isRead && (
+            <button
+              onClick={() => handleMarkAsRead(notif._id)}
+              className="text-xs text-blue-400 hover:underline"
+            >
+              Mark as read
+            </button>
+          )}
         </div>
+      </li>
+    ))}
+  </ul>
+)}
+
+
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <Pagination
+          currentPage={page}
+          totalPages={totalPages}
+          onPageChange={(newPage) => setPage(newPage)}
+        />
       )}
     </div>
   );

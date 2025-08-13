@@ -43,22 +43,21 @@ export const getUserWallet = async (page = 1, limit = 10) => {
 };
 
 export const getUserNotificationsAPI = async (
-  params: { limit?: number; before?: string; type?: string },
+  params: { page?: number; limit?: number; type?: string },
   token: string
 ) => {
   const searchParams = new URLSearchParams();
   searchParams.append('role', 'user');
+  if (params.page) searchParams.append('page', String(params.page));
   if (params.limit) searchParams.append('limit', String(params.limit));
-  if (params.before) searchParams.append('before', params.before);
   if (params.type) searchParams.append('type', params.type);
 
   const res = await api.get(`${USER_PROFILE_API.NOTIFICATIONS}?${searchParams.toString()}`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
+    headers: { Authorization: `Bearer ${token}` },
   });
-  return res.data.notifications;
+  return res.data;
 };
+
 
 export const markUserNotificationAsReadAPI = async (id: string, token: string) => {
   return api.patch(
