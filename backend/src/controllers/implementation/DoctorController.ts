@@ -420,7 +420,7 @@ export class DoctorController implements IDoctorController {
       const role = req.query.role as 'user' | 'doctor' | 'admin';
       const userId = (req as any).docId;
       const count = await this._notificationService.getUnreadCount(userId, role);
-      res.status(HttpStatus.OK).json({ success: true, count });
+      res.status(HttpStatus.OK).json({ success: true, unreadCount: count });
     } catch (error) {
       logger.error(`Error fetching unread count: ${(error as Error).message}`);
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({

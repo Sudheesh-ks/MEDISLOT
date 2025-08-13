@@ -38,6 +38,7 @@ import { FeedbackRepository } from '../../repositories/implementation/FeedbackRe
 import { PrescriptionDTO } from '../../dtos/prescription.dto';
 import { toPrescriptionDTO } from '../../mappers/prescription.mapper';
 import { PrescriptionRepository } from '../../repositories/implementation/PrescriptionRepository';
+import { ioInstance } from '../../sockets/ChatSocket';
 
 export interface UserDocument extends userTypes {
   _id: string;
@@ -410,7 +411,6 @@ async cancelAppointment(userId: string, appointmentId: string): Promise<void> {
     throw new Error('Unauthorized cancellation');
   }
 
-  // 🛑 Only refund if payment was successful
   if (!appointment.payment) {
     await this._userRepository.cancelAppointment(userId, appointmentId);
     return;
@@ -444,6 +444,13 @@ async cancelAppointment(userId: string, appointmentId: string): Promise<void> {
     link: '/doctor/appointments',
   });
 
+          if (ioInstance) {
+    ioInstance.to(doctorId).emit('notification', {
+      title: `Appointment cancelled by ${appointment.userData.name}`,
+      link: '/doctor/appointments',
+    });
+  }
+
   await this._notificationService.sendNotification({
     recipientId: adminId,
     recipientRole: 'admin',
@@ -452,6 +459,13 @@ async cancelAppointment(userId: string, appointmentId: string): Promise<void> {
     message: `Appointment between ${appointment.userData.name} and ${appointment.docData.name} was canceled. ₹${adminShare} refunded to user from your wallet.`,
     link: '/admin/appointments',
   });
+
+  //         if (ioInstance) {
+  //   ioInstance.to(adminId).emit('notification', {
+  //     title: `Appointment cancelled by ${appointment.userData.name}`,
+  //     link: '/admin/appointments',
+  //   });
+  // }
 }
 
 

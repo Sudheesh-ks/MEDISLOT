@@ -544,8 +544,7 @@ export class UserController implements IUserController {
       const role = req.query.role as 'user' | 'doctor' | 'admin';
       const userId = (req as any).userId;
       const count = await this._notificationService.getUnreadCount(userId, role);
-      console.log(count);
-      res.status(HttpStatus.OK).json({ success: true, count });
+      res.status(HttpStatus.OK).json({ success: true, unreadCount: count });
     } catch (error) {
       logger.error(`Error fetching unread count: ${(error as Error).message}`);
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({

@@ -20,6 +20,7 @@ import { IWalletRepository } from '../../repositories/interface/IWalletRepositor
 import { INotificationService } from '../interface/INotificationService';
 import { Types } from 'mongoose';
 import { IPrescriptionRepository } from '../../repositories/interface/IPrescriptionRepository';
+import { ioInstance } from '../../sockets/ChatSocket';
 
 export interface DoctorDocument extends DoctorTypes {
   _id: string;
@@ -241,6 +242,13 @@ export class DoctorService implements IDoctorService {
       link: '/appointments',
     });
 
+            if (ioInstance) {
+  ioInstance.to(userId).emit('notification', {
+    title: `Appointment Confirmed by ${appointment.docData.name}`,
+    link: '/appointments',
+  });
+}
+
     await this._notificationService.sendNotification({
       recipientId: adminId,
       recipientRole: 'admin',
@@ -250,7 +258,16 @@ export class DoctorService implements IDoctorService {
       link: '/admin/appointments',
     });
 
+//             if (ioInstance) {
+//   ioInstance.to(userId).emit('notification', {
+//     title: `Appointment Confirmed by ${appointment.docData.name}`,
+//     link: '/admin/appointments',
+//   });
+// }
+
     await this._doctorRepository.markAppointmentAsConfirmed(appointmentId);
+
+
   }
 
   async cancelAppointment(docId: string, appointmentId: string): Promise<void> {
@@ -293,6 +310,13 @@ export class DoctorService implements IDoctorService {
       link: '/appointments',
     });
 
+        if (ioInstance) {
+  ioInstance.to(userId).emit('notification', {
+    title: `Appointment Cancelled by ${appointment.docData.name}`,
+    link: '/appointments',
+  });
+}
+
     await this._notificationService.sendNotification({
       recipientId: adminId,
       recipientRole: 'admin',
@@ -303,6 +327,13 @@ export class DoctorService implements IDoctorService {
     });
 
     await this._doctorRepository.cancelAppointment(appointmentId);
+
+//     if (ioInstance) {
+//   ioInstance.to(userId).emit('notification', {
+//     title: `Appointment Cancelled by ${appointment.docData.name}`,
+//     link: '/admin/appointments',
+//   });
+// }
   }
 
   async getActiveAppointment(docId: string): Promise<AppointmentDTO | null> {
@@ -421,6 +452,24 @@ export class DoctorService implements IDoctorService {
     if (!appointment) {
       throw new Error('Appointment not found');
     }
+
+     const userId = appointment.userData._id.toString();
+
+    await this._notificationService.sendNotification({
+      recipientId: userId,
+      recipientRole: 'user',
+      type: 'appointment',
+      title: 'Doctor added prescription',
+      message: `${appointment.docData.name} has added prescription for your appointment(${appointment._id}).`,
+      link: '/appointments',
+    });
+
+        if (ioInstance) {
+  ioInstance.to(userId).emit('notification', {
+    title: `Prescription added by ${appointment.docData.name}`,
+    link: '/prescription',
+  });
+}
 
     return await this._prescriptionRepository.createPrescription({
       appointmentId: appointment._id,

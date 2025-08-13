@@ -133,7 +133,7 @@ export const markAllDoctorNotificationsAsReadAPI = async () => {
 };
 
 export const getDoctorUnreadCountAPI = async () => {
-  const res = await api.get(`${DOCTOR_API.NOTIFICATIONS_UNREAD_COUNT}`);
+  const res = await api.get(`${DOCTOR_API.NOTIFICATIONS_UNREAD_COUNT}?role=doctor`);
   return res.data;
 };
 

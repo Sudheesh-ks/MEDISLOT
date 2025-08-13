@@ -25,6 +25,7 @@ import { INotificationService } from '../interface/INotificationService';
 import { IFeedbackRepository } from '../../repositories/interface/IFeedbackRepository';
 import { FeedbackDTO } from '../../dtos/feedback.dto';
 import { toFeedbackDTO } from '../../mappers/feedback.mapper';
+import { ioInstance } from '../../sockets/ChatSocket';
 dotenv.config();
 
 export class AdminService implements IAdminService {
@@ -168,8 +169,16 @@ export class AdminService implements IAdminService {
       message: 'Your account has been blocked by the Admin.',
     });
 
+            if (ioInstance) {
+      ioInstance.to(userId).emit('notification', {
+        title: 'Accound blocked by admin',
+        link: '/system',
+      });
+    }
+
     const user = await this._adminRepository.toggleUserBlock(userId);
     return toUserDTO(user);
+    
   }
 
   async listAppointments(): Promise<AppointmentDTO[]> {
@@ -233,6 +242,13 @@ export class AdminService implements IAdminService {
       link: '/doctor/appointments',
     });
 
+            if (ioInstance) {
+  ioInstance.to(doctorId).emit('notification', {
+    title: 'Appointment cancelled by Admin',
+    link: '/doctor/appointments',
+  });
+}
+
     await this._notificationService.sendNotification({
       recipientId: userId,
       recipientRole: 'user',
@@ -241,6 +257,13 @@ export class AdminService implements IAdminService {
       message: `Admin canceled your appointment with ${appointment.docData.name}. ₹${amount} refunded to your wallet.`,
       link: '/appointments',
     });
+
+            if (ioInstance) {
+  ioInstance.to(userId).emit('notification', {
+    title: 'Appointment cancelled by Admin',
+    link: '/appointments',
+  });
+}
 
     await this._adminRepository.cancelAppointment(appointmentId);
   }

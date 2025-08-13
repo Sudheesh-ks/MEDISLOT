@@ -3,7 +3,11 @@ import { ChatService } from '../services/implementation/ChatService';
 
 const onlineUsers = new Map<string, Set<string>>();
 
+export let ioInstance: Server;
+
 export function registerChatSocket(io: Server, chatService: ChatService) {
+
+  ioInstance = io
   // For connection
   io.on('connection', (socket: Socket) => {
     const { userId, role } = socket.handshake.auth as {

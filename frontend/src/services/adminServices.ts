@@ -202,7 +202,7 @@ export const markAllAdminNotificationsAsReadAPI = async (token: string) => {
 };
 
 export const getAdminUnreadCountAPI = async () => {
-  const res = await api.get(`${ADMIN_API.NOTIFICATIONS_UNREAD_COUNT}`);
+  const res = await api.get(`${ADMIN_API.NOTIFICATIONS_UNREAD_COUNT}?role=admin`);
   return res.data;
 };
 

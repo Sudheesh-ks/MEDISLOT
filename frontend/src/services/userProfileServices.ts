@@ -85,6 +85,6 @@ export const markAllUserNotificationsAsReadAPI = async (token: string) => {
 };
 
 export const getUserUnreadCountAPI = async () => {
-  const res = await api.get(`${USER_PROFILE_API.NOTIFICATIONS_UNREAD_COUNT}`);
+  const res = await api.get(`${USER_PROFILE_API.NOTIFICATIONS_UNREAD_COUNT}?role=user`);
   return res.data; // expects { unreadCount: number }
 };
