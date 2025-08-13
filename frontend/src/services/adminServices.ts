@@ -106,9 +106,10 @@ export const adminCancelAppointmentAPI = async (appointmentId: string, token: st
   );
 };
 
-export const getAdminWalletAPI = async () => {
-  return await api.get(ADMIN_API.WALLET);
+export const getAdminWalletAPI = async (page: number, limit: number) => {
+  return await api.get(`${ADMIN_API.WALLET}?page=${page}&limit=${limit}`);
 };
+
 
 export const adminDashboardAPI = async (token: string) => {
   return await api.get(ADMIN_API.DASHBOARD, {

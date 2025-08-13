@@ -210,18 +210,23 @@ export class AdminController implements IAdminController {
     }
   }
 
-  async getAdminWallet(req: Request, res: Response): Promise<void> {
-    try {
-      const wallet = await this._adminService.getAdminWallet();
-      logger.info(`Wallet fetched for admin`);
-      res.status(200).json(wallet);
-    } catch (error) {
-      logger.error(`Get wallet error: ${error}`);
-      res
-        .status(HttpStatus.INTERNAL_SERVER_ERROR)
-        .json({ success: false, message: (error as Error).message });
-    }
+async getAdminWalletPaginated(req: Request, res: Response): Promise<void> {
+  try {
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+
+    const wallet = await this._adminService.getAdminWalletPaginated(page, limit);
+
+    res.status(200).json(wallet);
+  } catch (error) {
+    logger.error(`Get admin wallet error: ${error}`);
+    res.status(500).json({
+      success: false,
+      message: (error as Error).message,
+    });
   }
+}
+
 
   // For admin dashboard
   async adminDashboard(req: Request, res: Response): Promise<void> {

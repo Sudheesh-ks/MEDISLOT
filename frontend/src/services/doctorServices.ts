@@ -85,8 +85,10 @@ export const updateDoctorProfileAPI = (formData: any, image: File | null) => {
   });
 };
 
-export const getDoctorWalletAPI = () => {
-  return api.get(DOCTOR_API.WALLET);
+export const getDoctorWalletAPI = (page = 1, limit = 10) => {
+  return api.get(DOCTOR_API.WALLET, {
+    params: { page, limit }
+  });
 };
 
 export const getDoctorSlotsAPI = (year: number, month: number) =>

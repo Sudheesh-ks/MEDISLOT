@@ -340,20 +340,28 @@ export class DoctorController implements IDoctorController {
     }
   }
 
-  async getDoctorWallet(req: Request, res: Response) {
-    try {
-      const doctorId = (req as any).docId;
-      const wallet = await this._doctorService.getDoctorWallet(doctorId);
-      logger.info(`Wallet fetched for doctor: ${doctorId}`);
-      res.status(200).json(wallet);
-    } catch (error) {
-      logger.error(`Get wallet error: ${error}`);
-      res.status(500).json({
-        success: false,
-        message: (error as Error).message,
-      });
-    }
+  async getDoctorWallet(req: Request, res: Response): Promise<void> {
+  try {
+    const doctorId = (req as any).docId;
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 10;
+
+    const wallet = await this._doctorService.getDoctorWalletPaginated(
+      doctorId,
+      page,
+      limit
+    );
+
+    res.status(200).json(wallet);
+  } catch (error) {
+    logger.error(`Get wallet error: ${error}`);
+    res.status(500).json({
+      success: false,
+      message: (error as Error).message,
+    });
   }
+}
+
 
   async getNotificationHistory(req: Request, res: Response): Promise<void> {
     try {

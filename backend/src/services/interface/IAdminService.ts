@@ -4,7 +4,6 @@ import { DoctorTypes } from '../../types/doctor';
 import { DoctorDTO } from '../../dtos/doctor.dto';
 import { AdminDTO } from '../../dtos/admin.dto';
 import { PaginationResult } from '../../types/pagination';
-import { WalletDTO } from '../../dtos/wallet.dto';
 import { FeedbackDTO } from '../../dtos/feedback.dto';
 
 export interface DoctorInput extends DoctorTypes {
@@ -35,7 +34,10 @@ export interface IAdminService {
   cancelAppointment(appointmentId: string): Promise<void>;
   approveDoctor(doctorId: string): Promise<string>;
   rejectDoctor(doctorId: string, reason?: string): Promise<string>;
-  getAdminWallet(): Promise<WalletDTO>;
+  getAdminWalletPaginated(
+  page: number,
+  limit: number
+): Promise<{ history: any[]; total: number; balance: number }>;
   getLatestDoctorRequests(limit: number): Promise<DoctorDTO[]>;
   getAppointmentsStats(
     startDate?: string,

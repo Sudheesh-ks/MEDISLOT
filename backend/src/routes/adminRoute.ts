@@ -75,7 +75,7 @@ adminRouter.patch(
 adminRouter.get(
   '/wallet',
   authRole(['admin']),
-  adminController.getAdminWallet.bind(adminController)
+  adminController.getAdminWalletPaginated.bind(adminController)
 );
 
 adminRouter.get(

@@ -15,7 +15,6 @@ import { AppointmentDTO } from '../../dtos/appointment.dto';
 import { toAppointmentDTO } from '../../mappers/appointment.mapper';
 import { PaginationResult } from '../../types/pagination';
 import { HttpResponse } from '../../constants/responseMessage.constants';
-import { WalletDTO } from '../../dtos/wallet.dto';
 import { IWalletRepository } from '../../repositories/interface/IWalletRepository';
 import { INotificationService } from '../interface/INotificationService';
 import { Types } from 'mongoose';
@@ -421,13 +420,22 @@ export class DoctorService implements IDoctorService {
     });
   }
 
-  async getDoctorWallet(doctorId: string): Promise<WalletDTO> {
-    const doctor = await this._doctorRepository.findById(doctorId);
-    if (!doctor) throw new Error('Doctor not found');
+async getDoctorWalletPaginated(
+  doctorId: string,
+  page: number,
+  limit: number
+): Promise<{ history: any[]; total: number; balance: number }> {
+  const doctor = await this._doctorRepository.findById(doctorId);
+  if (!doctor) throw new Error("Doctor not found");
 
-    const wallet = await this._walletRepository.getOrCreateWallet(doctorId, 'doctor');
-    return wallet;
-  }
+  return await this._walletRepository.getWalletHistoryPaginated(
+    doctorId,
+    "doctor",
+    page,
+    limit
+  );
+}
+
 
   async getDashboardData(doctorId: string, startDate: string, endDate: string) {
     const revenueData = await this._doctorRepository.getRevenueOverTime(

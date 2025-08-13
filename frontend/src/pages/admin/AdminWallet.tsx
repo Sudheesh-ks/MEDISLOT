@@ -3,6 +3,7 @@ import { CreditCard, Eye, EyeOff, Search, RefreshCw, TrendingUp, Wallet } from '
 import { motion } from 'framer-motion';
 import { getAdminWalletAPI } from '../../services/adminServices';
 import { currencySymbol } from '../../utils/commonUtils';
+import Pagination from '../../components/common/Pagination';
 
 const glass = 'bg-white/5 backdrop-blur ring-1 ring-white/10';
 const cardBase = 'text-white p-6 rounded-xl shadow-md flex items-center gap-4';
@@ -14,22 +15,22 @@ const AdminWallet = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPeriod, setSelectedPeriod] = useState('all');
   const [filteredTransactions, setFilteredTransactions] = useState<any[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
 
-  useEffect(() => {
-    const fetchWallet = async () => {
-      try {
-        const res = await getAdminWalletAPI();
-        setWalletData(res.data);
-        setFilteredTransactions(res.data?.history || []);
-      } catch (err) {
-        console.error('Failed to fetch wallet data:', err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchWallet();
-  }, []);
+useEffect(() => {
+  const fetchWallet = async () => {
+    try {
+      const res = await getAdminWalletAPI(currentPage, 10); // backend limit
+      setWalletData(res.data);
+      setFilteredTransactions(res.data?.history || []);
+    } catch (err) {
+      console.error('Failed to fetch wallet data:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+  fetchWallet();
+}, [currentPage]);
 
   useEffect(() => {
     if (!walletData?.history) return;
@@ -207,6 +208,13 @@ const AdminWallet = () => {
           {filteredTransactions.length === 0 && (
             <div className="py-10 text-center text-slate-400">No transactions found</div>
           )}
+
+          <Pagination
+  currentPage={currentPage}
+  totalPages={Math.ceil((walletData?.total || 0) / 10)}
+  onPageChange={(page) => setCurrentPage(page)}
+/>
+
         </div>
       </div>
     </div>

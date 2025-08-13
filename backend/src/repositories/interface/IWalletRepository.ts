@@ -11,4 +11,10 @@ export interface IWalletRepository {
     ownerId: string,
     ownerType: 'admin' | 'doctor' | 'user'
   ): Promise<WalletDocument | null>;
+  getWalletHistoryPaginated(
+    ownerId: string,
+    ownerType: 'user' | 'doctor' | 'admin',
+    page: number,
+    limit: number
+  ): Promise<{ history: any[]; total: number; balance: number }>;
 }

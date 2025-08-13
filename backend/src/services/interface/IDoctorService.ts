@@ -2,7 +2,6 @@ import { DoctorTypes } from '../../types/doctor';
 import { DoctorDTO } from '../../dtos/doctor.dto';
 import { AppointmentDTO } from '../../dtos/appointment.dto';
 import { PaginationResult } from '../../types/pagination';
-import { WalletDTO } from '../../dtos/wallet.dto';
 
 export interface IDoctorService {
   registerDoctor(data: DoctorTypes): Promise<void>;
@@ -36,5 +35,9 @@ export interface IDoctorService {
     imagePath?: string;
     available?: boolean;
   }): Promise<void>;
-  getDoctorWallet(doctorId: string): Promise<WalletDTO>;
+  getDoctorWalletPaginated(
+  doctorId: string,
+  page: number,
+  limit: number
+): Promise<{ history: any[]; total: number; balance: number }>;
 }

@@ -18,8 +18,6 @@ import { AdminDTO } from '../../dtos/admin.dto';
 import { toAdminDTO } from '../../mappers/admin.mapper';
 import { PaginationResult } from '../../types/pagination';
 import { HttpResponse } from '../../constants/responseMessage.constants';
-import { WalletDTO } from '../../dtos/wallet.dto';
-import { toWalletDTO } from '../../mappers/wallet.mapper';
 import { IWalletRepository } from '../../repositories/interface/IWalletRepository';
 import { INotificationService } from '../interface/INotificationService';
 import { IFeedbackRepository } from '../../repositories/interface/IFeedbackRepository';
@@ -268,15 +266,20 @@ export class AdminService implements IAdminService {
     await this._adminRepository.cancelAppointment(appointmentId);
   }
 
-  async getAdminWallet(): Promise<WalletDTO> {
-    const adminId = process.env.ADMIN_ID;
-    if (!adminId) throw new Error('ADMIN_USER_ID is not set in environment');
+async getAdminWalletPaginated(
+  page: number,
+  limit: number
+): Promise<{ history: any[]; total: number; balance: number }> {
+  const adminId = process.env.ADMIN_ID;
+  if (!adminId) throw new Error("ADMIN_ID is not set in environment");
 
-    const wallet = await this._walletRepository.getOrCreateWallet(adminId, 'admin');
-    if (!wallet) throw new Error('Admin wallet not found');
-
-    return toWalletDTO(wallet);
-  }
+  return await this._walletRepository.getWalletHistoryPaginated(
+    adminId,
+    "admin",
+    page,
+    limit
+  );
+}
 
   // inside AdminService (add these methods)
 
