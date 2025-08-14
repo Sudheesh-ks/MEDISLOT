@@ -110,7 +110,6 @@ export const getAdminWalletAPI = async (page: number, limit: number) => {
   return await api.get(`${ADMIN_API.WALLET}?page=${page}&limit=${limit}`);
 };
 
-
 export const adminDashboardAPI = async (token: string) => {
   return await api.get(ADMIN_API.DASHBOARD, {
     headers: {
@@ -138,7 +137,7 @@ export const getAppointmentsStatsAPI = async (
     headers: { Authorization: `Bearer ${token}` },
     params,
   });
-  return res.data.data; // array {date, count}
+  return res.data.data;
 };
 
 export const getTopDoctorsAPI = async (token: string, limit = 5) => {
@@ -157,7 +156,7 @@ export const getRevenueStatsAPI = async (token: string, startDate?: string, endD
     headers: { Authorization: `Bearer ${token}` },
     params,
   });
-  return res.data.data; // array {date, revenue}
+  return res.data.data;
 };
 
 export const getAdminNotificationsAPI = async (
@@ -175,7 +174,6 @@ export const getAdminNotificationsAPI = async (
   });
   return res.data;
 };
-
 
 export const markAdminNotificationAsReadAPI = async (id: string, token: string) => {
   return api.patch(

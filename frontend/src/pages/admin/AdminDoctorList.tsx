@@ -15,7 +15,6 @@ const AdminDoctorList = () => {
   const [page, setPage] = useState(1);
   const [rows, setRows] = useState<any[]>([]);
   const [pages, setPages] = useState(1);
-  // const [count, setCount] = useState(0);
   const [load, setLoad] = useState(false);
   const [query, setQuery] = useState('');
   const perPage = 14;
@@ -36,7 +35,6 @@ const AdminDoctorList = () => {
       const r = await getDoctorsPaginated(page, perPage);
       setRows(r.data);
       setPages(r.totalPages);
-      // setCount(r.totalCount);
     } catch (err) {
       console.error('Failed to fetch doctors', err);
     } finally {

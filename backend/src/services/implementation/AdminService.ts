@@ -167,7 +167,7 @@ export class AdminService implements IAdminService {
       message: 'Your account has been blocked by the Admin.',
     });
 
-            if (ioInstance) {
+    if (ioInstance) {
       ioInstance.to(userId).emit('notification', {
         title: 'Accound blocked by admin',
         link: '/system',
@@ -176,7 +176,6 @@ export class AdminService implements IAdminService {
 
     const user = await this._adminRepository.toggleUserBlock(userId);
     return toUserDTO(user);
-    
   }
 
   async listAppointments(): Promise<AppointmentDTO[]> {
@@ -208,7 +207,7 @@ export class AdminService implements IAdminService {
       throw new Error('Cancellation Failed');
     }
 
-    const amount = appointment.amount; // Assuming you store fee in appointment
+    const amount = appointment.amount;
     if (!amount || amount <= 0) return;
 
     const adminId = process.env.ADMIN_ID;
@@ -220,14 +219,11 @@ export class AdminService implements IAdminService {
     // console.log(doctorId);
     // console.log(uId)
 
-    // Credit full amount to user wallet
     await this._walletRepository.creditWallet(userId, 'user', amount, reason);
 
-    // Debit 80% from doctor
     const doctorShare = amount * 0.8;
     await this._walletRepository.debitWallet(doctorId, 'doctor', doctorShare, reason);
 
-    // Debit 20% from admin
     const adminShare = amount * 0.2;
     await this._walletRepository.debitWallet(adminId!, 'admin', adminShare, reason);
 
@@ -240,12 +236,12 @@ export class AdminService implements IAdminService {
       link: '/doctor/appointments',
     });
 
-            if (ioInstance) {
-  ioInstance.to(doctorId).emit('notification', {
-    title: 'Appointment cancelled by Admin',
-    link: '/doctor/appointments',
-  });
-}
+    if (ioInstance) {
+      ioInstance.to(doctorId).emit('notification', {
+        title: 'Appointment cancelled by Admin',
+        link: '/doctor/appointments',
+      });
+    }
 
     await this._notificationService.sendNotification({
       recipientId: userId,
@@ -256,34 +252,25 @@ export class AdminService implements IAdminService {
       link: '/appointments',
     });
 
-            if (ioInstance) {
-  ioInstance.to(userId).emit('notification', {
-    title: 'Appointment cancelled by Admin',
-    link: '/appointments',
-  });
-}
+    if (ioInstance) {
+      ioInstance.to(userId).emit('notification', {
+        title: 'Appointment cancelled by Admin',
+        link: '/appointments',
+      });
+    }
 
     await this._adminRepository.cancelAppointment(appointmentId);
   }
 
-async getAdminWalletPaginated(
-  page: number,
-  limit: number
-): Promise<{ history: any[]; total: number; balance: number }> {
-  const adminId = process.env.ADMIN_ID;
-  if (!adminId) throw new Error("ADMIN_ID is not set in environment");
+  async getAdminWalletPaginated(
+    page: number,
+    limit: number
+  ): Promise<{ history: any[]; total: number; balance: number }> {
+    const adminId = process.env.ADMIN_ID;
+    if (!adminId) throw new Error('ADMIN_ID is not set in environment');
 
-  return await this._walletRepository.getWalletHistoryPaginated(
-    adminId,
-    "admin",
-    page,
-    limit
-  );
-}
-
-  // inside AdminService (add these methods)
-
-  // inside AdminService
+    return await this._walletRepository.getWalletHistoryPaginated(adminId, 'admin', page, limit);
+  }
 
   async getLatestDoctorRequests(limit = 5): Promise<DoctorDTO[]> {
     const requests = await this._adminRepository.getLatestDoctorRequests(limit);

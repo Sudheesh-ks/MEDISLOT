@@ -185,7 +185,7 @@ export class AdminRepository extends BaseRepository<AdminDocument> implements IA
     const pipeline: PipelineStage[] = [
       {
         $addFields: {
-          docIdObj: { $toObjectId: '$docId' }, // Convert to ObjectId
+          docIdObj: { $toObjectId: '$docId' },
         },
       },
       {

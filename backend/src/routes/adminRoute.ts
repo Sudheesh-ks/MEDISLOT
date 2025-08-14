@@ -114,21 +114,18 @@ adminRouter.get(
   adminController.getNotificationHistory.bind(adminController)
 );
 
-// Get unread count
 adminRouter.get(
   '/notifications/unread-count',
   authRole(['admin']),
   adminController.getUnreadCount.bind(adminController)
 );
 
-// Mark all as read
 adminRouter.patch(
   '/notifications/read-all',
   authRole(['admin']),
   adminController.markAllAsRead.bind(adminController)
 );
 
-// Mark single notification as read
 adminRouter.patch(
   '/notifications/:id/read',
   authRole(['admin']),

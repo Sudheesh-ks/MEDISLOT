@@ -2,8 +2,6 @@ import React, { createContext, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { getActiveAppointmentAPI } from '../services/appointmentServices';
 import { getActiveDoctorAppointmentAPI } from '../services/doctorServices';
-// import { useUserContext } from './UserContext';
-// import { useDoctorContext } from './DoctorContext';
 
 interface VideoCallCtx {
   active: boolean;
@@ -24,9 +22,6 @@ export const VideoCallProvider = ({ children }: { children: React.ReactNode }) =
   const notInRoom =
     !location.pathname.startsWith('/video-room') &&
     !location.pathname.startsWith('/doctor/video-room');
-
-  //   const { dToken } = useDoctorContext();
-  //   const { token } = useUserContext();
 
   const [active, setActive] = useState(false);
   const [joined, setJoined] = useState(false);
@@ -52,7 +47,7 @@ export const VideoCallProvider = ({ children }: { children: React.ReactNode }) =
     };
 
     fetchActiveAppointment();
-    const interval = setInterval(fetchActiveAppointment, 15_000); // poll every 15s
+    const interval = setInterval(fetchActiveAppointment, 15_000);
     return () => clearInterval(interval);
   }, [isDoctor, isUser]);
 

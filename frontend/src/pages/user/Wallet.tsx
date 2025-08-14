@@ -3,6 +3,7 @@ import { UserContext } from '../../context/UserContext';
 import { useNavigate } from 'react-router-dom';
 import { getUserWallet } from '../../services/userProfileServices';
 import Pagination from '../../components/common/Pagination';
+import { currencySymbol } from '../../utils/commonUtils';
 
 const Wallet = () => {
   const nav = useNavigate();
@@ -55,7 +56,7 @@ const Wallet = () => {
 
   const formatAmount = (amount, type) => {
     const sign = type === 'credit' ? '+' : '-';
-    return `${sign}$${amount.toFixed(2)}`;
+    return `${sign}${currencySymbol}${amount.toFixed(2)}`;
   };
 
   const getTransactionIcon = (type) => {
@@ -102,7 +103,10 @@ const Wallet = () => {
           <div className="bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg p-6">
             <div className="text-center text-white">
               <p className="text-white/80 text-sm font-medium mb-2">Total Balance</p>
-              <p className="text-3xl font-bold mb-4">${walletBalance.toFixed(2)}</p>
+              <p className="text-3xl font-bold mb-4">
+                {currencySymbol}
+                {walletBalance.toFixed(2)}
+              </p>
 
               <div className="space-y-3 text-sm">
                 <div className="flex justify-between items-center">
@@ -158,9 +162,9 @@ const Wallet = () => {
                     <th className="text-right py-3 px-2 text-gray-400 font-medium text-sm">
                       Amount
                     </th>
-                    <th className="text-center py-3 px-2 text-gray-400 font-medium text-sm">
+                    {/* <th className="text-center py-3 px-2 text-gray-400 font-medium text-sm">
                       Status
-                    </th>
+                    </th> */}
                   </tr>
                 </thead>
                 <tbody>

@@ -101,13 +101,12 @@ export const NotifProvider: React.FC<NotifProviderProps> = ({ children, currentU
       toast.info('💬  You have a new message', { autoClose: 3500 });
     };
 
-
-      const onNotification = (data: { title: string; message: string; link?: string }) => {
-    toast.info(`${data.title}`, {
-      position: 'top-right',
-      autoClose: 5000,
-    });
-  };
+    const onNotification = (data: { title: string; message: string; link?: string }) => {
+      toast.info(`${data.title}`, {
+        position: 'top-right',
+        autoClose: 5000,
+      });
+    };
 
     s.on('dmNotice', onDm);
     s.on('notification', onNotification);

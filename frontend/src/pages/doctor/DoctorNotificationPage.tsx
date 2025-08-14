@@ -8,11 +8,9 @@ import Pagination from '../../components/common/Pagination';
 import { DoctorContext } from '../../context/DoctorContext';
 
 const DoctorNotifications = () => {
-
-    const ctx = useContext(DoctorContext);
-    if (!ctx) throw new Error('DoctorContext missing');
-    const { dToken } = ctx;
-
+  const ctx = useContext(DoctorContext);
+  if (!ctx) throw new Error('DoctorContext missing');
+  const { dToken } = ctx;
 
   const [type, setType] = useState<'all' | 'appointment' | 'system' | 'prescription'>('all');
   const [notifications, setNotifications] = useState<any[]>([]);
@@ -44,9 +42,7 @@ const DoctorNotifications = () => {
   const handleMarkAsRead = async (id: string) => {
     try {
       await markDoctorNotificationAsReadAPI(id);
-      setNotifications((prev) =>
-        prev.map((n) => (n._id === id ? { ...n, isRead: true } : n))
-      );
+      setNotifications((prev) => prev.map((n) => (n._id === id ? { ...n, isRead: true } : n)));
     } catch (err) {
       console.error('Error marking notification as read:', err);
     }
@@ -70,7 +66,7 @@ const DoctorNotifications = () => {
             value={type}
             onChange={(e) => {
               setType(e.target.value as any);
-              setPage(1); // reset to first page when filter changes
+              setPage(1);
             }}
             className="bg-slate-800 text-white px-4 py-2 rounded-lg"
           >
@@ -88,39 +84,39 @@ const DoctorNotifications = () => {
         </div>
       </div>
 
- {loading ? (
-  <p className="text-slate-400 text-center">Loading notifications...</p>
-) : (
-      <ul className="space-y-4">
-        {notifications.map((notif) => (
-          <li
-            key={notif._id}
-            className={`p-4 rounded-lg shadow border ${
-              notif.isRead
-                ? 'bg-slate-800 text-slate-400'
-                : 'bg-slate-700 text-white border-white/10'
-            }`}
-          >
-            <div className="flex justify-between items-start gap-4">
-              <div>
-                <p className="text-sm">{notif.message}</p>
-                <p className="text-xs text-slate-400 mt-1">
-                  {new Date(notif.createdAt).toLocaleString()}
-                </p>
+      {loading ? (
+        <p className="text-slate-400 text-center">Loading notifications...</p>
+      ) : (
+        <ul className="space-y-4">
+          {notifications.map((notif) => (
+            <li
+              key={notif._id}
+              className={`p-4 rounded-lg shadow border ${
+                notif.isRead
+                  ? 'bg-slate-800 text-slate-400'
+                  : 'bg-slate-700 text-white border-white/10'
+              }`}
+            >
+              <div className="flex justify-between items-start gap-4">
+                <div>
+                  <p className="text-sm">{notif.message}</p>
+                  <p className="text-xs text-slate-400 mt-1">
+                    {new Date(notif.createdAt).toLocaleString()}
+                  </p>
+                </div>
+                {!notif.isRead && (
+                  <button
+                    onClick={() => handleMarkAsRead(notif._id)}
+                    className="text-xs text-blue-400 hover:underline"
+                  >
+                    Mark as read
+                  </button>
+                )}
               </div>
-              {!notif.isRead && (
-                <button
-                  onClick={() => handleMarkAsRead(notif._id)}
-                  className="text-xs text-blue-400 hover:underline"
-                >
-                  Mark as read
-                </button>
-              )}
-            </div>
-          </li>
-        ))}
-      </ul>
-)}
+            </li>
+          ))}
+        </ul>
+      )}
 
       {totalPages > 1 && (
         <Pagination

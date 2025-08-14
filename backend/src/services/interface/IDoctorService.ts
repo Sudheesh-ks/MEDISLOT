@@ -36,8 +36,8 @@ export interface IDoctorService {
     available?: boolean;
   }): Promise<void>;
   getDoctorWalletPaginated(
-  doctorId: string,
-  page: number,
-  limit: number
-): Promise<{ history: any[]; total: number; balance: number }>;
+    doctorId: string,
+    page: number,
+    limit: number
+  ): Promise<{ history: any[]; total: number; balance: number }>;
 }

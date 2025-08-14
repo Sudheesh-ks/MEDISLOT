@@ -341,65 +341,60 @@ export class DoctorController implements IDoctorController {
   }
 
   async getDoctorWallet(req: Request, res: Response): Promise<void> {
-  try {
-    const doctorId = (req as any).docId;
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 10;
+    try {
+      const doctorId = (req as any).docId;
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
 
-    const wallet = await this._doctorService.getDoctorWalletPaginated(
-      doctorId,
-      page,
-      limit
-    );
+      const wallet = await this._doctorService.getDoctorWalletPaginated(doctorId, page, limit);
 
-    res.status(200).json(wallet);
-  } catch (error) {
-    logger.error(`Get wallet error: ${error}`);
-    res.status(500).json({
-      success: false,
-      message: (error as Error).message,
-    });
+      res.status(200).json(wallet);
+    } catch (error) {
+      logger.error(`Get wallet error: ${error}`);
+      res.status(500).json({
+        success: false,
+        message: (error as Error).message,
+      });
+    }
   }
-}
 
+  async getNotificationHistory(req: Request, res: Response): Promise<void> {
+    try {
+      const role = req.query.role as 'user' | 'doctor' | 'admin';
+      const doctorId = (req as any).docId;
 
- async getNotificationHistory(req: Request, res: Response): Promise<void> {
-  try {
-    const role = req.query.role as 'user' | 'doctor' | 'admin';
-    const doctorId = (req as any).docId;
+      const page = req.query.page ? Number(req.query.page) : 1;
+      const limit = req.query.limit ? Number(req.query.limit) : 10;
+      const type = req.query.type ? String(req.query.type) : undefined;
 
-    const page = req.query.page ? Number(req.query.page) : 1;
-    const limit = req.query.limit ? Number(req.query.limit) : 10;
-    const type = req.query.type ? String(req.query.type) : undefined;
+      logger.info(
+        `Fetching notifications for user=${doctorId}, role=${role}, page=${page}, limit=${limit}, type=${type}`
+      );
 
-    logger.info(
-      `Fetching notifications for user=${doctorId}, role=${role}, page=${page}, limit=${limit}, type=${type}`
-    );
+      const { notifications, total } =
+        await this._notificationService.fetchNotificationHistoryPaged(
+          doctorId,
+          role,
+          page,
+          limit,
+          type
+        );
 
-    const { notifications, total } = await this._notificationService.fetchNotificationHistoryPaged(
-      doctorId,
-      role,
-      page,
-      limit,
-      type
-    );
-
-    res.status(HttpStatus.OK).json({
-      success: true,
-      notifications,
-      total,
-      page,
-      totalPages: Math.ceil(total / limit),
-    });
-  } catch (error) {
-    logger.error(`Error fetching notifications: ${(error as Error).message}`);
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: (error as Error).message,
-    });
+      res.status(HttpStatus.OK).json({
+        success: true,
+        notifications,
+        total,
+        page,
+        totalPages: Math.ceil(total / limit),
+      });
+    } catch (error) {
+      logger.error(`Error fetching notifications: ${(error as Error).message}`);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
+    }
   }
-}
-
 
   async markSingleAsRead(req: Request, res: Response): Promise<void> {
     try {

@@ -8,9 +8,7 @@ import {
   adminDashboardAPI,
   approveDoctorAPI,
   getAppointmentsPaginatedAPI,
-  // getAllDoctorsAPI,
   getDoctorsPaginatedAPI,
-  // getAllUsersAPI,
   getUsersPaginatedAPI,
   refreshAdminAccessTokenAPI,
   rejectDoctorAPI,
@@ -105,7 +103,6 @@ const AdminContextProvider = ({ children }: AdminContextProviderProps) => {
       const { data } = await approveDoctorAPI(doctorId, aToken);
       if (data.success) {
         toast.success(data.message);
-        // getAllDoctors();
         setDoctors((prevDoctors) =>
           prevDoctors.map((doc) => (doc._id === doctorId ? { ...doc, isApproved: true } : doc))
         );
@@ -122,7 +119,6 @@ const AdminContextProvider = ({ children }: AdminContextProviderProps) => {
       const { data } = await rejectDoctorAPI(doctorId, reason, aToken);
       if (data.success) {
         toast.success(data.message);
-        // getAllDoctors();
         setDoctors((prevDoctors) => prevDoctors.filter((doc) => doc._id !== doctorId));
       } else {
         toast.error(data.message);

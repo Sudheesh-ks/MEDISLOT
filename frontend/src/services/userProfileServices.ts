@@ -58,7 +58,6 @@ export const getUserNotificationsAPI = async (
   return res.data;
 };
 
-
 export const markUserNotificationAsReadAPI = async (id: string, token: string) => {
   return api.patch(
     `${USER_PROFILE_API.NOTIFICATION_MARK_READ(id)}?role=user`,
@@ -85,5 +84,5 @@ export const markAllUserNotificationsAsReadAPI = async (token: string) => {
 
 export const getUserUnreadCountAPI = async () => {
   const res = await api.get(`${USER_PROFILE_API.NOTIFICATIONS_UNREAD_COUNT}?role=user`);
-  return res.data; // expects { unreadCount: number }
+  return res.data;
 };

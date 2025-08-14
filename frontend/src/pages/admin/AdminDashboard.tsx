@@ -105,7 +105,6 @@ export default function AdminDashboard() {
     return { start: start.toISOString(), end: end.toISOString() };
   };
 
-  // 📊 Fetch stats & charts — depends on dateRange
   useEffect(() => {
     if (!aToken) return;
     const { start, end } = computeRange(dateRange);
@@ -123,15 +122,6 @@ export default function AdminDashboard() {
       .catch((err) => console.error(err))
       .finally(() => setLoadingStats(false));
   }, [aToken, dateRange]);
-
-  // // 🆕 Fetch latest doctor requests — runs only when aToken changes
-  // useEffect(() => {
-  //   if (!aToken) return;
-  //   getLatestDoctorRequestsAPI(aToken, 6)
-  //     .then(l => setLatest(l || []))
-  //     .catch(err => console.error(err));
-  // }, [aToken]);
-
   const stats = useMemo(
     () =>
       dashData
@@ -194,7 +184,7 @@ export default function AdminDashboard() {
         {
           label: 'Top 5 doctors',
           data: topDoctors.map((t: any) => t.appointments),
-          backgroundColor: '#007bff', // Bright blue bars
+          backgroundColor: '#007bff',
           borderRadius: 5,
           borderWidth: 1,
           borderColor: '#0056b3',
@@ -209,19 +199,19 @@ export default function AdminDashboard() {
     plugins: {
       legend: {
         labels: {
-          color: '#007bff', // Bright blue legend labels
+          color: '#007bff',
           font: { size: 14 },
         },
       },
     },
     elements: {
       line: {
-        borderWidth: 3, // Thicker line
-        borderColor: '#007bff', // Bright blue line
+        borderWidth: 3,
+        borderColor: '#007bff',
       },
       point: {
         radius: 5,
-        backgroundColor: '#007bff', // Blue points
+        backgroundColor: '#007bff',
         borderColor: '#fff',
         borderWidth: 2,
       },
@@ -229,7 +219,7 @@ export default function AdminDashboard() {
     scales: {
       x: {
         grid: {
-          color: 'rgba(0, 123, 255, 0.1)', // Subtle blue grid
+          color: 'rgba(0, 123, 255, 0.1)',
         },
         ticks: {
           color: '#007bff',

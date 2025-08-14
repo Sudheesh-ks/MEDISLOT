@@ -30,7 +30,7 @@ const authRole = (allowedRoles: Array<'user' | 'doctor' | 'admin'>) => {
       }
 
       switch (decoded.role) {
-        case 'user':
+        case 'user': {
           const user = await User.findById(decoded.id);
           if (!user || user.isBlocked) {
             res.status(HttpStatus.FORBIDDEN).json({
@@ -41,8 +41,9 @@ const authRole = (allowedRoles: Array<'user' | 'doctor' | 'admin'>) => {
           }
           (req as any).userId = user._id;
           break;
+        }
 
-        case 'doctor':
+        case 'doctor': {
           const doctor = await Doctor.findById(decoded.id);
           if (!doctor) {
             res.status(HttpStatus.FORBIDDEN).json({
@@ -53,8 +54,9 @@ const authRole = (allowedRoles: Array<'user' | 'doctor' | 'admin'>) => {
           }
           (req as any).docId = doctor._id;
           break;
+        }
 
-        case 'admin':
+        case 'admin': {
           const admin = await Admin.findOne({ email: decoded.email });
           if (!admin) {
             res.status(HttpStatus.UNAUTHORIZED).json({
@@ -65,6 +67,7 @@ const authRole = (allowedRoles: Array<'user' | 'doctor' | 'admin'>) => {
           }
           (req as any).adminId = admin._id;
           break;
+        }
       }
 
       next();

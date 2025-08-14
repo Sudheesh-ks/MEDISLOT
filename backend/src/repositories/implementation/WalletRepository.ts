@@ -31,7 +31,6 @@ export class WalletRepository extends BaseRepository<WalletDocument> implements 
     const startIndex = (page - 1) * limit;
     const endIndex = startIndex + limit;
 
-    // Most recent first
     const paginatedHistory = wallet.history
       .sort((a, b) => b.date.getTime() - a.date.getTime())
       .slice(startIndex, endIndex);

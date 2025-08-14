@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { CreditCard, Eye, EyeOff, Search, RefreshCw, TrendingUp, Wallet } from 'lucide-react';
+import { CreditCard, Eye, EyeOff, Search, TrendingUp, Wallet } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { getAdminWalletAPI } from '../../services/adminServices';
 import { currencySymbol } from '../../utils/commonUtils';
@@ -17,20 +17,20 @@ const AdminWallet = () => {
   const [filteredTransactions, setFilteredTransactions] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
 
-useEffect(() => {
-  const fetchWallet = async () => {
-    try {
-      const res = await getAdminWalletAPI(currentPage, 10); // backend limit
-      setWalletData(res.data);
-      setFilteredTransactions(res.data?.history || []);
-    } catch (err) {
-      console.error('Failed to fetch wallet data:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-  fetchWallet();
-}, [currentPage]);
+  useEffect(() => {
+    const fetchWallet = async () => {
+      try {
+        const res = await getAdminWalletAPI(currentPage, 10);
+        setWalletData(res.data);
+        setFilteredTransactions(res.data?.history || []);
+      } catch (err) {
+        console.error('Failed to fetch wallet data:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchWallet();
+  }, [currentPage]);
 
   useEffect(() => {
     if (!walletData?.history) return;
@@ -75,28 +75,19 @@ useEffect(() => {
     return <div className="text-red-400 p-10 text-center">Failed to load wallet data.</div>;
   }
 
+  const availableBalance = Math.max(walletData.balance, 0);
+
   const totalCredits =
     walletData.history
       ?.filter((tx: any) => tx.type === 'credit')
       .reduce((sum: number, tx: any) => sum + tx.amount, 0) || 0;
 
-  const totalDebits =
-    walletData.history
-      ?.filter((tx: any) => tx.type === 'debit')
-      .reduce((sum: number, tx: any) => sum + tx.amount, 0) || 0;
-
   const balanceCards = [
     {
       title: 'Available Balance',
-      amount: walletData.balance || 0,
+      amount: availableBalance || 0,
       icon: Wallet,
       gradient: 'from-cyan-500 to-fuchsia-600',
-    },
-    {
-      title: 'Pending Balance',
-      amount: totalDebits,
-      icon: RefreshCw,
-      gradient: 'from-amber-500 to-orange-600',
     },
     {
       title: 'Total Earnings',
@@ -108,7 +99,7 @@ useEffect(() => {
 
   return (
     <div className="m-5 space-y-10 text-slate-100">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         {balanceCards.map((c, i) => (
           <motion.div
             key={i}
@@ -173,35 +164,33 @@ useEffect(() => {
               </tr>
             </thead>
             <tbody className="divide-y divide-white/10">
-              {filteredTransactions
-                .map((tx, i) => (
-                  <motion.tr
-                    key={i}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.05 }}
-                    className="hover:bg-white/5"
-                  >
-                    <td className="px-6 py-4 text-white font-medium">{tx.reason || '—'}</td>
-                    <td className="px-6 py-4">
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                          tx.type === 'credit'
-                            ? 'text-green-400 bg-green-500/20'
-                            : 'text-red-400 bg-red-500/20'
-                        }`}
-                      >
-                        {tx.type}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 font-semibold">
-                      {tx.type === 'credit' ? '+' : '-'}
-                      {`${currencySymbol}${tx.amount}`}
-                    </td>
-                    <td className="px-6 py-4 text-slate-300">{formatDate(tx.date)}</td>
-                  </motion.tr>
-                ))
-                .reverse()}
+              {filteredTransactions.map((tx, i) => (
+                <motion.tr
+                  key={i}
+                  initial={{ opacity: 0, x: -20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: i * 0.05 }}
+                  className="hover:bg-white/5"
+                >
+                  <td className="px-6 py-4 text-white font-medium">{tx.reason || '—'}</td>
+                  <td className="px-6 py-4">
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                        tx.type === 'credit'
+                          ? 'text-green-400 bg-green-500/20'
+                          : 'text-red-400 bg-red-500/20'
+                      }`}
+                    >
+                      {tx.type}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 font-semibold">
+                    {tx.type === 'credit' ? '+' : '-'}
+                    {`${currencySymbol}${tx.amount}`}
+                  </td>
+                  <td className="px-6 py-4 text-slate-300">{formatDate(tx.date)}</td>
+                </motion.tr>
+              ))}
             </tbody>
           </table>
 
@@ -210,11 +199,10 @@ useEffect(() => {
           )}
 
           <Pagination
-  currentPage={currentPage}
-  totalPages={Math.ceil((walletData?.total || 0) / 10)}
-  onPageChange={(page) => setCurrentPage(page)}
-/>
-
+            currentPage={currentPage}
+            totalPages={Math.ceil((walletData?.total || 0) / 10)}
+            onPageChange={(page) => setCurrentPage(page)}
+          />
         </div>
       </div>
     </div>

@@ -13,6 +13,7 @@ const Consultation = () => {
   const nav = useNavigate();
 
   const [timeLeft, setTimeLeft] = useState<number>(0);
+  const [showTimer, setShowTimer] = useState(false);
 
   useEffect(() => {
     if (!state?.slotDate || !state?.slotEndTime) {
@@ -24,7 +25,12 @@ const Consultation = () => {
     const expiryTime = endDateTime.add(24, 'hour');
 
     const updateTimer = () => {
-      const diff = expiryTime.diff(dayjs(), 'second');
+      const now = dayjs();
+      if (now.isAfter(endDateTime)) {
+        setShowTimer(true);
+      }
+
+      const diff = expiryTime.diff(now, 'second');
       if (diff <= 0) {
         setTimeLeft(0);
         clearInterval(timer);
@@ -48,9 +54,12 @@ const Consultation = () => {
 
   return (
     <div className="flex flex-col items-center mt-26 mb-8 gap-6 p-8">
-      <div className="text-lg font-semibold text-yellow-400">
-        Your consultation period will end in: ⏰ {formatTime(timeLeft)}
-      </div>
+      {showTimer && (
+        <div className="text-lg font-semibold text-yellow-400">
+          Your consultation period will end in: ⏰ {formatTime(timeLeft)}
+        </div>
+      )}
+
       <div className="flex gap-6">
         <VideoCallCard appointmentId={appointmentId} />
         <ChatCard doctorId={doctorId} />

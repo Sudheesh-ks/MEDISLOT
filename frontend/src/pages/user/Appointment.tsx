@@ -74,6 +74,7 @@ const Appointment = () => {
 
     try {
       const ranges = await getAvailableSlotsAPI(docId!, key);
+      const now = new Date();
       const slots = ranges
         .filter((r: any) => r.isAvailable)
         .map((r: any) => {
@@ -81,6 +82,10 @@ const Appointment = () => {
           const dt = new Date(dateObj);
           dt.setHours(hour, minute, 0, 0);
           return { datetime: dt, slotStartTime: r.start, slotEndTime: r.end };
+        })
+        .filter((slot: TimeSlot) => {
+          if (ymd(dateObj) !== ymd(now)) return true;
+          return slot.datetime > now;
         });
       slotCache.current.set(key, slots);
       return slots;

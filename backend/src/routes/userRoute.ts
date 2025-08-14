@@ -79,21 +79,18 @@ userRouter.get(
   userController.getNotificationHistory.bind(userController)
 );
 
-// Get unread count
 userRouter.get(
   '/notifications/unread-count',
   authRole(['user']),
   userController.getUnreadCount.bind(userController)
 );
 
-// Mark all as read
 userRouter.patch(
   '/notifications/read-all',
   authRole(['user']),
   userController.markAllAsRead.bind(userController)
 );
 
-// Mark single notification as read
 userRouter.patch(
   '/notifications/:id/read',
   authRole(['user']),

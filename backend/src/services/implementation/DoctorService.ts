@@ -241,12 +241,12 @@ export class DoctorService implements IDoctorService {
       link: '/appointments',
     });
 
-            if (ioInstance) {
-  ioInstance.to(userId).emit('notification', {
-    title: `Appointment Confirmed by ${appointment.docData.name}`,
-    link: '/appointments',
-  });
-}
+    if (ioInstance) {
+      ioInstance.to(userId).emit('notification', {
+        title: `Appointment Confirmed by ${appointment.docData.name}`,
+        link: '/appointments',
+      });
+    }
 
     await this._notificationService.sendNotification({
       recipientId: adminId,
@@ -257,16 +257,7 @@ export class DoctorService implements IDoctorService {
       link: '/admin/appointments',
     });
 
-//             if (ioInstance) {
-//   ioInstance.to(userId).emit('notification', {
-//     title: `Appointment Confirmed by ${appointment.docData.name}`,
-//     link: '/admin/appointments',
-//   });
-// }
-
     await this._doctorRepository.markAppointmentAsConfirmed(appointmentId);
-
-
   }
 
   async cancelAppointment(docId: string, appointmentId: string): Promise<void> {
@@ -277,7 +268,7 @@ export class DoctorService implements IDoctorService {
       throw new Error('Cancellation Failed');
     }
 
-    const amount = appointment.amount; // Assuming you store fee in appointment
+    const amount = appointment.amount;
     if (!amount || amount <= 0) return;
 
     const adminId = process.env.ADMIN_ID;
@@ -285,18 +276,11 @@ export class DoctorService implements IDoctorService {
     const doctorId = appointment.docData._id.toString();
     const reason = `Refund for Cancelled Appointment (${appointment._id}) of ${appointment.docData.name}`;
 
-    // console.log(adminId);
-    // console.log(doctorId);
-    // console.log(uId)
-
-    // Credit full amount to user wallet
     await this._walletRepository.creditWallet(userId, 'user', amount, reason);
 
-    // Debit 80% from doctor
     const doctorShare = amount * 0.8;
     await this._walletRepository.debitWallet(doctorId, 'doctor', doctorShare, reason);
 
-    // Debit 20% from admin
     const adminShare = amount * 0.2;
     await this._walletRepository.debitWallet(adminId!, 'admin', adminShare, reason);
 
@@ -309,12 +293,12 @@ export class DoctorService implements IDoctorService {
       link: '/appointments',
     });
 
-        if (ioInstance) {
-  ioInstance.to(userId).emit('notification', {
-    title: `Appointment Cancelled by ${appointment.docData.name}`,
-    link: '/appointments',
-  });
-}
+    if (ioInstance) {
+      ioInstance.to(userId).emit('notification', {
+        title: `Appointment Cancelled by ${appointment.docData.name}`,
+        link: '/appointments',
+      });
+    }
 
     await this._notificationService.sendNotification({
       recipientId: adminId,
@@ -326,13 +310,6 @@ export class DoctorService implements IDoctorService {
     });
 
     await this._doctorRepository.cancelAppointment(appointmentId);
-
-//     if (ioInstance) {
-//   ioInstance.to(userId).emit('notification', {
-//     title: `Appointment Cancelled by ${appointment.docData.name}`,
-//     link: '/admin/appointments',
-//   });
-// }
   }
 
   async getActiveAppointment(docId: string): Promise<AppointmentDTO | null> {
@@ -420,22 +397,16 @@ export class DoctorService implements IDoctorService {
     });
   }
 
-async getDoctorWalletPaginated(
-  doctorId: string,
-  page: number,
-  limit: number
-): Promise<{ history: any[]; total: number; balance: number }> {
-  const doctor = await this._doctorRepository.findById(doctorId);
-  if (!doctor) throw new Error("Doctor not found");
+  async getDoctorWalletPaginated(
+    doctorId: string,
+    page: number,
+    limit: number
+  ): Promise<{ history: any[]; total: number; balance: number }> {
+    const doctor = await this._doctorRepository.findById(doctorId);
+    if (!doctor) throw new Error('Doctor not found');
 
-  return await this._walletRepository.getWalletHistoryPaginated(
-    doctorId,
-    "doctor",
-    page,
-    limit
-  );
-}
-
+    return await this._walletRepository.getWalletHistoryPaginated(doctorId, 'doctor', page, limit);
+  }
 
   async getDashboardData(doctorId: string, startDate: string, endDate: string) {
     const revenueData = await this._doctorRepository.getRevenueOverTime(
@@ -461,7 +432,7 @@ async getDoctorWalletPaginated(
       throw new Error('Appointment not found');
     }
 
-     const userId = appointment.userData._id.toString();
+    const userId = appointment.userData._id.toString();
 
     await this._notificationService.sendNotification({
       recipientId: userId,
@@ -472,12 +443,12 @@ async getDoctorWalletPaginated(
       link: '/prescription',
     });
 
-        if (ioInstance) {
-  ioInstance.to(userId).emit('notification', {
-    title: `Prescription added by ${appointment.docData.name}`,
-    link: '/prescription',
-  });
-}
+    if (ioInstance) {
+      ioInstance.to(userId).emit('notification', {
+        title: `Prescription added by ${appointment.docData.name}`,
+        link: '/prescription',
+      });
+    }
 
     return await this._prescriptionRepository.createPrescription({
       appointmentId: appointment._id,

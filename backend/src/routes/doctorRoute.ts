@@ -93,21 +93,18 @@ doctorRouter.get(
   doctorController.getNotificationHistory.bind(doctorController)
 );
 
-// Get unread count
 doctorRouter.get(
   '/notifications/unread-count',
   authRole(['doctor']),
   doctorController.getUnreadCount.bind(doctorController)
 );
 
-// Mark all as read
 doctorRouter.patch(
   '/notifications/read-all',
   authRole(['doctor']),
   doctorController.markAllAsRead.bind(doctorController)
 );
 
-// Mark single notification as read
 doctorRouter.patch(
   '/notifications/:id/read',
   authRole(['doctor']),

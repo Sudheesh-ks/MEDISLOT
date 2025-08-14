@@ -9,6 +9,15 @@ import { NotifContext } from '../../context/NotificationContext';
 import { updateItemInList } from '../../utils/stateHelper.util';
 import { calculateAge, currencySymbol, slotDateFormat } from '../../utils/commonUtils';
 import { to12h } from '../../utils/slotManagementHelper';
+import dayjs from 'dayjs';
+import customParseFormat from 'dayjs/plugin/customParseFormat';
+
+dayjs.extend(customParseFormat);
+
+const isSessionEnded = (slotDate: string, slotEndTime: string) => {
+  const endDateTime = dayjs(`${slotDate} ${slotEndTime}`, 'YYYY-MM-DD HH:mm');
+  return dayjs().isAfter(endDateTime.add(24, 'hour'));
+};
 
 const DoctorAppointments = () => {
   const ctx = useContext(DoctorContext);
@@ -19,7 +28,6 @@ const DoctorAppointments = () => {
   const [page, setPage] = useState(1);
   const [rows, setRows] = useState<any[]>([]);
   const [pages, setPages] = useState(1);
-  // const [count, setCount] = useState(0);
   const [loading, setLoading] = useState(false);
   const perPage = 6;
 
@@ -45,7 +53,6 @@ const DoctorAppointments = () => {
       const r = await getAppointmentsPaginated(page, perPage);
       setRows(r.data);
       setPages(r.totalPages);
-      // setCount(r.totalCount);
     } catch (err) {
       console.error('Failed to fetch appointments', err);
     } finally {
@@ -129,20 +136,29 @@ const DoctorAppointments = () => {
         it.cancelled ? (
           <span className="text-red-500">Cancelled</span>
         ) : it.isConfirmed ? (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              navigate(`/doctor/consultation/${it.userData._id}/${it._id}`);
-            }}
-            className="bg-gradient-to-r from-cyan-500 to-fuchsia-600 px-4 py-1.5 text-sm rounded-lg text-white shadow relative"
-          >
-            Consultation
-            {notif?.unread?.[`${it.userData._id}_${profileData!._id}`] > 0 && (
-              <span className="absolute -top-2 -right-2 h-5 min-w-[20px] px-1 bg-red-500 text-xs rounded-full flex items-center justify-center">
-                {notif.unread[`${it.userData._id}_${profileData!._id}`]}
-              </span>
-            )}
-          </button>
+          isSessionEnded(it.slotDate, it.slotEndTime) ? (
+            <button
+              disabled
+              className="bg-gray-600 px-4 py-1.5 text-sm rounded-lg text-white cursor-not-allowed"
+            >
+              Session Ended
+            </button>
+          ) : (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/doctor/consultation/${it.userData._id}/${it._id}`);
+              }}
+              className="bg-gradient-to-r from-cyan-500 to-fuchsia-600 px-4 py-1.5 text-sm rounded-lg text-white shadow relative"
+            >
+              Consultation
+              {notif?.unread?.[`${it.userData._id}_${profileData!._id}`] > 0 && (
+                <span className="absolute -top-2 -right-2 h-5 min-w-[20px] px-1 bg-red-500 text-xs rounded-full flex items-center justify-center">
+                  {notif.unread[`${it.userData._id}_${profileData!._id}`]}
+                </span>
+              )}
+            </button>
+          )
         ) : (
           <div className="flex gap-3">
             <img

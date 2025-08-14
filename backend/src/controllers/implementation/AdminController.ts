@@ -210,23 +210,22 @@ export class AdminController implements IAdminController {
     }
   }
 
-async getAdminWalletPaginated(req: Request, res: Response): Promise<void> {
-  try {
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 10;
+  async getAdminWalletPaginated(req: Request, res: Response): Promise<void> {
+    try {
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || 10;
 
-    const wallet = await this._adminService.getAdminWalletPaginated(page, limit);
+      const wallet = await this._adminService.getAdminWalletPaginated(page, limit);
 
-    res.status(200).json(wallet);
-  } catch (error) {
-    logger.error(`Get admin wallet error: ${error}`);
-    res.status(500).json({
-      success: false,
-      message: (error as Error).message,
-    });
+      res.status(200).json(wallet);
+    } catch (error) {
+      logger.error(`Get admin wallet error: ${error}`);
+      res.status(500).json({
+        success: false,
+        message: (error as Error).message,
+      });
+    }
   }
-}
-
 
   // For admin dashboard
   async adminDashboard(req: Request, res: Response): Promise<void> {
@@ -305,43 +304,43 @@ async getAdminWalletPaginated(req: Request, res: Response): Promise<void> {
     }
   }
 
-   async getNotificationHistory(req: Request, res: Response): Promise<void> {
-  try {
-    const role = req.query.role as 'user' | 'doctor' | 'admin';
-    const adminId = (req as any).adminId;
+  async getNotificationHistory(req: Request, res: Response): Promise<void> {
+    try {
+      const role = req.query.role as 'user' | 'doctor' | 'admin';
+      const adminId = (req as any).adminId;
 
-    const page = req.query.page ? Number(req.query.page) : 1;
-    const limit = req.query.limit ? Number(req.query.limit) : 10;
-    const type = req.query.type ? String(req.query.type) : undefined;
+      const page = req.query.page ? Number(req.query.page) : 1;
+      const limit = req.query.limit ? Number(req.query.limit) : 10;
+      const type = req.query.type ? String(req.query.type) : undefined;
 
-    logger.info(
-      `Fetching notifications for user=${adminId}, role=${role}, page=${page}, limit=${limit}, type=${type}`
-    );
+      logger.info(
+        `Fetching notifications for user=${adminId}, role=${role}, page=${page}, limit=${limit}, type=${type}`
+      );
 
-    const { notifications, total } = await this._notificationService.fetchNotificationHistoryPaged(
-      adminId,
-      role,
-      page,
-      limit,
-      type
-    );
+      const { notifications, total } =
+        await this._notificationService.fetchNotificationHistoryPaged(
+          adminId,
+          role,
+          page,
+          limit,
+          type
+        );
 
-    res.status(HttpStatus.OK).json({
-      success: true,
-      notifications,
-      total,
-      page,
-      totalPages: Math.ceil(total / limit),
-    });
-  } catch (error) {
-    logger.error(`Error fetching notifications: ${(error as Error).message}`);
-    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: (error as Error).message,
-    });
+      res.status(HttpStatus.OK).json({
+        success: true,
+        notifications,
+        total,
+        page,
+        totalPages: Math.ceil(total / limit),
+      });
+    } catch (error) {
+      logger.error(`Error fetching notifications: ${(error as Error).message}`);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
+    }
   }
-}
-
 
   async markSingleAsRead(req: Request, res: Response): Promise<void> {
     try {
@@ -389,7 +388,6 @@ async getAdminWalletPaginated(req: Request, res: Response): Promise<void> {
     }
   }
 
-  // admin.controller.ts
   async getAllFeedback(req: Request, res: Response): Promise<void> {
     try {
       const page = parseInt(req.query.page as string) || 1;

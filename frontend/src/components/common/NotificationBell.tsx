@@ -35,7 +35,6 @@ const NotificationBell = ({ role }: NotificationBellProps) => {
 
     fetchCount();
 
-    // Optional: refresh every 30 seconds
     const interval = setInterval(fetchCount, 30000);
     return () => clearInterval(interval);
   }, [role]);

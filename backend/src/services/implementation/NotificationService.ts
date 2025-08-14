@@ -12,26 +12,25 @@ export class NotificationService implements INotificationService {
     return toNotificationDTO(doc);
   }
 
- async fetchNotificationHistoryPaged(
-  recipientId: string,
-  recipientRole: string,
-  page = 1,
-  limit = 10,
-  type?: string
-): Promise<{ notifications: NotificationDTO[]; total: number }> {
-  const skip = (page - 1) * limit;
+  async fetchNotificationHistoryPaged(
+    recipientId: string,
+    recipientRole: string,
+    page = 1,
+    limit = 10,
+    type?: string
+  ): Promise<{ notifications: NotificationDTO[]; total: number }> {
+    const skip = (page - 1) * limit;
 
-  const [notifications, total] = await Promise.all([
-    this._repo.getNotificationsPaged(recipientId, recipientRole, limit, skip, type),
-    this._repo.countAll(recipientId, recipientRole, type),
-  ]);
+    const [notifications, total] = await Promise.all([
+      this._repo.getNotificationsPaged(recipientId, recipientRole, limit, skip, type),
+      this._repo.countAll(recipientId, recipientRole, type),
+    ]);
 
-  return {
-    notifications: notifications.map(toNotificationDTO),
-    total,
-  };
-}
-
+    return {
+      notifications: notifications.map(toNotificationDTO),
+      total,
+    };
+  }
 
   async getUnreadCount(recipientId: string, recipientRole: string): Promise<number> {
     return this._repo.countUnread(recipientId.toString(), recipientRole);

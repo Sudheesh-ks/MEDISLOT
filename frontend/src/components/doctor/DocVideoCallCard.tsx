@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-// import { DoctorContext } from '../../context/DoctorContext';
 import { assets } from '../../assets/user/assets';
 import { useNavigate } from 'react-router-dom';
 import { getActiveDoctorAppointmentAPI } from '../../services/doctorServices';
@@ -9,10 +8,6 @@ interface DocVideoCallCardProps {
 }
 
 const DocVideoCallCard = ({ appointmentId }: DocVideoCallCardProps) => {
-  // const context = useContext(DoctorContext);
-  // if (!context) throw new Error('DoctorContext missing');
-  // const { dToken } = context;
-
   const [activeAppointmentId, setActiveAppointmentId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();

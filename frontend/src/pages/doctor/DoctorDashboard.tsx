@@ -71,7 +71,6 @@ export default function DoctorDashboard() {
     return { start: start.toISOString(), end: end.toISOString() };
   };
 
-  // 📊 Fetch dashboard data
   useEffect(() => {
     const { start, end } = computeRange(dateRange);
     setLoadingStats(true);

@@ -6,8 +6,8 @@ const onlineUsers = new Map<string, Set<string>>();
 export let ioInstance: Server;
 
 export function registerChatSocket(io: Server, chatService: ChatService) {
+  ioInstance = io;
 
-  ioInstance = io
   // For connection
   io.on('connection', (socket: Socket) => {
     const { userId, role } = socket.handshake.auth as {
@@ -106,6 +106,7 @@ export function registerChatSocket(io: Server, chatService: ChatService) {
       }
     });
 
+    // For joining video call room
     socket.on('join-video-room', (appointmentId: string) => {
       socket.join(appointmentId);
       const clientsInRoom = Array.from(io.sockets.adapter.rooms.get(appointmentId) || []);

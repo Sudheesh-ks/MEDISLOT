@@ -35,9 +35,9 @@ export interface IAdminService {
   approveDoctor(doctorId: string): Promise<string>;
   rejectDoctor(doctorId: string, reason?: string): Promise<string>;
   getAdminWalletPaginated(
-  page: number,
-  limit: number
-): Promise<{ history: any[]; total: number; balance: number }>;
+    page: number,
+    limit: number
+  ): Promise<{ history: any[]; total: number; balance: number }>;
   getLatestDoctorRequests(limit: number): Promise<DoctorDTO[]>;
   getAppointmentsStats(
     startDate?: string,

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { CreditCard, Eye, EyeOff, Search, RefreshCw, TrendingUp, Wallet } from 'lucide-react';
+import { CreditCard, Eye, EyeOff, Search, TrendingUp, Wallet } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { getDoctorWalletAPI } from '../../services/doctorServices';
 import { currencySymbol } from '../../utils/commonUtils';
@@ -17,22 +17,20 @@ const DoctorWallet = () => {
   const [filteredTransactions, setFilteredTransactions] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
 
-
-useEffect(() => {
-  const fetchWallet = async () => {
-    try {
-      const res = await getDoctorWalletAPI(currentPage, 10);
-      setWalletData(res.data);
-      setFilteredTransactions(res.data?.history || []);
-    } catch (err) {
-      console.error("Failed to fetch wallet data:", err);
-    } finally {
-      setLoading(false);
-    }
-  };
-  fetchWallet();
-}, [currentPage]);
-
+  useEffect(() => {
+    const fetchWallet = async () => {
+      try {
+        const res = await getDoctorWalletAPI(currentPage, 10);
+        setWalletData(res.data);
+        setFilteredTransactions(res.data?.history || []);
+      } catch (err) {
+        console.error('Failed to fetch wallet data:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchWallet();
+  }, [currentPage]);
 
   useEffect(() => {
     if (!walletData?.history) return;
@@ -77,28 +75,19 @@ useEffect(() => {
     return <div className="text-red-400 p-10 text-center">Failed to load wallet data.</div>;
   }
 
-  // Optional calculations for pending/earnings if not available
+  const availableBalance = Math.max(walletData.balance, 0);
+
   const totalCredits =
     walletData.history
       ?.filter((tx: any) => tx.type === 'credit')
-      .reduce((sum: number, tx: any) => sum + tx.amount, 0) || 0;
-  const totalDebits =
-    walletData.history
-      ?.filter((tx: any) => tx.type === 'debit')
       .reduce((sum: number, tx: any) => sum + tx.amount, 0) || 0;
 
   const balanceCards = [
     {
       title: 'Available Balance',
-      amount: walletData.balance,
+      amount: availableBalance,
       icon: Wallet,
       gradient: 'from-cyan-500 to-fuchsia-600',
-    },
-    {
-      title: 'Pending Balance',
-      amount: totalDebits, // placeholder
-      icon: RefreshCw,
-      gradient: 'from-amber-500 to-orange-600',
     },
     {
       title: 'Total Earnings',
@@ -110,7 +99,8 @@ useEffect(() => {
 
   return (
     <div className="m-5 space-y-10 text-slate-100">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* Balance Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
         {balanceCards.map((c, i) => (
           <motion.div
             key={i}
@@ -135,6 +125,7 @@ useEffect(() => {
         ))}
       </div>
 
+      {/* Transactions Table */}
       <div className={`${glass} rounded-xl`}>
         <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
           <h2 className="font-semibold text-lg flex items-center gap-2">
@@ -209,13 +200,12 @@ useEffect(() => {
             <div className="py-10 text-center text-slate-400">No transactions found</div>
           )}
 
-
           {/* Pagination */}
-<Pagination
-  currentPage={currentPage}
-  totalPages={Math.ceil((walletData?.total || 0) / 10)} 
-  onPageChange={(page) => setCurrentPage(page)}
-/>
+          <Pagination
+            currentPage={currentPage}
+            totalPages={Math.ceil((walletData?.total || 0) / 10)}
+            onPageChange={(page) => setCurrentPage(page)}
+          />
         </div>
       </div>
     </div>
