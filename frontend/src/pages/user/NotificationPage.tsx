@@ -1,6 +1,7 @@
 import { useState, useEffect, useContext } from 'react';
 import { UserContext } from '../../context/UserContext';
 import {
+  clearAllUserNotificationsAPI,
   getUserNotificationsAPI,
   markAllUserNotificationsAsReadAPI,
   markUserNotificationAsReadAPI,
@@ -80,6 +81,21 @@ const UserNotifications = () => {
             className="text-sm bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
           >
             Mark All as Read
+          </button>
+          <button
+            onClick={async () => {
+              try {
+                await clearAllUserNotificationsAPI(token!, type !== 'all' ? type : undefined);
+                setNotifications([]); // reset UI
+                setTotalPages(1);
+                setPage(1);
+              } catch (err) {
+                console.error('Error clearing notifications:', err);
+              }
+            }}
+            className="text-sm bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
+          >
+            Clear All
           </button>
         </div>
       </div>

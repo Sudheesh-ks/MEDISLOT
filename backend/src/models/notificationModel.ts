@@ -13,6 +13,7 @@ const NotificationSchema: Schema<NotificationDocument> = new mongoose.Schema({
   message: { type: String, required: true },
   link: { type: String },
   isRead: { type: Boolean, default: false },
+  isDeleted: { type: Boolean, default: false },
   createdAt: { type: Date, default: Date.now },
 });
 

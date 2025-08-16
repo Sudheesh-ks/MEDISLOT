@@ -388,6 +388,25 @@ export class AdminController implements IAdminController {
     }
   }
 
+  async clearAll(req: Request, res: Response): Promise<void> {
+    try {
+      const role = req.query.role as 'user' | 'doctor' | 'admin';
+      const type = req.query.type ? String(req.query.type) : undefined;
+      const adminId = (req as any).adminId;
+
+      logger.info(`Clearing all notifications for user ${adminId}, role=${role}, type=${type}`);
+      await this._notificationService.clearAll(adminId, role, type);
+
+      res.status(HttpStatus.OK).json({ success: true, message: 'All notifications cleared' });
+    } catch (error) {
+      logger.error(`Error clearing notifications: ${(error as Error).message}`);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
+    }
+  }
+
   async getAllFeedback(req: Request, res: Response): Promise<void> {
     try {
       const page = parseInt(req.query.page as string) || 1;

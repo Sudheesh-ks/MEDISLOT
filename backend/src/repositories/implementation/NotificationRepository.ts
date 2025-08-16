@@ -14,21 +14,26 @@ export class NotificationRepository implements INotificationRepository {
     skip: number,
     type?: string
   ): Promise<NotificationDocument[]> {
-    const query: any = { recipientId, recipientRole };
+    const query: any = { recipientId, recipientRole, isDeleted: false };
     if (type) query.type = type;
 
     return NotificationModel.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit).exec();
   }
 
   async countAll(recipientId: string, recipientRole: string, type?: string): Promise<number> {
-    const query: any = { recipientId, recipientRole };
+    const query: any = { recipientId, recipientRole, isDeleted: false };
     if (type) query.type = type;
 
     return NotificationModel.countDocuments(query);
   }
 
   async countUnread(recipientId: string, recipientRole: string): Promise<number> {
-    return NotificationModel.countDocuments({ recipientId, recipientRole, isRead: false });
+    return NotificationModel.countDocuments({
+      recipientId,
+      recipientRole,
+      isRead: false,
+      isDeleted: false,
+    });
   }
 
   async markAsRead(notificationId: string): Promise<void> {
@@ -37,8 +42,15 @@ export class NotificationRepository implements INotificationRepository {
 
   async markAllAsRead(recipientId: string, recipientRole: string): Promise<void> {
     await NotificationModel.updateMany(
-      { recipientId, recipientRole, isRead: false },
+      { recipientId, recipientRole, isRead: false, isDeleted: false },
       { isRead: true }
     );
+  }
+
+  async deleteAll(recipientId: string, recipientRole: string, type?: string): Promise<void> {
+    const query: any = { recipientId, recipientRole, isDeleted: false };
+    if (type) query.type = type;
+
+    await NotificationModel.updateMany(query, { $set: { isDeleted: true } });
   }
 }

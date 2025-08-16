@@ -7,5 +7,6 @@ export interface NotificationTypes {
   message: string;
   link?: string;
   isRead: boolean;
+  isDeleted: boolean;
   createdAt: Date;
 }

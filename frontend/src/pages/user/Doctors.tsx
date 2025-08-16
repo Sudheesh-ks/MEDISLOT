@@ -77,7 +77,9 @@ const Doctors = () => {
             {specialities.map((spec) => (
               <button
                 key={spec}
-                onClick={() => (speciality === spec ? nav('/all-doctors') : nav(`/all-doctors/${spec}`))}
+                onClick={() =>
+                  speciality === spec ? nav('/all-doctors') : nav(`/all-doctors/${spec}`)
+                }
                 className={`text-left px-4 py-2 rounded-lg text-sm ring-1 ring-white/10 hover:bg-white/5 transition-colors ${speciality === spec ? 'bg-cyan-500/20 text-white' : ''}`}
               >
                 {spec}

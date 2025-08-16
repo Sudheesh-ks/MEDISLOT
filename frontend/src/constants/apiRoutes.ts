@@ -23,6 +23,7 @@ export const ADMIN_API = {
   NOTIFICATION_MARK_READ: (id: string) => `/api/admin/notifications/${id}/read`,
   NOTIFICATION_MARK_ALL_READ: '/api/admin/notifications/read-all',
   NOTIFICATIONS_UNREAD_COUNT: '/api/admin/notifications/unread-count',
+  NOTIFICATION_CLEAR_ALL: '/api/admin/notifications/clear-all',
   FEEDBACKS: '/api/admin/feedbacks',
 };
 
@@ -73,6 +74,7 @@ export const DOCTOR_API = {
   NOTIFICATION_MARK_READ: (id: string) => `/api/doctor/notifications/${id}/read`,
   NOTIFICATION_MARK_ALL_READ: '/api/doctor/notifications/read-all',
   NOTIFICATIONS_UNREAD_COUNT: '/api/doctor/notifications/unread-count',
+  NOTIFICATION_CLEAR_ALL: '/api/doctor/notifications/clear-all',
 };
 
 export const PAYMENT_API = {
@@ -97,6 +99,7 @@ export const USER_PROFILE_API = {
   NOTIFICATION_MARK_READ: (id: string) => `/api/user/notifications/${id}/read`,
   NOTIFICATION_MARK_ALL_READ: '/api/user/notifications/read-all',
   NOTIFICATIONS_UNREAD_COUNT: '/api/user/notifications/unread-count',
+  NOTIFICATION_CLEAR_ALL: '/api/user/notifications/clear-all',
 };
 
 export const SLOT_API = {

@@ -563,6 +563,25 @@ export class UserController implements IUserController {
     }
   }
 
+  async clearAll(req: Request, res: Response): Promise<void> {
+    try {
+      const role = req.query.role as 'user' | 'doctor' | 'admin';
+      const type = req.query.type ? String(req.query.type) : undefined;
+      const userId = (req as any).userId;
+
+      logger.info(`Clearing all notifications for user ${userId}, role=${role}, type=${type}`);
+      await this._notificationService.clearAll(userId, role, type);
+
+      res.status(HttpStatus.OK).json({ success: true, message: 'All notifications cleared' });
+    } catch (error) {
+      logger.error(`Error clearing notifications: ${(error as Error).message}`);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
+    }
+  }
+
   async submitFeedback(req: Request, res: Response): Promise<void> {
     try {
       const userId = (req as any).userId;

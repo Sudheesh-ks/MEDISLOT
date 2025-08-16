@@ -86,3 +86,13 @@ export const getUserUnreadCountAPI = async () => {
   const res = await api.get(`${USER_PROFILE_API.NOTIFICATIONS_UNREAD_COUNT}?role=user`);
   return res.data;
 };
+
+export const clearAllUserNotificationsAPI = async (token: string, type?: string) => {
+  const searchParams = new URLSearchParams();
+  searchParams.append('role', 'user');
+  if (type) searchParams.append('type', type);
+
+  return api.post(`${USER_PROFILE_API.NOTIFICATION_CLEAR_ALL}?${searchParams.toString()}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+};

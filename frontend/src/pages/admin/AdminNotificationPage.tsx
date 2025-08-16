@@ -1,5 +1,6 @@
 import { useState, useEffect, useContext } from 'react';
 import {
+  clearAllAdminNotificationsAPI,
   getAdminNotificationsAPI,
   markAdminNotificationAsReadAPI,
   markAllAdminNotificationsAsReadAPI,
@@ -80,6 +81,21 @@ const AdminNotifications = () => {
             className="text-sm bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
           >
             Mark All as Read
+          </button>
+          <button
+            onClick={async () => {
+              try {
+                await clearAllAdminNotificationsAPI(aToken!, type !== 'all' ? type : undefined);
+                setNotifications([]);
+                setTotalPages(1);
+                setPage(1);
+              } catch (err) {
+                console.error('Error clearing notifications:', err);
+              }
+            }}
+            className="text-sm bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
+          >
+            Clear All
           </button>
         </div>
       </div>

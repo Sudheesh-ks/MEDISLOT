@@ -46,7 +46,7 @@ export default function AdminDashboard() {
 
   const { aToken, dashData, getDashData, cancelAppointment } = ctx;
   const [latest, setLatest] = useState<any[]>([]);
-  const [dateRange, setDateRange] = useState<DateRange>({ type: 'today' }); // ✅ default today
+  const [dateRange, setDateRange] = useState<DateRange>({ type: 'today' });
   const [appointmentsData, setAppointmentsData] = useState<{ date: string; count: number }[]>([]);
   const [topDoctors, setTopDoctors] = useState<any[]>([]);
   const [revenueData, setRevenueData] = useState<{ date: string; revenue: number }[]>([]);

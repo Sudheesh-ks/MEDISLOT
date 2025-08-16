@@ -98,6 +98,12 @@ userRouter.patch(
 );
 
 userRouter.post(
+  '/notifications/clear-all',
+  authRole(['user']),
+  userController.clearAll.bind(userController)
+);
+
+userRouter.post(
   '/appointments/:apptId/feedback',
   authRole(['user']),
   userController.submitFeedback.bind(userController)

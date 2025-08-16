@@ -442,6 +442,25 @@ export class DoctorController implements IDoctorController {
     }
   }
 
+  async clearAll(req: Request, res: Response): Promise<void> {
+    try {
+      const role = req.query.role as 'user' | 'doctor' | 'admin';
+      const type = req.query.type ? String(req.query.type) : undefined;
+      const doctorId = (req as any).docId;
+
+      logger.info(`Clearing all notifications for user ${doctorId}, role=${role}, type=${type}`);
+      await this._notificationService.clearAll(doctorId, role, type);
+
+      res.status(HttpStatus.OK).json({ success: true, message: 'All notifications cleared' });
+    } catch (error) {
+      logger.error(`Error clearing notifications: ${(error as Error).message}`);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
+    }
+  }
+
   async getDashboardData(req: Request, res: Response): Promise<void> {
     try {
       const doctorId = (req as any).docId;

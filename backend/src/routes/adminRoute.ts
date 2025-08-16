@@ -132,6 +132,12 @@ adminRouter.patch(
   adminController.markSingleAsRead.bind(adminController)
 );
 
+adminRouter.post(
+  '/notifications/clear-all',
+  authRole(['admin']),
+  adminController.clearAll.bind(adminController)
+);
+
 adminRouter.get(
   '/feedbacks',
   authRole(['admin']),

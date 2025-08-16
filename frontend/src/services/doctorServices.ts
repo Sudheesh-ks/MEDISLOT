@@ -144,6 +144,16 @@ export const getDoctorUnreadCountAPI = async () => {
   return res.data;
 };
 
+export const clearAllDoctorNotificationsAPI = async (token: string, type?: string) => {
+  const searchParams = new URLSearchParams();
+  searchParams.append('role', 'doctor');
+  if (type) searchParams.append('type', type);
+
+  return api.post(`${DOCTOR_API.NOTIFICATION_CLEAR_ALL}?${searchParams.toString()}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+};
+
 export const getDoctorDashboardDataAPI = (start?: string, end?: string) => {
   return api.get('/api/doctor/dashboard', {
     params: { start, end },

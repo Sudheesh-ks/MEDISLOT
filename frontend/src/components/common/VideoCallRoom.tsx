@@ -36,6 +36,7 @@ const VideoCallRoom: React.FC<VideoCallRoomProps> = ({ role, backUrl }) => {
 
     peerConnectionRef.current = peerConnection;
 
+    // for finding the remote person through that specific network api
     peerConnection.onicecandidate = (event) => {
       if (event.candidate) {
         socket.emit('ice-candidate', {
@@ -46,6 +47,7 @@ const VideoCallRoom: React.FC<VideoCallRoomProps> = ({ role, backUrl }) => {
       }
     };
 
+    // for getting the remote persons video and audio
     peerConnection.ontrack = (event) => {
       if (remoteVideoRef.current) {
         remoteVideoRef.current.srcObject = event.streams[0];

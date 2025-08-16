@@ -204,6 +204,16 @@ export const getAdminUnreadCountAPI = async () => {
   return res.data;
 };
 
+export const clearAllAdminNotificationsAPI = async (token: string, type?: string) => {
+  const searchParams = new URLSearchParams();
+  searchParams.append('role', 'admin');
+  if (type) searchParams.append('type', type);
+
+  return api.post(`${ADMIN_API.NOTIFICATION_CLEAR_ALL}?${searchParams.toString()}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+};
+
 export const getFeedbacksPaginatedAPI = async (page: number, limit: number, token: string) => {
   return await api.get(`${ADMIN_API.FEEDBACKS}?page=${page}&limit=${limit}`, {
     headers: {

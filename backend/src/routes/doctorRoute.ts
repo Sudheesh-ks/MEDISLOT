@@ -111,6 +111,12 @@ doctorRouter.patch(
   doctorController.markSingleAsRead.bind(doctorController)
 );
 
+doctorRouter.post(
+  '/notifications/clear-all',
+  authRole(['doctor']),
+  doctorController.clearAll.bind(doctorController)
+);
+
 doctorRouter.get(
   '/dashboard',
   authRole(['doctor']),
