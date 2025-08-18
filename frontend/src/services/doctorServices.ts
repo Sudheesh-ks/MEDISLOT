@@ -1,5 +1,5 @@
 import { doctorApi as api } from '../axios/doctorAxiosInstance';
-import { DOCTOR_API, SLOT_API } from '../constants/apiRoutes';
+import { BLOG_API, DOCTOR_API, SLOT_API } from '../constants/apiRoutes';
 
 // Get paginated doctors
 export const getDoctorsPaginatedAPI = (page: number, limit: number) => {
@@ -164,4 +164,8 @@ export const submitPrescriptionAPI = (appointmentId: string, prescription: strin
   return api.post(`/api/doctor/appointments/${appointmentId}/prescription`, {
     prescription,
   });
+};
+
+export const createDoctorBlogAPI = (formData: FormData) => {
+  return api.post(BLOG_API.CREATE, formData);
 };

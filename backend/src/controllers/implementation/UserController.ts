@@ -7,12 +7,14 @@ import { PaymentService } from '../../services/implementation/PaymentService';
 import { generateAccessToken } from '../../utils/jwt.utils';
 import logger from '../../utils/logger';
 import { NotificationService } from '../../services/implementation/NotificationService';
+import { BlogService } from '../../services/implementation/BlogService';
 
 export class UserController implements IUserController {
   constructor(
     private _userService: IUserService,
     private _paymentService: PaymentService,
-    private _notificationService: NotificationService
+    private _notificationService: NotificationService,
+    private _blogService: BlogService
   ) {}
 
   async registerUser(req: Request, res: Response): Promise<void> {
@@ -620,6 +622,91 @@ export class UserController implements IUserController {
       res.status(200).json({ success: true, data: prescription });
     } catch (err: any) {
       res.status(500).json({ success: false, message: err.message });
+    }
+  }
+
+  async getAllBlogs(req: Request, res: Response): Promise<void> {
+    try {
+      const blogs = await this._blogService.getAllBlogs();
+      res.status(HttpStatus.OK).json({
+        success: true,
+        data: blogs,
+      });
+    } catch (error: any) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: error.message,
+      });
+    }
+  }
+
+  async getBlogById(req: Request, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+      const blog = await this._blogService.getBlogById(id);
+
+      if (!blog) {
+        res.status(HttpStatus.NOT_FOUND).json({
+          success: false,
+          message: 'Blog not found',
+        });
+        return;
+      }
+
+      res.status(HttpStatus.OK).json({
+        success: true,
+        data: blog,
+      });
+    } catch (error: any) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: error.message,
+      });
+    }
+  }
+
+  async getBlogComments(req: Request, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+      const comments = await this._blogService.getBlogComments(id);
+
+      res.status(HttpStatus.OK).json({
+        success: true,
+        data: comments,
+      });
+    } catch (error: any) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: error.message,
+      });
+    }
+  }
+
+  async addBlogComment(req: Request, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+      const { comment } = req.body;
+      const userId = (req as any).userId; // from auth middleware
+
+      if (!comment) {
+        res.status(HttpStatus.BAD_REQUEST).json({
+          success: false,
+          message: 'Comment content is required',
+        });
+        return;
+      }
+
+      const newComment = await this._blogService.addBlogComment(id, userId, comment);
+
+      res.status(HttpStatus.CREATED).json({
+        success: true,
+        data: newComment,
+      });
+    } catch (error: any) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: error.message,
+      });
     }
   }
 }

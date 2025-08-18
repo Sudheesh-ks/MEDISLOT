@@ -44,6 +44,7 @@ const Navbar = () => {
             { to: '/all-doctors', label: 'Doctors' },
             { to: '/about', label: 'About' },
             { to: '/contact', label: 'Contact' },
+            { to: '/blogs', label: 'Blogs' },
           ].map(({ to, label }) => (
             <NavLink
               key={to}

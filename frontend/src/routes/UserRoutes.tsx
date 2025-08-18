@@ -23,6 +23,8 @@ import Wallet from '../pages/user/Wallet';
 import UserVideoCall from '../pages/user/UserVideoCallRoom';
 import ConsultationEndedPage from '../pages/user/ConsultationEndedpage';
 import NotificationsPage from '../pages/user/NotificationPage';
+import BlogPage from '../pages/user/BlogPage';
+import BlogDetailPage from '../pages/user/BlogDetailPage';
 
 const UserRoutes = () => {
   return (
@@ -124,6 +126,24 @@ const UserRoutes = () => {
       <Route path="/video-room/:appointmentId" element={<UserVideoCall />} />
       <Route path="/consultation-end/:appointmentId" element={<ConsultationEndedPage />} />
       <Route path="/chats/:doctorId" element={<ChatPage />} />
+
+      <Route
+        path="/blogs"
+        element={
+          <UserLayout>
+            <BlogPage />
+          </UserLayout>
+        }
+      />
+
+      <Route
+        path="/blogs/:articleId"
+        element={
+          <UserLayout>
+            <BlogDetailPage />
+          </UserLayout>
+        }
+      />
     </>
   );
 };

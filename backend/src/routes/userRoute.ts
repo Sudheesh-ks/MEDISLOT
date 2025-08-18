@@ -6,12 +6,19 @@ import upload from '../middlewares/multer';
 import { PaymentService } from '../services/implementation/PaymentService';
 import authRole from '../middlewares/authRole';
 import { NotificationService } from '../services/implementation/NotificationService';
+import { BlogService } from '../services/implementation/BlogService';
 
 const userRepository = new UserRepository();
 const paymentService = new PaymentService();
 const notificationService = new NotificationService();
+const blogService = new BlogService();
 const userService = new UserService(userRepository, paymentService);
-const userController = new UserController(userService, paymentService, notificationService);
+const userController = new UserController(
+  userService,
+  paymentService,
+  notificationService,
+  blogService
+);
 
 const userRouter = express.Router();
 
@@ -113,6 +120,22 @@ userRouter.get(
   '/appointments/:appointmentId/prescription',
   authRole(['doctor', 'user']),
   userController.getPrescriptionByAppointmentId.bind(userController)
+);
+
+userRouter.get('/blogs', authRole(['user']), userController.getAllBlogs.bind(userController));
+
+userRouter.get('/blogs/:id', authRole(['user']), userController.getBlogById.bind(userController));
+
+userRouter.get(
+  '/blogs/:id/comments',
+  authRole(['user']),
+  userController.getBlogComments.bind(userController)
+);
+
+userRouter.post(
+  '/blogs/:id/comments',
+  authRole(['user']),
+  userController.addBlogComment.bind(userController)
 );
 
 userRouter.get('/:id', userController.getUserById.bind(userController));

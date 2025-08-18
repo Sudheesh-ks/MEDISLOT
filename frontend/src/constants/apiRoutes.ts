@@ -105,3 +105,10 @@ export const USER_PROFILE_API = {
 export const SLOT_API = {
   SLOTS: '/api/slots',
 };
+
+export const BLOG_API = {
+  CREATE: '/api/doctor/add-blog',
+  BY_ID: (id: string) => `/api/doctor/blogs/${id}`,
+  PAGINATED: (page: number, limit: number) => `/api/doctor/blogs?page=${page}&limit=${limit}`,
+  GET_BLOGS: 'api/user/blogs',
+};

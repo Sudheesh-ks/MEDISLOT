@@ -17,6 +17,7 @@ import stripe_logo from './stripe_logo.png';
 import razorpay_logo from './razorpay_logo.png';
 import videocall_icon from './video-call-icon.png';
 import message_icon from './messages-icon.png';
+import chatbot_logo from './AI chatbot logo.png';
 import doc1 from './doc1.png';
 import doc2 from './doc2.png';
 import doc3 from './doc3.png';
@@ -86,6 +87,7 @@ export const assets: Record<string, string> = {
   razorpay_logo,
   videocall_icon,
   message_icon,
+  chatbot_logo,
 };
 
 export const specialityData: Speciality[] = [

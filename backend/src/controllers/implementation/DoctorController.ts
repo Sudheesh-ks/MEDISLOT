@@ -6,11 +6,14 @@ import { HttpResponse } from '../../constants/responseMessage.constants';
 import { DoctorTypes } from '../../types/doctor';
 import logger from '../../utils/logger';
 import { NotificationService } from '../../services/implementation/NotificationService';
+import { BlogService } from '../../services/implementation/BlogService';
+import { BlogTypes } from '../../types/blog';
 
 export class DoctorController implements IDoctorController {
   constructor(
     private _doctorService: DoctorService,
-    private _notificationService: NotificationService
+    private _notificationService: NotificationService,
+    private _blogService: BlogService
   ) {}
 
   async registerDoctor(req: Request, res: Response): Promise<void> {
@@ -502,6 +505,39 @@ export class DoctorController implements IDoctorController {
       res.status(HttpStatus.OK).json({ success: true, data: saved });
     } catch (err: any) {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: err.message });
+    }
+  }
+
+  async createBlog(req: Request, res: Response): Promise<void> {
+    try {
+      const doctorId = (req as any).docId;
+      const { title, summary, content, category, readTime, tags, visibility } = req.body;
+
+      const blogData: BlogTypes = {
+        title,
+        summary,
+        content,
+        category,
+        readTime,
+        tags,
+        visibility,
+        doctorId,
+        image: req.file ?? '',
+      };
+
+      const blog = await this._blogService.createBlog(blogData);
+
+      res.status(HttpStatus.CREATED).json({
+        success: true,
+        message: 'Blog created successfully',
+        blog,
+      });
+    } catch (error) {
+      logger.error(`Error creating blog: ${(error as Error).message}`);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
     }
   }
 }

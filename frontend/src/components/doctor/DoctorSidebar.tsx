@@ -10,6 +10,7 @@ const AdminSidebar = () => {
     appointment_icon: '📅',
     slot_icon: '⏰',
     wallet_icon: '💳',
+    blog_icon: '📄',
   };
 
   const menu = [
@@ -29,6 +30,11 @@ const AdminSidebar = () => {
       to: '/doctor/wallet',
       icon: assets.wallet_icon,
       label: 'Wallet',
+    },
+    {
+      to: '/doctor/add-blog',
+      icon: assets.blog_icon,
+      label: 'Add Blog',
     },
   ];
 

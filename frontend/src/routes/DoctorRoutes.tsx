@@ -16,6 +16,7 @@ import DoctorWallet from '../pages/doctor/DoctorWallet';
 import DoctorVideoCall from '../pages/doctor/DoctorVideoCall';
 import DoctorConsultationEndedPage from '../pages/doctor/DoctorConsultationEndedPage';
 import DoctorNotificationsPage from '../pages/doctor/DoctorNotificationPage';
+import DoctorAddBlogPage from '../pages/doctor/DoctorAddBlogPage';
 
 const DoctorRoutes = () => {
   return (
@@ -85,6 +86,15 @@ const DoctorRoutes = () => {
         element={<DoctorConsultationEndedPage />}
       />
       <Route path="/doctor/chats/:userId" element={<DocChatPage />} />
+
+      <Route
+        path="/doctor/add-blog"
+        element={
+          <DoctorLayout>
+            <DoctorAddBlogPage />
+          </DoctorLayout>
+        }
+      />
     </>
   );
 };

@@ -7,10 +7,12 @@ import authRole from '../middlewares/authRole';
 import { WalletRepository } from '../repositories/implementation/WalletRepository';
 import { NotificationService } from '../services/implementation/NotificationService';
 import { PrescriptionRepository } from '../repositories/implementation/PrescriptionRepository';
+import { BlogService } from '../services/implementation/BlogService';
 
 const doctorRepository = new DoctorRepository();
 const walletRepository = new WalletRepository();
 const notificationService = new NotificationService();
+const blogService = new BlogService();
 const prescriptionRepository = new PrescriptionRepository();
 const doctorService = new DoctorService(
   doctorRepository,
@@ -18,7 +20,7 @@ const doctorService = new DoctorService(
   notificationService,
   prescriptionRepository
 );
-const doctorController = new DoctorController(doctorService, notificationService);
+const doctorController = new DoctorController(doctorService, notificationService, blogService);
 
 const doctorRouter = express.Router();
 
@@ -127,6 +129,13 @@ doctorRouter.post(
   '/appointments/:appointmentId/prescription',
   authRole(['doctor']),
   doctorController.submitPrescription.bind(doctorController)
+);
+
+doctorRouter.post(
+  '/add-blog',
+  upload.single('image'),
+  authRole(['doctor']),
+  doctorController.createBlog.bind(doctorController)
 );
 
 doctorRouter.get('/:id', doctorController.getDoctorById.bind(doctorController));
