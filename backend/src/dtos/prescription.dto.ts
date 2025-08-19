@@ -1,8 +1,16 @@
 export interface PrescriptionDTO {
   id: string;
   appointmentId: string;
-  doctorId: string;
-  patientId: string;
+  doctor: {
+    id: string;
+    name: string;
+    email: string;
+  };
+  patient: {
+    id: string;
+    name: string;
+    email: string;
+  };
   prescription: string;
   createdAt?: Date;
   updatedAt?: Date;

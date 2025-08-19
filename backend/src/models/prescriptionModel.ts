@@ -8,8 +8,8 @@ export interface prescriptionDocument extends Omit<prescriptionTypes, '_id'>, Do
 const prescriptionSchema: Schema<prescriptionDocument> = new mongoose.Schema(
   {
     appointmentId: { type: Schema.Types.ObjectId, ref: 'Appointment', required: true },
-    doctorId: { type: Schema.Types.ObjectId, ref: 'Doctor', required: true },
-    patientId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    doctorId: { type: Schema.Types.ObjectId, ref: 'doctor', required: true },
+    patientId: { type: Schema.Types.ObjectId, ref: 'user', required: true },
     prescription: { type: String, required: true },
   },
   { timestamps: true }

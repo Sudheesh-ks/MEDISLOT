@@ -1,12 +1,20 @@
 import { PrescriptionDTO } from '../dtos/prescription.dto';
-import { prescriptionDocument } from '../models/prescriptionModel';
+// import { prescriptionDocument } from '../models/prescriptionModel';
 
-export const toPrescriptionDTO = (doc: prescriptionDocument): PrescriptionDTO => {
+export const toPrescriptionDTO = (doc: any): PrescriptionDTO => {
   return {
     id: doc._id.toString(),
     appointmentId: doc.appointmentId.toString(),
-    doctorId: doc.doctorId.toString(),
-    patientId: doc.patientId.toString(),
+    doctor: {
+      id: doc.doctorId._id.toString(),
+      name: doc.doctorId.name,
+      email: doc.doctorId.email,
+    },
+    patient: {
+      id: doc.patientId._id.toString(),
+      name: doc.patientId.name,
+      email: doc.patientId.email,
+    },
     prescription: doc.prescription,
     createdAt: doc.createdAt,
     updatedAt: doc.updatedAt,

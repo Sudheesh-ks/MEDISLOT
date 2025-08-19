@@ -18,7 +18,11 @@ export class PrescriptionRepository
   }
 
   async findByAppointmentId(appointmentId: string): Promise<prescriptionDocument | null> {
-    return this.findOne({ appointmentId });
+    return this.model
+      .findOne({ appointmentId })
+      .populate('doctorId', 'name email')
+      .populate('patientId', 'name email')
+      .exec();
   }
 
   async updatePrescriptionById(id: string, data: Partial<prescriptionTypes>): Promise<void> {

@@ -14,7 +14,7 @@ import { NotifContext } from '../../context/NotificationContext';
 import { updateItemInList } from '../../utils/stateHelper.util';
 import Pagination from '../../components/common/Pagination';
 import { slotDateFormat } from '../../utils/commonUtils';
-import { MessageSquare } from 'lucide-react';
+import { downloadPrescriptionPDF } from '../../utils/downloadPrescription';
 dayjs.extend(customParseFormat);
 
 const to12h = (t: string) => dayjs(t, 'HH:mm').format('hh:mm A').toLowerCase();
@@ -28,8 +28,6 @@ const MyAppointments = () => {
   const [appointments, setAppointments] = useState<any[]>([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [showPrescription, setShowPrescription] = useState(false);
-  const [selectedPrescription, setSelectedPrescription] = useState<any>(null);
 
   const nav = useNavigate();
 
@@ -70,8 +68,9 @@ const MyAppointments = () => {
       const { data } = await getPrescriptionAPI(appointmentId, token);
       if (data.success) {
         console.log(data);
-        setSelectedPrescription(data.data.prescription);
-        setShowPrescription(true);
+        // setSelectedPrescription(data.data.prescription);
+        // setShowPrescription(true);
+        downloadPrescriptionPDF(data.data);
       }
     } catch (err) {
       console.log(err);
@@ -167,11 +166,10 @@ const MyAppointments = () => {
                 <button
                   onClick={() => {
                     fetchPrescription(a._id);
-                    setShowPrescription(true);
                   }}
                   className={`${btn} border-green-500 text-green-400 hover:bg-green-500 hover:text-white`}
                 >
-                  View Prescription
+                  Download Prescription
                 </button>
               ) : (
                 <button
@@ -193,7 +191,7 @@ const MyAppointments = () => {
         <Pagination currentPage={page} totalPages={totalPages} onPageChange={handlePageChange} />
       )}
 
-      {showPrescription && (
+      {/* {showPrescription && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
           <div className="w-full max-w-2xl rounded-xl p-6 shadow-2xl max-h-[80vh] overflow-y-auto mx-4 border border-white/10 bg-slate-900">
             <div className="flex justify-between items-start mb-4">
@@ -222,7 +220,7 @@ const MyAppointments = () => {
             </div>
           </div>
         </div>
-      )}
+      )} */}
     </div>
   );
 };

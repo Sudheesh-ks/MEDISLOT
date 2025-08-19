@@ -621,6 +621,7 @@ export class UserController implements IUserController {
 
       res.status(200).json({ success: true, data: prescription });
     } catch (err: any) {
+      console.log(err);
       res.status(500).json({ success: false, message: err.message });
     }
   }
