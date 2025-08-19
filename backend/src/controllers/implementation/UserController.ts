@@ -710,4 +710,22 @@ export class UserController implements IUserController {
       });
     }
   }
+
+  async getDoctorReviews(req: Request, res: Response): Promise<void> {
+    try {
+      const result = await this._userService.getAllReviews();
+
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: 'Feedback fetched successfully',
+        data: result,
+      });
+    } catch (error) {
+      logger.error('Error fetching feedback:', error);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: 'Something went wrong',
+      });
+    }
+  }
 }

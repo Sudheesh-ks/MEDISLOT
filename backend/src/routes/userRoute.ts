@@ -138,6 +138,12 @@ userRouter.post(
   userController.addBlogComment.bind(userController)
 );
 
+userRouter.get(
+  '/feedbacks',
+  authRole(['user']),
+  userController.getDoctorReviews.bind(userController)
+);
+
 userRouter.get('/:id', userController.getUserById.bind(userController));
 
 export default userRouter;

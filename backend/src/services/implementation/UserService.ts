@@ -39,6 +39,8 @@ import { PrescriptionDTO } from '../../dtos/prescription.dto';
 import { toPrescriptionDTO } from '../../mappers/prescription.mapper';
 import { PrescriptionRepository } from '../../repositories/implementation/PrescriptionRepository';
 import { ioInstance } from '../../sockets/ChatSocket';
+import { FeedbackDTO } from '../../dtos/feedback.dto';
+import { toFeedbackDTO } from '../../mappers/feedback.mapper';
 
 export interface UserDocument extends userTypes {
   _id: string;
@@ -557,5 +559,11 @@ export class UserService implements IUserService {
     if (!prescriptionDoc) return null;
 
     return toPrescriptionDTO(prescriptionDoc);
+  }
+
+  async getAllReviews(): Promise<FeedbackDTO[]> {
+    const feedback = await this._feedbackRepository.getFeedbacks();
+
+    return feedback.map(toFeedbackDTO);
   }
 }

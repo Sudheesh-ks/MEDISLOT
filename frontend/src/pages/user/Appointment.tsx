@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import dayjs from 'dayjs';
+import relativeTime from 'dayjs/plugin/relativeTime';
 import { UserContext } from '../../context/UserContext';
 import { assets } from '../../assets/user/assets';
 import RelatedDoctors from '../../components/user/RelatedDoctors';
@@ -11,6 +12,7 @@ import {
   appointmentBookingAPI,
   cancelAppointmentAPI,
   getAvailableSlotsAPI,
+  getDoctorReviewsAPI,
 } from '../../services/appointmentServices';
 import { showErrorToast } from '../../utils/errorHandler';
 import type { RazorpayOptions, RazorpayPaymentResponse } from '../../types/razorpay';
@@ -18,6 +20,9 @@ import { PaymentRazorpayAPI, VerifyRazorpayAPI } from '../../services/paymentSer
 import { getDoctorsByIDAPI } from '../../services/doctorServices';
 import type { DoctorProfileType } from '../../types/doctor';
 import { currencySymbol } from '../../utils/commonUtils';
+import type { feedbackTypes } from '../../types/feedback';
+
+dayjs.extend(relativeTime);
 
 const ymd = (d: Date) =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
@@ -45,6 +50,8 @@ const Appointment = () => {
   const [slotTime, setSlotTime] = useState('');
   const [showPicker, setShowPicker] = useState(false);
   const [customDate, setCustomDate] = useState<Date | null>(null);
+  const [reviews, setReviews] = useState<feedbackTypes[]>([]);
+  const [visibleReviews, setVisibleReviews] = useState(3);
 
   const slotCache = useRef(new Map<string, TimeSlot[]>());
 
@@ -181,6 +188,20 @@ const Appointment = () => {
     }
   };
 
+  useEffect(() => {
+    const fetchReviews = async () => {
+      try {
+        const res = await getDoctorReviewsAPI(token);
+        if (res.data.success) {
+          setReviews(res.data.data);
+        }
+      } catch (err) {
+        showErrorToast(err);
+      }
+    };
+    fetchReviews();
+  }, [token]);
+
   return (
     <div className="max-w-7xl mx-auto px-4 md:px-10 py-24 text-slate-100 animate-fade">
       {/* Doctor profile section */}
@@ -299,6 +320,49 @@ const Appointment = () => {
         >
           Book an appointment
         </button>
+      </section>
+
+      <section className="mt-16 space-y-6">
+        <h3 className="font-semibold text-lg">Patient Reviews</h3>
+
+        {reviews.length ? (
+          <div className="space-y-4">
+            {reviews.slice(0, visibleReviews).map((r, idx) => (
+              <div
+                key={idx}
+                className="bg-white/5 backdrop-blur ring-1 ring-white/10 rounded-2xl p-5 flex gap-4"
+              >
+                {/* Avatar */}
+                <div className="w-10 h-10 rounded-full object-cover ring-1 ring-white/10">
+                  <img src= {r.userData.image} />
+                </div>
+
+                {/* Review content */}
+                <div className="flex-1 space-y-1">
+                  <div className="flex items-center justify-between">
+                    <p className="font-medium text-white">{r.userData.name}</p>
+                    <span className="text-xs text-slate-400">{dayjs(r.timestamp).fromNow()}</span>
+                  </div>
+                  <p className="text-slate-300 text-sm">{r.message}</p>
+                </div>
+              </div>
+            ))}
+
+            {/* Load More Button */}
+            {visibleReviews < reviews.length && (
+              <div className="text-center">
+                <button
+                  onClick={() => setVisibleReviews((prev) => prev + 3)}
+                  className="px-6 py-2 rounded-full bg-gradient-to-r from-cyan-500 to-fuchsia-600 text-white text-sm hover:-translate-y-0.5 transition-transform"
+                >
+                  Load more reviews
+                </button>
+              </div>
+            )}
+          </div>
+        ) : (
+          <p className="text-slate-400 text-sm">No reviews yet</p>
+        )}
       </section>
 
       <RelatedDoctors docId={docId} speciality={info?.speciality} />

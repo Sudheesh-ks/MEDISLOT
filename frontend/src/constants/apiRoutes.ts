@@ -32,6 +32,7 @@ export const APPOINTMENT_API = {
   CANCEL: (appointmentId: string) => `/api/user/appointments/${appointmentId}/cancel`,
   AVAILABLE_FOR_USER: '/api/user/available-slots',
   ACTIVE_APPOINTMENT: '/api/user/appointments/active',
+  FEEDBACKS: '/api/user/feedbacks',
 };
 
 export const AUTH_API = {

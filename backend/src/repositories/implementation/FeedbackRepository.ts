@@ -28,8 +28,8 @@ export class FeedbackRepository
     return feedback.save();
   }
 
-  async getFeedbacks(skip: number, limit: number): Promise<FeedbackDocument[]> {
-    return this.model.find().sort({ timestamp: -1 }).skip(skip).limit(limit);
+  async getFeedbacks(): Promise<FeedbackDocument[]> {
+    return this.model.find().sort({ timestamp: -1 });
   }
 
   async countFeedbacks(): Promise<number> {

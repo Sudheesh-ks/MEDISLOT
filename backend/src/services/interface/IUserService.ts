@@ -1,5 +1,6 @@
 import { AppointmentDTO } from '../../dtos/appointment.dto';
 import { DoctorDTO } from '../../dtos/doctor.dto';
+import { FeedbackDTO } from '../../dtos/feedback.dto';
 import { PrescriptionDTO } from '../../dtos/prescription.dto';
 import { UserDTO } from '../../dtos/user.dto';
 import { WalletDTO } from '../../dtos/wallet.dto';
@@ -72,4 +73,5 @@ export interface IUserService {
   getAvailableSlotsForDoctor(doctorId: string, year: number, month: number): Promise<any[]>;
   submitFeedback(userId: string, apptId: string, message: string): Promise<any>;
   getPrescriptionByAppointmentId(appointmentId: string): Promise<PrescriptionDTO | null>;
+  getAllReviews(): Promise<FeedbackDTO[]>;
 }
