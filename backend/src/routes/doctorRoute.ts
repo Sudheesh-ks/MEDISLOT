@@ -8,17 +8,23 @@ import { WalletRepository } from '../repositories/implementation/WalletRepositor
 import { NotificationService } from '../services/implementation/NotificationService';
 import { PrescriptionRepository } from '../repositories/implementation/PrescriptionRepository';
 import { BlogService } from '../services/implementation/BlogService';
+import { PatientHistoryRepository } from '../repositories/implementation/PatientHistoryRepository';
+import { UserRepository } from '../repositories/implementation/UserRepository';
 
 const doctorRepository = new DoctorRepository();
+const userRepository = new UserRepository();
 const walletRepository = new WalletRepository();
 const notificationService = new NotificationService();
 const blogService = new BlogService();
 const prescriptionRepository = new PrescriptionRepository();
+const patientHistoryRepository = new PatientHistoryRepository();
 const doctorService = new DoctorService(
   doctorRepository,
+  userRepository,
   walletRepository,
   notificationService,
-  prescriptionRepository
+  prescriptionRepository,
+  patientHistoryRepository
 );
 const doctorController = new DoctorController(doctorService, notificationService, blogService);
 
@@ -136,6 +142,30 @@ doctorRouter.post(
   upload.single('image'),
   authRole(['doctor']),
   doctorController.createBlog.bind(doctorController)
+);
+
+doctorRouter.post(
+  '/patient-history/:patientId',
+  authRole(['doctor']),
+  doctorController.createPatientHistory.bind(doctorController)
+);
+
+doctorRouter.get(
+  '/patient-history/:patientId',
+  authRole(['doctor']),
+  doctorController.getPatientHistory.bind(doctorController)
+);
+
+doctorRouter.get(
+  '/patient-history/detail/:historyId',
+  authRole(['doctor']),
+  doctorController.getPatientHistoryById.bind(doctorController)
+);
+
+doctorRouter.get(
+  '/patient/:patientId',
+  authRole(['doctor']),
+  doctorController.getPatientById.bind(doctorController)
 );
 
 doctorRouter.get('/:id', doctorController.getDoctorById.bind(doctorController));

@@ -334,7 +334,7 @@ const Appointment = () => {
               >
                 {/* Avatar */}
                 <div className="w-10 h-10 rounded-full object-cover ring-1 ring-white/10">
-                  <img src= {r.userData.image} />
+                  <img src={r.userData.image} />
                 </div>
 
                 {/* Review content */}

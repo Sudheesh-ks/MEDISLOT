@@ -20,6 +20,9 @@ import { INotificationService } from '../interface/INotificationService';
 import { Types } from 'mongoose';
 import { IPrescriptionRepository } from '../../repositories/interface/IPrescriptionRepository';
 import { ioInstance } from '../../sockets/ChatSocket';
+import { IPatientHistoryRepository } from '../../repositories/interface/IPatientHistoryRepository';
+import { patientHistoryTypes } from '../../types/patientHistoryTypes';
+import { IUserRepository } from '../../repositories/interface/IUserRepository';
 
 export interface DoctorDocument extends DoctorTypes {
   _id: string;
@@ -28,9 +31,11 @@ export interface DoctorDocument extends DoctorTypes {
 export class DoctorService implements IDoctorService {
   constructor(
     private readonly _doctorRepository: IDoctorRepository,
+    private readonly _userRepository: IUserRepository,
     private readonly _walletRepository: IWalletRepository,
     private readonly _notificationService: INotificationService,
-    private readonly _prescriptionRepository: IPrescriptionRepository
+    private readonly _prescriptionRepository: IPrescriptionRepository,
+    private readonly _patientHistoryRepository: IPatientHistoryRepository
   ) {}
 
   async registerDoctor(data: DoctorTypes): Promise<void> {
@@ -456,5 +461,27 @@ export class DoctorService implements IDoctorService {
       patientId: appointment.userData._id,
       prescription,
     });
+  }
+
+  async createPatientHistory(data: patientHistoryTypes): Promise<void> {
+    const patientHistory = {
+      ...data,
+      doctorId: new Types.ObjectId(data.doctorId),
+      patientId: new Types.ObjectId(data.patientId),
+    };
+
+    await this._patientHistoryRepository.createHistory(patientHistory);
+  }
+
+  async getPatientHistory(doctorId: string, userId: string) {
+    return await this._patientHistoryRepository.findByDoctorAndPatient(doctorId, userId);
+  }
+
+  async getPatientHistoryById(historyId: string) {
+    return await this._patientHistoryRepository.findHistoryById(historyId);
+  }
+
+  async getPatientById(patientId: string) {
+    return await this._userRepository.findUserById(patientId);
   }
 }

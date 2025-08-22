@@ -169,3 +169,45 @@ export const submitPrescriptionAPI = (appointmentId: string, prescription: strin
 export const createDoctorBlogAPI = (formData: FormData) => {
   return api.post(BLOG_API.CREATE, formData);
 };
+
+export const createPatientHistoryAPI = (
+  patientId: string,
+  data: {
+    date: string;
+    time: string;
+    type: string;
+    chiefComplaint: string;
+    symptoms: string[];
+    vitals: {
+      bloodPressure?: string;
+      heartRate?: string;
+      temperature?: string;
+      weight?: string;
+      height?: string;
+      oxygenSaturation?: string;
+    };
+    diagnosis: string;
+    doctorNotes?: string;
+    prescription: {
+      medication: string;
+      dosage: string;
+      frequency: string;
+      duration: string;
+      instructions: string;
+    }[];
+  }
+) => {
+  return api.post(`/api/doctor/patient-history/${patientId}`, data);
+};
+
+export const getPatientHistoriesByPatientAPI = (patientId: string) => {
+  return api.get(`/api/doctor/patient-history/${patientId}`);
+};
+
+export const getPatientHistoryByIdAPI = (historyId: string) => {
+  return api.get(`/api/doctor/patient-history/${historyId}`);
+};
+
+export const getPatientDetailsAPI = (patientId: string) => {
+  return api.get(`/api/doctor/patient/${patientId}`);
+};

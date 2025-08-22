@@ -17,6 +17,7 @@ import DoctorVideoCall from '../pages/doctor/DoctorVideoCall';
 import DoctorConsultationEndedPage from '../pages/doctor/DoctorConsultationEndedPage';
 import DoctorNotificationsPage from '../pages/doctor/DoctorNotificationPage';
 import DoctorAddBlogPage from '../pages/doctor/DoctorAddBlogPage';
+import PatientHistoryPage from '../pages/doctor/PatientHistoryPage';
 
 const DoctorRoutes = () => {
   return (
@@ -92,6 +93,15 @@ const DoctorRoutes = () => {
         element={
           <DoctorLayout>
             <DoctorAddBlogPage />
+          </DoctorLayout>
+        }
+      />
+
+      <Route
+        path="/doctor/patient-history/:userId"
+        element={
+          <DoctorLayout>
+            <PatientHistoryPage />
           </DoctorLayout>
         }
       />

@@ -8,6 +8,7 @@ import logger from '../../utils/logger';
 import { NotificationService } from '../../services/implementation/NotificationService';
 import { BlogService } from '../../services/implementation/BlogService';
 import { BlogTypes } from '../../types/blog';
+import { patientHistoryTypes } from '../../types/patientHistoryTypes';
 
 export class DoctorController implements IDoctorController {
   constructor(
@@ -538,6 +539,110 @@ export class DoctorController implements IDoctorController {
         success: false,
         message: (error as Error).message,
       });
+    }
+  }
+
+  async createPatientHistory(req: Request, res: Response): Promise<void> {
+    try {
+      const doctorId = (req as any).docId;
+      const { userId } = req.params;
+      const {
+        date,
+        time,
+        type,
+        chiefComplaint,
+        symptoms,
+        vitals,
+        diagnosis,
+        doctorNotes,
+        prescription,
+      } = req.body;
+
+      const patientHistory: patientHistoryTypes = {
+        doctorId,
+        patientId: userId,
+        date,
+        time,
+        type,
+        chiefComplaint,
+        symptoms,
+        vitals,
+        diagnosis,
+        doctorNotes,
+        prescription: prescription.filter(
+          (p: any) => p.medication && p.dosage && p.frequency && p.duration && p.instructions
+        ),
+      };
+
+      await this._doctorService.createPatientHistory(patientHistory);
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: 'Patient history added successfully',
+      });
+    } catch (error) {
+      logger.error(`Error creating patient history: ${(error as Error).message}`);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
+    }
+  }
+
+  async getPatientHistory(req: Request, res: Response): Promise<void> {
+    try {
+      const doctorId = (req as any).docId;
+      const { userId } = req.params;
+      const histories = await this._doctorService.getPatientHistory(doctorId, userId);
+
+      res.status(HttpStatus.OK).json({ success: true, histories });
+    } catch (error) {
+      logger.error(`Error fetching patient histories by patient: ${(error as Error).message}`);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
+    }
+  }
+
+  async getPatientHistoryById(req: Request, res: Response): Promise<void> {
+    try {
+      const { historyId } = req.params;
+      const history = await this._doctorService.getPatientHistoryById(historyId);
+
+      if (!history) {
+        res.status(HttpStatus.NOT_FOUND).json({
+          success: false,
+          message: 'Patient history not found',
+        });
+        return;
+      }
+
+      res.status(HttpStatus.OK).json({ success: true, history });
+    } catch (error) {
+      logger.error(`Error fetching patient history by ID: ${(error as Error).message}`);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
+    }
+  }
+
+  async getPatientById(req: Request, res: Response): Promise<void> {
+    try {
+      const { patientId } = req.params;
+      const patient = await this._doctorService.getPatientById(patientId);
+
+      if (!patient) {
+        res.status(HttpStatus.NOT_FOUND).json({ success: false, message: 'Patient not found' });
+        return;
+      }
+
+      res.status(HttpStatus.OK).json({ success: true, patient });
+    } catch (error) {
+      logger.error(`Error fetching patient: ${(error as Error).message}`);
+      res
+        .status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .json({ success: false, message: (error as Error).message });
     }
   }
 }

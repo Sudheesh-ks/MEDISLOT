@@ -1,6 +1,7 @@
 import { useParams } from 'react-router-dom';
 import DocVideoCallCard from '../../components/doctor/DocVideoCallCard';
 import DocChatCard from '../../components/doctor/DocChatCard';
+import PatientHistoryCard from '../../components/doctor/PatientHistoryCard';
 
 const DoctorConsultation = () => {
   const { userId, appointmentId } = useParams();
@@ -8,6 +9,7 @@ const DoctorConsultation = () => {
     <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center gap-8 p-8">
       <DocVideoCallCard appointmentId={appointmentId} />
       <DocChatCard userId={userId} />
+      <PatientHistoryCard userId={userId} />
     </div>
   );
 };
