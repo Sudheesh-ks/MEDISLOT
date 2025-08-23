@@ -3,6 +3,7 @@ import { assets } from '../../assets/user/assets';
 import { getBlogsAPI } from '../../services/blogService';
 import { UserContext } from '../../context/UserContext';
 import { useNavigate } from 'react-router-dom';
+import ChatBotModal from '../../components/user/ChatbotModal';
 
 interface Article {
   _id: string;
@@ -20,6 +21,8 @@ const BlogPage: React.FC = () => {
   const navigate = useNavigate();
   const [articles, setArticles] = useState<Article[]>([]);
   const [visibleArticles, setVisibleArticles] = useState<number>(9);
+  const [isChatOpen, setIsChatOpen] = useState(false);
+
   const articlesPerPage = 6;
 
   const context = useContext(UserContext);
@@ -80,8 +83,7 @@ const BlogPage: React.FC = () => {
   };
 
   const handleConsultationClick = (): void => {
-    console.log('Opening medical consultation chat...');
-    // navigate("/medical-consultation");
+    setIsChatOpen(true); // open modal
   };
 
   const articlesToDisplay = articles.slice(0, visibleArticles);
@@ -236,6 +238,8 @@ const BlogPage: React.FC = () => {
           overflow: hidden;
         }
       `}</style>
+
+      <ChatBotModal isOpen={isChatOpen} onClose={() => setIsChatOpen(false)} />
     </>
   );
 };

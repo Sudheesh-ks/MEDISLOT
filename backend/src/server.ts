@@ -22,6 +22,7 @@ import { ChatService } from './services/implementation/ChatService';
 // socket registration
 import { registerChatSocket } from './sockets/ChatSocket';
 import slotRouter from './routes/slotRoute';
+import aiChatRouter from './routes/aiChatBotRoutes';
 
 // app config
 const app = express();
@@ -50,6 +51,7 @@ app.use('/api/user', userRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/chat', chatRouter);
 app.use('/api/slots', slotRouter);
+app.use('/api/ai', aiChatRouter);
 
 app.get('/', (req, res) => {
   res.send('API WORKING');
