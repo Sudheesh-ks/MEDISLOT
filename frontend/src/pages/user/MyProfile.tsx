@@ -7,6 +7,7 @@ import { useNavigate } from 'react-router-dom';
 import { isValidDateOfBirth, isValidPhone } from '../../utils/validator';
 import { showErrorToast } from '../../utils/errorHandler';
 import { currencySymbol } from '../../utils/commonUtils';
+import ReportBugModal from '../../components/user/BugReportModal';
 
 const MyProfile = () => {
   const nav = useNavigate();
@@ -17,6 +18,7 @@ const MyProfile = () => {
   const [isEdit, setEdit] = useState(false);
   const [image, setImage] = useState<File | null>(null);
   const [walletBalance, setWalletBalance] = useState(0);
+  const [showBugModal, setShowBugModal] = useState(false);
 
   useEffect(() => {
     if (!token) {
@@ -339,8 +341,21 @@ const MyProfile = () => {
               </div>
             </div>
           </div>
+
+          {/* Add Report Bug Button */}
+          <div className="mt-6 flex justify-end">
+            <button
+              onClick={() => setShowBugModal(true)}
+              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-500"
+            >
+              Report Bug
+            </button>
+          </div>
         </div>
       </div>
+
+      {/* Bug Modal */}
+      <ReportBugModal token={token} isOpen={showBugModal} onClose={() => setShowBugModal(false)} />
     </div>
   );
 };

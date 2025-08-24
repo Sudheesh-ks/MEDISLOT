@@ -21,9 +21,10 @@ import { HttpResponse } from '../../constants/responseMessage.constants';
 import { IWalletRepository } from '../../repositories/interface/IWalletRepository';
 import { INotificationService } from '../interface/INotificationService';
 import { IFeedbackRepository } from '../../repositories/interface/IFeedbackRepository';
-import { FeedbackDTO } from '../../dtos/feedback.dto';
-import { toFeedbackDTO } from '../../mappers/feedback.mapper';
 import { ioInstance } from '../../sockets/ChatSocket';
+import { ComplaintDTO } from '../../dtos/complaint.dto';
+import { IComplaintRepository } from '../../repositories/interface/IComplaintRepository';
+import { tocomplaintDTO } from '../../mappers/complaint.mapper';
 dotenv.config();
 
 export class AdminService implements IAdminService {
@@ -32,7 +33,8 @@ export class AdminService implements IAdminService {
     private readonly _doctorRepository: IDoctorRepository,
     private readonly _walletRepository: IWalletRepository,
     private readonly _notificationService: INotificationService,
-    private readonly _feedbackRepository: IFeedbackRepository
+    private readonly _feedbackRepository: IFeedbackRepository,
+    private readonly _complaintRepository: IComplaintRepository
   ) {}
 
   async login(
@@ -297,21 +299,52 @@ export class AdminService implements IAdminService {
     return await this._adminRepository.getRevenueStats(startDate, endDate);
   }
 
-  async getAllFeedbacks(
+  async getAllComplaints(
     page: number = 1,
     limit: number = 10
-  ): Promise<{ feedbacks: FeedbackDTO[]; totalPages: number; currentPage: number }> {
-    const skip = (page - 1) * limit;
+  ): Promise<{ complaints: ComplaintDTO[]; totalPages: number; currentPage: number }> {
+    // const skip = (page - 1) * limit;
 
-    const [feedbackDocs, total] = await Promise.all([
-      this._feedbackRepository.getFeedbacks(skip, limit),
-      this._feedbackRepository.countFeedbacks(),
+    const [complaintDocs, total] = await Promise.all([
+      this._complaintRepository.getComplaints(page, limit),
+      this._complaintRepository.countComplaints(),
     ]);
 
     return {
-      feedbacks: feedbackDocs.map(toFeedbackDTO),
+      complaints: complaintDocs.map(tocomplaintDTO),
       totalPages: Math.ceil(total / limit),
       currentPage: page,
     };
+  }
+
+  async updateComplainStatus(
+    id: string,
+    status: 'pending' | 'in-progress' | 'resolved' | 'rejected'
+  ): Promise<ComplaintDTO | null> {
+
+    const complaint = await this._complaintRepository.findComplaintById(id);
+    const userId = complaint?.userId.toString();
+    const updated = await this._complaintRepository.updateComplaintStatus(id, status);
+
+    if (!updated) {
+      throw new Error('Complaint not found');
+    }
+
+        await this._notificationService.sendNotification({
+      recipientId: userId,
+      recipientRole: 'user',
+      type: 'system',
+      title: 'Admin updation on your complaint',
+      message: `Admin switched your complaint status to ${status}`,
+      link: '/system',
+    });
+
+    if (ioInstance) {
+      ioInstance.to(userId!).emit('notification', {
+        title: 'Admin updation on your complaint',
+        link: '/system',
+      });
+    }
+    return tocomplaintDTO(updated);
   }
 }

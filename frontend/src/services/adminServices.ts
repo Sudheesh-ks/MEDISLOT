@@ -214,10 +214,22 @@ export const clearAllAdminNotificationsAPI = async (token: string, type?: string
   });
 };
 
-export const getFeedbacksPaginatedAPI = async (page: number, limit: number, token: string) => {
-  return await api.get(`${ADMIN_API.FEEDBACKS}?page=${page}&limit=${limit}`, {
+export const getComplaintsPaginatedAPI = async (page: number, limit: number, token: string) => {
+  return await api.get(`${ADMIN_API.COMPLAINTS}?page=${page}&limit=${limit}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
   });
+};
+
+export const updateComplainStatusAPI = async (id: string, status: string, token: string) => {
+  return await api.patch(
+    `${ADMIN_API.UPDATE_COMPLAINT(id)}`,
+    { status },
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
 };

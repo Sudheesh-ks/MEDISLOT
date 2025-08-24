@@ -3,7 +3,7 @@ import { assets } from '../../assets/user/assets';
 import { getBlogsAPI } from '../../services/blogService';
 import { UserContext } from '../../context/UserContext';
 import { useNavigate } from 'react-router-dom';
-import ChatBotModal from '../../components/user/ChatbotModal';
+import ChatBotModal from '../../components/user/ChatBotModal';
 
 interface Article {
   _id: string;

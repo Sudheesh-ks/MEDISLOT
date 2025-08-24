@@ -4,7 +4,7 @@ import { DoctorTypes } from '../../types/doctor';
 import { DoctorDTO } from '../../dtos/doctor.dto';
 import { AdminDTO } from '../../dtos/admin.dto';
 import { PaginationResult } from '../../types/pagination';
-import { FeedbackDTO } from '../../dtos/feedback.dto';
+import { ComplaintDTO } from '../../dtos/complaint.dto';
 
 export interface DoctorInput extends DoctorTypes {
   imageFile?: Express.Multer.File;
@@ -50,8 +50,12 @@ export interface IAdminService {
     startDate?: string,
     endDate?: string
   ): Promise<{ date: string; revenue: number }[]>;
-  getAllFeedbacks(
+  getAllComplaints(
     page: number,
     limit: number
-  ): Promise<{ feedbacks: FeedbackDTO[]; totalPages: number; currentPage: number }>;
+  ): Promise<{ complaints: ComplaintDTO[]; totalPages: number; currentPage: number }>;
+  updateComplainStatus(
+    id: string,
+    status: 'pending' | 'in-progress' | 'resolved' | 'rejected'
+  ): Promise<ComplaintDTO | null>;
 }

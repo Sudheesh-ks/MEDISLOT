@@ -96,3 +96,15 @@ export const clearAllUserNotificationsAPI = async (token: string, type?: string)
     headers: { Authorization: `Bearer ${token}` },
   });
 };
+
+export const reportBugAPI = async (
+  token: string,
+  data: { subject: string; description: string }
+) => {
+  const res = api.post('api/user/complaints/report', data, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return (await res).data;
+};

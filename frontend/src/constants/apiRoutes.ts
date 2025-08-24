@@ -24,7 +24,8 @@ export const ADMIN_API = {
   NOTIFICATION_MARK_ALL_READ: '/api/admin/notifications/read-all',
   NOTIFICATIONS_UNREAD_COUNT: '/api/admin/notifications/unread-count',
   NOTIFICATION_CLEAR_ALL: '/api/admin/notifications/clear-all',
-  FEEDBACKS: '/api/admin/feedbacks',
+  COMPLAINTS: '/api/admin/complaints',
+  UPDATE_COMPLAINT: (id: string) => `/api/admin/complaints/update/${id}`,
 };
 
 export const APPOINTMENT_API = {

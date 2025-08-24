@@ -728,4 +728,20 @@ export class UserController implements IUserController {
       });
     }
   }
+
+  async reportIssues(req: Request, res: Response): Promise<void> {
+    try {
+      const userId = (req as any).userId;
+      const { subject, description } = req.body;
+
+      await this._userService.reportIssue(userId, subject, description);
+      res.status(HttpStatus.OK).json({ success: true, message: 'Report sended successfully' });
+    } catch (error) {
+      logger.error(`Error on submitting feedback: ${(error as Error).message}`);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
+    }
+  }
 }

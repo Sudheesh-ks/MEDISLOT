@@ -10,6 +10,7 @@ import { DoctorRepository } from '../repositories/implementation/DoctorRepositor
 import { WalletRepository } from '../repositories/implementation/WalletRepository';
 import { NotificationService } from '../services/implementation/NotificationService';
 import { FeedbackRepository } from '../repositories/implementation/FeedbackRepository';
+import { ComplaintRepository } from '../repositories/implementation/ComplaintRepository';
 
 // Admin Layer
 const adminRepository = new AdminRepository();
@@ -17,12 +18,14 @@ const doctorRepository = new DoctorRepository();
 const walletRepository = new WalletRepository();
 const notificationService = new NotificationService();
 const feedbackRepository = new FeedbackRepository();
+const complaintRepository = new ComplaintRepository();
 const adminService = new AdminService(
   adminRepository,
   doctorRepository,
   walletRepository,
   notificationService,
-  feedbackRepository
+  feedbackRepository,
+  complaintRepository
 );
 const adminController = new AdminController(adminService, notificationService);
 
@@ -139,9 +142,15 @@ adminRouter.post(
 );
 
 adminRouter.get(
-  '/feedbacks',
+  '/complaints',
   authRole(['admin']),
-  adminController.getAllFeedback.bind(adminController)
+  adminController.getAllComplaints.bind(adminController)
+);
+
+adminRouter.patch(
+  '/complaints/update/:id',
+  authRole(['admin']),
+  adminController.updateComplaintStatus.bind(adminController)
 );
 
 export default adminRouter;

@@ -4,6 +4,7 @@ import { FeedbackDTO } from '../../dtos/feedback.dto';
 import { PrescriptionDTO } from '../../dtos/prescription.dto';
 import { UserDTO } from '../../dtos/user.dto';
 import { WalletDTO } from '../../dtos/wallet.dto';
+import { ComplaintTypes } from '../../types/complaint';
 import { PaginationResult } from '../../types/pagination';
 import { SlotRange } from '../../types/slots';
 import { userTypes } from '../../types/user';
@@ -74,4 +75,5 @@ export interface IUserService {
   submitFeedback(userId: string, apptId: string, message: string): Promise<any>;
   getPrescriptionByAppointmentId(appointmentId: string): Promise<PrescriptionDTO | null>;
   getAllReviews(): Promise<FeedbackDTO[]>;
+  reportIssue(userId: string, subject: string, description: string): Promise<ComplaintTypes>;
 }

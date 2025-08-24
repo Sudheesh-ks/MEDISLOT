@@ -407,24 +407,45 @@ export class AdminController implements IAdminController {
     }
   }
 
-  async getAllFeedback(req: Request, res: Response): Promise<void> {
+  async getAllComplaints(req: Request, res: Response): Promise<void> {
     try {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 10;
 
-      const result = await this._adminService.getAllFeedbacks(page, limit);
+      const result = await this._adminService.getAllComplaints(page, limit);
 
       res.status(HttpStatus.OK).json({
         success: true,
-        message: 'Feedback fetched successfully',
-        data: result.feedbacks,
+        message: 'Complaints fetched successfully',
+        data: result.complaints,
         pagination: {
           totalPages: result.totalPages,
           currentPage: result.currentPage,
         },
       });
     } catch (error) {
-      logger.error('Error fetching feedback:', error);
+      logger.error('Error fetching complaints:', error);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: 'Something went wrong',
+      });
+    }
+  }
+
+  async updateComplaintStatus(req: Request, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+      const { status } = req.body;
+
+      const updated = await this._adminService.updateComplainStatus(id, status);
+
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: 'Complaint status updated successfully',
+        data: updated,
+      });
+    } catch (error) {
+      logger.error('Error updating complaint status:', error);
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: 'Something went wrong',

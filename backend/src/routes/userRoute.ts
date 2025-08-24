@@ -144,6 +144,12 @@ userRouter.get(
   userController.getDoctorReviews.bind(userController)
 );
 
+userRouter.post(
+  '/complaints/report',
+  authRole(['user']),
+  userController.reportIssues.bind(userController)
+);
+
 userRouter.get('/:id', userController.getUserById.bind(userController));
 
 export default userRouter;

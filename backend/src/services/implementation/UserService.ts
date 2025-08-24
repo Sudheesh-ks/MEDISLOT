@@ -41,6 +41,8 @@ import { PrescriptionRepository } from '../../repositories/implementation/Prescr
 import { ioInstance } from '../../sockets/ChatSocket';
 import { FeedbackDTO } from '../../dtos/feedback.dto';
 import { toFeedbackDTO } from '../../mappers/feedback.mapper';
+import { ComplaintRepository } from '../../repositories/implementation/ComplaintRepository';
+import { ComplaintTypes } from '../../types/complaint';
 
 export interface UserDocument extends userTypes {
   _id: string;
@@ -56,7 +58,8 @@ export class UserService implements IUserService {
     private readonly _walletRepository = new WalletRepository(),
     private readonly _notificationService = new NotificationService(),
     private readonly _feedbackRepository = new FeedbackRepository(),
-    private readonly _prescriptionRepository = new PrescriptionRepository()
+    private readonly _prescriptionRepository = new PrescriptionRepository(),
+    private readonly _complaintRepository = new ComplaintRepository()
   ) {}
 
   async register(name: string, email: string, password: string): Promise<void> {
@@ -565,5 +568,17 @@ export class UserService implements IUserService {
     const feedback = await this._feedbackRepository.getFeedbacks();
 
     return feedback.map(toFeedbackDTO);
+  }
+
+  async reportIssue(userId: string, subject: string, description: string): Promise<ComplaintTypes> {
+    if (!userId) {
+      throw new Error('Unauthorized user');
+    }
+
+    if (!subject && !description) {
+      throw new Error('Please provide the detailed issue');
+    }
+
+    return this._complaintRepository.reportIssue(userId, subject, description);
   }
 }
