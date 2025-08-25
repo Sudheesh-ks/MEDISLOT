@@ -6,6 +6,7 @@ import appointmentModel, { AppointmentDocument } from '../../models/appointmentM
 import { PipelineStage } from 'mongoose';
 import { PaginationResult } from '../../types/pagination';
 import { IAdminRepository } from '../interface/IAdminRepository';
+import slotModel from '../../models/slotModel';
 
 export class AdminRepository extends BaseRepository<AdminDocument> implements IAdminRepository {
   constructor() {
@@ -121,15 +122,17 @@ export class AdminRepository extends BaseRepository<AdminDocument> implements IA
     await appointment.save();
 
     const { docId, slotDate, slotStartTime } = appointment;
-    const doctor = await doctorModel.findById(docId);
-    if (doctor) {
-      const slots = doctor.slots_booked || {};
-      if (Array.isArray(slots[slotDate])) {
-        slots[slotDate] = slots[slotDate].filter((t: string) => t !== slotStartTime);
-        if (!slots[slotDate].length) delete slots[slotDate];
-        doctor.slots_booked = slots;
-        doctor.markModified('slots_booked');
-        await doctor.save();
+    const slotDoc = await slotModel.findOne({
+      doctorId: docId,
+      date: slotDate,
+    });
+    if (slotDoc) {
+      const slotIndex = slotDoc.slots.findIndex(
+        (slot) => slot.start === slotStartTime && slot.booked
+      );
+      if (slotIndex !== -1) {
+        slotDoc.slots[slotIndex].booked = false;
+        await slotDoc.save();
       }
     }
   }

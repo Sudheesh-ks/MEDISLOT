@@ -321,7 +321,6 @@ export class AdminService implements IAdminService {
     id: string,
     status: 'pending' | 'in-progress' | 'resolved' | 'rejected'
   ): Promise<ComplaintDTO | null> {
-
     const complaint = await this._complaintRepository.findComplaintById(id);
     const userId = complaint?.userId.toString();
     const updated = await this._complaintRepository.updateComplaintStatus(id, status);
@@ -330,7 +329,7 @@ export class AdminService implements IAdminService {
       throw new Error('Complaint not found');
     }
 
-        await this._notificationService.sendNotification({
+    await this._notificationService.sendNotification({
       recipientId: userId,
       recipientRole: 'user',
       type: 'system',

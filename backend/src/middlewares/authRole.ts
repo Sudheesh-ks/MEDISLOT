@@ -32,13 +32,22 @@ const authRole = (allowedRoles: Array<'user' | 'doctor' | 'admin'>) => {
       switch (decoded.role) {
         case 'user': {
           const user = await User.findById(decoded.id);
-          if (!user || user.isBlocked) {
-            res.status(HttpStatus.FORBIDDEN).json({
+          if (!user) {
+            res.status(HttpStatus.UNAUTHORIZED).json({
               success: false,
-              message: 'Access denied or user blocked',
+              message: 'User not found',
             });
             return;
           }
+
+          if (user.isBlocked) {
+            res.status(HttpStatus.FORBIDDEN).json({
+              success: false,
+              message: 'Your account has been blocked by the admin.',
+            });
+            return;
+          }
+
           (req as any).userId = user._id;
           break;
         }

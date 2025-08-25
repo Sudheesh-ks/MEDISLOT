@@ -1,5 +1,10 @@
 import axios, { type AxiosRequestConfig } from 'axios';
-import { getUserAccessToken, updateUserAccessToken } from '../context/tokenManagerUser';
+import {
+  clearUserAccessToken,
+  getUserAccessToken,
+  updateUserAccessToken,
+} from '../context/tokenManagerUser';
+import { logoutUserAPI } from '../services/authServices';
 
 export const api = axios.create({
   baseURL: import.meta.env.VITE_BACKEND_URL,
@@ -29,6 +34,13 @@ api.interceptors.response.use(
   (res) => res,
   async (err) => {
     const original = err.config as AxiosRequestConfig & { _retry?: boolean };
+
+    if (err.response?.status === 403) {
+      await logoutUserAPI();
+      clearUserAccessToken();
+      window.location.href = '/login';
+      return Promise.reject(err);
+    }
 
     if (err.response?.status !== 401 || original._retry) {
       return Promise.reject(err);

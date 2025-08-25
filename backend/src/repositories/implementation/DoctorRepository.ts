@@ -5,6 +5,7 @@ import { DoctorTypes } from '../../types/doctor';
 import { IDoctorRepository } from '../interface/IDoctorRepository';
 import { PaginationResult } from '../../types/pagination';
 import { PipelineStage } from 'mongoose';
+import slotModel from '../../models/slotModel';
 
 export class DoctorRepository extends BaseRepository<DoctorDocument> implements IDoctorRepository {
   constructor() {
@@ -44,7 +45,30 @@ export class DoctorRepository extends BaseRepository<DoctorDocument> implements 
   }
 
   async cancelAppointment(id: string): Promise<void> {
-    await appointmentModel.findByIdAndUpdate(id, { cancelled: true });
+    const appointment = await appointmentModel.findById(id);
+    if (!appointment) throw new Error('Appointment not found');
+
+    if (appointment.cancelled) {
+      throw new Error('Appointment already cancelled');
+    }
+
+    appointment.cancelled = true;
+    await appointment.save();
+
+    const { docId, slotDate, slotStartTime } = appointment;
+    const slotDoc = await slotModel.findOne({
+      doctorId: docId,
+      date: slotDate,
+    });
+    if (slotDoc) {
+      const slotIndex = slotDoc.slots.findIndex(
+        (slot) => slot.start === slotStartTime && slot.booked
+      );
+      if (slotIndex !== -1) {
+        slotDoc.slots[slotIndex].booked = false;
+        await slotDoc.save();
+      }
+    }
   }
 
   async getDoctorsPaginated(

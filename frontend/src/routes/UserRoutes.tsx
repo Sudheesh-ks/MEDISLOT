@@ -25,6 +25,7 @@ import ConsultationEndedPage from '../pages/user/ConsultationEndedpage';
 import NotificationsPage from '../pages/user/NotificationPage';
 import BlogPage from '../pages/user/BlogPage';
 import BlogDetailPage from '../pages/user/BlogDetailPage';
+import BlockedPage from '../pages/user/BlockedUsersPage';
 
 const UserRoutes = () => {
   return (
@@ -141,6 +142,15 @@ const UserRoutes = () => {
         element={
           <UserLayout>
             <BlogDetailPage />
+          </UserLayout>
+        }
+      />
+
+      <Route
+        path="/blocked"
+        element={
+          <UserLayout>
+            <BlockedPage />
           </UserLayout>
         }
       />

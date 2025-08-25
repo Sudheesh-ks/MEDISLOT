@@ -11,7 +11,6 @@ export class ComplaintRepository
     super(ComplaintModel);
   }
 
-
   async findComplaintById(id: string): Promise<ComplaintDocument | null> {
     const complaint = await this.findById(id);
     return complaint;
