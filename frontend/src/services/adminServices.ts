@@ -46,8 +46,16 @@ export const adminAddDoctorAPI = async (formData: FormData, token: string) => {
   });
 };
 
-export const getDoctorsPaginatedAPI = async (page: number, limit: number, token: string) => {
-  return await api.get(`${ADMIN_API.DOCTORS_PAGINATED}?page=${page}&limit=${limit}`, {
+export const getDoctorsPaginatedAPI = async (
+  page: number,
+  limit: number,
+  token: string,
+  search?: string
+) => {
+  let url = `${ADMIN_API.DOCTORS_PAGINATED}?page=${page}&limit=${limit}`;
+  if (search) url += `&search=${encodeURIComponent(search)}`;
+
+  return await api.get(url, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -66,8 +74,16 @@ export const changeAvailabilityAPI = async (docId: string, isAvailable: boolean,
   );
 };
 
-export const getUsersPaginatedAPI = async (page: number, limit: number, token: string) => {
-  return await api.get(`${ADMIN_API.USERS_PAGINATED}?page=${page}&limit=${limit}`, {
+export const getUsersPaginatedAPI = async (
+  page: number,
+  limit: number,
+  token: string,
+  search?: string
+) => {
+  let url = `${ADMIN_API.USERS_PAGINATED}?page=${page}&limit=${limit}`;
+  if (search) url += `&search=${encodeURIComponent(search)}`;
+
+  return await api.get(url, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -86,8 +102,18 @@ export const toggleUserBlockAPI = async (userId: string, block: boolean, token: 
   );
 };
 
-export const getAppointmentsPaginatedAPI = async (page: number, limit: number, token: string) => {
-  return await api.get(`${ADMIN_API.APPOINTMENTS_PAGINATED}?page=${page}&limit=${limit}`, {
+export const getAppointmentsPaginatedAPI = async (
+  page: number,
+  limit: number,
+  search = '',
+  dateRange: string,
+  token: string
+) => {
+  let url = `${ADMIN_API.APPOINTMENTS_PAGINATED}?page=${page}&limit=${limit}`;
+  if (search) url += `&search=${encodeURIComponent(search)}`;
+  if (dateRange) url += `&dateRange=${encodeURIComponent(dateRange)}`;
+
+  return api.get(url, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
@@ -106,8 +132,19 @@ export const adminCancelAppointmentAPI = async (appointmentId: string, token: st
   );
 };
 
-export const getAdminWalletAPI = async (page: number, limit: number) => {
-  return await api.get(`${ADMIN_API.WALLET}?page=${page}&limit=${limit}`);
+export const getAdminWalletAPI = async (
+  page: number,
+  limit: number,
+  search?: string,
+  period?: string,
+  type?: string
+) => {
+  let url = `${ADMIN_API.WALLET}?page=${page}&limit=${limit}`;
+  if (search) url += `&search=${encodeURIComponent(search)}`;
+  if (period) url += `&period=${encodeURIComponent(period)}`;
+  if (type && type !== 'all') url += `&txnType=${encodeURIComponent(type)}`;
+
+  return await api.get(url);
 };
 
 export const adminDashboardAPI = async (token: string) => {
@@ -214,8 +251,18 @@ export const clearAllAdminNotificationsAPI = async (token: string, type?: string
   });
 };
 
-export const getComplaintsPaginatedAPI = async (page: number, limit: number, token: string) => {
-  return await api.get(`${ADMIN_API.COMPLAINTS}?page=${page}&limit=${limit}`, {
+export const getComplaintsPaginatedAPI = async (
+  page: number,
+  limit: number,
+  token: string,
+  search?: string,
+  status?: 'pending' | 'in-progress' | 'resolved' | 'rejected' | 'all'
+) => {
+  let url = `${ADMIN_API.COMPLAINTS}?page=${page}&limit=${limit}`;
+  if (search) url += `&q=${encodeURIComponent(search)}`;
+  if (status && status !== 'all') url += `&status=${status}`;
+
+  return await api.get(url, {
     headers: {
       Authorization: `Bearer ${token}`,
     },

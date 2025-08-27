@@ -8,14 +8,21 @@ export interface IDoctorRepository {
   findById(id: string): Promise<DoctorDocument | null>;
   updateAvailability(id: string, available: boolean): Promise<void>;
   findAllDoctors(): Promise<DoctorDocument[]>;
-  getDoctorsPaginated(page: number, limit: number): Promise<PaginationResult<DoctorDocument>>;
+  getDoctorsPaginated(
+    page: number,
+    limit: number,
+    search?: string,
+    speciality?: string
+  ): Promise<PaginationResult<DoctorDocument>>;
   findByEmail(email: string): Promise<DoctorDocument | null>;
   save(doctor: DoctorDocument): Promise<void>;
   findAppointmentsByDoctorId(docId: string): Promise<AppointmentDocument[]>;
   getAppointmentsPaginated(
     docId: string,
     page: number,
-    limit: number
+    limit: number,
+    search?: string,
+    dateRange?: string
   ): Promise<PaginationResult<AppointmentDocument>>;
   findAppointmentById(id: string): Promise<AppointmentDocument | null>;
   markAppointmentAsConfirmed(id: string): Promise<void>;

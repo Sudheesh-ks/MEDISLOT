@@ -93,7 +93,8 @@ export class AdminController implements IAdminController {
     try {
       const result = await this._adminService.getDoctorsPaginated(
         req.query.page as string,
-        req.query.limit as string
+        req.query.limit as string,
+        req.query.search as string | undefined
       );
       res.status(HttpStatus.OK).json({ success: true, ...result });
     } catch (error) {
@@ -109,7 +110,8 @@ export class AdminController implements IAdminController {
     try {
       const result = await this._adminService.getUsersPaginated(
         req.query.page as string,
-        req.query.limit as string
+        req.query.limit as string,
+        req.query.search as string
       );
       res.status(HttpStatus.OK).json({ success: true, ...result });
     } catch (error) {
@@ -177,9 +179,16 @@ export class AdminController implements IAdminController {
     try {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 8;
+      const search = (req.query.search as string) || '';
+      const dateRange = req.query.dateRange as string;
 
-      const result = await this._adminService.listAppointmentsPaginated(page, limit);
-      logger.info(`Admin fetched appointments page: ${page}`);
+      const result = await this._adminService.listAppointmentsPaginated(
+        page,
+        limit,
+        search,
+        dateRange
+      );
+      logger.info(`Admin fetched appointments page: ${page} with search: "${search}"`);
       res.status(HttpStatus.OK).json({ success: true, ...result });
     } catch (error) {
       logger.error(`Failed to list appointments: ${(error as Error).message}`, {
@@ -214,8 +223,17 @@ export class AdminController implements IAdminController {
     try {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 10;
+      const search = (req.query.search as string) || '';
+      const period = (req.query.period as string) || 'all';
+      const txnType = (req.query.txnType as 'credit' | 'debit' | 'all') || 'all';
 
-      const wallet = await this._adminService.getAdminWalletPaginated(page, limit);
+      const wallet = await this._adminService.getAdminWalletPaginated(
+        page,
+        limit,
+        search,
+        period,
+        txnType
+      );
 
       res.status(200).json(wallet);
     } catch (error) {
@@ -411,8 +429,10 @@ export class AdminController implements IAdminController {
     try {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 10;
+      const search = (req.query.q as string) || '';
+      const status = (req.query.status as string) || 'all';
 
-      const result = await this._adminService.getAllComplaints(page, limit);
+      const result = await this._adminService.getAllComplaints(page, limit, search, status);
 
       res.status(HttpStatus.OK).json({
         success: true,

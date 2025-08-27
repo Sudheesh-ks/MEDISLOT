@@ -223,17 +223,19 @@ export class DoctorController implements IDoctorController {
     try {
       const docId = (req as any).docId;
 
+      const { page, limit, search, dateRange } = req.query;
+
       const result = await this._doctorService.getDoctorAppointmentsPaginated(
         docId,
-        req.query.page as string,
-        req.query.limit as string
+        page as string,
+        limit as string,
+        search as string,
+        dateRange as string
       );
-      logger.info(`Fetched paginated appointments for doctor: ${docId}`);
 
       res.status(HttpStatus.OK).json({ success: true, ...result });
     } catch (error) {
       logger.error(`Error fetching paginated appointments: ${(error as Error).message}`);
-
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: (error as Error).message,
@@ -349,8 +351,18 @@ export class DoctorController implements IDoctorController {
       const doctorId = (req as any).docId;
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 10;
+      const search = (req.query.search as string) || '';
+      const period = (req.query.period as string) || 'all';
+      const txnType = (req.query.txnType as 'credit' | 'debit' | 'all') || 'all';
 
-      const wallet = await this._doctorService.getDoctorWalletPaginated(doctorId, page, limit);
+      const wallet = await this._doctorService.getDoctorWalletPaginated(
+        doctorId,
+        page,
+        limit,
+        search,
+        period,
+        txnType
+      );
 
       res.status(200).json(wallet);
     } catch (error) {

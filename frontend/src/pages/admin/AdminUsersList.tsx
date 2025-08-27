@@ -20,11 +20,11 @@ const AdminUsersList = () => {
   // const [cnt, setCnt] = useState(0);
   const [loading, setLoading] = useState(false);
   const perPage = 6;
-  const [q, setQ] = useState('');
+  const [search, setSearch] = useState('');
 
   useEffect(() => {
     if (aToken) fetchRows();
-  }, [aToken, page]);
+  }, [aToken, page, search]);
 
   useEffect(() => {
     if (!aToken) nav('/admin/login');
@@ -33,7 +33,7 @@ const AdminUsersList = () => {
   const fetchRows = async () => {
     try {
       setLoading(true);
-      const res = await getUsersPaginated(page, perPage);
+      const res = await getUsersPaginated(page, perPage, search);
       setRows(res.data);
       setPages(res.totalPages);
       // setCnt(res.totalCount);
@@ -53,11 +53,11 @@ const AdminUsersList = () => {
     );
   };
 
-  const filtered = rows.filter(
-    (u) =>
-      (u.name || '').toLowerCase().includes(q.toLowerCase()) ||
-      (u.email || '').toLowerCase().includes(q.toLowerCase())
-  );
+  // const filtered = rows.filter(
+  //   (u) =>
+  //     (u.name || '').toLowerCase().includes(search.toLowerCase()) ||
+  //     (u.email || '').toLowerCase().includes(search.toLowerCase())
+  // );
 
   const cols = [
     {
@@ -134,11 +134,17 @@ const AdminUsersList = () => {
       <h1 className="mb-4 text-lg font-semibold">👥 All Users</h1>
 
       <div className="mb-6 max-w-sm">
-        <SearchBar placeholder="Search by name or email" onSearch={setQ} />
+        <SearchBar
+          placeholder="Search by name or email"
+          onSearch={(val) => {
+            setSearch(val);
+            setPage(1);
+          }}
+        />
       </div>
 
       <DataTable
-        data={filtered}
+        data={rows}
         columns={cols}
         loading={loading}
         emptyMessage="No matching users found."

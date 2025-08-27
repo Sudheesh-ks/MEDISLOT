@@ -33,19 +33,47 @@ export class ComplaintRepository
     return issue.save();
   }
 
-  async getComplaints(page: number = 1, limit: number = 10): Promise<ComplaintDocument[]> {
+  async getComplaints(
+    page: number = 1,
+    limit: number = 10,
+    search: string = '',
+    status: string = 'all'
+  ): Promise<ComplaintDocument[]> {
     const skip = (page - 1) * limit;
+
+    const query: any = {};
+
+    if (status !== 'all') query.status = status;
+
+    if (search) {
+      query.$or = [
+        { subject: { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } },
+      ];
+    }
+
     return this.model
-      .find()
+      .find(query)
       .populate('userId', 'name email')
-      .sort({ timeStamp: -1 })
+      .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
       .lean();
   }
 
-  async countComplaints(): Promise<number> {
-    return this.model.countDocuments({ status: 'unread' });
+  async countComplaints(search: string = '', status: string = 'all'): Promise<number> {
+    const query: any = {};
+
+    if (status !== 'all') query.status = status;
+
+    if (search) {
+      query.$or = [
+        { subject: { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } },
+      ];
+    }
+
+    return this.model.countDocuments(query);
   }
 
   async updateComplaintStatus(

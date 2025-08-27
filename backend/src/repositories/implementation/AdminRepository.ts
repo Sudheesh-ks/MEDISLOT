@@ -7,6 +7,7 @@ import { PipelineStage } from 'mongoose';
 import { PaginationResult } from '../../types/pagination';
 import { IAdminRepository } from '../interface/IAdminRepository';
 import slotModel from '../../models/slotModel';
+import dayjs from 'dayjs';
 
 export class AdminRepository extends BaseRepository<AdminDocument> implements IAdminRepository {
   constructor() {
@@ -27,11 +28,21 @@ export class AdminRepository extends BaseRepository<AdminDocument> implements IA
 
   async getDoctorsPaginated(
     page: number,
-    limit: number
+    limit: number,
+    search: string
   ): Promise<PaginationResult<DoctorDocument>> {
     const skip = (page - 1) * limit;
-    const totalCount = await doctorModel.countDocuments({});
-    const data = await doctorModel.find({}).select('-password').skip(skip).limit(limit);
+
+    const query: any = {};
+    if (search) {
+      query.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { speciality: { $regex: search, $options: 'i' } },
+      ];
+    }
+
+    const totalCount = await doctorModel.countDocuments(query);
+    const data = await doctorModel.find(query).select('-password').skip(skip).limit(limit);
 
     const totalPages = Math.ceil(totalCount / limit);
 
@@ -49,10 +60,22 @@ export class AdminRepository extends BaseRepository<AdminDocument> implements IA
     return userModel.find({}).select('-password');
   }
 
-  async getUsersPaginated(page: number, limit: number): Promise<PaginationResult<userDocument>> {
+  async getUsersPaginated(
+    page: number,
+    limit: number,
+    search?: string
+  ): Promise<PaginationResult<userDocument>> {
     const skip = (page - 1) * limit;
-    const totalCount = await userModel.countDocuments({});
-    const data = await userModel.find({}).select('-password').skip(skip).limit(limit);
+
+    const query: any = {};
+    if (search) {
+      query.$or = [
+        { name: { $regex: search, $options: 'i' } },
+        { email: { $regex: search, $options: 'i' } },
+      ];
+    }
+    const totalCount = await userModel.countDocuments(query);
+    const data = await userModel.find(query).select('-password').skip(skip).limit(limit);
 
     const totalPages = Math.ceil(totalCount / limit);
 
@@ -86,18 +109,132 @@ export class AdminRepository extends BaseRepository<AdminDocument> implements IA
 
   async getAppointmentsPaginated(
     page: number,
-    limit: number
+    limit: number,
+    search?: string,
+    dateRange?: string
   ): Promise<PaginationResult<AppointmentDocument>> {
     const skip = (page - 1) * limit;
-    const totalCount = await appointmentModel.countDocuments({});
-    const data = await appointmentModel
-      .find({})
-      .populate('userId', 'name email image dob')
-      .populate('docId', 'name image speciality')
-      .skip(skip)
-      .limit(limit)
-      .sort({ createdAt: -1 });
+    const andConditions: any[] = [];
 
+    console.log(dateRange);
+
+    // 🔎 Search filter
+    if (search) {
+      andConditions.push({
+        $or: [
+          { 'user.name': { $regex: search, $options: 'i' } },
+          { 'doctor.name': { $regex: search, $options: 'i' } },
+        ],
+      });
+    }
+
+    // 📅 Date filter (works with "YYYY-MM-DD" string format)
+    if (dateRange) {
+      let start: string | undefined;
+      let end: string | undefined;
+
+      switch (dateRange) {
+        case 'today':
+          start = dayjs().format('YYYY-MM-DD');
+          end = start;
+          break;
+        case 'yesterday':
+          start = dayjs().subtract(1, 'day').format('YYYY-MM-DD');
+          end = start;
+          break;
+        case 'last_week':
+          start = dayjs().subtract(7, 'day').format('YYYY-MM-DD');
+          end = dayjs().format('YYYY-MM-DD');
+          break;
+        case 'last_month':
+          start = dayjs().subtract(1, 'month').format('YYYY-MM-DD');
+          end = dayjs().format('YYYY-MM-DD');
+          break;
+        default: {
+          // custom range like "2025-08-01_2025-08-10"
+          const [from, to] = dateRange.split('_');
+          if (from && to) {
+            start = dayjs(from).format('YYYY-MM-DD');
+            end = dayjs(to).format('YYYY-MM-DD');
+          }
+          break;
+        }
+      }
+
+      if (start && end) {
+        andConditions.push({
+          slotDate: { $gte: start, $lte: end },
+        });
+      }
+    }
+
+    const matchStage = andConditions.length > 0 ? { $and: andConditions } : {};
+
+    // ✅ Pipeline
+    const pipeline: PipelineStage[] = [
+      {
+        $addFields: {
+          userIdObj: { $toObjectId: '$userId' },
+          docIdObj: { $toObjectId: '$docId' },
+        },
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'userIdObj',
+          foreignField: '_id',
+          as: 'user',
+        },
+      },
+      { $unwind: '$user' },
+      {
+        $lookup: {
+          from: 'doctors',
+          localField: 'docIdObj',
+          foreignField: '_id',
+          as: 'doctor',
+        },
+      },
+      { $unwind: '$doctor' },
+      { $match: matchStage },
+      { $sort: { createdAt: -1 } },
+      { $skip: skip },
+      { $limit: limit },
+    ];
+
+    const data = await appointmentModel.aggregate(pipeline);
+
+    // ✅ Count total
+    const totalCountAgg = await appointmentModel.aggregate([
+      {
+        $addFields: {
+          userIdObj: { $toObjectId: '$userId' },
+          docIdObj: { $toObjectId: '$docId' },
+        },
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'userIdObj',
+          foreignField: '_id',
+          as: 'user',
+        },
+      },
+      { $unwind: '$user' },
+      {
+        $lookup: {
+          from: 'doctors',
+          localField: 'docIdObj',
+          foreignField: '_id',
+          as: 'doctor',
+        },
+      },
+      { $unwind: '$doctor' },
+      { $match: matchStage },
+      { $count: 'total' },
+    ]);
+
+    const totalCount = totalCountAgg[0]?.total || 0;
     const totalPages = Math.ceil(totalCount / limit);
 
     return {

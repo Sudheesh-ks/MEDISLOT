@@ -34,7 +34,12 @@ interface DoctorContextType {
   appointments: AppointmentTypes[];
   setAppointments: React.Dispatch<React.SetStateAction<AppointmentTypes[]>>;
   getAppointments: () => Promise<void>;
-  getAppointmentsPaginated: (page: number, limit: number) => Promise<PaginationData>;
+  getAppointmentsPaginated: (
+    page: number,
+    limit: number,
+    search?: string,
+    dateFilter?: string
+  ) => Promise<PaginationData>;
   confirmAppointment: (appointmentId: string) => Promise<void>;
   cancelAppointment: (appointmentId: string) => Promise<void>;
   profileData: DoctorProfileType | null;
@@ -81,9 +86,14 @@ const DoctorContextProvider = ({ children }: DoctorContextProviderProps) => {
     }
   };
 
-  const getAppointmentsPaginated = async (page: number, limit: number): Promise<PaginationData> => {
+  const getAppointmentsPaginated = async (
+    page: number,
+    limit: number,
+    search?: string,
+    dateFilter?: string
+  ): Promise<PaginationData> => {
     try {
-      const { data } = await getDoctorAppointmentsPaginatedAPI(page, limit);
+      const { data } = await getDoctorAppointmentsPaginatedAPI(page, limit, search, dateFilter);
       if (data.success) {
         return {
           data: data.data,

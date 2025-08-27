@@ -2,10 +2,17 @@ import { doctorApi as api } from '../axios/doctorAxiosInstance';
 import { BLOG_API, DOCTOR_API, SLOT_API } from '../constants/apiRoutes';
 
 // Get paginated doctors
-export const getDoctorsPaginatedAPI = (page: number, limit: number) => {
-  return api.get(`${DOCTOR_API.DOCTORS_PAGINATED}?page=${page}&limit=${limit}`);
+export const getDoctorsPaginatedAPI = (
+  page: number,
+  limit: number,
+  search?: string,
+  speciality?: string
+) => {
+  let url = `${DOCTOR_API.DOCTORS_PAGINATED}?page=${page}&limit=${limit}`;
+  if (search) url += `&search=${encodeURIComponent(search)}`;
+  if (speciality) url += `&speciality=${encodeURIComponent(speciality)}`;
+  return api.get(url);
 };
-
 export const getDoctorsByIDAPI = (id: string) => {
   return api.get(DOCTOR_API.DOCTOR_ID(id));
 };
@@ -36,8 +43,17 @@ export const getDoctorAppointmentsAPI = () => {
 };
 
 // Get paginated appointments for doctor
-export const getDoctorAppointmentsPaginatedAPI = (page: number, limit: number) => {
-  return api.get(`${DOCTOR_API.APPOINTMENTS_PAGINATED}?page=${page}&limit=${limit}`);
+export const getDoctorAppointmentsPaginatedAPI = (
+  page: number,
+  limit: number,
+  search?: string,
+  dateRange?: string
+) => {
+  let url = `${DOCTOR_API.APPOINTMENTS_PAGINATED}?page=${page}&limit=${limit}`;
+  if (search) url += `&search=${encodeURIComponent(search)}`;
+  if (dateRange) url += `&dateRange=${encodeURIComponent(dateRange)}`;
+
+  return api.get(url);
 };
 
 // Confirm appointment
@@ -85,10 +101,19 @@ export const updateDoctorProfileAPI = (formData: any, image: File | null) => {
   });
 };
 
-export const getDoctorWalletAPI = (page = 1, limit = 10) => {
-  return api.get(DOCTOR_API.WALLET, {
-    params: { page, limit },
-  });
+export const getDoctorWalletAPI = async (
+  page: number,
+  limit: number,
+  search?: string,
+  period?: string,
+  type?: string
+) => {
+  let url = `${DOCTOR_API.WALLET}?page=${page}&limit=${limit}`;
+  if (search) url += `&search=${encodeURIComponent(search)}`;
+  if (period) url += `&period=${encodeURIComponent(period)}`;
+  if (type && type !== 'all') url += `&txnType=${encodeURIComponent(type)}`;
+
+  return await api.get(url);
 };
 
 export const getDoctorSlotsAPI = (year: number, month: number) =>

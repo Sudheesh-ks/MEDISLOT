@@ -128,18 +128,26 @@ export class AdminService implements IAdminService {
     return await this._adminRepository.getAllDoctors();
   }
 
-  async getDoctorsPaginated(page: string, limit: string): Promise<PaginationResult<DoctorDTO>> {
+  async getDoctorsPaginated(
+    page: string,
+    limit: string,
+    search: string
+  ): Promise<PaginationResult<DoctorDTO>> {
     const pageNumber = parseInt(page) || 1;
     const limitNumber = parseInt(limit) || 8;
 
-    return await this._adminRepository.getDoctorsPaginated(pageNumber, limitNumber);
+    return await this._adminRepository.getDoctorsPaginated(pageNumber, limitNumber, search);
   }
 
-  async getUsersPaginated(page: string, limit: string): Promise<PaginationResult<UserDTO>> {
+  async getUsersPaginated(
+    page: string,
+    limit: string,
+    search?: string
+  ): Promise<PaginationResult<UserDTO>> {
     const pageNumber = parseInt(page) || 1;
     const limitNumber = parseInt(limit) || 8;
 
-    const result = await this._adminRepository.getUsersPaginated(pageNumber, limitNumber);
+    const result = await this._adminRepository.getUsersPaginated(pageNumber, limitNumber, search);
 
     return {
       data: result.data.map(toUserDTO),
@@ -187,9 +195,16 @@ export class AdminService implements IAdminService {
 
   async listAppointmentsPaginated(
     page: number,
-    limit: number
+    limit: number,
+    search: string,
+    dateRange: string
   ): Promise<PaginationResult<AppointmentDTO>> {
-    const result = await this._adminRepository.getAppointmentsPaginated(page, limit);
+    const result = await this._adminRepository.getAppointmentsPaginated(
+      page,
+      limit,
+      search,
+      dateRange
+    );
 
     return {
       data: result.data.map(toAppointmentDTO),
@@ -266,12 +281,23 @@ export class AdminService implements IAdminService {
 
   async getAdminWalletPaginated(
     page: number,
-    limit: number
+    limit: number,
+    search: string,
+    period: string,
+    txnType?: 'credit' | 'debit' | 'all'
   ): Promise<{ history: any[]; total: number; balance: number }> {
     const adminId = process.env.ADMIN_ID;
     if (!adminId) throw new Error('ADMIN_ID is not set in environment');
 
-    return await this._walletRepository.getWalletHistoryPaginated(adminId, 'admin', page, limit);
+    return await this._walletRepository.getWalletHistoryPaginated(
+      adminId,
+      'admin',
+      page,
+      limit,
+      search,
+      period,
+      txnType
+    );
   }
 
   async getLatestDoctorRequests(limit = 5): Promise<DoctorDTO[]> {
@@ -301,13 +327,13 @@ export class AdminService implements IAdminService {
 
   async getAllComplaints(
     page: number = 1,
-    limit: number = 10
+    limit: number = 10,
+    search: string = '',
+    status: string = 'all'
   ): Promise<{ complaints: ComplaintDTO[]; totalPages: number; currentPage: number }> {
-    // const skip = (page - 1) * limit;
-
     const [complaintDocs, total] = await Promise.all([
-      this._complaintRepository.getComplaints(page, limit),
-      this._complaintRepository.countComplaints(),
+      this._complaintRepository.getComplaints(page, limit, search, status),
+      this._complaintRepository.countComplaints(search, status),
     ]);
 
     return {

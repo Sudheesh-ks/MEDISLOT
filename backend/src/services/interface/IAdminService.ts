@@ -25,18 +25,34 @@ export interface IAdminService {
   getAdminById(id: string): Promise<AdminDTO | null>;
   validateCredentials(email: string, password: string): Promise<AdminDTO>;
   getDoctors(): Promise<DoctorDTO[]>;
-  getDoctorsPaginated(page: string, limit: string): Promise<PaginationResult<DoctorDTO>>;
+  getDoctorsPaginated(
+    page: string,
+    limit: string,
+    search?: string
+  ): Promise<PaginationResult<DoctorDTO>>;
   getUsers(): Promise<UserDTO[]>;
-  getUsersPaginated(page: string, limit: string): Promise<PaginationResult<UserDTO>>;
+  getUsersPaginated(
+    page: string,
+    limit: string,
+    search?: string
+  ): Promise<PaginationResult<UserDTO>>;
   toggleUserBlock(userId: string, block: boolean): Promise<UserDTO>;
   listAppointments(): Promise<AppointmentDTO[]>;
-  listAppointmentsPaginated(page: number, limit: number): Promise<PaginationResult<AppointmentDTO>>;
+  listAppointmentsPaginated(
+    page: number,
+    limit: number,
+    search: string,
+    dateRange: string
+  ): Promise<PaginationResult<AppointmentDTO>>;
   cancelAppointment(appointmentId: string): Promise<void>;
   approveDoctor(doctorId: string): Promise<string>;
   rejectDoctor(doctorId: string, reason?: string): Promise<string>;
   getAdminWalletPaginated(
     page: number,
-    limit: number
+    limit: number,
+    search: string,
+    period: string,
+    txnType?: 'credit' | 'debit' | 'all'
   ): Promise<{ history: any[]; total: number; balance: number }>;
   getLatestDoctorRequests(limit: number): Promise<DoctorDTO[]>;
   getAppointmentsStats(
@@ -52,7 +68,9 @@ export interface IAdminService {
   ): Promise<{ date: string; revenue: number }[]>;
   getAllComplaints(
     page: number,
-    limit: number
+    limit: number,
+    search: string,
+    status: string
   ): Promise<{ complaints: ComplaintDTO[]; totalPages: number; currentPage: number }>;
   updateComplainStatus(
     id: string,

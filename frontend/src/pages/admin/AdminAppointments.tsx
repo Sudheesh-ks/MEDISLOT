@@ -23,16 +23,18 @@ const AdminAppointments = () => {
   const [rows, setRows] = useState<any[]>([]);
   const [pages, setPages] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [filterType, setFilterType] = useState<string>('');
+  const [dateFilter, setDateFilter] = useState<string>('');
   const perPage = 6;
 
   useEffect(() => {
     if (aToken) fetchRows();
-  }, [aToken, page]);
+  }, [aToken, page, search, dateFilter]);
 
   const fetchRows = async () => {
     try {
       setLoading(true);
-      const r = await getAppointmentsPaginated(page, perPage);
+      const r = await getAppointmentsPaginated(page, perPage, search, dateFilter);
       setRows(r.data);
       setPages(r.totalPages);
     } finally {
@@ -44,12 +46,12 @@ const AdminAppointments = () => {
     if (!aToken) nav('/admin/login');
   }, [aToken, nav]);
 
-  const filtered = rows.filter((it) => {
-    const q = search.toLowerCase();
-    return (
-      it.userData?.name?.toLowerCase().includes(q) || it.docData?.name?.toLowerCase().includes(q)
-    );
-  });
+  // const filtered = rows.filter((it) => {
+  //   const q = search.toLowerCase();
+  //   return (
+  //     it.userData?.name?.toLowerCase().includes(q) || it.docData?.name?.toLowerCase().includes(q)
+  //   );
+  // });
 
   const columns = [
     {
@@ -145,14 +147,58 @@ const AdminAppointments = () => {
         <span>📅</span> All Appointments
       </h2>
 
-      <div className={`${glass} rounded-xl p-3 mb-6`}>
-        <SearchBar placeholder="Search by patient or doctor name" onSearch={setSearch} />
+      <div className="flex flex-col sm:flex-row items-center gap-3 mb-6">
+        {/* Search Bar */}
+        <div className="max-w-sm flex-1 bg-white/5 backdrop-blur ring-1 ring-white/10 rounded-xl p-3">
+          <SearchBar placeholder="Search by patient name" onSearch={setSearch} />
+        </div>
+
+        {/* Date Filter Dropdown */}
+        <select
+          value={filterType}
+          onChange={(e) => {
+            const val = e.target.value;
+            setFilterType(val);
+            if (val !== 'custom') {
+              setDateFilter(val); // directly forward to backend
+            } else {
+              setDateFilter(''); // reset for custom
+            }
+          }}
+          className="bg-slate-800 text-slate-200 backdrop-blur text-slate-200 p-2 rounded-lg border border-slate-600"
+        >
+          <option value="">All</option>
+          <option value="today">Today</option>
+          <option value="yesterday">Yesterday</option>
+          <option value="last_week">Last Week</option>
+          <option value="last_month">Last Month</option>
+          <option value="custom">Custom</option>
+        </select>
+
+        {/* Custom Range Inputs (visible only if custom is chosen) */}
+        {filterType === 'custom' && (
+          <div className="flex items-center gap-2">
+            <input
+              type="date"
+              className="bg-white/5 backdrop-blur ring-1 ring-white/10 rounded-lg p-2 text-slate-200"
+              onChange={(e) =>
+                setDateFilter((prev) => `${e.target.value}_${prev?.split('_')[1] || ''}`)
+              }
+            />
+            <span className="text-slate-400">to</span>
+            <input
+              type="date"
+              className="bg-white/5 backdrop-blur ring-1 ring-white/10 rounded-lg p-2 text-slate-200"
+              onChange={(e) =>
+                setDateFilter((prev) => `${prev?.split('_')[0] || ''}_${e.target.value}`)
+              }
+            />
+          </div>
+        )}
       </div>
 
       <DataTable
-        data={[...filtered].sort(
-          (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        )}
+        data={rows}
         columns={columns}
         loading={loading}
         emptyMessage="No matching appointments found."

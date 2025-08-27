@@ -15,6 +15,7 @@ import type { DateRange } from '../../components/common/DateFilter';
 import DateFilter from '../../components/common/DateFilter';
 import { assets } from '../../assets/admin/assets';
 import { getDoctorDashboardDataAPI } from '../../services/doctorServices';
+import { currencySymbol } from '../../utils/commonUtils';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend);
 
@@ -175,7 +176,10 @@ export default function DoctorDashboard() {
             >
               <img src={assets.earning_icon} className="w-12 h-12" />
               <div>
-                <p className="text-2xl font-bold">${totalRevenue}</p>
+                <p className="text-2xl font-bold">
+                  {currencySymbol}
+                  {totalRevenue}
+                </p>
                 <p className="text-sm opacity-80">Total Revenue</p>
               </div>
             </motion.div>

@@ -20,7 +20,7 @@ const isSessionEnded = (slotDate: string, slotEndTime: string) => {
 };
 
 const DoctorAppointments = () => {
-  const ctx = useContext(DoctorContext);
+  const context = useContext(DoctorContext);
   const navigate = useNavigate();
   const notif = useContext(NotifContext);
 
@@ -29,15 +29,18 @@ const DoctorAppointments = () => {
   const [rows, setRows] = useState<any[]>([]);
   const [pages, setPages] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [filterType, setFilterType] = useState<string>('');
+  const [dateFilter, setDateFilter] = useState<string>('');
+
   const perPage = 6;
 
-  if (!ctx) throw new Error('DoctorContext missing');
+  if (!context) throw new Error('DoctorContext missing');
   const { dToken, getAppointmentsPaginated, confirmAppointment, cancelAppointment, profileData } =
-    ctx;
+    context;
 
   useEffect(() => {
     if (dToken) fetchRows();
-  }, [dToken, page]);
+  }, [dToken, page, search, dateFilter]);
 
   useEffect(() => {
     if (!dToken) navigate('/doctor/login');
@@ -50,7 +53,7 @@ const DoctorAppointments = () => {
   const fetchRows = async () => {
     try {
       setLoading(true);
-      const r = await getAppointmentsPaginated(page, perPage);
+      const r = await getAppointmentsPaginated(page, perPage, search, dateFilter);
       setRows(r.data);
       setPages(r.totalPages);
     } catch (err) {
@@ -205,8 +208,54 @@ const DoctorAppointments = () => {
     <div className="w-full max-w-6xl m-5 text-slate-100">
       <p className="mb-5 text-lg font-medium">All Appointments</p>
 
-      <div className="mb-6 max-w-sm bg-white/5 backdrop-blur ring-1 ring-white/10 rounded-xl p-3">
-        <SearchBar placeholder="Search by patient name" onSearch={setSearch} />
+      <div className="flex flex-col sm:flex-row items-center gap-3 mb-6">
+        {/* Search Bar */}
+        <div className="max-w-sm flex-1 bg-white/5 backdrop-blur ring-1 ring-white/10 rounded-xl p-3">
+          <SearchBar placeholder="Search by patient name" onSearch={setSearch} />
+        </div>
+
+        {/* Date Filter Dropdown */}
+        <select
+          value={filterType}
+          onChange={(e) => {
+            const val = e.target.value;
+            setFilterType(val);
+            if (val !== 'custom') {
+              setDateFilter(val); // directly forward to backend
+            } else {
+              setDateFilter(''); // reset for custom
+            }
+          }}
+          className="bg-slate-800 text-slate-200 backdrop-blur text-slate-200 p-2 rounded-lg border border-slate-600"
+        >
+          <option value="">All</option>
+          <option value="today">Today</option>
+          <option value="yesterday">Yesterday</option>
+          <option value="last_week">Last Week</option>
+          <option value="last_month">Last Month</option>
+          <option value="custom">Custom</option>
+        </select>
+
+        {/* Custom Range Inputs (visible only if custom is chosen) */}
+        {filterType === 'custom' && (
+          <div className="flex items-center gap-2">
+            <input
+              type="date"
+              className="bg-white/5 backdrop-blur ring-1 ring-white/10 rounded-lg p-2 text-slate-200"
+              onChange={(e) =>
+                setDateFilter((prev) => `${e.target.value}_${prev?.split('_')[1] || ''}`)
+              }
+            />
+            <span className="text-slate-400">to</span>
+            <input
+              type="date"
+              className="bg-white/5 backdrop-blur ring-1 ring-white/10 rounded-lg p-2 text-slate-200"
+              onChange={(e) =>
+                setDateFilter((prev) => `${prev?.split('_')[0] || ''}_${e.target.value}`)
+              }
+            />
+          </div>
+        )}
       </div>
 
       {loading ? (

@@ -8,15 +8,25 @@ export interface IAdminRepository {
   findByEmail(email: string): Promise<AdminDocument | null>;
   findAdminById(id: string): Promise<AdminDocument | null>;
   getAllDoctors(): Promise<DoctorDocument[]>;
-  getDoctorsPaginated(page: number, limit: number): Promise<PaginationResult<DoctorDocument>>;
+  getDoctorsPaginated(
+    page: number,
+    limit: number,
+    search?: string
+  ): Promise<PaginationResult<DoctorDocument>>;
   getAllUsers(): Promise<userDocument[]>;
-  getUsersPaginated(page: number, limit: number): Promise<PaginationResult<userDocument>>;
+  getUsersPaginated(
+    page: number,
+    limit: number,
+    search?: string
+  ): Promise<PaginationResult<userDocument>>;
   toggleUserBlock(userId: string): Promise<userDocument>;
   getAllAppointments(): Promise<AppointmentDocument[]>;
   getAppointmentById(id: string): Promise<AppointmentDocument | null>;
   getAppointmentsPaginated(
     page: number,
-    limit: number
+    limit: number,
+    search: string,
+    dateRange: string
   ): Promise<PaginationResult<AppointmentDocument>>;
   cancelAppointment(appointmentId: string): Promise<void>;
   getLatestDoctorRequests(limit: number): Promise<DoctorDocument[]>;

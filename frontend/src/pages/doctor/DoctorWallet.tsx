@@ -16,11 +16,18 @@ const DoctorWallet = () => {
   const [selectedPeriod, setSelectedPeriod] = useState('all');
   const [filteredTransactions, setFilteredTransactions] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [transactionType, setTransactionType] = useState('all');
 
   useEffect(() => {
     const fetchWallet = async () => {
       try {
-        const res = await getDoctorWalletAPI(currentPage, 10);
+        const res = await getDoctorWalletAPI(
+          currentPage,
+          10,
+          searchTerm,
+          selectedPeriod,
+          transactionType
+        );
         setWalletData(res.data);
         setFilteredTransactions(res.data?.history || []);
       } catch (err) {
@@ -30,34 +37,34 @@ const DoctorWallet = () => {
       }
     };
     fetchWallet();
-  }, [currentPage]);
+  }, [currentPage, searchTerm, selectedPeriod, transactionType]);
 
-  useEffect(() => {
-    if (!walletData?.history) return;
+  // useEffect(() => {
+  //   if (!walletData?.history) return;
 
-    let filtered = [...walletData.history];
+  //   let filtered = [...walletData.history];
 
-    if (searchTerm) {
-      filtered = filtered.filter(
-        (tx) =>
-          (tx.reason && tx.reason.toLowerCase().includes(searchTerm.toLowerCase())) ||
-          (tx.referenceId && tx.referenceId.toLowerCase().includes(searchTerm.toLowerCase()))
-      );
-    }
+  //   if (searchTerm) {
+  //     filtered = filtered.filter(
+  //       (tx) =>
+  //         (tx.reason && tx.reason.toLowerCase().includes(searchTerm.toLowerCase())) ||
+  //         (tx.referenceId && tx.referenceId.toLowerCase().includes(searchTerm.toLowerCase()))
+  //     );
+  //   }
 
-    if (selectedPeriod !== 'all') {
-      const now = new Date();
-      const periodDate = new Date();
+  //   if (selectedPeriod !== 'all') {
+  //     const now = new Date();
+  //     const periodDate = new Date();
 
-      if (selectedPeriod === 'today') periodDate.setHours(0, 0, 0, 0);
-      else if (selectedPeriod === 'week') periodDate.setDate(now.getDate() - 7);
-      else if (selectedPeriod === 'month') periodDate.setMonth(now.getMonth() - 1);
+  //     if (selectedPeriod === 'today') periodDate.setHours(0, 0, 0, 0);
+  //     else if (selectedPeriod === 'week') periodDate.setDate(now.getDate() - 7);
+  //     else if (selectedPeriod === 'month') periodDate.setMonth(now.getMonth() - 1);
 
-      filtered = filtered.filter((tx) => new Date(tx.date) >= periodDate);
-    }
+  //     filtered = filtered.filter((tx) => new Date(tx.date) >= periodDate);
+  //   }
 
-    setFilteredTransactions(filtered);
-  }, [searchTerm, selectedPeriod, walletData]);
+  //   setFilteredTransactions(filtered);
+  // }, [searchTerm, selectedPeriod, walletData]);
 
   const formatDate = (d: string) =>
     new Date(d).toLocaleString('en-US', {
@@ -145,12 +152,22 @@ const DoctorWallet = () => {
             <select
               value={selectedPeriod}
               onChange={(e) => setSelectedPeriod(e.target.value)}
-              className="text-sm bg-white/10 border border-white/20 rounded-lg px-3 py-1.5 text-white"
+              className="text-sm bg-slate-800 text-slate-200 border border-white/20 rounded-lg px-3 py-1.5 text-white"
             >
               <option value="all">All</option>
               <option value="today">Today</option>
               <option value="week">Last Week</option>
               <option value="month">Last Month</option>
+            </select>
+
+            <select
+              value={transactionType}
+              onChange={(e) => setTransactionType(e.target.value)}
+              className="text-sm bg-slate-800 text-slate-200 border border-white/20 rounded-lg px-3 py-1.5 text-white"
+            >
+              <option value="all">Type</option>
+              <option value="credit">Credit</option>
+              <option value="debit">Debit</option>
             </select>
           </div>
         </div>

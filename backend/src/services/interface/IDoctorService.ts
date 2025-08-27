@@ -17,7 +17,9 @@ export interface IDoctorService {
   getDoctorAppointmentsPaginated(
     docId: string,
     pageQuery: string,
-    limitQuery: string
+    limitQuery: string,
+    search?: string,
+    dateRange?: string
   ): Promise<PaginationResult<AppointmentDTO>>;
   confirmAppointment(docId: string, appointmentId: string): Promise<void>;
   cancelAppointment(docId: string, appointmentId: string): Promise<void>;
@@ -38,6 +40,9 @@ export interface IDoctorService {
   getDoctorWalletPaginated(
     doctorId: string,
     page: number,
-    limit: number
+    limit: number,
+    search: string,
+    period: string,
+    txnType?: 'credit' | 'debit' | 'all'
   ): Promise<{ history: any[]; total: number; balance: number }>;
 }

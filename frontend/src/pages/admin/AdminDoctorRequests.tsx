@@ -18,7 +18,7 @@ const AdminDoctorRequests = () => {
   const [pages, setPages] = useState(1);
   // const [count, setCount] = useState(0);
   const [load, setLoad] = useState(false);
-  const [query, setQuery] = useState('');
+  const [search, setSearch] = useState('');
 
   const [showModal, setShowModal] = useState(false);
   const [reason, setReason] = useState('');
@@ -28,7 +28,7 @@ const AdminDoctorRequests = () => {
 
   useEffect(() => {
     if (aToken) fetchRows();
-  }, [aToken, page]);
+  }, [aToken, page, search]);
 
   useEffect(() => {
     if (!aToken) nav('/admin/login');
@@ -39,7 +39,7 @@ const AdminDoctorRequests = () => {
   const fetchRows = async () => {
     try {
       setLoad(true);
-      const r = await getDoctorsPaginated(page, perPage);
+      const r = await getDoctorsPaginated(page, perPage, search);
       setRows(r.data);
       setPages(r.totalPages);
       // setCount(r.totalCount);
@@ -68,13 +68,12 @@ const AdminDoctorRequests = () => {
     setShowModal(false);
   };
 
-  const pending = rows
-    .filter((d) => d.status === 'pending')
-    .filter(
-      (d) =>
-        d.name?.toLowerCase().includes(query.toLowerCase()) ||
-        d.speciality?.toLowerCase().includes(query.toLowerCase())
-    );
+  const pending = rows.filter((d) => d.status === 'pending');
+  // .filter(
+  //   (d) =>
+  //     d.name?.toLowerCase().includes(search.toLowerCase()) ||
+  //     d.speciality?.toLowerCase().includes(search.toLowerCase())
+  // );
 
   const glass = 'bg-white/5 backdrop-blur ring-1 ring-white/10';
   const pill =
@@ -85,7 +84,7 @@ const AdminDoctorRequests = () => {
       <h1 className="text-lg font-medium mb-4">Doctor Requests</h1>
 
       <div className="mb-6 max-w-sm">
-        <SearchBar placeholder="Search by name or speciality" onSearch={setQuery} />
+        <SearchBar placeholder="Search by name or speciality" onSearch={setSearch} />
       </div>
 
       {load ? (

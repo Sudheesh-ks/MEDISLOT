@@ -6,6 +6,7 @@ import { IDoctorRepository } from '../interface/IDoctorRepository';
 import { PaginationResult } from '../../types/pagination';
 import { PipelineStage } from 'mongoose';
 import slotModel from '../../models/slotModel';
+import dayjs from 'dayjs';
 
 export class DoctorRepository extends BaseRepository<DoctorDocument> implements IDoctorRepository {
   constructor() {
@@ -73,15 +74,24 @@ export class DoctorRepository extends BaseRepository<DoctorDocument> implements 
 
   async getDoctorsPaginated(
     page: number,
-    limit: number
+    limit: number,
+    search?: string,
+    speciality?: string
   ): Promise<PaginationResult<DoctorDocument>> {
     const skip = (page - 1) * limit;
-    const totalCount = await doctorModel.countDocuments({ status: 'approved' });
-    const data = await doctorModel
-      .find({ status: 'approved' })
-      .select('-password')
-      .skip(skip)
-      .limit(limit);
+
+    const query: any = { status: 'approved' };
+
+    if (search) {
+      query.name = { $regex: search, $options: 'i' };
+    }
+
+    if (speciality) {
+      query.speciality = speciality;
+    }
+
+    const totalCount = await doctorModel.countDocuments(query);
+    const data = await doctorModel.find(query).select('-password').skip(skip).limit(limit);
 
     const totalPages = Math.ceil(totalCount / limit);
 
@@ -98,12 +108,71 @@ export class DoctorRepository extends BaseRepository<DoctorDocument> implements 
   async getAppointmentsPaginated(
     docId: string,
     page: number,
-    limit: number
+    limit: number,
+    search?: string,
+    dateRange?: string
   ): Promise<PaginationResult<AppointmentDocument>> {
     const skip = (page - 1) * limit;
-    const totalCount = await appointmentModel.countDocuments({ docId });
+
+    const query: any = { docId };
+
+    // ✅ Search filter (by patient name or email)
+    if (search) {
+      query.$or = [
+        { 'userId.name': { $regex: search, $options: 'i' } },
+        { 'userId.email': { $regex: search, $options: 'i' } },
+      ];
+    }
+
+    // 📅 Date filter
+    if (dateRange) {
+      const now = new Date();
+      let start: Date | undefined;
+      let end: Date | undefined;
+
+      switch (dateRange) {
+        case 'today': {
+          start = dayjs().startOf('day').toDate();
+          end = dayjs().endOf('day').toDate();
+          break;
+        }
+        case 'yesterday': {
+          start = dayjs().subtract(1, 'day').startOf('day').toDate();
+          end = dayjs().subtract(1, 'day').endOf('day').toDate();
+          break;
+        }
+        case 'last_week': {
+          start = dayjs().subtract(7, 'day').startOf('day').toDate();
+          end = now;
+          break;
+        }
+        case 'last_month': {
+          start = dayjs().subtract(1, 'month').startOf('day').toDate();
+          end = now;
+          break;
+        }
+        default: {
+          // custom date range like: "2025-08-01_2025-08-10"
+          const [from, to] = dateRange.split('_');
+          if (from && to) {
+            start = dayjs(from).startOf('day').toDate();
+            end = dayjs(to).endOf('day').toDate();
+          }
+          break;
+        }
+      }
+
+      if (start && end) {
+        query.slotDate = {
+          $gte: dayjs(start).format('YYYY-MM-DD'),
+          $lte: dayjs(end).format('YYYY-MM-DD'),
+        };
+      }
+    }
+
+    const totalCount = await appointmentModel.countDocuments(query);
     const data = await appointmentModel
-      .find({ docId })
+      .find(query)
       .populate('userId', 'name email image dob')
       .populate('docId', 'name image speciality')
       .skip(skip)

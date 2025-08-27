@@ -34,7 +34,12 @@ interface PaginationData {
 }
 
 interface UserContextType {
-  getDoctorsPaginated: (page: number, limit: number) => Promise<PaginationData>;
+  getDoctorsPaginated: (
+    page: number,
+    limit: number,
+    searchQuery?: string,
+    speciality?: string
+  ) => Promise<PaginationData>;
   backendUrl: string;
   token: string | null;
   setToken: (token: string | null) => void;
@@ -56,9 +61,14 @@ const UserContextProvider: React.FC<UserContextProviderProps> = ({ children }) =
   const [userData, setUserData] = useState<null | userData>(null);
 
   const getDoctorsPaginated = useCallback(
-    async (page: number, limit: number): Promise<PaginationData> => {
+    async (
+      page: number,
+      limit: number,
+      searchQuery?: string,
+      speciality?: string
+    ): Promise<PaginationData> => {
       try {
-        const { data } = await getDoctorsPaginatedAPI(page, limit);
+        const { data } = await getDoctorsPaginatedAPI(page, limit, searchQuery, speciality);
         if (data.success) {
           return {
             data: data.data,

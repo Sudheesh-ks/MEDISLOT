@@ -20,12 +20,15 @@ const AdminInbox = () => {
   const [totalPages, setTotalPages] = useState<number>(1);
   const [selectedMessage, setSelectedMessage] = useState<ComplaintTypes | null>(null);
   const [newStatus, setNewStatus] = useState<string>('pending');
+  const [status, setStatus] = useState<'all' | 'pending' | 'in-progress' | 'resolved' | 'rejected'>(
+    'all'
+  );
 
   useEffect(() => {
     const fetchComplaints = async () => {
       setLoad(true);
       try {
-        const res = await getComplaintsPaginatedAPI(page, 6, aToken);
+        const res = await getComplaintsPaginatedAPI(page, 6, aToken, query, status);
         if (res.data.success) {
           setComplaints(res.data.data || []);
           setTotalPages(res.data.pagination.totalPages);
@@ -39,7 +42,7 @@ const AdminInbox = () => {
 
     fetchComplaints();
     window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [page, aToken]);
+  }, [page, aToken, query, status]);
 
   useEffect(() => {
     if (selectedMessage) {
@@ -91,8 +94,22 @@ const AdminInbox = () => {
   return (
     <div className="m-5 text-slate-100 max-h-[90vh] overflow-y-auto">
       <h1 className="text-lg font-medium mb-4">Inbox</h1>
-      <div className="mb-6 max-w-sm">
-        <SearchBar placeholder="Search by name, email or subject" onSearch={setQuery} />
+      <div className="flex items-center gap-4 mb-6">
+        <div className="mb-6 max-w-sm">
+          <SearchBar placeholder="Search by name, email or subject" onSearch={setQuery} />
+        </div>
+
+        <select
+          value={status}
+          onChange={(e) => setStatus(e.target.value as any)}
+          className="bg-slate-800 text-slate-200 text-sm rounded-md px-3 py-1"
+        >
+          <option value="all">All</option>
+          <option value="pending">Pending</option>
+          <option value="in-progress">In Progress</option>
+          <option value="resolved">Resolved</option>
+          <option value="rejected">Rejected</option>
+        </select>
       </div>
 
       {load ? (

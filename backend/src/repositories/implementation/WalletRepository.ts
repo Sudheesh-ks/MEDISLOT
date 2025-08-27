@@ -23,20 +23,51 @@ export class WalletRepository extends BaseRepository<WalletDocument> implements 
     ownerId: string,
     ownerType: 'user' | 'doctor' | 'admin',
     page: number,
-    limit: number
+    limit: number,
+    search?: string,
+    period?: string,
+    txnType?: 'credit' | 'debit' | 'all'
   ): Promise<{ history: any[]; total: number; balance: number }> {
     const wallet = await this.getOrCreateWallet(ownerId, ownerType);
 
-    const total = wallet.history.length;
-    const startIndex = (page - 1) * limit;
-    const endIndex = startIndex + limit;
+    let history = [...wallet.history];
 
-    const paginatedHistory = wallet.history
-      .sort((a, b) => b.date.getTime() - a.date.getTime())
-      .slice(startIndex, endIndex);
+    // 🔍 Search filter
+    if (search) {
+      const s = search.toLowerCase();
+      history = history.filter((tx) => tx.reason && tx.reason.toLowerCase().includes(s));
+    }
+
+    // ⏳ Period filter
+    if (period && period !== 'all') {
+      const now = new Date();
+      const periodDate = new Date();
+
+      if (period === 'today') {
+        periodDate.setHours(0, 0, 0, 0);
+      } else if (period === 'week') {
+        periodDate.setDate(now.getDate() - 7);
+      } else if (period === 'month') {
+        periodDate.setMonth(now.getMonth() - 1);
+      }
+
+      history = history.filter((tx) => new Date(tx.date) >= periodDate);
+    }
+
+    if (txnType && txnType !== 'all') {
+      history = history.filter((tx) => tx.type === txnType);
+    }
+
+    // 📊 Total after filtering
+    const total = history.length;
+
+    // 🔄 Sort & Paginate
+    history = history
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+      .slice((page - 1) * limit, page * limit);
 
     return {
-      history: paginatedHistory,
+      history,
       total,
       balance: wallet.balance,
     };

@@ -138,9 +138,11 @@ export class DoctorService implements IDoctorService {
   async getDoctorsPaginated(query: any): Promise<PaginationResult<DoctorDTO>> {
     const page = parseInt(query.page as string) || 1;
     const limit = parseInt(query.limit as string) || 6;
+    const search = query.search as string | undefined;
+    const speciality = query.speciality as string | undefined;
 
     const { data, totalCount, currentPage, totalPages, hasNextPage, hasPrevPage } =
-      await this._doctorRepository.getDoctorsPaginated(page, limit);
+      await this._doctorRepository.getDoctorsPaginated(page, limit, search, speciality);
 
     const mappedData = data.map(toDoctorDTO);
 
@@ -208,17 +210,22 @@ export class DoctorService implements IDoctorService {
   async getDoctorAppointmentsPaginated(
     docId: string,
     pageQuery: string,
-    limitQuery: string
+    limitQuery: string,
+    search?: string,
+    dateRange?: string
   ): Promise<PaginationResult<AppointmentDTO>> {
     if (!docId) throw new Error('Doctor ID is required');
-
-    const doctor = await this._doctorRepository.findById(docId);
-    if (!doctor) throw new Error('Doctor not found');
 
     const page = parseInt(pageQuery) || 1;
     const limit = parseInt(limitQuery) || 6;
 
-    const paginatedData = await this._doctorRepository.getAppointmentsPaginated(docId, page, limit);
+    const paginatedData = await this._doctorRepository.getAppointmentsPaginated(
+      docId,
+      page,
+      limit,
+      search,
+      dateRange
+    );
 
     return {
       ...paginatedData,
@@ -405,12 +412,23 @@ export class DoctorService implements IDoctorService {
   async getDoctorWalletPaginated(
     doctorId: string,
     page: number,
-    limit: number
+    limit: number,
+    search: string,
+    period: string,
+    txnType?: 'credit' | 'debit' | 'all'
   ): Promise<{ history: any[]; total: number; balance: number }> {
     const doctor = await this._doctorRepository.findById(doctorId);
     if (!doctor) throw new Error('Doctor not found');
 
-    return await this._walletRepository.getWalletHistoryPaginated(doctorId, 'doctor', page, limit);
+    return await this._walletRepository.getWalletHistoryPaginated(
+      doctorId,
+      'doctor',
+      page,
+      limit,
+      search,
+      period,
+      txnType
+    );
   }
 
   async getDashboardData(doctorId: string, startDate: string, endDate: string) {

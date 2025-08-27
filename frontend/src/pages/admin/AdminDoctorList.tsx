@@ -16,12 +16,12 @@ const AdminDoctorList = () => {
   const [rows, setRows] = useState<any[]>([]);
   const [pages, setPages] = useState(1);
   const [load, setLoad] = useState(false);
-  const [query, setQuery] = useState('');
+  const [search, setSearch] = useState('');
   const perPage = 14;
 
   useEffect(() => {
     if (aToken) fetchRows();
-  }, [aToken, page]);
+  }, [aToken, page, search]);
 
   useEffect(() => {
     if (!aToken) navigate('/admin/login');
@@ -32,7 +32,7 @@ const AdminDoctorList = () => {
   const fetchRows = async () => {
     try {
       setLoad(true);
-      const r = await getDoctorsPaginated(page, perPage);
+      const r = await getDoctorsPaginated(page, perPage, search);
       setRows(r.data);
       setPages(r.totalPages);
     } catch (err) {
@@ -46,8 +46,8 @@ const AdminDoctorList = () => {
     .filter((d) => d.status === 'approved')
     .filter(
       (d) =>
-        d.name?.toLowerCase().includes(query.toLowerCase()) ||
-        d.speciality?.toLowerCase().includes(query.toLowerCase())
+        d.name?.toLowerCase().includes(search.toLowerCase()) ||
+        d.speciality?.toLowerCase().includes(search.toLowerCase())
     );
 
   const glass = 'bg-white/5 backdrop-blur ring-1 ring-white/10';
@@ -60,7 +60,7 @@ const AdminDoctorList = () => {
 
       {/* search */}
       <div className="mb-6 max-w-sm">
-        <SearchBar placeholder="Search by name or speciality" onSearch={setQuery} />
+        <SearchBar placeholder="Search by name or speciality" onSearch={setSearch} />
       </div>
 
       {load ? (

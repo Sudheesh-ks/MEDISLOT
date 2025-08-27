@@ -15,6 +15,9 @@ export interface IWalletRepository {
     ownerId: string,
     ownerType: 'user' | 'doctor' | 'admin',
     page: number,
-    limit: number
+    limit: number,
+    search?: string,
+    period?: string,
+    txnType?: 'credit' | 'debit' | 'all'
   ): Promise<{ history: any[]; total: number; balance: number }>;
 }

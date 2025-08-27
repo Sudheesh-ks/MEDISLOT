@@ -36,13 +36,18 @@ interface AdminContextType {
   setAToken: (token: string) => void;
   backendUrl: string;
   doctors: Doctor[];
-  getDoctorsPaginated: (page: number, limit: number) => Promise<PaginationData>;
+  getDoctorsPaginated: (page: number, limit: number, search: string) => Promise<PaginationData>;
   users: userData[];
-  getUsersPaginated: (page: number, limit: number) => Promise<PaginationData>;
+  getUsersPaginated: (page: number, limit: number, search?: string) => Promise<PaginationData>;
   toggleBlockUser: (userId: string) => Promise<userData | null>;
   appointments: AppointmentTypes[];
   setAppointments: React.Dispatch<React.SetStateAction<AppointmentTypes[]>>;
-  getAppointmentsPaginated: (page: number, limit: number) => Promise<PaginationData>;
+  getAppointmentsPaginated: (
+    page: number,
+    limit: number,
+    search: string,
+    dateFilter: string
+  ) => Promise<PaginationData>;
   cancelAppointment: (appointmentId: string) => Promise<void>;
   dashData: any;
   getDashData: () => Promise<void>;
@@ -76,9 +81,13 @@ const AdminContextProvider = ({ children }: AdminContextProviderProps) => {
     }
   };
 
-  const getDoctorsPaginated = async (page: number, limit: number): Promise<PaginationData> => {
+  const getDoctorsPaginated = async (
+    page: number,
+    limit: number,
+    search: string
+  ): Promise<PaginationData> => {
     try {
-      const { data } = await getDoctorsPaginatedAPI(page, limit, aToken);
+      const { data } = await getDoctorsPaginatedAPI(page, limit, aToken, search);
       if (data.success) {
         return {
           data: data.data,
@@ -128,9 +137,13 @@ const AdminContextProvider = ({ children }: AdminContextProviderProps) => {
     }
   };
 
-  const getUsersPaginated = async (page: number, limit: number): Promise<PaginationData> => {
+  const getUsersPaginated = async (
+    page: number,
+    limit: number,
+    search?: string
+  ): Promise<PaginationData> => {
     try {
-      const { data } = await getUsersPaginatedAPI(page, limit, aToken);
+      const { data } = await getUsersPaginatedAPI(page, limit, aToken, search);
       if (data.success) {
         setUsers(data.data);
         return {
@@ -179,9 +192,14 @@ const AdminContextProvider = ({ children }: AdminContextProviderProps) => {
     }
   };
 
-  const getAppointmentsPaginated = async (page: number, limit: number): Promise<PaginationData> => {
+  const getAppointmentsPaginated = async (
+    page: number,
+    limit: number,
+    search = '',
+    dateFilter: string
+  ): Promise<PaginationData> => {
     try {
-      const { data } = await getAppointmentsPaginatedAPI(page, limit, aToken);
+      const { data } = await getAppointmentsPaginatedAPI(page, limit, search, dateFilter, aToken);
       if (data.success) {
         return {
           data: data.data,

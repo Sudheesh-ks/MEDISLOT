@@ -15,7 +15,7 @@ const Doctors = () => {
   const [currentPage, setCurrentPage] = useState(1);
 
   const [doctors, setDoctors] = useState<Doctor[]>([]);
-  const [filtered, setFiltered] = useState<Doctor[]>([]);
+  // const [filtered, setFiltered] = useState<Doctor[]>([]);
 
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -27,7 +27,7 @@ const Doctors = () => {
 
   useEffect(() => {
     fetchDoctors();
-  }, [currentPage, speciality]);
+  }, [currentPage, speciality, searchQuery]);
 
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -36,7 +36,7 @@ const Doctors = () => {
   const fetchDoctors = async () => {
     setLoading(true);
     try {
-      const res = await getDoctorsPaginated(currentPage, itemsPerPage);
+      const res = await getDoctorsPaginated(currentPage, itemsPerPage, searchQuery, speciality);
       setDoctors(res.data);
       setTotalPages(res.totalPages);
     } finally {
@@ -44,12 +44,12 @@ const Doctors = () => {
     }
   };
 
-  useEffect(() => {
-    let list = speciality ? doctors.filter((d) => d.speciality === speciality) : doctors;
-    if (searchQuery.trim())
-      list = list.filter((d) => d.name.toLowerCase().includes(searchQuery.toLowerCase()));
-    setFiltered(list);
-  }, [doctors, speciality, searchQuery]);
+  // useEffect(() => {
+  //   let list = speciality ? doctors.filter((d) => d.speciality === speciality) : doctors;
+  //   if (searchQuery.trim())
+  //     list = list.filter((d) => d.name.toLowerCase().includes(searchQuery.toLowerCase()));
+  //   setFiltered(list);
+  // }, [doctors, speciality, searchQuery]);
 
   const specialities = [
     'General physician',
@@ -95,10 +95,10 @@ const Doctors = () => {
             <div className="flex justify-center items-center h-60">
               <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500"></div>
             </div>
-          ) : filtered.filter((d) => d.status === 'approved').length ? (
+          ) : doctors.filter((d) => d.status === 'approved').length ? (
             <>
               <div className="grid gap-10 grid-cols-[repeat(auto-fill,minmax(260px,1fr))]">
-                {filtered
+                {doctors
                   .filter((d) => d.status === 'approved')
                   .map((doc) => (
                     <div
