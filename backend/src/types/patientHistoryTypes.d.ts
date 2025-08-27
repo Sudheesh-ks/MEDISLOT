@@ -1,6 +1,7 @@
 import { Types } from 'mongoose';
 
 export interface patientHistoryTypes {
+  appointmentId: string | Types.ObjectId;
   patientId: string | Types.ObjectId; // Reference to user
   doctorId: string | Types.ObjectId; // Reference to doctor
   date: Date; // Session date

@@ -1,14 +1,15 @@
+import type React from 'react';
 import { assets } from '../../assets/user/assets';
 import { useNavigate } from 'react-router-dom';
-import React, { useContext } from 'react';
-import { DoctorContext } from '../../context/DoctorContext';
+// import React, { useContext } from 'react';
+// import { DoctorContext } from '../../context/DoctorContext';
 
-type Props = { userId?: string };
+type Props = { userId?: string; appointmentId?: string };
 
-const PatientHistoryCard: React.FC<Props> = ({ userId }) => {
+const PatientHistoryCard: React.FC<Props> = ({ userId, appointmentId }) => {
   const nav = useNavigate();
-  const { profileData } = useContext(DoctorContext);
-  const doctorId = profileData?._id;
+  // const { profileData } = useContext(DoctorContext);
+  // const doctorId = profileData?._id;
 
   const glass = 'bg-white/5 backdrop-blur ring-1 ring-white/10';
 
@@ -24,7 +25,7 @@ const PatientHistoryCard: React.FC<Props> = ({ userId }) => {
       </div>
       <div className="px-6 pb-6 pt-0">
         <button
-          onClick={() => nav(`/doctor/patient-history/${userId}`)}
+          onClick={() => nav(`/doctor/patient-history/${userId}/${appointmentId}`)}
           className="w-full bg-gradient-to-r from-purple-500 to-indigo-600 py-3 rounded-lg font-medium hover:-translate-y-0.5 transition-transform shadow-lg"
         >
           View History

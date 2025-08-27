@@ -557,7 +557,7 @@ export class DoctorController implements IDoctorController {
   async createPatientHistory(req: Request, res: Response): Promise<void> {
     try {
       const doctorId = (req as any).docId;
-      const { userId } = req.params;
+      const { userId, appointmentId } = req.params;
       const {
         date,
         time,
@@ -571,6 +571,7 @@ export class DoctorController implements IDoctorController {
       } = req.body;
 
       const patientHistory: patientHistoryTypes = {
+        appointmentId,
         doctorId,
         patientId: userId,
         date,

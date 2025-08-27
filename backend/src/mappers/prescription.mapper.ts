@@ -3,7 +3,7 @@ import { PrescriptionDTO } from '../dtos/prescription.dto';
 
 export const toPrescriptionDTO = (doc: any): PrescriptionDTO => {
   return {
-    id: doc._id.toString(),
+    // id: doc._id.toString(),
     appointmentId: doc.appointmentId.toString(),
     doctor: {
       id: doc.doctorId._id.toString(),

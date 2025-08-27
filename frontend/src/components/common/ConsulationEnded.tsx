@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { submitFeedbackAPI } from '../../services/appointmentServices';
 import { toast } from 'react-toastify';
-import { submitPrescriptionAPI } from '../../services/doctorServices';
 
 interface ConsultationEndedCardProps {
   role: 'user' | 'doctor';
@@ -11,7 +10,6 @@ interface ConsultationEndedCardProps {
 
 const ConsultationEndedCard = ({ role, appointmentId }: ConsultationEndedCardProps) => {
   const [feedback, setFeedback] = useState('');
-  const [prescription, setPrescription] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const navigate = useNavigate();
 
@@ -28,19 +26,6 @@ const ConsultationEndedCard = ({ role, appointmentId }: ConsultationEndedCardPro
         }
       } catch (err) {
         console.error('Error submitting feedback', err);
-      }
-    } else {
-      if (!prescription.trim()) return;
-      try {
-        console.log(appointmentId);
-        const { data } = await submitPrescriptionAPI(appointmentId, prescription);
-        if (data.success) {
-          toast.success('Prescription saved successfully');
-          setPrescription('');
-          setSubmitted(true);
-        }
-      } catch (err) {
-        console.error('Error submitting prescription', err);
       }
     }
   };
@@ -90,28 +75,8 @@ const ConsultationEndedCard = ({ role, appointmentId }: ConsultationEndedCardPro
         )}
 
         {role === 'doctor' && (
-          <div className="max-w-2xl mx-auto">
-            <p className="text-slate-300 text-base md:text-lg leading-relaxed mb-8 text-center">
-              Hope you had a productive session. Kindly provide the prescription for your patient.
-            </p>
-            <label className="block text-slate-300 text-sm mb-2">Add Prescription</label>
-            <textarea
-              rows={6}
-              placeholder="Enter prescription details here..."
-              className="w-full p-4 rounded-xl bg-white/10 text-white outline-none focus:ring-2 focus:ring-blue-500"
-              value={prescription}
-              onChange={(e) => setPrescription(e.target.value)}
-              disabled={submitted}
-            />
-            <button
-              className={`mt-4 w-full ${
-                submitted ? 'bg-gray-500 cursor-not-allowed' : 'bg-blue-500 hover:bg-blue-600'
-              } text-white py-3 rounded-full transition`}
-              disabled={submitted || !prescription.trim()}
-              onClick={handleSubmit}
-            >
-              {submitted ? 'Prescription Submitted' : 'Submit Prescription'}
-            </button>
+          <div className="max-w-2xl mx-auto text-center text-slate-300 text-lg">
+            <p>The consultation has ended. Hope it was a productive one.</p>
           </div>
         )}
 

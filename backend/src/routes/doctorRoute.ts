@@ -145,7 +145,7 @@ doctorRouter.post(
 );
 
 doctorRouter.post(
-  '/patient-history/:patientId',
+  '/patient-history/:patientId/:appointmentId',
   authRole(['doctor']),
   doctorController.createPatientHistory.bind(doctorController)
 );

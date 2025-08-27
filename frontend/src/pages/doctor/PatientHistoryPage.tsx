@@ -11,7 +11,7 @@ import {
 import type { PatientHistoryTypes } from '../../types/patientHistoryTypes';
 
 const PatientHistoryPage = () => {
-  const { userId } = useParams();
+  const { userId, appointmentId } = useParams();
 
   const [activeTab, setActiveTab] = useState<'overview' | 'sessions' | 'add'>('overview');
 
@@ -108,7 +108,7 @@ const PatientHistoryPage = () => {
 
   const handleSubmit = async () => {
     try {
-      const res = await createPatientHistoryAPI(userId!, historyData);
+      const res = await createPatientHistoryAPI(userId!, appointmentId!, historyData);
       toast.success('Patient history added successfully');
 
       // Add new session immediately to list

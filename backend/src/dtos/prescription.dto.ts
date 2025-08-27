@@ -1,5 +1,4 @@
 export interface PrescriptionDTO {
-  id: string;
   appointmentId: string;
   doctor: {
     id: string;
@@ -11,7 +10,13 @@ export interface PrescriptionDTO {
     name: string;
     email: string;
   };
-  prescription: string;
+  prescription: {
+    medication: string;
+    dosage: string;
+    frequency: string;
+    duration: string;
+    instructions: string;
+  }[];
   createdAt?: Date;
   updatedAt?: Date;
 }

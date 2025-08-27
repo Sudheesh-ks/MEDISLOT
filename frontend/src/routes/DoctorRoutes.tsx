@@ -98,7 +98,7 @@ const DoctorRoutes = () => {
       />
 
       <Route
-        path="/doctor/patient-history/:userId"
+        path="/doctor/patient-history/:userId/:appointmentId"
         element={
           <DoctorLayout>
             <PatientHistoryPage />

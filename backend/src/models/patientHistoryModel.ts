@@ -7,6 +7,12 @@ export interface PatientHistoryDocument extends Omit<patientHistoryTypes, '_id'>
 
 const patientHistorySchema: Schema<PatientHistoryDocument> = new mongoose.Schema(
   {
+    appointmentId: {
+      type: Schema.Types.ObjectId,
+      ref: 'appointment',
+      required: true,
+      unique: true,
+    },
     patientId: {
       type: Schema.Types.ObjectId,
       ref: 'user',

@@ -43,6 +43,7 @@ import { FeedbackDTO } from '../../dtos/feedback.dto';
 import { toFeedbackDTO } from '../../mappers/feedback.mapper';
 import { ComplaintRepository } from '../../repositories/implementation/ComplaintRepository';
 import { ComplaintTypes } from '../../types/complaint';
+import { PatientHistoryRepository } from '../../repositories/implementation/PatientHistoryRepository';
 
 export interface UserDocument extends userTypes {
   _id: string;
@@ -59,7 +60,8 @@ export class UserService implements IUserService {
     private readonly _notificationService = new NotificationService(),
     private readonly _feedbackRepository = new FeedbackRepository(),
     private readonly _prescriptionRepository = new PrescriptionRepository(),
-    private readonly _complaintRepository = new ComplaintRepository()
+    private readonly _complaintRepository = new ComplaintRepository(),
+    private readonly _patientHistoryRepository = new PatientHistoryRepository()
   ) {}
 
   async register(name: string, email: string, password: string): Promise<void> {
@@ -558,7 +560,8 @@ export class UserService implements IUserService {
   }
 
   async getPrescriptionByAppointmentId(appointmentId: string): Promise<PrescriptionDTO | null> {
-    const prescriptionDoc = await this._prescriptionRepository.findByAppointmentId(appointmentId);
+    const prescriptionDoc =
+      await this._patientHistoryRepository.findPrescriptionByAppointmentId(appointmentId);
     if (!prescriptionDoc) return null;
 
     return toPrescriptionDTO(prescriptionDoc);

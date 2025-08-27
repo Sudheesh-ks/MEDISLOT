@@ -9,7 +9,7 @@ const DoctorConsultation = () => {
     <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center gap-8 p-8">
       <DocVideoCallCard appointmentId={appointmentId} />
       <DocChatCard userId={userId} />
-      <PatientHistoryCard userId={userId} />
+      <PatientHistoryCard userId={userId} appointmentId={appointmentId} />
     </div>
   );
 };

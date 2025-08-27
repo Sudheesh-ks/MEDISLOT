@@ -26,4 +26,16 @@ export class PatientHistoryRepository
   ): Promise<PatientHistoryDocument[]> {
     return this.findAll({ doctorId, userId });
   }
+
+  async findPrescriptionByAppointmentId(
+    appointmentId: string
+  ): Promise<PatientHistoryDocument | null> {
+    return (
+      patientHistoryModel
+        .findOne({ appointmentId })
+        // .populate("patientId", "name email")
+        .populate('doctorId', 'name email')
+        .exec()
+    );
+  }
 }
