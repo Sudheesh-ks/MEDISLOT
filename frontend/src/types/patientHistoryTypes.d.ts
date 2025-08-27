@@ -8,6 +8,7 @@ interface Vitals {
 }
 
 export interface PatientHistoryTypes {
+  _id?: string;
   date: string;
   time: string;
   type: string;

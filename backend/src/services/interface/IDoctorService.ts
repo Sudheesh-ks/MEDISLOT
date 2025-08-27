@@ -45,4 +45,5 @@ export interface IDoctorService {
     period: string,
     txnType?: 'credit' | 'debit' | 'all'
   ): Promise<{ history: any[]; total: number; balance: number }>;
+  
 }

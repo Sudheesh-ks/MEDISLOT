@@ -168,6 +168,12 @@ doctorRouter.get(
   doctorController.getPatientById.bind(doctorController)
 );
 
+doctorRouter.put(
+    "/patient-history/:historyId",
+    authRole(["doctor"]),
+    doctorController.updatePatientHistory.bind(doctorController)
+);
+
 doctorRouter.get('/:id', doctorController.getDoctorById.bind(doctorController));
 
 export default doctorRouter;

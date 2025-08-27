@@ -237,3 +237,35 @@ export const getPatientHistoryByIdAPI = (historyId: string) => {
 export const getPatientDetailsAPI = (patientId: string) => {
   return api.get(`/api/doctor/patient/${patientId}`);
 };
+
+
+export const updatePatientHistoryAPI = (
+  historyId: string,
+  data: {
+    date: string;
+    time: string;
+    type: string;
+    chiefComplaint: string;
+    symptoms: string[];
+    vitals: {
+      bloodPressure?: string;
+      heartRate?: string;
+      temperature?: string;
+      weight?: string;
+      height?: string;
+      oxygenSaturation?: string;
+    };
+    diagnosis: string;
+    doctorNotes?: string;
+    prescription: {
+      medication: string;
+      dosage: string;
+      frequency: string;
+      duration: string;
+      instructions: string;
+    }[];
+  }
+) => {
+  return api.put(`/api/doctor/patient-history/${historyId}`, data);
+};
+

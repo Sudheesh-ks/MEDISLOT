@@ -7,13 +7,14 @@ import {
   getPatientDetailsAPI,
   getPatientHistoriesByPatientAPI,
   getPatientHistoryByIdAPI,
+  updatePatientHistoryAPI,
 } from '../../services/doctorServices';
 import type { PatientHistoryTypes } from '../../types/patientHistoryTypes';
 
 const PatientHistoryPage = () => {
   const { userId, appointmentId } = useParams();
 
-  const [activeTab, setActiveTab] = useState<'overview' | 'sessions' | 'add'>('overview');
+  const [activeTab, setActiveTab] = useState<'overview' | 'sessions' | 'add' | 'edit'>('overview');
 
   const [patientData, setPatientData] = useState<any | null>(null);
   const [sessions, setSessions] = useState<any[]>([]);
@@ -139,6 +140,29 @@ const PatientHistoryPage = () => {
       showErrorToast(err);
     }
   };
+
+
+  const handleUpdate = async () => {
+    try {
+      if (!historyData._id) {
+        toast.error("No session selected to update");
+        return;
+      }
+
+      const res = await updatePatientHistoryAPI(historyData._id, historyData);
+      toast.success("Session updated successfully");
+
+      // update session list
+      setSessions((prev) =>
+        prev.map((s) => (s._id === historyData._id ? res.data.history : s))
+      );
+
+      setActiveTab("sessions");
+    } catch (err) {
+      showErrorToast(err);
+    }
+  };
+
 
   useEffect(() => {
     const fetchSessionDetail = async () => {
@@ -424,6 +448,142 @@ const PatientHistoryPage = () => {
                 </button>
               </div>
             )}
+
+
+            {activeTab === "edit" && (
+  <div className="bg-slate-900/50 rounded-2xl p-6 border border-slate-800 space-y-6">
+    <h3 className="text-xl font-semibold mb-6 text-blue-400">
+      Edit Session
+    </h3>
+
+    {/* 🔹 Reuse the same form inputs as in Add New */}
+    {/* Just reusing all your input/textarea code here, but with historyData prefilled */}
+
+    <div className="grid grid-cols-2 gap-4">
+      <input
+        type="date"
+        name="date"
+        value={historyData.date?.substring(0, 10) || ""}
+        onChange={handleChange}
+        className="bg-slate-800 border border-slate-700 rounded px-3 py-2"
+      />
+      <input
+        type="time"
+        name="time"
+        value={historyData.time}
+        onChange={handleChange}
+        className="bg-slate-800 border border-slate-700 rounded px-3 py-2"
+      />
+      <select
+        name="type"
+        value={historyData.type}
+        onChange={handleChange}
+        className="bg-slate-800 border border-slate-700 rounded px-3 py-2 col-span-2"
+      >
+        <option>Regular Checkup</option>
+        <option>Follow-up</option>
+        <option>Emergency</option>
+      </select>
+    </div>
+
+    <textarea
+                  name="chiefComplaint"
+                  placeholder="Chief Complaint"
+                  value={historyData.chiefComplaint}
+                  onChange={handleChange}
+                  className="w-full bg-slate-800 border border-slate-700 rounded px-3 py-2"
+                />
+
+                <input
+                  type="text"
+                  placeholder="Symptoms (comma separated)"
+                  value={historyData.symptoms.join(', ')}
+                  onChange={handleSymptomsChange}
+                  className="w-full bg-slate-800 border border-slate-700 rounded px-3 py-2"
+                />
+
+                <textarea
+                  name="diagnosis"
+                  placeholder="Diagnosis"
+                  value={historyData.diagnosis}
+                  onChange={handleChange}
+                  className="w-full bg-slate-800 border border-slate-700 rounded px-3 py-2"
+                />
+
+                <textarea
+                  name="doctorNotes"
+                  placeholder="Doctor Notes"
+                  value={historyData.doctorNotes}
+                  onChange={handleChange}
+                  className="w-full bg-slate-800 border border-slate-700 rounded px-3 py-2"
+                />
+
+                {/* Vitals Section */}
+                <div className="space-y-2">
+                  <h4 className="text-cyan-400 font-semibold">Vitals</h4>
+                  <div className="grid grid-cols-2 gap-3">
+                    {(
+                      [
+                        { name: 'bloodPressure', label: 'Blood Pressure' },
+                        { name: 'heartRate', label: 'Heart Rate' },
+                        { name: 'temperature', label: 'Temperature' },
+                        { name: 'weight', label: 'Weight' },
+                        { name: 'height', label: 'Height' },
+                        { name: 'oxygenSaturation', label: 'O₂ Saturation' },
+                      ] as const
+                    ).map(({ name, label }) => (
+                      <div key={name} className="flex flex-col">
+                        <label className="text-sm text-slate-400 mb-1">{label}</label>
+                        <input
+                          type="text"
+                          name={name}
+                          value={(historyData.vitals as any)[name]}
+                          onChange={handleChange}
+                          className="bg-slate-800 border border-slate-700 rounded px-3 py-2"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Prescription */}
+                <div className="space-y-2">
+                  <h4 className="text-purple-400 font-semibold">Prescription</h4>
+                  {historyData.prescription.map((p, idx) => (
+                    <div key={idx} className="grid grid-cols-5 gap-2">
+                      {(
+                        ['medication', 'dosage', 'frequency', 'duration', 'instructions'] as const
+                      ).map((field) => (
+                        <input
+                          key={field}
+                          type="text"
+                          placeholder={field}
+                          value={p[field]}
+                          onChange={(e) => handlePrescriptionChange(idx, field, e.target.value)}
+                          className="bg-slate-800 border border-slate-700 rounded px-2 py-1 text-sm"
+                        />
+                      ))}
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    onClick={addPrescription}
+                    className="bg-green-600 text-white rounded px-3 py-1"
+                  >
+                    + Add Medicine
+                  </button>
+                </div>
+
+
+    <button
+      onClick={handleUpdate}
+      className="px-6 py-3 bg-gradient-to-r from-green-600 to-teal-600 text-white rounded-lg"
+    >
+      Save Changes
+    </button>
+  </div>
+)}
+
           </div>
         </div>
       </div>
@@ -485,9 +645,21 @@ const PatientHistoryPage = () => {
                 </div>
               </div>
             )}
+
+            <button
+  onClick={() => {
+    setHistoryData(selectedSession); // prefill form with existing data
+    setActiveTab("edit"); // switch to edit mode
+    setSelectedSession(null); // close modal
+  }}
+  className="absolute top-4 right-16 bg-blue-600 text-white px-3 py-1 rounded-lg hover:bg-blue-700"
+>
+  ✎ Edit
+</button>
+
           </div>
         </div>
-      )}
+      )}  
     </main>
   );
 };

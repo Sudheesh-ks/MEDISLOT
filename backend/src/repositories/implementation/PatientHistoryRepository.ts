@@ -38,4 +38,20 @@ export class PatientHistoryRepository
         .exec()
     );
   }
+
+
+
+  async updateHistory(
+  id: string,
+  data: Partial<PatientHistoryDocument>
+): Promise<PatientHistoryDocument | null> {
+  const updated = await patientHistoryModel.findByIdAndUpdate(id, data, {
+    new: true, // return updated document
+    runValidators: true, // enforce schema validation
+  });
+
+  return updated ? (updated as PatientHistoryDocument) : null;
 }
+
+}
+
