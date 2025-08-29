@@ -17,7 +17,6 @@ const AdminUsersList = () => {
   const [page, setPage] = useState(1);
   const [rows, setRows] = useState<any[]>([]);
   const [pages, setPages] = useState(1);
-  // const [cnt, setCnt] = useState(0);
   const [loading, setLoading] = useState(false);
   const perPage = 6;
   const [search, setSearch] = useState('');
@@ -36,7 +35,6 @@ const AdminUsersList = () => {
       const res = await getUsersPaginated(page, perPage, search);
       setRows(res.data);
       setPages(res.totalPages);
-      // setCnt(res.totalCount);
     } finally {
       setLoading(false);
     }
@@ -52,12 +50,6 @@ const AdminUsersList = () => {
       }))
     );
   };
-
-  // const filtered = rows.filter(
-  //   (u) =>
-  //     (u.name || '').toLowerCase().includes(search.toLowerCase()) ||
-  //     (u.email || '').toLowerCase().includes(search.toLowerCase())
-  // );
 
   const cols = [
     {

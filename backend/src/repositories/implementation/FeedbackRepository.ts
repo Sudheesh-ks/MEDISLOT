@@ -1,3 +1,4 @@
+import appointmentModel from '../../models/appointmentModel';
 import feedbackModel, { FeedbackDocument } from '../../models/feedbackModel';
 import userModel from '../../models/userModel';
 import { BaseRepository } from '../BaseRepository';
@@ -14,9 +15,14 @@ export class FeedbackRepository
   async submitFeedback(userId: string, apptId: string, message: string): Promise<FeedbackDocument> {
     const user = await userModel.findById(userId).lean();
     if (!user) throw new Error('User not found');
+
+    const appointment = await appointmentModel.findById(apptId).lean();
+    if (!appointment) throw new Error('Appointment not found');
+
     const feedback = new this.model({
       userId,
       apptId,
+      doctorId: appointment.docId,
       userData: {
         name: user.name,
         email: user.email,
@@ -28,8 +34,8 @@ export class FeedbackRepository
     return feedback.save();
   }
 
-  async getFeedbacks(): Promise<FeedbackDocument[]> {
-    return this.model.find().sort({ timestamp: -1 });
+  async getFeedbacks(doctorId: string): Promise<FeedbackDocument[]> {
+    return this.model.find({ doctorId }).sort({ timestamp: -1 });
   }
 
   async countFeedbacks(): Promise<number> {

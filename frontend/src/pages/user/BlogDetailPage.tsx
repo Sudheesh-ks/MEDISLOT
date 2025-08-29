@@ -70,12 +70,10 @@ const BlogDetailPage: React.FC = () => {
       if (!articleId || !token) return;
       setLoading(true);
       try {
-        // Fetch blog
         const res = await getBlogByIdAPI(articleId, token);
         const blogData: Blog = res.data.data;
         setBlog(blogData);
 
-        // Fetch comments
         try {
           const cRes = await getBlogCommentsAPI(articleId, token);
           setComments(cRes.data.data || []);
@@ -83,7 +81,6 @@ const BlogDetailPage: React.FC = () => {
           setComments([]);
         }
 
-        // Fetch related blogs
         try {
           const allRes = await getBlogsAPI(token);
           const all: Blog[] = allRes.data.data || [];
@@ -145,8 +142,8 @@ const BlogDetailPage: React.FC = () => {
           <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12">
             <div className="max-w-4xl mx-auto">
               <div className="mb-4">
-                {/* Keep SAME emerald pill design */}
-                <span className="bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-full text-sm font-medium border border-emerald-500/30">
+                {/* Keep SAME blue pill design */}
+                <span className="bg-blue-500/20 text-blue-400 px-3 py-1 rounded-full text-sm font-medium border border-blue-500/30">
                   {blog.category}
                 </span>
               </div>
@@ -162,7 +159,7 @@ const BlogDetailPage: React.FC = () => {
 
         {/* Article Content */}
         <article className="max-w-4xl mx-auto px-4 md:px-8 py-12">
-          {/* Author Info — same layout */}
+          {/* Author Info */}
           <div className="flex items-center gap-4 mb-8 p-6 bg-slate-900/50 rounded-2xl border border-slate-800">
             <img
               src={blog.doctorData.image || 'https://via.placeholder.com/100x100.png?text=Author'}
@@ -178,13 +175,13 @@ const BlogDetailPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Article Body — keep prose styling, render HTML */}
+          {/* Article Body */}
           <div
-            className="prose prose-invert prose-emerald max-w-none mb-12 text-lg leading-relaxed"
+            className="prose prose-invert prose-blue max-w-none mb-12 text-lg leading-relaxed"
             dangerouslySetInnerHTML={{ __html: blog.content }}
           />
 
-          {/* Tags — same design */}
+          {/* Tags */}
           {blog.tags && blog.tags.length > 0 && (
             <div className="mb-12">
               <h3 className="text-lg font-semibold mb-4">Tags</h3>
@@ -202,12 +199,11 @@ const BlogDetailPage: React.FC = () => {
           )}
         </article>
 
-        {/* Similar Articles — SAME section, now dynamic */}
         {related.length > 0 && (
           <section className="max-w-7xl mx-auto px-4 md:px-8 py-16 border-t border-slate-800">
             <h2 className="text-2xl md:text-3xl font-bold text-center mb-12">
               More from{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-cyan-400">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">
                 {blog.doctorData.name}
               </span>
             </h2>
@@ -233,7 +229,7 @@ const BlogDetailPage: React.FC = () => {
                       <span>{formatDate(a.updatedAt)}</span>
                       <span>{a.readTime} mins</span>
                     </div>
-                    <h3 className="text-xl font-semibold mb-3 group-hover:text-emerald-400 transition-colors">
+                    <h3 className="text-xl font-semibold mb-3 group-hover:text-blue-400 transition-colors">
                       {a.title}
                     </h3>
                     <p className="text-slate-400 text-sm leading-relaxed line-clamp-3">
@@ -256,13 +252,13 @@ const BlogDetailPage: React.FC = () => {
               rows={4}
               value={cText}
               onChange={(e) => setCText(e.target.value)}
-              className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent mb-4 resize-none"
+              className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent mb-4 resize-none"
             />
             <button
               type="button"
               onClick={handlePostComment}
               disabled={posting}
-              className="bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-700 hover:to-cyan-700 disabled:opacity-60 text-white font-medium px-6 py-3 rounded-lg transition-all duration-300 hover:-translate-y-0.5"
+              className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 disabled:opacity-60 text-white font-medium px-6 py-3 rounded-lg transition-all duration-300 hover:-translate-y-0.5"
             >
               {posting ? 'Posting...' : 'Post Comment'}
             </button>
@@ -273,7 +269,7 @@ const BlogDetailPage: React.FC = () => {
               <div key={c._id} className="bg-slate-900/30 rounded-xl p-6 border border-slate-800">
                 <div className="flex items-start justify-between mb-3">
                   <div>
-                    <h4 className="font-semibold text-emerald-400">{c.userData.name}</h4>
+                    <h4 className="font-semibold text-blue-400">{c.userData.name}</h4>
                     <p className="text-slate-500 text-sm">{formatDate(c.createdAt)}</p>
                   </div>
                 </div>

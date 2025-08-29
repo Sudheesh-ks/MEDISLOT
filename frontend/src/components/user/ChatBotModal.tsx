@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { getChatHistoryAPI, sendChatMessageAPI } from '../../services/aiChatService';
 
 type Message = { role: 'user' | 'bot'; text: string };
 
@@ -15,8 +16,15 @@ const ChatBotModal: React.FC<ChatBotModalProps> = ({ isOpen, onClose }) => {
 
   useEffect(() => {
     if (isOpen) {
-      // Reset when opening
-      setMessages([]);
+      (async () => {
+        try {
+          const data = await getChatHistoryAPI();
+          setMessages(data.history || []);
+        } catch (err) {
+          console.error('Error loading chat history:', err);
+          setMessages([]);
+        }
+      })();
     }
   }, [isOpen]);
 
@@ -29,16 +37,11 @@ const ChatBotModal: React.FC<ChatBotModalProps> = ({ isOpen, onClose }) => {
     setLoading(true);
 
     try {
-      const res = await fetch('http://localhost:4000/api/ai/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sessionId: 'blog-user-session', message: input }),
-      });
-      const data = await res.json();
+      const data = await sendChatMessageAPI(input);
       const botMessage: Message = { role: 'bot', text: data.reply };
       setMessages((prev) => [...prev, botMessage]);
     } catch (error) {
-      console.log(error);
+      console.error(error);
       setMessages((prev) => [
         ...prev,
         { role: 'bot', text: '⚠️ Something went wrong. Please try again.' },
@@ -63,7 +66,7 @@ const ChatBotModal: React.FC<ChatBotModalProps> = ({ isOpen, onClose }) => {
       <div className="w-full md:w-96 h-5/6 md:h-3/4 bg-slate-900 rounded-2xl shadow-2xl p-4 flex flex-col">
         {/* Header */}
         <div className="flex justify-between items-center mb-2">
-          <h2 className="text-lg font-bold text-emerald-400">AI Doctor Chat</h2>
+          <h2 className="text-lg font-bold text-blue-400">Chat with your AI Doctor</h2>
           <button className="text-slate-400 hover:text-white" onClick={onClose}>
             ✕
           </button>
@@ -99,7 +102,7 @@ const ChatBotModal: React.FC<ChatBotModalProps> = ({ isOpen, onClose }) => {
           />
           <button
             onClick={sendMessage}
-            className="bg-emerald-500 hover:bg-emerald-600 text-white px-4 py-2 rounded-xl"
+            className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-xl"
             disabled={loading}
           >
             Send

@@ -221,9 +221,9 @@ const DoctorAppointments = () => {
             const val = e.target.value;
             setFilterType(val);
             if (val !== 'custom') {
-              setDateFilter(val); // directly forward to backend
+              setDateFilter(val);
             } else {
-              setDateFilter(''); // reset for custom
+              setDateFilter('');
             }
           }}
           className="bg-slate-800 text-slate-200 backdrop-blur text-slate-200 p-2 rounded-lg border border-slate-600"

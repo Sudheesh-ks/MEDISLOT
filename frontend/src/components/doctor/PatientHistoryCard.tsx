@@ -1,15 +1,11 @@
 import type React from 'react';
 import { assets } from '../../assets/user/assets';
 import { useNavigate } from 'react-router-dom';
-// import React, { useContext } from 'react';
-// import { DoctorContext } from '../../context/DoctorContext';
 
 type Props = { userId?: string; appointmentId?: string };
 
 const PatientHistoryCard: React.FC<Props> = ({ userId, appointmentId }) => {
   const nav = useNavigate();
-  // const { profileData } = useContext(DoctorContext);
-  // const doctorId = profileData?._id;
 
   const glass = 'bg-white/5 backdrop-blur ring-1 ring-white/10';
 

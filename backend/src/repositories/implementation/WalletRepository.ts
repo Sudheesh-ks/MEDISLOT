@@ -32,13 +32,11 @@ export class WalletRepository extends BaseRepository<WalletDocument> implements 
 
     let history = [...wallet.history];
 
-    // 🔍 Search filter
     if (search) {
       const s = search.toLowerCase();
       history = history.filter((tx) => tx.reason && tx.reason.toLowerCase().includes(s));
     }
 
-    // ⏳ Period filter
     if (period && period !== 'all') {
       const now = new Date();
       const periodDate = new Date();
@@ -58,10 +56,8 @@ export class WalletRepository extends BaseRepository<WalletDocument> implements 
       history = history.filter((tx) => tx.type === txnType);
     }
 
-    // 📊 Total after filtering
     const total = history.length;
 
-    // 🔄 Sort & Paginate
     history = history
       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
       .slice((page - 1) * limit, page * limit);

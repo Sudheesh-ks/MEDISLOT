@@ -601,63 +601,56 @@ export class DoctorController implements IDoctorController {
     }
   }
 
-
   async updatePatientHistory(req: Request, res: Response): Promise<void> {
-  try {
-    const { historyId } = req.params;
-    const {
-      date,
-      time,
-      type,
-      chiefComplaint,
-      symptoms,
-      vitals,
-      diagnosis,
-      doctorNotes,
-      prescription,
-    } = req.body;
+    try {
+      const { historyId } = req.params;
+      const {
+        date,
+        time,
+        type,
+        chiefComplaint,
+        symptoms,
+        vitals,
+        diagnosis,
+        doctorNotes,
+        prescription,
+      } = req.body;
 
-    const updatedHistory = await this._doctorService.updatePatientHistory(historyId, {
-      date,
-      time,
-      type,
-      chiefComplaint,
-      symptoms,
-      vitals,
-      diagnosis,
-      doctorNotes,
-      prescription: prescription.filter(
-        (p: any) =>
-          p.medication &&
-          p.dosage &&
-          p.frequency &&
-          p.duration &&
-          p.instructions
-      ),
-    });
-
-    if (!updatedHistory) {
-      res.status(404).json({
-        success: false,
-        message: "Patient history not found",
+      const updatedHistory = await this._doctorService.updatePatientHistory(historyId, {
+        date,
+        time,
+        type,
+        chiefComplaint,
+        symptoms,
+        vitals,
+        diagnosis,
+        doctorNotes,
+        prescription: prescription.filter(
+          (p: any) => p.medication && p.dosage && p.frequency && p.duration && p.instructions
+        ),
       });
-      return;
+
+      if (!updatedHistory) {
+        res.status(404).json({
+          success: false,
+          message: 'Patient history not found',
+        });
+        return;
+      }
+
+      res.status(200).json({
+        success: true,
+        message: 'Patient history updated successfully',
+        history: updatedHistory,
+      });
+    } catch (error) {
+      logger.error(`Error updating patient history: ${(error as Error).message}`);
+      res.status(500).json({
+        success: false,
+        message: (error as Error).message,
+      });
     }
-
-    res.status(200).json({
-      success: true,
-      message: "Patient history updated successfully",
-      history: updatedHistory,
-    });
-  } catch (error) {
-    logger.error(`Error updating patient history: ${(error as Error).message}`);
-    res.status(500).json({
-      success: false,
-      message: (error as Error).message,
-    });
   }
-}
-
 
   async getPatientHistory(req: Request, res: Response): Promise<void> {
     try {

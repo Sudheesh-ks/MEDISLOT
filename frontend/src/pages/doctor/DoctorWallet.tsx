@@ -39,33 +39,6 @@ const DoctorWallet = () => {
     fetchWallet();
   }, [currentPage, searchTerm, selectedPeriod, transactionType]);
 
-  // useEffect(() => {
-  //   if (!walletData?.history) return;
-
-  //   let filtered = [...walletData.history];
-
-  //   if (searchTerm) {
-  //     filtered = filtered.filter(
-  //       (tx) =>
-  //         (tx.reason && tx.reason.toLowerCase().includes(searchTerm.toLowerCase())) ||
-  //         (tx.referenceId && tx.referenceId.toLowerCase().includes(searchTerm.toLowerCase()))
-  //     );
-  //   }
-
-  //   if (selectedPeriod !== 'all') {
-  //     const now = new Date();
-  //     const periodDate = new Date();
-
-  //     if (selectedPeriod === 'today') periodDate.setHours(0, 0, 0, 0);
-  //     else if (selectedPeriod === 'week') periodDate.setDate(now.getDate() - 7);
-  //     else if (selectedPeriod === 'month') periodDate.setMonth(now.getMonth() - 1);
-
-  //     filtered = filtered.filter((tx) => new Date(tx.date) >= periodDate);
-  //   }
-
-  //   setFilteredTransactions(filtered);
-  // }, [searchTerm, selectedPeriod, walletData]);
-
   const formatDate = (d: string) =>
     new Date(d).toLocaleString('en-US', {
       month: 'short',

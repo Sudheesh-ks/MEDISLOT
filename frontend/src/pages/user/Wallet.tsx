@@ -162,9 +162,6 @@ const Wallet = () => {
                     <th className="text-right py-3 px-2 text-gray-400 font-medium text-sm">
                       Amount
                     </th>
-                    {/* <th className="text-center py-3 px-2 text-gray-400 font-medium text-sm">
-                      Status
-                    </th> */}
                   </tr>
                 </thead>
                 <tbody>
@@ -201,9 +198,6 @@ const Wallet = () => {
                           {formatAmount(transaction.amount, transaction.type)}
                         </span>
                       </td>
-                      {/* <td className="py-4 px-2 text-center">
-                        {getStatusBadge(transaction.status)}
-                      </td> */}
                     </tr>
                   ))}
                 </tbody>

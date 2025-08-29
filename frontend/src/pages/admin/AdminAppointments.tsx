@@ -46,13 +46,6 @@ const AdminAppointments = () => {
     if (!aToken) nav('/admin/login');
   }, [aToken, nav]);
 
-  // const filtered = rows.filter((it) => {
-  //   const q = search.toLowerCase();
-  //   return (
-  //     it.userData?.name?.toLowerCase().includes(q) || it.docData?.name?.toLowerCase().includes(q)
-  //   );
-  // });
-
   const columns = [
     {
       key: '#',
@@ -160,9 +153,9 @@ const AdminAppointments = () => {
             const val = e.target.value;
             setFilterType(val);
             if (val !== 'custom') {
-              setDateFilter(val); // directly forward to backend
+              setDateFilter(val);
             } else {
-              setDateFilter(''); // reset for custom
+              setDateFilter('');
             }
           }}
           className="bg-slate-800 text-slate-200 backdrop-blur text-slate-200 p-2 rounded-lg border border-slate-600"

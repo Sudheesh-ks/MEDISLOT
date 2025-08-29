@@ -185,12 +185,6 @@ export const getDoctorDashboardDataAPI = (start?: string, end?: string) => {
   });
 };
 
-// export const submitPrescriptionAPI = (appointmentId: string, prescription: string) => {
-//   return api.post(`/api/doctor/appointments/${appointmentId}/prescription`, {
-//     prescription,
-//   });
-// };
-
 export const createDoctorBlogAPI = (formData: FormData) => {
   return api.post(BLOG_API.CREATE, formData);
 };
@@ -238,7 +232,6 @@ export const getPatientDetailsAPI = (patientId: string) => {
   return api.get(`/api/doctor/patient/${patientId}`);
 };
 
-
 export const updatePatientHistoryAPI = (
   historyId: string,
   data: {
@@ -268,4 +261,3 @@ export const updatePatientHistoryAPI = (
 ) => {
   return api.put(`/api/doctor/patient-history/${historyId}`, data);
 };
-

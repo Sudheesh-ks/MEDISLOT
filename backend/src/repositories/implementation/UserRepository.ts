@@ -131,7 +131,7 @@ export class UserRepository extends BaseRepository<userDocument> implements IUse
   }
 
   async findDoctorById(id: string): Promise<DoctorDocument | null> {
-    return doctorModel.findById(id).select('-password') as any;
+    return doctorModel.findById(id).select('-password').lean() as Promise<DoctorDocument | null>;
   }
 
   async cancelAppointment(userId: string, appointmentId: string): Promise<void> {
@@ -165,8 +165,11 @@ export class UserRepository extends BaseRepository<userDocument> implements IUse
     }
   }
 
-  async findPayableAppointment(userId: string, appointmentId: string): Promise<any> {
-    const appointment = await appointmentModel.findById<AppointmentTypes>(appointmentId);
+  async findPayableAppointment(
+    userId: string,
+    appointmentId: string
+  ): Promise<AppointmentDocument> {
+    const appointment = await appointmentModel.findById(appointmentId);
     if (!appointment) throw new Error('Appointment not found');
 
     if (appointment.userId.toString() !== userId.toString()) {
@@ -175,7 +178,7 @@ export class UserRepository extends BaseRepository<userDocument> implements IUse
 
     if (appointment.cancelled) throw new Error('Appointment cancelled');
 
-    return appointment;
+    return appointment as AppointmentDocument;
   }
 
   async saveRazorpayOrderId(appointmentId: string, orderId: string): Promise<void> {

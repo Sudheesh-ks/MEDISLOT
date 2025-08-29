@@ -69,7 +69,6 @@ const DoctorAddBlogPage = () => {
         toast.error(data.message);
       }
 
-      // clear form after publish
       setTitle('');
       setSummary('');
       setCategory('');

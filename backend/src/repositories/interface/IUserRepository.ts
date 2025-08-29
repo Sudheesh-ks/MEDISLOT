@@ -5,9 +5,9 @@ import { AppointmentDocument } from '../../models/appointmentModel';
 import { DoctorDocument } from '../../models/doctorModel';
 import { PaginationResult } from '../../types/pagination';
 
-export interface UserDocument extends userTypes {
-  _id: string;
-}
+// export interface UserDocument extends userTypes {
+//   _id: string;
+// }
 
 export interface IUserRepository {
   createUser(user: Partial<userDocument>): Promise<userDocument>;

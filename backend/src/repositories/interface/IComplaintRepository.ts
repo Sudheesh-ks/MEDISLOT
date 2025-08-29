@@ -6,8 +6,8 @@ export interface IComplaintRepository {
   getComplaints(
     page: number,
     limit: number,
-    search: string,
-    status: string
+    search?: string,
+    status?: string
   ): Promise<ComplaintDocument[]>;
   countComplaints(search: string, status: string): Promise<number>;
   updateComplaintStatus(

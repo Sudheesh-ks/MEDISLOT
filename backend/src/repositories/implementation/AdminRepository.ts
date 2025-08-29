@@ -118,7 +118,6 @@ export class AdminRepository extends BaseRepository<AdminDocument> implements IA
 
     console.log(dateRange);
 
-    // 🔎 Search filter
     if (search) {
       andConditions.push({
         $or: [
@@ -128,7 +127,6 @@ export class AdminRepository extends BaseRepository<AdminDocument> implements IA
       });
     }
 
-    // 📅 Date filter (works with "YYYY-MM-DD" string format)
     if (dateRange) {
       let start: string | undefined;
       let end: string | undefined;
@@ -151,7 +149,6 @@ export class AdminRepository extends BaseRepository<AdminDocument> implements IA
           end = dayjs().format('YYYY-MM-DD');
           break;
         default: {
-          // custom range like "2025-08-01_2025-08-10"
           const [from, to] = dateRange.split('_');
           if (from && to) {
             start = dayjs(from).format('YYYY-MM-DD');
@@ -170,7 +167,6 @@ export class AdminRepository extends BaseRepository<AdminDocument> implements IA
 
     const matchStage = andConditions.length > 0 ? { $and: andConditions } : {};
 
-    // ✅ Pipeline
     const pipeline: PipelineStage[] = [
       {
         $addFields: {
@@ -204,7 +200,6 @@ export class AdminRepository extends BaseRepository<AdminDocument> implements IA
 
     const data = await appointmentModel.aggregate(pipeline);
 
-    // ✅ Count total
     const totalCountAgg = await appointmentModel.aggregate([
       {
         $addFields: {

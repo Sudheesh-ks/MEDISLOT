@@ -2,14 +2,14 @@ import { Types } from 'mongoose';
 
 export interface patientHistoryTypes {
   appointmentId: string | Types.ObjectId;
-  patientId: string | Types.ObjectId; // Reference to user
-  doctorId: string | Types.ObjectId; // Reference to doctor
-  date: Date; // Session date
-  time: string; // Session time (e.g., "10:30 AM")
-  type: string; // Visit type (e.g., "Regular Checkup")
-  status?: string; // Session status (e.g., "Completed")
-  chiefComplaint: string; // Main reason for the visit
-  symptoms: string[]; // List of symptoms
+  patientId: string | Types.ObjectId;
+  doctorId: string | Types.ObjectId;
+  date: Date;
+  time: string;
+  type: string;
+  status?: string;
+  chiefComplaint: string;
+  symptoms: string[];
   vitals: {
     bloodPressure?: string;
     heartRate?: string;
@@ -17,17 +17,17 @@ export interface patientHistoryTypes {
     weight?: string;
     height?: string;
     oxygenSaturation?: string;
-  }; // Vital signs
-  diagnosis: string; // Diagnosis details
+  };
+  diagnosis: string;
   prescription?: {
     medication: string;
     dosage: string;
     frequency: string;
     duration: string;
     instructions: string;
-  }[]; // Array of structured prescriptions
-  doctorNotes?: string; // Doctor's notes
-  nextAppointment?: Date; // Date of next appointment
+  }[];
+  doctorNotes?: string;
+  nextAppointment?: Date;
   createdAt?: Date;
   updatedAt?: Date;
 }

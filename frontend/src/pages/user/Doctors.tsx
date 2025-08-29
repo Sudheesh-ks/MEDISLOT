@@ -15,7 +15,6 @@ const Doctors = () => {
   const [currentPage, setCurrentPage] = useState(1);
 
   const [doctors, setDoctors] = useState<Doctor[]>([]);
-  // const [filtered, setFiltered] = useState<Doctor[]>([]);
 
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -43,13 +42,6 @@ const Doctors = () => {
       setLoading(false);
     }
   };
-
-  // useEffect(() => {
-  //   let list = speciality ? doctors.filter((d) => d.speciality === speciality) : doctors;
-  //   if (searchQuery.trim())
-  //     list = list.filter((d) => d.name.toLowerCase().includes(searchQuery.toLowerCase()));
-  //   setFiltered(list);
-  // }, [doctors, speciality, searchQuery]);
 
   const specialities = [
     'General physician',

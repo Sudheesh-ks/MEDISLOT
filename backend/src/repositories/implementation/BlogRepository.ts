@@ -37,16 +37,16 @@ export class BlogRepository extends BaseRepository<BlogDocument> implements IBlo
     return { blogs, total, page, limit };
   }
 
-  async findAllPublicBlogs() {
+  async findAllPublicBlogs(): Promise<any> {
     return BlogModel.find({ visibility: 'public' }).sort({ createdAt: -1 });
   }
 
-  async getBlogComments(blogId: string) {
+  async getBlogComments(blogId: string): Promise<any> {
     const blog = await this.model.findById(blogId).select('comments').lean();
     return blog ? blog.comments : [];
   }
 
-  async addBlogComment(blogId: string, userId: string, content: string) {
+  async addBlogComment(blogId: string, userId: string, content: string): Promise<any> {
     const blog = await this.model.findById(blogId);
     if (!blog) return null;
 
@@ -60,6 +60,6 @@ export class BlogRepository extends BaseRepository<BlogDocument> implements IBlo
     blog.comments.push({ userId, userData: user, text: content, createdAt: new Date() });
     await blog.save();
 
-    return blog.comments[blog.comments.length - 1]; // return latest comment
+    return blog.comments[blog.comments.length - 1];
   }
 }

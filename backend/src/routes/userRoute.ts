@@ -7,17 +7,22 @@ import { PaymentService } from '../services/implementation/PaymentService';
 import authRole from '../middlewares/authRole';
 import { NotificationService } from '../services/implementation/NotificationService';
 import { BlogService } from '../services/implementation/BlogService';
+import { ChatBotService } from '../services/implementation/chatBotService';
+import { ChatBotRepository } from '../repositories/implementation/chatBotRepository';
 
 const userRepository = new UserRepository();
 const paymentService = new PaymentService();
 const notificationService = new NotificationService();
 const blogService = new BlogService();
+const chatBotRepository = new ChatBotRepository();
+const chatBotService = new ChatBotService(chatBotRepository);
 const userService = new UserService(userRepository, paymentService);
 const userController = new UserController(
   userService,
   paymentService,
   notificationService,
-  blogService
+  blogService,
+  chatBotService
 );
 
 const userRouter = express.Router();
@@ -139,7 +144,7 @@ userRouter.post(
 );
 
 userRouter.get(
-  '/feedbacks',
+  '/feedbacks/:doctorId',
   authRole(['user']),
   userController.getDoctorReviews.bind(userController)
 );
@@ -148,6 +153,18 @@ userRouter.post(
   '/complaints/report',
   authRole(['user']),
   userController.reportIssues.bind(userController)
+);
+
+userRouter.post(
+  '/chatbot/chat',
+  authRole(['user']),
+  userController.sendChatMessage.bind(userController)
+);
+
+userRouter.get(
+  '/chatbot/history/:sessionId',
+  authRole(['user']),
+  userController.getChatHistory.bind(userController)
 );
 
 userRouter.get('/:id', userController.getUserById.bind(userController));

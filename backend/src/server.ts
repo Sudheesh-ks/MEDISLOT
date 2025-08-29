@@ -51,7 +51,7 @@ app.use('/api/user', userRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/chat', chatRouter);
 app.use('/api/slots', slotRouter);
-app.use('/api/ai', aiChatRouter);
+app.use('/api/chatbot', aiChatRouter);
 
 app.get('/', (req, res) => {
   res.send('API WORKING');

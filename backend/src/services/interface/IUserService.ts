@@ -31,7 +31,7 @@ export interface IUserService {
     password: string
   ): Promise<{ user: UserDTO; token: string; refreshToken: string }>;
   refreshToken(refreshToken?: string): Promise<{ token: string; refreshToken: string }>;
-  getProfile(userId: string): Promise<UserDTO | null>;
+  getProfile(userId: string): Promise<UserDTO>;
   updateProfile(
     userId: string,
     data: Partial<userTypes>,
@@ -74,6 +74,6 @@ export interface IUserService {
   getAvailableSlotsForDoctor(doctorId: string, year: number, month: number): Promise<any[]>;
   submitFeedback(userId: string, apptId: string, message: string): Promise<any>;
   getPrescriptionByAppointmentId(appointmentId: string): Promise<PrescriptionDTO | null>;
-  getAllReviews(): Promise<FeedbackDTO[]>;
+  getAllReviews(doctorId: string): Promise<FeedbackDTO[]>;
   reportIssue(userId: string, subject: string, description: string): Promise<ComplaintTypes>;
 }

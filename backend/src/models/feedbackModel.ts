@@ -7,8 +7,9 @@ export interface FeedbackDocument extends Omit<feedbackTypes, '_id'>, Document {
 
 const feedbackSchema: Schema<FeedbackDocument> = new Schema(
   {
-    userId: { type: String, ref: 'User', required: true },
+    userId: { type: String, ref: 'user', required: true },
     apptId: { type: String, required: true },
+    doctorId: { type: String, ref: 'doctor', required: true },
     userData: { type: Object, required: true },
     message: { type: String, required: true },
     timestamp: { type: Date, default: Date.now },

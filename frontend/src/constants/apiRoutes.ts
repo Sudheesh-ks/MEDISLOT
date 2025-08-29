@@ -90,6 +90,9 @@ export const CHAT_API = {
   DELETE_MESSAGE: (messageId: string) => `/api/chat/message/${messageId}`,
   MARK_READ: (chatId: string) => `/api/chat/${chatId}/read`,
   UPLOAD: '/api/chat/upload',
+
+  SEND: '/api/chatbot/chat',
+  CHATBOT_HISTORY: '/api/chatbot/history',
 };
 
 export const USER_PROFILE_API = {

@@ -29,12 +29,11 @@ const BlogPage: React.FC = () => {
   if (!context) throw new Error('AppContext missing');
   const { token } = context;
 
-  // Fetch blogs from backend
   useEffect(() => {
     const fetchBlogs = async () => {
       try {
         const res = await getBlogsAPI(token!);
-        setArticles(res.data.data); // assuming res.data is an array of blogs
+        setArticles(res.data.data);
       } catch (err) {
         console.error('Error fetching blogs:', err);
       }
@@ -65,7 +64,7 @@ const BlogPage: React.FC = () => {
       'Pharmaceutical AI': 'bg-violet-500/20 text-violet-400 border-violet-500/30',
       'Remote Care': 'bg-teal-500/20 text-teal-400 border-teal-500/30',
       Nanotechnology: 'bg-rose-500/20 text-rose-400 border-rose-500/30',
-      Genomics: 'bg-emerald-500/20 text-emerald-400 border-emerald-500/30',
+      Genomics: 'bg-blue-500/20 text-blue-400 border-blue-500/30',
     };
     return colors[category] || 'bg-gray-500/20 text-gray-400 border-gray-500/30';
   };
@@ -78,12 +77,11 @@ const BlogPage: React.FC = () => {
   };
 
   const handleArticleClick = (articleId: string): void => {
-    // console.log(`Opening article: ${title} (ID: ${articleId})`);
     navigate(`/blogs/${articleId}`);
   };
 
   const handleConsultationClick = (): void => {
-    setIsChatOpen(true); // open modal
+    setIsChatOpen(true);
   };
 
   const articlesToDisplay = articles.slice(0, visibleArticles);
@@ -97,7 +95,7 @@ const BlogPage: React.FC = () => {
           <div className="text-center mb-12">
             <h1 className="text-4xl md:text-5xl font-bold mb-6">
               HEALTHCARE{' '}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-cyan-400 to-blue-500">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-500">
                 INSIGHTS
               </span>
             </h1>
@@ -147,7 +145,7 @@ const BlogPage: React.FC = () => {
                     <span>{article.readTime}</span>
                   </div>
 
-                  <h3 className="text-xl font-semibold text-slate-100 mb-3 line-clamp-2 group-hover:text-emerald-400 transition-colors duration-300">
+                  <h3 className="text-xl font-semibold text-slate-100 mb-3 line-clamp-2 group-hover:text-blue-400 transition-colors duration-300">
                     {article.title}
                   </h3>
 
@@ -158,7 +156,7 @@ const BlogPage: React.FC = () => {
                   <div className="flex items-center justify-between">
                     <span className="text-sm font-medium text-slate-300">{article.author}</span>
                     <button
-                      className="text-emerald-400 hover:text-emerald-300 font-medium text-sm transition-colors duration-300 flex items-center gap-1"
+                      className="text-blue-400 hover:text-blue-300 font-medium text-sm transition-colors duration-300 flex items-center gap-1"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleArticleClick(article._id);
@@ -190,7 +188,7 @@ const BlogPage: React.FC = () => {
             <div className="text-center">
               <button
                 onClick={handleLoadMoreArticles}
-                className="bg-gradient-to-r from-emerald-600 to-cyan-600 hover:from-emerald-700 hover:to-cyan-700 text-white font-semibold px-10 py-4 rounded-full transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-emerald-500/25"
+                className="bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-semibold px-10 py-4 rounded-full transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-blue-500/25"
               >
                 Load More Articles
               </button>
@@ -210,18 +208,18 @@ const BlogPage: React.FC = () => {
       {/* Medical Consultation Bot */}
       <button
         onClick={handleConsultationClick}
-        className="fixed bottom-8 right-8 w-32 h-32 md:w-18 md:h-18 bg-gradient-to-br from-emerald-500 to-cyan-500 hover:from-emerald-600 hover:to-cyan-600 rounded-full shadow-2xl hover:shadow-emerald-500/40 flex items-center justify-center text-2xl md:text-3xl transition-all duration-300 hover:-translate-y-2 hover:scale-110 group z-50 border-2 border-emerald-400/30"
+        className="fixed bottom-8 right-8 w-32 h-32 md:w-18 md:h-18 bg-gradient-to-br from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 rounded-full shadow-2xl hover:shadow-blue-500/40 flex items-center justify-center text-2xl md:text-3xl transition-all duration-300 hover:-translate-y-2 hover:scale-110 group z-50 border-2 border-blue-400/30"
       >
         <img src={assets.chatbot_logo} />
 
-        <div className="absolute bottom-full right-0 mb-4 bg-slate-800/95 backdrop-blur-sm text-emerald-400 px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible group-hover:-translate-y-2 transition-all duration-300 border border-emerald-500/30 shadow-xl">
+        <div className="absolute bottom-full right-0 mb-4 bg-slate-800/95 backdrop-blur-sm text-blue-400 px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap opacity-0 invisible group-hover:opacity-100 group-hover:visible group-hover:-translate-y-2 transition-all duration-300 border border-blue-500/30 shadow-xl">
           Hey!, I'm Your AI Doctor. <br />
           Click here to chat with me.
           <div className="absolute top-full right-5 w-0 h-0 border-l-6 border-r-6 border-t-6 border-transparent border-t-slate-800/95"></div>
         </div>
 
         {/* Pulse animation */}
-        <div className="absolute inset-0 rounded-full bg-emerald-500/30 animate-ping"></div>
+        <div className="absolute inset-0 rounded-full bg-blue-500/30 animate-ping"></div>
       </button>
 
       <style>{`

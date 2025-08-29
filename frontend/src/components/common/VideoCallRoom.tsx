@@ -25,8 +25,6 @@ const VideoCallRoom: React.FC<VideoCallRoomProps> = ({ role, backUrl }) => {
   useEffect(() => {
     if (!socket || !appointmentId) return;
 
-    // let isInitiator = false;
-
     socket.emit('join-video-room', appointmentId);
     setupLocalMedia();
 
@@ -55,7 +53,6 @@ const VideoCallRoom: React.FC<VideoCallRoomProps> = ({ role, backUrl }) => {
     };
 
     socket.on('other-user-joined', async () => {
-      // isInitiator = true;
       const offer = await peerConnection.createOffer();
       await peerConnection.setLocalDescription(offer);
       socket.emit('webrtc-offer', {

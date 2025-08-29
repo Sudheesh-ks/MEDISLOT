@@ -30,28 +30,18 @@ export class PatientHistoryRepository
   async findPrescriptionByAppointmentId(
     appointmentId: string
   ): Promise<PatientHistoryDocument | null> {
-    return (
-      patientHistoryModel
-        .findOne({ appointmentId })
-        // .populate("patientId", "name email")
-        .populate('doctorId', 'name email')
-        .exec()
-    );
+    return patientHistoryModel.findOne({ appointmentId }).populate('doctorId', 'name email').exec();
   }
 
-
-
   async updateHistory(
-  id: string,
-  data: Partial<PatientHistoryDocument>
-): Promise<PatientHistoryDocument | null> {
-  const updated = await patientHistoryModel.findByIdAndUpdate(id, data, {
-    new: true, // return updated document
-    runValidators: true, // enforce schema validation
-  });
+    id: string,
+    data: Partial<PatientHistoryDocument>
+  ): Promise<PatientHistoryDocument | null> {
+    const updated = await patientHistoryModel.findByIdAndUpdate(id, data, {
+      new: true,
+      runValidators: true,
+    });
 
-  return updated ? (updated as PatientHistoryDocument) : null;
+    return updated ? (updated as PatientHistoryDocument) : null;
+  }
 }
-
-}
-

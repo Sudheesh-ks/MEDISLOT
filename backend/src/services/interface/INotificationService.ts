@@ -10,7 +10,8 @@ export interface INotificationService {
     limit: number,
     type?: string
   ): Promise<{ notifications: NotificationDTO[]; total: number }>;
-  getUnreadCount(recipientId: string, recipientRole: string): Promise<number>;
+  getUnreadCount(recipientRole: string, recipientId?: string): Promise<number>;
   markAsRead(notificationId: string): Promise<void>;
   markAllAsRead(recipientId: string, recipientRole: string): Promise<void>;
+  clearAll(recipientId: string, recipientRole: string, type?: string): Promise<void>;
 }

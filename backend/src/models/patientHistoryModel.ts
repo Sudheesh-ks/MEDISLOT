@@ -34,12 +34,12 @@ const patientHistorySchema: Schema<PatientHistoryDocument> = new mongoose.Schema
     type: {
       type: String,
       required: true,
-      enum: ['Regular Checkup', 'Follow-up', 'Emergency', 'Consultation', 'Procedure'], // Based on frontend options
+      enum: ['Regular Checkup', 'Follow-up', 'Emergency', 'Consultation', 'Procedure'],
     },
     status: {
       type: String,
       required: true,
-      enum: ['Scheduled', 'Completed', 'Cancelled'], // Example statuses
+      enum: ['Scheduled', 'Completed', 'Cancelled'],
       default: 'Scheduled',
     },
     chiefComplaint: {

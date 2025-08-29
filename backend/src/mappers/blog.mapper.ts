@@ -18,7 +18,7 @@ export const toBlogDTO = (blog: BlogDocument): BlogDTO => {
     publishDate: blog.publishDate,
     comments:
       blog.comments?.map((c: any) => ({
-        userData: toUserDTO(c.userData), // populated user
+        userData: toUserDTO(c.userData),
         text: c.text,
         createdAt: c.createdAt,
       })) || [],

@@ -169,9 +169,9 @@ doctorRouter.get(
 );
 
 doctorRouter.put(
-    "/patient-history/:historyId",
-    authRole(["doctor"]),
-    doctorController.updatePatientHistory.bind(doctorController)
+  '/patient-history/:historyId',
+  authRole(['doctor']),
+  doctorController.updatePatientHistory.bind(doctorController)
 );
 
 doctorRouter.get('/:id', doctorController.getDoctorById.bind(doctorController));

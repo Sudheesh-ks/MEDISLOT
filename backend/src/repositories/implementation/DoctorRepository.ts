@@ -116,7 +116,6 @@ export class DoctorRepository extends BaseRepository<DoctorDocument> implements 
 
     const query: any = { docId };
 
-    // ✅ Search filter (by patient name or email)
     if (search) {
       query.$or = [
         { 'userId.name': { $regex: search, $options: 'i' } },
@@ -124,7 +123,6 @@ export class DoctorRepository extends BaseRepository<DoctorDocument> implements 
       ];
     }
 
-    // 📅 Date filter
     if (dateRange) {
       const now = new Date();
       let start: Date | undefined;
@@ -152,7 +150,6 @@ export class DoctorRepository extends BaseRepository<DoctorDocument> implements 
           break;
         }
         default: {
-          // custom date range like: "2025-08-01_2025-08-10"
           const [from, to] = dateRange.split('_');
           if (from && to) {
             start = dayjs(from).startOf('day').toDate();

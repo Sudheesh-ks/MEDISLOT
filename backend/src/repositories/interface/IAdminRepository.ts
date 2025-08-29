@@ -25,8 +25,8 @@ export interface IAdminRepository {
   getAppointmentsPaginated(
     page: number,
     limit: number,
-    search: string,
-    dateRange: string
+    search?: string,
+    dateRange?: string
   ): Promise<PaginationResult<AppointmentDocument>>;
   cancelAppointment(appointmentId: string): Promise<void>;
   getLatestDoctorRequests(limit: number): Promise<DoctorDocument[]>;

@@ -8,13 +8,15 @@ import { generateAccessToken } from '../../utils/jwt.utils';
 import logger from '../../utils/logger';
 import { NotificationService } from '../../services/implementation/NotificationService';
 import { BlogService } from '../../services/implementation/BlogService';
+import { ChatBotService } from '../../services/implementation/chatBotService';
 
 export class UserController implements IUserController {
   constructor(
     private _userService: IUserService,
     private _paymentService: PaymentService,
     private _notificationService: NotificationService,
-    private _blogService: BlogService
+    private _blogService: BlogService,
+    private _chatBotService: ChatBotService
   ) {}
 
   async registerUser(req: Request, res: Response): Promise<void> {
@@ -687,7 +689,7 @@ export class UserController implements IUserController {
     try {
       const { id } = req.params;
       const { comment } = req.body;
-      const userId = (req as any).userId; // from auth middleware
+      const userId = (req as any).userId;
 
       if (!comment) {
         res.status(HttpStatus.BAD_REQUEST).json({
@@ -713,7 +715,8 @@ export class UserController implements IUserController {
 
   async getDoctorReviews(req: Request, res: Response): Promise<void> {
     try {
-      const result = await this._userService.getAllReviews();
+      const { doctorId } = req.params;
+      const result = await this._userService.getAllReviews(doctorId);
 
       res.status(HttpStatus.OK).json({
         success: true,
@@ -736,6 +739,34 @@ export class UserController implements IUserController {
 
       await this._userService.reportIssue(userId, subject, description);
       res.status(HttpStatus.OK).json({ success: true, message: 'Report sended successfully' });
+    } catch (error) {
+      logger.error(`Error on submitting feedback: ${(error as Error).message}`);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
+    }
+  }
+
+  async sendChatMessage(req: Request, res: Response): Promise<void> {
+    try {
+      const { sessionId, message } = req.body;
+      const reply = await this._chatBotService.handleMessage(sessionId, message);
+      res.json({ reply });
+    } catch (error) {
+      logger.error(`Error on submitting feedback: ${(error as Error).message}`);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
+    }
+  }
+
+  async getChatHistory(req: Request, res: Response): Promise<void> {
+    try {
+      const { sessionId } = req.params;
+      const history = await this._chatBotService.getHistory(sessionId);
+      res.json({ history });
     } catch (error) {
       logger.error(`Error on submitting feedback: ${(error as Error).message}`);
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({

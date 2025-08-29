@@ -16,7 +16,6 @@ const AdminDoctorRequests = () => {
   const [page, setPage] = useState(1);
   const [rows, setRows] = useState<any[]>([]);
   const [pages, setPages] = useState(1);
-  // const [count, setCount] = useState(0);
   const [load, setLoad] = useState(false);
   const [search, setSearch] = useState('');
 
@@ -42,7 +41,6 @@ const AdminDoctorRequests = () => {
       const r = await getDoctorsPaginated(page, perPage, search);
       setRows(r.data);
       setPages(r.totalPages);
-      // setCount(r.totalCount);
     } catch (err) {
       console.error('Failed to fetch doctors', err);
     } finally {
@@ -69,11 +67,6 @@ const AdminDoctorRequests = () => {
   };
 
   const pending = rows.filter((d) => d.status === 'pending');
-  // .filter(
-  //   (d) =>
-  //     d.name?.toLowerCase().includes(search.toLowerCase()) ||
-  //     d.speciality?.toLowerCase().includes(search.toLowerCase())
-  // );
 
   const glass = 'bg-white/5 backdrop-blur ring-1 ring-white/10';
   const pill =

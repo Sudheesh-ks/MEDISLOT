@@ -12,4 +12,7 @@ export interface IBlogRepository {
     page: number;
     limit: number;
   }>;
+  findAllPublicBlogs(): Promise<any>;
+  getBlogComments(blogId: string): Promise<any>;
+  addBlogComment(blogId: string, userId: string, content: string): Promise<any>;
 }

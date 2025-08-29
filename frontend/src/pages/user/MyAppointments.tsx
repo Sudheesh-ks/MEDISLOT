@@ -68,8 +68,6 @@ const MyAppointments = () => {
       const { data } = await getPrescriptionAPI(appointmentId, token);
       if (data.success) {
         console.log(data);
-        // setSelectedPrescription(data.data.prescription);
-        // setShowPrescription(true);
         downloadPrescriptionPDF(data.data);
       }
     } catch (err) {
@@ -190,37 +188,6 @@ const MyAppointments = () => {
       {totalPages > 1 && (
         <Pagination currentPage={page} totalPages={totalPages} onPageChange={handlePageChange} />
       )}
-
-      {/* {showPrescription && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
-          <div className="w-full max-w-2xl rounded-xl p-6 shadow-2xl max-h-[80vh] overflow-y-auto mx-4 border border-white/10 bg-slate-900">
-            <div className="flex justify-between items-start mb-4">
-              <div className="bg-white/10 px-3 py-1 rounded-full">
-                <span className="text-slate-100 text-xs font-medium flex items-center gap-1">
-                  <MessageSquare className="w-3 h-3" />
-                  PRESCRIPTION
-                </span>
-              </div>
-            </div>
-            <div className="mb-4">
-              <p className="text-slate-200 leading-relaxed">
-                {selectedPrescription || 'No prescription available.'}
-              </p>
-            </div>
-            <div className="flex justify-between items-center pt-4 border-t border-white/10">
-              <button
-                onClick={() => {
-                  setSelectedPrescription('');
-                  setShowPrescription(false);
-                }}
-                className="px-3 py-1 rounded-full bg-white/10 text-slate-100 hover:bg-white/20"
-              >
-                Close
-              </button>
-            </div>
-          </div>
-        </div>
-      )} */}
     </div>
   );
 };

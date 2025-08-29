@@ -1,15 +1,15 @@
 import jsPDF from 'jspdf';
-import autoTable from 'jspdf-autotable'; // Install: npm install jspdf jspdf-autotable
+import autoTable from 'jspdf-autotable';
 import type { PrescriptionData } from '../types/prescription';
 
 export const downloadPrescriptionPDF = (data: PrescriptionData) => {
   const doc = new jsPDF();
 
   // Colors
-  const primaryColor: [number, number, number] = [41, 128, 185]; // Blue
+  const primaryColor: [number, number, number] = [41, 128, 185];
   const gray: [number, number, number] = [100, 100, 100];
 
-  // ===== HEADER =====
+  // ----- HEADER -----
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(20);
   doc.setTextColor(...primaryColor);
@@ -19,7 +19,7 @@ export const downloadPrescriptionPDF = (data: PrescriptionData) => {
   doc.setLineWidth(0.5);
   doc.line(20, 25, 190, 25);
 
-  // ===== GENERAL INFO =====
+  // ----- GENERAL INFO -----
   doc.setTextColor(0, 0, 0);
   doc.setFontSize(12);
   doc.setFont('helvetica', 'normal');
@@ -33,7 +33,7 @@ export const downloadPrescriptionPDF = (data: PrescriptionData) => {
   doc.text(`${data.doctor.name}`, 40, 65);
   doc.text(`${data.doctor.email}`, 40, 72);
 
-  // ===== PRESCRIPTION TABLE =====
+  // ----- PRESCRIPTION TABLE -----
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(14);
   doc.text('Prescription Details', 20, 95);
@@ -53,12 +53,12 @@ export const downloadPrescriptionPDF = (data: PrescriptionData) => {
     headStyles: { fillColor: primaryColor, textColor: 255, halign: 'center' },
     bodyStyles: { halign: 'center' },
     columnStyles: {
-      1: { halign: 'left' }, // Medication name left aligned
-      5: { halign: 'left' }, // Instructions left aligned
+      1: { halign: 'left' },
+      5: { halign: 'left' },
     },
   });
 
-  // ===== FOOTER =====
+  // ----- FOOTER -----
   const pageHeight = doc.internal.pageSize.height;
   doc.setDrawColor(gray[0], gray[1], gray[2]);
   doc.line(20, pageHeight - 30, 190, pageHeight - 30);
@@ -73,6 +73,6 @@ export const downloadPrescriptionPDF = (data: PrescriptionData) => {
     { align: 'center' }
   );
 
-  // ===== SAVE PDF =====
+  // ----- SAVE PDF -----
   doc.save(`Prescription_${data.appointmentId}.pdf`);
 };

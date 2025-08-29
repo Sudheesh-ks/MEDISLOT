@@ -491,14 +491,12 @@ export class DoctorService implements IDoctorService {
     await this._patientHistoryRepository.createHistory(patientHistory);
   }
 
-
   async updatePatientHistory(
-  historyId: string,
-  data: Partial<patientHistoryTypes>
-): Promise<patientHistoryTypes | null> {
-  return this._patientHistoryRepository.updateHistory(historyId, data);
-}
-
+    historyId: string,
+    data: Partial<patientHistoryTypes>
+  ): Promise<patientHistoryTypes | null> {
+    return this._patientHistoryRepository.updateHistory(historyId, data);
+  }
 
   async getPatientHistory(doctorId: string, userId: string) {
     return await this._patientHistoryRepository.findByDoctorAndPatient(doctorId, userId);

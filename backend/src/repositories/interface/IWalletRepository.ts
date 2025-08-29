@@ -5,8 +5,18 @@ export interface IWalletRepository {
     ownerId: string,
     ownerType: 'user' | 'doctor' | 'admin'
   ): Promise<WalletDocument>;
-  creditWallet(ownerId: string, ownerType: string, amount: number, reason: string): Promise<void>;
-  debitWallet(ownerId: string, ownerType: string, amount: number, reason: string): Promise<void>;
+  creditWallet(
+    ownerId: string,
+    ownerType: 'user' | 'doctor' | 'admin',
+    amount: number,
+    reason: string
+  ): Promise<void>;
+  debitWallet(
+    ownerId: string,
+    ownerType: 'user' | 'doctor' | 'admin',
+    amount: number,
+    reason: string
+  ): Promise<void>;
   findWalletByOwner(
     ownerId: string,
     ownerType: 'admin' | 'doctor' | 'user'

@@ -45,13 +45,11 @@ const PatientHistoryPage = () => {
     }[],
   });
 
-  // 🔹 Fetch histories (and optionally patient details if available later)
   useEffect(() => {
     const fetchData = async () => {
       try {
         const historyRes = await getPatientHistoriesByPatientAPI(userId!);
         setSessions(historyRes.data.histories || []);
-        // If you have getPatientDetailsAPI, set patientData here
         const patientRes = await getPatientDetailsAPI(userId!);
         setPatientData(patientRes.data.patient);
       } catch (err) {
@@ -61,7 +59,6 @@ const PatientHistoryPage = () => {
     fetchData();
   }, [userId]);
 
-  // Form handlers
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
   ) => {
@@ -112,10 +109,8 @@ const PatientHistoryPage = () => {
       const res = await createPatientHistoryAPI(userId!, appointmentId!, historyData);
       toast.success('Patient history added successfully');
 
-      // Add new session immediately to list
       setSessions((prev) => [res.data, ...prev]);
 
-      // Reset form + switch tab
       setHistoryData({
         date: '',
         time: '',
@@ -141,28 +136,23 @@ const PatientHistoryPage = () => {
     }
   };
 
-
   const handleUpdate = async () => {
     try {
       if (!historyData._id) {
-        toast.error("No session selected to update");
+        toast.error('No session selected to update');
         return;
       }
 
       const res = await updatePatientHistoryAPI(historyData._id, historyData);
-      toast.success("Session updated successfully");
+      toast.success('Session updated successfully');
 
-      // update session list
-      setSessions((prev) =>
-        prev.map((s) => (s._id === historyData._id ? res.data.history : s))
-      );
+      setSessions((prev) => prev.map((s) => (s._id === historyData._id ? res.data.history : s)));
 
-      setActiveTab("sessions");
+      setActiveTab('sessions');
     } catch (err) {
       showErrorToast(err);
     }
   };
-
 
   useEffect(() => {
     const fetchSessionDetail = async () => {
@@ -170,8 +160,8 @@ const PatientHistoryPage = () => {
       try {
         const res = await getPatientHistoryByIdAPI(selectedSession._id);
         setSelectedSession((prev: any) => ({
-          ...prev, // keep the original session with _id
-          ...res.data.history, // merge in the detailed data
+          ...prev,
+          ...res.data.history,
         }));
       } catch (error) {
         showErrorToast(error);
@@ -229,7 +219,6 @@ const PatientHistoryPage = () => {
                   </div>
 
                   <h3 className="text-xl font-semibold">{patientData.name}</h3>
-                  {/* <p className="text-slate-400">ID: {patientData._id}</p> */}
                 </div>
                 <div className="space-y-3 text-sm">
                   <div className="flex justify-between">
@@ -449,44 +438,38 @@ const PatientHistoryPage = () => {
               </div>
             )}
 
+            {activeTab === 'edit' && (
+              <div className="bg-slate-900/50 rounded-2xl p-6 border border-slate-800 space-y-6">
+                <h3 className="text-xl font-semibold mb-6 text-blue-400">Edit Session</h3>
 
-            {activeTab === "edit" && (
-  <div className="bg-slate-900/50 rounded-2xl p-6 border border-slate-800 space-y-6">
-    <h3 className="text-xl font-semibold mb-6 text-blue-400">
-      Edit Session
-    </h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <input
+                    type="date"
+                    name="date"
+                    value={historyData.date?.substring(0, 10) || ''}
+                    onChange={handleChange}
+                    className="bg-slate-800 border border-slate-700 rounded px-3 py-2"
+                  />
+                  <input
+                    type="time"
+                    name="time"
+                    value={historyData.time}
+                    onChange={handleChange}
+                    className="bg-slate-800 border border-slate-700 rounded px-3 py-2"
+                  />
+                  <select
+                    name="type"
+                    value={historyData.type}
+                    onChange={handleChange}
+                    className="bg-slate-800 border border-slate-700 rounded px-3 py-2 col-span-2"
+                  >
+                    <option>Regular Checkup</option>
+                    <option>Follow-up</option>
+                    <option>Emergency</option>
+                  </select>
+                </div>
 
-    {/* 🔹 Reuse the same form inputs as in Add New */}
-    {/* Just reusing all your input/textarea code here, but with historyData prefilled */}
-
-    <div className="grid grid-cols-2 gap-4">
-      <input
-        type="date"
-        name="date"
-        value={historyData.date?.substring(0, 10) || ""}
-        onChange={handleChange}
-        className="bg-slate-800 border border-slate-700 rounded px-3 py-2"
-      />
-      <input
-        type="time"
-        name="time"
-        value={historyData.time}
-        onChange={handleChange}
-        className="bg-slate-800 border border-slate-700 rounded px-3 py-2"
-      />
-      <select
-        name="type"
-        value={historyData.type}
-        onChange={handleChange}
-        className="bg-slate-800 border border-slate-700 rounded px-3 py-2 col-span-2"
-      >
-        <option>Regular Checkup</option>
-        <option>Follow-up</option>
-        <option>Emergency</option>
-      </select>
-    </div>
-
-    <textarea
+                <textarea
                   name="chiefComplaint"
                   placeholder="Chief Complaint"
                   value={historyData.chiefComplaint}
@@ -574,16 +557,14 @@ const PatientHistoryPage = () => {
                   </button>
                 </div>
 
-
-    <button
-      onClick={handleUpdate}
-      className="px-6 py-3 bg-gradient-to-r from-green-600 to-teal-600 text-white rounded-lg"
-    >
-      Save Changes
-    </button>
-  </div>
-)}
-
+                <button
+                  onClick={handleUpdate}
+                  className="px-6 py-3 bg-gradient-to-r from-green-600 to-teal-600 text-white rounded-lg"
+                >
+                  Save Changes
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -647,19 +628,18 @@ const PatientHistoryPage = () => {
             )}
 
             <button
-  onClick={() => {
-    setHistoryData(selectedSession); // prefill form with existing data
-    setActiveTab("edit"); // switch to edit mode
-    setSelectedSession(null); // close modal
-  }}
-  className="absolute top-4 right-16 bg-blue-600 text-white px-3 py-1 rounded-lg hover:bg-blue-700"
->
-  ✎ Edit
-</button>
-
+              onClick={() => {
+                setHistoryData(selectedSession);
+                setActiveTab('edit');
+                setSelectedSession(null);
+              }}
+              className="absolute top-4 right-16 bg-blue-600 text-white px-3 py-1 rounded-lg hover:bg-blue-700"
+            >
+              ✎ Edit
+            </button>
           </div>
         </div>
-      )}  
+      )}
     </main>
   );
 };

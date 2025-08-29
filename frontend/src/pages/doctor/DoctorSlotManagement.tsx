@@ -21,6 +21,12 @@ import { DoctorContext } from '../../context/DoctorContext';
 
 const to12h = (t: string) => dayjs(t, 'HH:mm').format('hh:mm A').toLowerCase();
 
+interface Range {
+  start: string;
+  end: string;
+  isAvailable: boolean;
+}
+
 export default function DoctorSlotManager() {
   const doctorContext = useContext(DoctorContext);
 
@@ -323,10 +329,4 @@ export default function DoctorSlotManager() {
       )}
     </motion.section>
   );
-}
-
-interface Range {
-  start: string;
-  end: string;
-  isAvailable: boolean;
 }

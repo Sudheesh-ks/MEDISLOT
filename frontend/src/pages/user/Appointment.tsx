@@ -191,7 +191,7 @@ const Appointment = () => {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const res = await getDoctorReviewsAPI(token);
+        const res = await getDoctorReviewsAPI(docId!, token);
         if (res.data.success) {
           setReviews(res.data.data);
         }

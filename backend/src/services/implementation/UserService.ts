@@ -538,7 +538,7 @@ export class UserService implements IUserService {
 
     const doc = await this._slotRepository.getSlotByDate(doctorId, isoDate(date));
 
-    return doc?.slots.filter((r) => r.isAvailable && !r.booked) ?? [];
+    return (doc?.slots as SlotRange[])?.filter((r) => r.isAvailable && !r.booked) ?? [];
   }
 
   async getAvailableSlotsForDoctor(doctorId: string, year: number, month: number): Promise<any[]> {
@@ -567,8 +567,8 @@ export class UserService implements IUserService {
     return toPrescriptionDTO(prescriptionDoc);
   }
 
-  async getAllReviews(): Promise<FeedbackDTO[]> {
-    const feedback = await this._feedbackRepository.getFeedbacks();
+  async getAllReviews(doctorId: string): Promise<FeedbackDTO[]> {
+    const feedback = await this._feedbackRepository.getFeedbacks(doctorId);
 
     return feedback.map(toFeedbackDTO);
   }

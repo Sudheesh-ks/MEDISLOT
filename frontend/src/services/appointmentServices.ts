@@ -60,8 +60,8 @@ export async function getPrescriptionAPI(appointmentId: string, token: string) {
   });
 }
 
-export const getDoctorReviewsAPI = async (token: string) => {
-  return await api.get(`${APPOINTMENT_API.FEEDBACKS}`, {
+export const getDoctorReviewsAPI = async (doctorId: string, token: string) => {
+  return await api.get(`${APPOINTMENT_API.FEEDBACKS}/${doctorId}`, {
     headers: {
       Authorization: `Bearer ${token}`,
     },
