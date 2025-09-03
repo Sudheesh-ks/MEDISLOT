@@ -39,8 +39,19 @@ export class DoctorService implements IDoctorService {
   ) {}
 
   async registerDoctor(data: DoctorTypes): Promise<void> {
-    const { name, email, password, speciality, degree, experience, about, fees, address, image } =
-      data;
+    const {
+      name,
+      email,
+      password,
+      speciality,
+      degree,
+      experience,
+      about,
+      fees,
+      address,
+      image,
+      certificate,
+    } = data;
 
     if (
       !name ||
@@ -52,7 +63,8 @@ export class DoctorService implements IDoctorService {
       !about ||
       !fees ||
       !address ||
-      !image
+      !image ||
+      !certificate
     ) {
       throw new Error('All Fields Required');
     }
@@ -68,6 +80,10 @@ export class DoctorService implements IDoctorService {
     });
     imageUrl = uploadResult.secure_url;
 
+    const certificateUpload = await cloudinary.uploader.upload(certificate, {
+      resource_type: 'auto', // auto detects pdf/image
+    });
+
     const doctorData: DoctorTypes = {
       name,
       email,
@@ -79,6 +95,7 @@ export class DoctorService implements IDoctorService {
       fees,
       address,
       image: imageUrl,
+      certificate: certificateUpload.secure_url,
       date: new Date(),
       status: 'pending',
     };

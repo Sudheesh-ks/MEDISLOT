@@ -19,12 +19,15 @@ export class DoctorController implements IDoctorController {
 
   async registerDoctor(req: Request, res: Response): Promise<void> {
     try {
-      const imageFile = req.file;
+      const files = req.files as { [fieldname: string]: Express.Multer.File[] };
 
-      if (!imageFile) {
+      const imageFile = files?.['image']?.[0];
+      const certificateFile = files?.['certificate']?.[0];
+
+      if (!imageFile || !certificateFile) {
         res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
-          message: 'Doctor image is required',
+          message: 'Doctor image & certificate is required',
         });
         return;
       }
@@ -40,6 +43,7 @@ export class DoctorController implements IDoctorController {
         fees: Number(req.body.fees),
         address: req.body.address,
         image: imageFile.path,
+        certificate: certificateFile.path,
       };
 
       await this._doctorService.registerDoctor(doctorDTO);

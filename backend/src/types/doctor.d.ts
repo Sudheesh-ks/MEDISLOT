@@ -12,6 +12,7 @@ export interface DoctorTypes {
   name: string;
   email: string;
   image?: string;
+  certificate?: string;
   password: string;
   speciality: string;
   degree: string;

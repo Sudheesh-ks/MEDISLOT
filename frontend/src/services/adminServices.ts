@@ -46,6 +46,14 @@ export const adminAddDoctorAPI = async (formData: FormData, token: string) => {
   });
 };
 
+export const getDoctorByIdAPI = async (doctorId: string, token: string) => {
+  return await api.get(ADMIN_API.GET_DOCTOR_BY_ID(doctorId), {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+};
+
 export const getDoctorsPaginatedAPI = async (
   page: number,
   limit: number,

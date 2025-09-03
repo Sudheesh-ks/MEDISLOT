@@ -52,6 +52,12 @@ adminRouter.get(
   adminController.getDoctorsPaginated.bind(adminController)
 );
 
+adminRouter.get(
+  '/doctors/:id',
+  authRole(['admin']),
+  adminController.getDoctorById.bind(adminController)
+);
+
 adminRouter.patch(
   '/doctors/:id/approve',
   authRole(['admin']),

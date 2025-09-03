@@ -3,6 +3,7 @@ export const ADMIN_API = {
   REFRESH: '/api/admin/refresh-token',
   LOGOUT: '/api/admin/logout',
   DOCTORS: '/api/admin/doctors',
+  GET_DOCTOR_BY_ID: (id: string) => `/api/admin/doctors/${id}`,
   DOCTORS_PAGINATED: '/api/admin/doctors/paginated',
   APPROVE_DOCTOR: (doctorId: string) => `/api/admin/doctors/${doctorId}/approve`,
   REJECT_DOCTOR: (doctorId: string) => `/api/admin/doctors/${doctorId}/reject`,

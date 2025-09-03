@@ -14,4 +14,5 @@ export interface DoctorDTO {
   };
   status?: 'pending' | 'approved' | 'rejected';
   image?: string;
+  certificate?: string;
 }

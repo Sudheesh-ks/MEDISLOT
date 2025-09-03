@@ -8,6 +8,7 @@ import {
   adminDashboardAPI,
   approveDoctorAPI,
   getAppointmentsPaginatedAPI,
+  getDoctorByIdAPI,
   getDoctorsPaginatedAPI,
   getUsersPaginatedAPI,
   refreshAdminAccessTokenAPI,
@@ -42,6 +43,7 @@ interface AdminContextType {
   toggleBlockUser: (userId: string) => Promise<userData | null>;
   appointments: AppointmentTypes[];
   setAppointments: React.Dispatch<React.SetStateAction<AppointmentTypes[]>>;
+  getDoctorById: (doctorId: string) => Promise<Doctor | null>;
   getAppointmentsPaginated: (
     page: number,
     limit: number,
@@ -104,6 +106,21 @@ const AdminContextProvider = ({ children }: AdminContextProviderProps) => {
     } catch (error) {
       showErrorToast(error);
       throw error;
+    }
+  };
+
+  const getDoctorById = async (doctorId: string): Promise<Doctor | null> => {
+    try {
+      const { data } = await getDoctorByIdAPI(doctorId, aToken);
+      if (data.success) {
+        return data.doctor;
+      } else {
+        toast.error(data.message);
+        return null;
+      }
+    } catch (error) {
+      showErrorToast(error);
+      return null;
     }
   };
 
@@ -285,6 +302,7 @@ const AdminContextProvider = ({ children }: AdminContextProviderProps) => {
     backendUrl,
     doctors,
     getDoctorsPaginated,
+    getDoctorById,
     users,
     getUsersPaginated,
     toggleBlockUser,

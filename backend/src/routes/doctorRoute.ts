@@ -34,7 +34,10 @@ doctorRouter.get('/', doctorController.doctorList.bind(doctorController));
 doctorRouter.get('/paginated', doctorController.getDoctorsPaginated.bind(doctorController));
 doctorRouter.post(
   '/register',
-  upload.single('image'),
+  upload.fields([
+    { name: 'image', maxCount: 1 },
+    { name: 'certificate', maxCount: 1 },
+  ]),
   doctorController.registerDoctor.bind(doctorController)
 );
 doctorRouter.patch(

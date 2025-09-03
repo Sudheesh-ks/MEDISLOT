@@ -25,6 +25,7 @@ export interface IAdminService {
   getAdminById(id: string): Promise<AdminDTO | null>;
   validateCredentials(email: string, password: string): Promise<AdminDTO>;
   getDoctors(): Promise<DoctorDTO[]>;
+  getDoctorById(id: string): Promise<DoctorDTO | null>;
   getDoctorsPaginated(
     page: string,
     limit: string,

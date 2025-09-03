@@ -79,6 +79,7 @@ const DoctorRegister = () => {
   const [degree, setDegree] = useState('');
   const [address1, setAddress1] = useState('');
   const [address2, setAddress2] = useState('');
+  const [certificate, setCertificate] = useState<File | null>(null);
 
   const nav = useNavigate();
   const ctx = useContext(DoctorContext);
@@ -101,6 +102,7 @@ const DoctorRegister = () => {
     if (!isValidEmail(email)) return toast.error('Enter a valid email');
     if (!isValidPassword(password))
       return toast.error('Password must be ≥ 8 chars, incl. number & symbol');
+    if (!certificate) return toast.error('Please upload a certificate');
 
     try {
       const fd = new FormData();
@@ -114,6 +116,7 @@ const DoctorRegister = () => {
       fd.append('speciality', speciality);
       fd.append('degree', degree);
       fd.append('address', JSON.stringify({ line1: address1, line2: address2 }));
+      fd.append('certificate', certificate);
 
       const { data } = await registerDoctorAPI(fd);
       if (data.success) {
@@ -191,6 +194,22 @@ const DoctorRegister = () => {
             <InputField id="fees" label="Fees (₹)" value={fees} setValue={setFees} type="number" />
             <InputField id="addr1" label="Address Line 1" value={address1} setValue={setAddress1} />
             <InputField id="addr2" label="Address Line 2" value={address2} setValue={setAddress2} />
+          </div>
+
+          <div className="flex items-center gap-4">
+            <label htmlFor="doc-cert" className="cursor-pointer">
+              <div className="px-4 py-2 rounded bg-slate-800 text-slate-300 text-sm">
+                {certificate ? certificate.name : 'Upload Certificate'}
+              </div>
+              <input
+                id="doc-cert"
+                type="file"
+                accept=".jpg,.jpeg,.png,.pdf"
+                hidden
+                onChange={(e) => e.target.files && setCertificate(e.target.files[0])}
+              />
+            </label>
+            <div className="text-xs text-slate-400">Upload medical license / certificate</div>
           </div>
 
           <div>

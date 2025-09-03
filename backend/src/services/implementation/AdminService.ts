@@ -25,6 +25,7 @@ import { ioInstance } from '../../sockets/ChatSocket';
 import { ComplaintDTO } from '../../dtos/complaint.dto';
 import { IComplaintRepository } from '../../repositories/interface/IComplaintRepository';
 import { tocomplaintDTO } from '../../mappers/complaint.mapper';
+import { toDoctorDTO } from '../../mappers/doctor.mapper';
 dotenv.config();
 
 export class AdminService implements IAdminService {
@@ -126,6 +127,14 @@ export class AdminService implements IAdminService {
 
   async getDoctors(): Promise<any[]> {
     return await this._adminRepository.getAllDoctors();
+  }
+
+  async getDoctorById(id: string): Promise<DoctorDTO | null> {
+    const doctor = await this._doctorRepository.getDoctorProfileById(id);
+    if (!doctor) {
+      throw new Error('Doctor not found');
+    }
+    return toDoctorDTO(doctor);
   }
 
   async getDoctorsPaginated(

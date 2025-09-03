@@ -106,6 +106,20 @@ export class AdminController implements IAdminController {
     }
   }
 
+  async getDoctorById(req: Request, res: Response): Promise<void> {
+    try {
+      const doctorId = req.params.id;
+      const doctor = await this._adminService.getDoctorById(doctorId);
+      res.status(HttpStatus.OK).json({ success: true, doctor });
+    } catch (error) {
+      logger.error('Failed to fetch doctor by id', { error });
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
+    }
+  }
+
   async getUsersPaginated(req: Request, res: Response): Promise<void> {
     try {
       const result = await this._adminService.getUsersPaginated(

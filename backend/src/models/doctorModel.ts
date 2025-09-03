@@ -28,6 +28,11 @@ const doctorSchema: Schema<DoctorDocument> = new mongoose.Schema(
       required: true,
     },
 
+    certificate: {
+      type: String,
+      required: true,
+    },
+
     speciality: {
       type: String,
       required: true,
