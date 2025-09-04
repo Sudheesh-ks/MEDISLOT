@@ -38,7 +38,25 @@ export class DoctorSlotService implements ISlotService {
   }
 
   async getDayAvailability(doctorId: string, date: string) {
-    const doc = await this._slotRepository.getSlotByDate(doctorId, date);
-    return doc?.slots ?? [];
+    const override = await this._slotRepository.getSlotByDate(doctorId, date);
+    if (override) return override.slots;
+
+    const weekday = dayjs(date).day(); // Sunday=0..Saturday=6
+    const defaults = await this._slotRepository.getDefaultSlotByWeekday(doctorId, weekday);
+    return defaults?.slots ?? [];
+  }
+
+  async updateDefaultSlot(
+    doctorId: string,
+    weekday: number,
+    slots: SlotRange[],
+    isCancelled: boolean
+  ) {
+    this.validateRanges(slots);
+    return this._slotRepository.upsertSlot(doctorId, null, slots, isCancelled, weekday, true);
+  }
+
+  async getDefaultSlot(doctorId: string, weekday: number) {
+    return this._slotRepository.getDefaultSlot(doctorId, weekday);
   }
 }

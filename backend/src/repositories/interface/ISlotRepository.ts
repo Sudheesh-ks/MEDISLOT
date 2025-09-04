@@ -9,4 +9,5 @@ export interface ISlotRepository {
   ): Promise<any>;
   deleteSlot(doctorId: string, date: string): Promise<any>;
   getSlotByDate(doctorId: string, date: string): Promise<any>;
+  getDefaultSlotByWeekday(doctorId: string, weekday: number): Promise<any>;
 }

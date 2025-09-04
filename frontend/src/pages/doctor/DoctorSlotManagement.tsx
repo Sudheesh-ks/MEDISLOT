@@ -15,7 +15,12 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/doctor/SlotCard';
 import { Button } from '../../components/doctor/Button';
 import { Input } from '../../components/doctor/SlotInput';
-import { getDaySlotsAPI, upsertDaySlotsAPI } from '../../services/doctorServices';
+import {
+  getDaySlotsAPI,
+  getDefaultSlotAPI,
+  saveWeeklyDefaultAPI,
+  upsertDaySlotsAPI,
+} from '../../services/doctorServices';
 import { toast } from 'react-toastify';
 import { DoctorContext } from '../../context/DoctorContext';
 
@@ -29,10 +34,10 @@ interface Range {
 
 export default function DoctorSlotManager() {
   const doctorContext = useContext(DoctorContext);
-
   if (!doctorContext) throw new Error('context missing');
 
   const { profileData } = doctorContext;
+
   const [month, setMonth] = useState<Dayjs>(dayjs().startOf('month'));
   const [selectedDate, setSelectedDate] = useState<Dayjs | null>(dayjs());
   const [ranges, setRanges] = useState<Range[]>([]);
@@ -40,20 +45,22 @@ export default function DoctorSlotManager() {
   const [end, setEnd] = useState('17:00');
   const [confirmLeave, setConfirmLeave] = useState(false);
   const [dayStatus, setDayStatus] = useState<Record<string, boolean>>({});
+  const [mode, setMode] = useState<'day' | 'weekly'>('day');
 
+  // 📅 Calendar days
   const monthDays = useMemo(() => {
     const startDay = month.startOf('week');
     const endDay = month.endOf('month').endOf('week');
-
     const days: Dayjs[] = [];
-    let day = startDay;
-    while (day.isBefore(endDay)) {
-      days.push(day);
-      day = day.add(1, 'day');
+    let d = startDay;
+    while (d.isBefore(endDay)) {
+      days.push(d);
+      d = d.add(1, 'day');
     }
     return days;
   }, [month]);
 
+  // ➕ Add new range
   const addRange = () => {
     const newStart = dayjs(start, 'HH:mm');
     const newEnd = dayjs(end, 'HH:mm');
@@ -70,36 +77,46 @@ export default function DoctorSlotManager() {
     });
 
     if (clashes) {
-      toast.error('This time slot already exists');
+      toast.error('This time slot overlaps');
       return;
     }
 
     setRanges((r) => [...r, { start, end, isAvailable: true }]);
-    toast.success('Time slot added');
+    toast.success('Slot added');
   };
 
+  // ✅ Toggle availability
   const toggleAvailability = (i: number) =>
     setRanges((r) =>
       r.map((range, idx) => (idx === i ? { ...range, isAvailable: !range.isAvailable } : range))
     );
 
+  // ❌ Delete slot
   const deleteRange = (i: number) => setRanges((r) => r.filter((_, idx) => idx !== i));
 
+  // 💾 Save (Day or Weekly)
   const saveSchedule = async () => {
     if (!selectedDate) return;
-    try {
-      await upsertDaySlotsAPI(selectedDate.format('YYYY-MM-DD'), ranges, false);
-      toast.success('Schedule saved');
 
-      setDayStatus((s) => ({
-        ...s,
-        [selectedDate.format('YYYY-MM-DD')]: ranges.some((r) => r.isAvailable),
-      }));
+    try {
+      if (mode === 'day') {
+        await upsertDaySlotsAPI(selectedDate.format('YYYY-MM-DD'), ranges, false);
+        setDayStatus((s) => ({
+          ...s,
+          [selectedDate.format('YYYY-MM-DD')]: ranges.some((r) => r.isAvailable),
+        }));
+        toast.success('Day schedule saved');
+      } else {
+        const weekday = selectedDate.day(); // 0=Sunday … 6=Saturday
+        await saveWeeklyDefaultAPI(weekday, ranges);
+        toast.success('Weekly default saved');
+      }
     } catch {
       toast.error('Failed to save schedule');
     }
   };
 
+  // 🚫 Mark entire day unavailable
   const markDayUnavailable = () => {
     setRanges([{ start: '00:00', end: '23:59', isAvailable: false }]);
     setConfirmLeave(false);
@@ -112,19 +129,28 @@ export default function DoctorSlotManager() {
     }
   };
 
+  // 🔄 Load slots when date/mode changes
   useEffect(() => {
     if (!selectedDate) return;
+
     (async () => {
       try {
-        const dayRanges = await getDaySlotsAPI(selectedDate.format('YYYY-MM-DD'));
-        setRanges(dayRanges ?? []);
+        if (mode === 'day') {
+          const dayRanges = await getDaySlotsAPI(selectedDate.format('YYYY-MM-DD'));
+          setRanges(dayRanges ?? []);
+        } else {
+          const weekday = selectedDate.day();
+          const defaults = await getDefaultSlotAPI(weekday);
+          setRanges(defaults ?? []);
+        }
       } catch {
-        toast.error('Failed to load day slots');
+        toast.error('Failed to load slots');
         setRanges([]);
       }
     })();
-  }, [selectedDate]);
+  }, [selectedDate, mode]);
 
+  // 🔄 Fetch monthly availability dots
   useEffect(() => {
     const fetchMonthStatus = async () => {
       const startOfMonth = month.startOf('month');
@@ -157,35 +183,47 @@ export default function DoctorSlotManager() {
     fetchMonthStatus();
   }, [month]);
 
+  // 🛡 Approval checks
   if (profileData?.status === 'pending')
     return (
       <div className="m-5 text-center bg-yellow-900/30 border border-yellow-600 rounded-xl p-6 text-yellow-200 shadow-md">
         <h2 className="text-xl font-semibold mb-2">⏳ Awaiting Approval</h2>
-        <p>Your registration is under review. The admin has not approved your account yet.</p>
+        <p>Your registration is under review.</p>
       </div>
     );
   if (profileData?.status === 'rejected')
     return (
       <div className="m-5 text-center bg-red-900/30 border border-red-600 rounded-xl p-6 text-red-300 shadow-md">
         <h2 className="text-xl font-semibold mb-2">❌ Registration Rejected</h2>
-        <p>Your registration has been rejected by the admin.</p>
-        <p className="mt-2 text-sm">
-          Please contact support or try registering again with updated details.
-        </p>
+        <p>Please contact support or try registering again.</p>
       </div>
     );
   if (profileData?.status !== 'approved') return null;
+
   return (
     <motion.section
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       className="max-w-7xl mx-auto px-4 md:px-10 py-12"
     >
+      {/* 🔄 Mode Switch */}
+      <div className="flex justify-end mb-6">
+        <select
+          value={mode}
+          onChange={(e) => setMode(e.target.value as 'day' | 'weekly')}
+          className="border rounded-lg px-3 py-1 bg-slate-800 text-slate-200"
+        >
+          <option value="day">Day Mode</option>
+          <option value="weekly">Weekly Default Mode</option>
+        </select>
+      </div>
+
       <h1 className="text-3xl md:text-4xl font-bold mb-8 flex items-center gap-3">
         <CalendarIcon className="w-8 h-8 text-[#5f6FFF]" /> Manage Slots
       </h1>
 
       <div className="grid md:grid-cols-2 gap-10">
+        {/* 📅 Calendar */}
         <Card className="rounded-2xl shadow-lg">
           <CardHeader className="flex flex-row justify-between items-center border-b border-muted-foreground/10 pb-4">
             <Button
@@ -239,10 +277,15 @@ export default function DoctorSlotManager() {
           </CardContent>
         </Card>
 
+        {/* 📋 Slots for Selected Date/Week */}
         <Card className="rounded-2xl shadow-lg h-fit sticky top-24">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              {selectedDate ? selectedDate.format('DD MMM, YYYY') : 'Pick a date'}
+              {selectedDate
+                ? mode === 'day'
+                  ? selectedDate.format('DD MMM, YYYY')
+                  : `Default for ${selectedDate.format('dddd')}`
+                : 'Pick a date'}
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -290,19 +333,23 @@ export default function DoctorSlotManager() {
 
             <div className="flex flex-col gap-3">
               <Button className="w-full" onClick={saveSchedule}>
-                Save Schedule
+                Save {mode === 'day' ? 'Day Schedule' : 'Weekly Default'}
               </Button>
-              <Button
-                variant="destructive"
-                className="w-full"
-                onClick={() => setConfirmLeave(true)}
-              >
-                Mark Day Unavailable
-              </Button>
+              {mode === 'day' && (
+                <Button
+                  variant="destructive"
+                  className="w-full"
+                  onClick={() => setConfirmLeave(true)}
+                >
+                  Mark Day Unavailable
+                </Button>
+              )}
             </div>
           </CardContent>
         </Card>
       </div>
+
+      {/* Confirm Leave Modal */}
       {confirmLeave && (
         <div className="fixed inset-0 z-40 flex items-center justify-center">
           <div

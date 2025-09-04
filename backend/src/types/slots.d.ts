@@ -2,6 +2,7 @@ export interface slotTypes {
   _id?: string;
   doctorId: object;
   date: string;
+  weekday: number;
   slots: {
     isAvailable: boolean;
     start: string;
@@ -9,6 +10,7 @@ export interface slotTypes {
     booked: boolean;
   }[];
   isCancelled: boolean;
+  isDefault: boolean;
 }
 
 export interface SlotRange {

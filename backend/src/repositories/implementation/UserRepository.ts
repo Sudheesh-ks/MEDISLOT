@@ -7,6 +7,7 @@ import appointmentModel, { AppointmentDocument } from '../../models/appointmentM
 import { BaseRepository } from '../BaseRepository';
 import { userTypes } from '../../types/user';
 import { PaginationResult } from '../../types/pagination';
+import dayjs from 'dayjs';
 
 export class UserRepository extends BaseRepository<userDocument> implements IUserRepository {
   constructor() {
@@ -38,26 +39,72 @@ export class UserRepository extends BaseRepository<userDocument> implements IUse
     );
     return !!updatedUser;
   }
-
   async bookAppointment(appointmentData: AppointmentTypes): Promise<AppointmentDocument> {
     const { userId, docId, slotDate, slotStartTime, slotEndTime } = appointmentData;
 
     const doctor = await doctorModel.findById(docId);
     if (!doctor || !doctor.available) throw new Error('Doctor not available');
 
-    const slotDoc = await slotModel.findOne({
+    let slotDoc = await slotModel.findOne({
       doctorId: docId,
       date: slotDate,
     });
-    if (!slotDoc || slotDoc.isCancelled) throw new Error('No available slots for this date');
 
-    const slotIndex = slotDoc.slots.findIndex(
-      (slot) => slot.start === slotStartTime && slot.end === slotEndTime && !slot.booked
-    );
+    let slotIndex = -1;
+
+    if (slotDoc && !slotDoc.isCancelled) {
+      slotIndex = slotDoc.slots.findIndex(
+        (slot) => slot.start === slotStartTime && slot.end === slotEndTime && !slot.booked
+      );
+    }
+
+    if (slotIndex === -1) {
+      const weekday = dayjs(slotDate).day();
+      const weeklyDefault = await slotModel.findOne({
+        doctorId: docId,
+        weekday,
+        isDefault: true,
+      });
+
+      if (!weeklyDefault) {
+        throw new Error('Slot not available');
+      }
+
+      const defIndex = weeklyDefault.slots.findIndex(
+        (slot) => slot.start === slotStartTime && slot.end === slotEndTime && slot.isAvailable
+      );
+
+      if (defIndex === -1) {
+        throw new Error('Slot not available');
+      }
+
+      slotDoc = await slotModel.findOneAndUpdate(
+        { doctorId: docId, date: slotDate },
+        {
+          $setOnInsert: {
+            doctorId: docId,
+            date: slotDate,
+            slots: weeklyDefault.slots.map((s) => ({
+              ...s,
+              booked: false,
+            })),
+          },
+        },
+        { upsert: true, new: true }
+      );
+
+      if (!slotDoc) {
+        throw new Error('Failed to create or fetch slot document');
+      }
+
+      slotIndex = slotDoc.slots.findIndex(
+        (slot) => slot.start === slotStartTime && slot.end === slotEndTime
+      );
+    }
+
     if (slotIndex === -1) throw new Error('Slot not available');
-
-    slotDoc.slots[slotIndex].booked = true;
-    await slotDoc.save();
+    slotDoc!.slots[slotIndex].booked = true;
+    await slotDoc!.save();
 
     const userData = await userModel.findById(userId).select('-password').lean();
     const docData = await doctorModel.findById(docId).select('-password').lean();

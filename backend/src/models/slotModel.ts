@@ -14,8 +14,10 @@ const SlotSchema: Schema<SlotDocument> = new mongoose.Schema({
 
   date: {
     type: String,
-    required: true,
+    // required: true,
   },
+
+  weekday: { type: Number },
 
   slots: [
     {
@@ -26,6 +28,7 @@ const SlotSchema: Schema<SlotDocument> = new mongoose.Schema({
     },
   ],
   isCancelled: { type: Boolean, default: false },
+  isDefault: { type: Boolean, default: false },
 });
 
 export default mongoose.model<SlotDocument>('slot', SlotSchema);

@@ -18,13 +18,22 @@ export class SlotRepository {
 
   async upsertSlot(
     doctorId: string,
-    date: string,
+    date: string | null,
     slots: { start: string; end: string; isAvailable?: boolean }[],
-    isCancelled: boolean
+    isCancelled: boolean,
+    weekday?: number,
+    isDefault: boolean = false
   ): Promise<any> {
+    const query: any = { doctorId };
+    if (date) query.date = date;
+    if (isDefault && weekday !== undefined) {
+      query.weekday = weekday;
+      query.isDefault = true;
+    }
+
     return slotModel.findOneAndUpdate(
-      { doctorId, date },
-      { slots, isCancelled },
+      query,
+      { slots, isCancelled, isDefault, weekday },
       { upsert: true, new: true }
     );
   }
@@ -35,5 +44,14 @@ export class SlotRepository {
 
   async getSlotByDate(doctorId: string, date: string): Promise<any> {
     return slotModel.findOne({ doctorId, date }).exec();
+  }
+
+  async getDefaultSlotByWeekday(doctorId: string, weekday: number): Promise<any> {
+    return slotModel.findOne({ doctorId, weekday, isDefault: true }).exec();
+  }
+
+  async getDefaultSlot(doctorId: string, weekday: number) {
+    const doc = await slotModel.findOne({ doctorId, weekday }).exec();
+    return doc ? doc.slots : [];
   }
 }

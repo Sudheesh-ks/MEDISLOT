@@ -44,6 +44,7 @@ import { toFeedbackDTO } from '../../mappers/feedback.mapper';
 import { ComplaintRepository } from '../../repositories/implementation/ComplaintRepository';
 import { ComplaintTypes } from '../../types/complaint';
 import { PatientHistoryRepository } from '../../repositories/implementation/PatientHistoryRepository';
+import dayjs from 'dayjs';
 
 export interface UserDocument extends userTypes {
   _id: string;
@@ -536,9 +537,17 @@ export class UserService implements IUserService {
       throw new Error('doctorId and date are required');
     }
 
-    const doc = await this._slotRepository.getSlotByDate(doctorId, isoDate(date));
+    // 1. Try daily override
+    const overrideDoc = await this._slotRepository.getSlotByDate(doctorId, isoDate(date));
+    if (overrideDoc) {
+      return (overrideDoc.slots as SlotRange[])?.filter((r) => r.isAvailable && !r.booked) ?? [];
+    }
 
-    return (doc?.slots as SlotRange[])?.filter((r) => r.isAvailable && !r.booked) ?? [];
+    // 2. Fallback to weekly default
+    const weekday = dayjs(date).day(); // 0=Sunday..6=Saturday
+    const defaultDoc = await this._slotRepository.getDefaultSlotByWeekday(doctorId, weekday);
+
+    return (defaultDoc?.slots as SlotRange[])?.filter((r) => r.isAvailable && !r.booked) ?? [];
   }
 
   async getAvailableSlotsForDoctor(doctorId: string, year: number, month: number): Promise<any[]> {

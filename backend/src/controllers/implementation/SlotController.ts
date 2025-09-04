@@ -42,4 +42,38 @@ export class SlotController implements ISlotController {
       });
     }
   }
+
+  async updateDefaultSlot(req: Request, res: Response): Promise<void> {
+    try {
+      const doctorId = (req as any).docId;
+      const { weekday, slots, isCancelled } = req.body;
+
+      const data = await this.slotService.updateDefaultSlot(doctorId, weekday, slots, isCancelled);
+      logger.info(`Updated default slots for ${doctorId} on weekday ${weekday}`);
+
+      res.status(HttpStatus.OK).json({ success: true, data });
+    } catch (error) {
+      logger.error(`Update default slot error: ${(error as Error).message}`);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
+    }
+  }
+
+  async getDefaultSlot(req: Request, res: Response): Promise<void> {
+    try {
+      const doctorId = (req as any).docId;
+      const weekday = Number(req.query.weekday);
+
+      const data = await this.slotService.getDefaultSlot(doctorId, weekday);
+
+      res.status(HttpStatus.OK).json({ success: true, data });
+    } catch (error) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
+    }
+  }
 }

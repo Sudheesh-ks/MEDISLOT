@@ -14,4 +14,16 @@ slotRouter.post('/', authRole(['doctor']), slotController.updateDaySlot.bind(slo
 
 slotRouter.get('/day', authRole(['doctor']), slotController.getDaySlot.bind(slotController));
 
+slotRouter.post(
+  '/default',
+  authRole(['doctor']),
+  slotController.updateDefaultSlot.bind(slotController)
+);
+
+slotRouter.get(
+  '/default',
+  authRole(['doctor']),
+  slotController.getDefaultSlot.bind(slotController)
+);
+
 export default slotRouter;
