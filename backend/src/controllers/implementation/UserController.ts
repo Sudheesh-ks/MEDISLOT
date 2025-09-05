@@ -586,25 +586,26 @@ export class UserController implements IUserController {
     }
   }
 
+  // UserController.ts
   async submitFeedback(req: Request, res: Response): Promise<void> {
     try {
       const userId = (req as any).userId;
       const apptId = req.params.apptId;
-      const { message } = req.body;
+      const { message, rating } = req.body;
 
-      if (!message || !apptId) {
+      if (!message || !apptId || !rating) {
         res.status(HttpStatus.BAD_REQUEST).json({
           success: false,
-          message: 'Appointment ID and feedback message are required',
+          message: 'Appointment ID, feedback message and rating are required',
         });
         return;
       }
 
-      await this._userService.submitFeedback(userId, apptId, message);
+      await this._userService.submitFeedback(userId, apptId, message, rating);
 
       res.status(HttpStatus.OK).json({
         success: true,
-        message: 'Feedback submitted successfully',
+        message: 'Feedback & rating submitted successfully',
       });
     } catch (error) {
       logger.error(`Error on submitting feedback: ${(error as Error).message}`);

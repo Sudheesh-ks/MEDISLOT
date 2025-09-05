@@ -558,14 +558,17 @@ export class UserService implements IUserService {
     return this._userRepository.getAvailableSlotsByDoctorAndMonth(doctorId, year, month);
   }
 
-  async submitFeedback(userId: string, apptId: string, message: string): Promise<any> {
-    if (!message) {
-      throw new Error('Feedback message is required');
-    }
-    if (!apptId) {
-      throw new Error('Appointment ID is required');
-    }
-    return this._feedbackRepository.submitFeedback(userId, apptId, message);
+  // UserService.ts
+  async submitFeedback(
+    userId: string,
+    apptId: string,
+    message: string,
+    rating: number
+  ): Promise<any> {
+    if (!message) throw new Error('Feedback message is required');
+    if (!apptId) throw new Error('Appointment ID is required');
+    if (!rating || rating < 1 || rating > 5) throw new Error('Rating must be 1–5');
+    return this._feedbackRepository.submitFeedback(userId, apptId, message, rating);
   }
 
   async getPrescriptionByAppointmentId(appointmentId: string): Promise<PrescriptionDTO | null> {

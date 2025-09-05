@@ -12,6 +12,7 @@ const feedbackSchema: Schema<FeedbackDocument> = new Schema(
     doctorId: { type: String, ref: 'doctor', required: true },
     userData: { type: Object, required: true },
     message: { type: String, required: true },
+    rating: { type: Number, min: 1, max: 5, required: true },
     timestamp: { type: Date, default: Date.now },
     isRead: { type: Boolean, default: false },
   },

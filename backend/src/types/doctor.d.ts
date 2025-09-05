@@ -27,6 +27,8 @@ export interface DoctorTypes {
     [date: string]: string[];
   };
   rejectionReason?: string;
+  averageRating?: number;
+  ratingCount?: number;
 }
 
 export interface DoctorAppntTypes {

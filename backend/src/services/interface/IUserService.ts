@@ -72,7 +72,7 @@ export interface IUserService {
   verifyPayment(userId: string, appointmentId: string, razorpay_order_id: string): Promise<void>;
   getAvailableSlotsByDate(doctorId: string, date: string): Promise<SlotRange[]>;
   getAvailableSlotsForDoctor(doctorId: string, year: number, month: number): Promise<any[]>;
-  submitFeedback(userId: string, apptId: string, message: string): Promise<any>;
+  submitFeedback(userId: string, apptId: string, message: string, rating: number): Promise<any>;
   getPrescriptionByAppointmentId(appointmentId: string): Promise<PrescriptionDTO | null>;
   getAllReviews(doctorId: string): Promise<FeedbackDTO[]>;
   reportIssue(userId: string, subject: string, description: string): Promise<ComplaintTypes>;

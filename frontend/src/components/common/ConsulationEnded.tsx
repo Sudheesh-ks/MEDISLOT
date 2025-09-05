@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { submitFeedbackAPI } from '../../services/appointmentServices';
 import { toast } from 'react-toastify';
+import { FaStar } from 'react-icons/fa';
 
 interface ConsultationEndedCardProps {
   role: 'user' | 'doctor';
@@ -11,6 +12,7 @@ interface ConsultationEndedCardProps {
 const ConsultationEndedCard = ({ role, appointmentId }: ConsultationEndedCardProps) => {
   const [feedback, setFeedback] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [rating, setRating] = useState(0);
   const navigate = useNavigate();
 
   const handleSubmit = async () => {
@@ -18,7 +20,7 @@ const ConsultationEndedCard = ({ role, appointmentId }: ConsultationEndedCardPro
       if (!feedback.trim()) return;
       try {
         console.log(appointmentId);
-        const { data } = await submitFeedbackAPI(appointmentId, feedback);
+        const { data } = await submitFeedbackAPI(appointmentId, feedback, rating);
         if (data.success) {
           toast.success(data.message);
           setFeedback('');
@@ -54,6 +56,20 @@ const ConsultationEndedCard = ({ role, appointmentId }: ConsultationEndedCardPro
               Hope this consultation was valuable. Kindly provide your feedback about this session.
             </p>
             <label className="block text-slate-300 text-sm mb-2">Leave your feedback</label>
+            <div className="flex gap-2 my-4 justify-center">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <FaStar
+                  key={star}
+                  size={28}
+                  className={
+                    star <= rating
+                      ? 'text-yellow-400 cursor-pointer'
+                      : 'text-gray-500 cursor-pointer'
+                  }
+                  onClick={() => setRating(star)}
+                />
+              ))}
+            </div>
             <textarea
               rows={5}
               placeholder="Enter your feedback here..."

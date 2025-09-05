@@ -6,6 +6,7 @@ export interface FeedbackDTO {
   apptId: string;
   userData: UserDTO;
   message: string;
+  rating: number;
   timestamp: Date;
   isRead: boolean;
 }

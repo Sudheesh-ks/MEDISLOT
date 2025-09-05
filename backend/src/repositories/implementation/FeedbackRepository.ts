@@ -1,4 +1,5 @@
 import appointmentModel from '../../models/appointmentModel';
+import doctorModel from '../../models/doctorModel';
 import feedbackModel, { FeedbackDocument } from '../../models/feedbackModel';
 import userModel from '../../models/userModel';
 import { BaseRepository } from '../BaseRepository';
@@ -12,7 +13,13 @@ export class FeedbackRepository
     super(feedbackModel);
   }
 
-  async submitFeedback(userId: string, apptId: string, message: string): Promise<FeedbackDocument> {
+  // FeedbackRepository.ts
+  async submitFeedback(
+    userId: string,
+    apptId: string,
+    message: string,
+    rating: number
+  ): Promise<FeedbackDocument> {
     const user = await userModel.findById(userId).lean();
     if (!user) throw new Error('User not found');
 
@@ -28,10 +35,23 @@ export class FeedbackRepository
         email: user.email,
       },
       message,
+      rating,
       timestamp: new Date(),
       isRead: false,
     });
-    return feedback.save();
+
+    const saved = await feedback.save();
+
+    // Update doctor's average rating
+    const doctor = await doctorModel.findById(appointment.docId);
+    if (doctor) {
+      doctor.ratingCount! += 1;
+      doctor.averageRating =
+        (doctor.averageRating! * (doctor.ratingCount! - 1) + rating) / doctor.ratingCount!;
+      await doctor.save();
+    }
+
+    return saved;
   }
 
   async getFeedbacks(doctorId: string): Promise<FeedbackDocument[]> {

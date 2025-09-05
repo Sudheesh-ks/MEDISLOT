@@ -83,6 +83,16 @@ const doctorSchema: Schema<DoctorDocument> = new mongoose.Schema(
       type: Object,
       default: {},
     },
+
+    averageRating: {
+      type: Number,
+      default: 0,
+    },
+
+    ratingCount: {
+      type: Number,
+      default: 0,
+    },
   },
   { minimize: false }
 );

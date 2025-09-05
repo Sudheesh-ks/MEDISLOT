@@ -8,6 +8,7 @@ export const toFeedbackDTO = (feedback: FeedbackDocument): FeedbackDTO => {
     apptId: feedback.apptId,
     userData: feedback.userData,
     message: feedback.message,
+    rating: feedback.rating,
     timestamp: feedback.timestamp,
     isRead: feedback.isRead,
   };

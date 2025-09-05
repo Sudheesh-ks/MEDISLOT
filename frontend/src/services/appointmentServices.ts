@@ -50,8 +50,8 @@ export const getAvailableSlotsAPI = async (doctorId: string, date: string) => {
   return data.data;
 };
 
-export const submitFeedbackAPI = async (appointmentId: string, message: string) => {
-  return api.post(`/api/user/appointments/${appointmentId}/feedback`, { message });
+export const submitFeedbackAPI = async (appointmentId: string, message: string, rating: number) => {
+  return api.post(`/api/user/appointments/${appointmentId}/feedback`, { message, rating });
 };
 
 export async function getPrescriptionAPI(appointmentId: string, token: string) {

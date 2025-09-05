@@ -7,6 +7,7 @@ export interface feedbackTypes {
   doctorId: string;
   userData: userTypes;
   message: string;
+  rating: number;
   timestamp: Date;
   isRead: boolean;
 }
