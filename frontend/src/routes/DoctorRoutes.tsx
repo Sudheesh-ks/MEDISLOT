@@ -18,6 +18,8 @@ import DoctorConsultationEndedPage from '../pages/doctor/DoctorConsultationEnded
 import DoctorNotificationsPage from '../pages/doctor/DoctorNotificationPage';
 import DoctorAddBlogPage from '../pages/doctor/DoctorAddBlogPage';
 import PatientHistoryPage from '../pages/doctor/PatientHistoryPage';
+import DoctorBlogsPage from '../pages/doctor/DoctorBlogPage';
+import DoctorEditBlogPage from '../pages/doctor/DoctorUpdateBlogs';
 
 const DoctorRoutes = () => {
   return (
@@ -93,6 +95,24 @@ const DoctorRoutes = () => {
         element={
           <DoctorLayout>
             <DoctorAddBlogPage />
+          </DoctorLayout>
+        }
+      />
+
+      <Route
+        path="/doctor/blogs"
+        element={
+          <DoctorLayout>
+            <DoctorBlogsPage />
+          </DoctorLayout>
+        }
+      />
+
+      <Route
+        path="/doctor/update-blog/:id"
+        element={
+          <DoctorLayout>
+            <DoctorEditBlogPage />
           </DoctorLayout>
         }
       />

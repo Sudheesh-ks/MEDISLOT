@@ -71,6 +71,49 @@ export class BlogService implements IBlogService {
     return doc ? toBlogDTO(doc) : null;
   }
 
+  async getBlogsByDoctor(doctorId: string): Promise<BlogDTO[]> {
+    const blogs = await this._blogRepository.findBlogsByDoctorId(doctorId);
+    return blogs.map(toBlogDTO);
+  }
+
+  async updateBlog(
+    id: string,
+    doctorId: string,
+    data: Partial<BlogTypes>
+  ): Promise<BlogDTO | null> {
+    const blog = await this._blogRepository.getBlogById(id);
+    if (!blog) throw new Error('Blog not found');
+    if (blog.doctorId.toString() !== doctorId.toString()) {
+      throw new Error('Unauthorized');
+    }
+
+    let imageUrl = blog.image;
+    if (data.image && typeof data.image !== 'string') {
+      const uploadResult = await cloudinary.uploader.upload(data.image.path, {
+        resource_type: 'image',
+      });
+      imageUrl = uploadResult.secure_url;
+    }
+
+    const updated = await this._blogRepository.updateBlog(id, {
+      ...data,
+      image: imageUrl,
+    });
+
+    return toBlogDTO(updated);
+  }
+
+  async deleteBlog(blogId: string, doctorId: string): Promise<boolean> {
+    const blog = await this._blogRepository.getBlogById(blogId);
+    if (!blog) return false;
+    if (blog.doctorId.toString() !== doctorId.toString()) {
+      throw new Error('Unauthorized');
+    }
+
+    await this._blogRepository.deleteBlog(blogId);
+    return true;
+  }
+
   async getBlogsPaginated(page: number, limit: number) {
     const { blogs, total } = await this._blogRepository.getBlogsPaginated(page, limit);
     return {

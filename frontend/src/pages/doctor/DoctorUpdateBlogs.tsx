@@ -1,5 +1,6 @@
-import React, { useState, useRef } from 'react';
-import { createDoctorBlogAPI } from '../../services/doctorServices';
+import React, { useEffect, useState } from 'react';
+import { getDoctorBlogByIdAPI, updateDoctorBlogAPI } from '../../services/doctorServices';
+import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { showErrorToast } from '../../utils/errorHandler';
 
@@ -9,13 +10,49 @@ import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
 import { HistoryPlugin } from '@lexical/react/LexicalHistoryPlugin';
 import { OnChangePlugin } from '@lexical/react/LexicalOnChangePlugin';
-import { $generateHtmlFromNodes } from '@lexical/html';
+import { $generateHtmlFromNodes, $generateNodesFromDOM } from '@lexical/html';
 import Toolbar from '../../components/common/Toolbar';
 import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
-import { useNavigate } from 'react-router-dom';
+import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
+import { $getRoot, $createParagraphNode } from 'lexical';
 
-const DoctorAddBlogPage = () => {
+function LoadContentPlugin({ initialHTML }: { initialHTML: string }) {
+  const [editor] = useLexicalComposerContext();
+  const [loaded, setLoaded] = useState(false);
+
+  useEffect(() => {
+    if (!initialHTML || loaded) return;
+
+    editor.update(() => {
+      const parser = new DOMParser();
+      const dom = parser.parseFromString(initialHTML, 'text/html');
+      const nodes = $generateNodesFromDOM(editor, dom);
+
+      const root = $getRoot();
+      root.clear();
+
+      if (nodes.length === 1 && nodes[0].getType() === 'paragraph') {
+        root.append(nodes[0]);
+      } else {
+        const paragraph = $createParagraphNode();
+        paragraph.append(...nodes);
+        root.append(paragraph);
+      }
+    });
+
+    setLoaded(true);
+  }, [editor, initialHTML, loaded]);
+
+  return null;
+}
+
+const DoctorEditBlogPage = () => {
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
   const [title, setTitle] = useState('');
   const [summary, setSummary] = useState('');
   const [category, setCategory] = useState('');
@@ -25,10 +62,8 @@ const DoctorAddBlogPage = () => {
   const [image, setImage] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | undefined>();
   const [visibility, setVisibility] = useState('public');
-  const [loading, setLoading] = useState(false);
-
-  const editorRef = useRef<any>(null);
   const [content, setContent] = useState('');
+  const [initialContent, setInitialContent] = useState('');
 
   // Lexical config
   const editorConfig = {
@@ -39,8 +74,33 @@ const DoctorAddBlogPage = () => {
     onError(error: any) {
       console.error(error);
     },
-    editorRef,
   };
+
+  // Fetch existing blog
+  useEffect(() => {
+    const fetchBlog = async () => {
+      try {
+        const { data } = await getDoctorBlogByIdAPI(id!);
+        const blog = data.blog;
+        if (blog) {
+          setTitle(blog.title || '');
+          setSummary(blog.summary || '');
+          setCategory(blog.category || '');
+          setReadTime(blog.readTime || '');
+          setTags(blog.tags || []);
+          setPreview(blog.image || '');
+          setVisibility(blog.visibility || 'public');
+          setInitialContent(blog.content || '');
+          //   setContent(blog.content || '');
+        }
+      } catch (error) {
+        showErrorToast(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchBlog();
+  }, [id]);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -67,14 +127,14 @@ const DoctorAddBlogPage = () => {
     setTags(tags.filter((t) => t !== tag));
   };
 
-  const handlePublish = async () => {
+  const handleUpdate = async () => {
     if (!title || !summary || !category || !content) {
-      toast.error('⚠️ Please fill all required fields');
+      toast.error('Please fill all required fields');
       return;
     }
 
     try {
-      setLoading(true);
+      setSaving(true);
       const formData = new FormData();
 
       formData.append('title', title);
@@ -86,27 +146,28 @@ const DoctorAddBlogPage = () => {
       formData.append('tags', JSON.stringify(tags));
       formData.append('visibility', visibility);
 
-      const { data } = await createDoctorBlogAPI(formData);
+      const { data } = await updateDoctorBlogAPI(id!, formData);
 
       if (data.success) {
-        toast.success(data.message);
+        toast.success('Blog updated successfully');
+        navigate('/doctor/blogs');
       } else {
         toast.error(data.message);
       }
-
-      setTitle('');
-      setSummary('');
-      setCategory('');
-      setReadTime('');
-      setTags([]);
-      setImage(null);
-      setContent('');
     } catch (error) {
       showErrorToast(error);
     } finally {
-      setLoading(false);
+      setSaving(false);
     }
   };
+
+  if (loading) {
+    return (
+      <main className="min-h-screen flex items-center justify-center bg-slate-950 text-slate-100">
+        <p>Loading blog...</p>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-slate-950 text-slate-100">
@@ -114,25 +175,17 @@ const DoctorAddBlogPage = () => {
       <div className="border-b border-slate-800">
         <div className="max-w-6xl mx-auto px-4 md:px-8 py-6 flex items-center justify-between">
           <div>
-            <h1 className="text-2xl md:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-cyan-400">
-              Create New Article
+            <h1 className="text-2xl md:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-emerald-400">
+              Edit Article
             </h1>
-            <p className="text-slate-400 mt-2">
-              Share your medical expertise with the healthcare community
-            </p>
+            <p className="text-slate-400 mt-2">Update your article details and content</p>
           </div>
           <button
-            onClick={() => navigate('/doctor/blogs')}
-            className="px-6 py-2 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-medium rounded-lg transition-all duration-300 hover:-translate-y-0.5"
+            onClick={handleUpdate}
+            disabled={saving}
+            className="px-6 py-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-medium rounded-lg transition-all duration-300 hover:-translate-y-0.5"
           >
-            My Blogs
-          </button>
-          <button
-            onClick={handlePublish}
-            disabled={loading}
-            className="px-6 py-2 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-medium rounded-lg transition-all duration-300 hover:-translate-y-0.5"
-          >
-            {loading ? 'Publishing...' : 'Publish Article'}
+            {saving ? 'Saving...' : 'Update Article'}
           </button>
         </div>
       </div>
@@ -142,7 +195,7 @@ const DoctorAddBlogPage = () => {
         <div className="lg:col-span-2 space-y-8">
           {/* Article Header */}
           <div className="bg-slate-900/50 rounded-2xl p-6 border border-slate-800">
-            <h2 className="text-xl font-semibold mb-6 text-blue-400">Article Details</h2>
+            <h2 className="text-xl font-semibold mb-6 text-green-400">Article Details</h2>
 
             {/* Title */}
             <div className="mb-6">
@@ -152,7 +205,7 @@ const DoctorAddBlogPage = () => {
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="Enter your article title..."
-                className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-slate-500"
+                className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-lg focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent placeholder-slate-500"
               />
             </div>
 
@@ -164,9 +217,9 @@ const DoctorAddBlogPage = () => {
               <textarea
                 value={summary}
                 onChange={(e) => setSummary(e.target.value)}
-                placeholder="Write a compelling summary of your article..."
+                placeholder="Write a compelling summary..."
                 rows={3}
-                className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-slate-500 resize-none"
+                className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent placeholder-slate-500 resize-none"
               />
             </div>
 
@@ -177,7 +230,7 @@ const DoctorAddBlogPage = () => {
                 <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent"
                 >
                   <option value="">Select Category</option>
                   <option value="digital-health">Digital Health</option>
@@ -199,7 +252,7 @@ const DoctorAddBlogPage = () => {
                   value={readTime}
                   onChange={(e) => setReadTime(e.target.value)}
                   placeholder="e.g., 8 min read"
-                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-slate-500"
+                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent placeholder-slate-500"
                 />
               </div>
             </div>
@@ -207,7 +260,7 @@ const DoctorAddBlogPage = () => {
 
           {/* Featured Image */}
           <div className="bg-slate-900/50 rounded-2xl p-6 border border-slate-800">
-            <h2 className="text-xl font-semibold mb-6 text-blue-400">Featured Image</h2>
+            <h2 className="text-xl font-semibold mb-6 text-green-400">Featured Image</h2>
             <label
               htmlFor="file-upload"
               className="cursor-pointer border-2 border-dashed border-slate-700 rounded-lg p-8 text-center hover:border-slate-600 transition-colors block"
@@ -228,7 +281,7 @@ const DoctorAddBlogPage = () => {
               className="hidden"
               onChange={handleImageUpload}
             />
-            {image && (
+            {preview && (
               <img
                 src={preview}
                 alt="preview"
@@ -237,64 +290,53 @@ const DoctorAddBlogPage = () => {
             )}
           </div>
 
-          {/* Content Editor with Lexical */}
+          {/* Content Editor */}
           <div className="bg-slate-900/50 rounded-2xl p-6 border border-slate-800">
-            <h2 className="text-xl font-semibold mb-6 text-blue-400">Article Content</h2>
+            <h2 className="text-xl font-semibold mb-6 text-green-400">Article Content</h2>
+
             <LexicalComposer initialConfig={editorConfig}>
               <Toolbar />
               <RichTextPlugin
                 contentEditable={
-                  <ContentEditable className="min-h-[200px] w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  <ContentEditable className="min-h-[200px] p-4 bg-slate-800 rounded-lg" />
                 }
-                placeholder={
-                  <div className="text-slate-500 px-2 py-1">Start writing your article...</div>
-                }
+                placeholder={<div className="text-slate-500">Enter blog content...</div>}
                 ErrorBoundary={LexicalErrorBoundary}
               />
               <HistoryPlugin />
               <OnChangePlugin
                 onChange={(editorState, editor) => {
                   editorState.read(() => {
-                    const html = $generateHtmlFromNodes(editor, null);
-                    setContent(html);
+                    const htmlString = $generateHtmlFromNodes(editor);
+                    setContent(htmlString);
                   });
                 }}
               />
+              <LoadContentPlugin initialHTML={initialContent} />
             </LexicalComposer>
-
-            {/* Tips */}
-            <div className="mt-4 p-4 bg-cyan-500/10 border border-cyan-500/30 rounded-lg">
-              <h4 className="font-medium text-cyan-400 mb-2">💡 Writing Tips</h4>
-              <ul className="text-sm text-slate-300 space-y-1">
-                <li>• Use clear headings (H2, H3) to structure your content</li>
-                <li>• Include evidence-based information and cite sources</li>
-                <li>• Write in a professional yet accessible tone</li>
-                <li>• Use paragraphs to break up long sections</li>
-              </ul>
-            </div>
           </div>
 
           {/* Tags */}
           <div className="bg-slate-900/50 rounded-2xl p-6 border border-slate-800">
-            <h2 className="text-xl font-semibold mb-6 text-blue-400">Tags</h2>
+            <h2 className="text-xl font-semibold mb-6 text-green-400">Tags</h2>
             <div className="mb-4">
               <input
                 type="text"
                 value={tagInput}
                 onChange={(e) => setTagInput(e.target.value)}
                 onKeyDown={handleAddTag}
-                placeholder="Add tags (press Enter to add)"
-                className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-slate-500"
+                placeholder="Add tags (press Enter)"
+                className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-green-500 placeholder-slate-500"
               />
             </div>
             <div className="flex flex-wrap gap-2">
               {tags.map((tag, index) => (
                 <span
                   key={index}
-                  className="bg-blue-500/20 text-blue-400 px-3 py-1 rounded-full text-sm border border-blue-500/30 flex items-center gap-2"
+                  className="bg-green-500/20 text-green-400 px-3 py-1 rounded-full text-sm border border-green-500/30 flex items-center gap-2"
                 >
                   {tag}
-                  <button onClick={() => handleRemoveTag(tag)} className="hover:text-blue-300">
+                  <button onClick={() => handleRemoveTag(tag)} className="hover:text-green-300">
                     ×
                   </button>
                 </span>
@@ -306,14 +348,14 @@ const DoctorAddBlogPage = () => {
         {/* Sidebar */}
         <div className="space-y-6">
           <div className="bg-slate-900/50 rounded-2xl p-6 border border-slate-800">
-            <h3 className="text-lg font-semibold mb-4 text-blue-400">Publication</h3>
+            <h3 className="text-lg font-semibold mb-4 text-green-400">Publication</h3>
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-slate-300">Visibility</span>
                 <select
                   value={visibility}
                   onChange={(e) => setVisibility(e.target.value)}
-                  className="bg-slate-800 border border-slate-700 rounded px-3 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500"
+                  className="bg-slate-800 border border-slate-700 rounded px-3 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-green-500"
                 >
                   <option value="public">public</option>
                   <option value="private">private</option>
@@ -328,4 +370,4 @@ const DoctorAddBlogPage = () => {
   );
 };
 
-export default DoctorAddBlogPage;
+export default DoctorEditBlogPage;

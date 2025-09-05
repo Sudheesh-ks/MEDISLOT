@@ -212,6 +212,22 @@ export const createDoctorBlogAPI = (formData: FormData) => {
   return api.post(BLOG_API.CREATE, formData);
 };
 
+export const deleteDoctorBlogAPI = (id: string) => {
+  return api.delete(`${BLOG_API.UPDATE}/${id}`);
+};
+
+export const getDoctorBlogsAPI = () => {
+  return api.get(BLOG_API.DOCTOR_BLOGS);
+};
+
+export const getDoctorBlogByIdAPI = (id: string) => {
+  return api.get(BLOG_API.BY_ID(id));
+};
+
+export const updateDoctorBlogAPI = (id: string, formData: FormData) => {
+  return api.put(`${BLOG_API.UPDATE}/${id}`, formData);
+};
+
 export const createPatientHistoryAPI = (
   patientId: string,
   appointmentId: string,

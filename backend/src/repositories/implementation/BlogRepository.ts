@@ -1,6 +1,7 @@
 import BlogModel, { BlogDocument } from '../../models/blogModel';
 import doctorModel from '../../models/doctorModel';
 import userModel from '../../models/userModel';
+import { BlogTypes } from '../../types/blog';
 import { BaseRepository } from '../BaseRepository';
 import { IBlogRepository } from '../interface/IBlogRepository';
 
@@ -24,6 +25,13 @@ export class BlogRepository extends BaseRepository<BlogDocument> implements IBlo
 
   async getBlogById(id: string): Promise<BlogDocument | null> {
     return this.model.findById(id).lean();
+  }
+
+  async deleteBlog(id: string): Promise<void> {
+    const deleted = await this.model.findByIdAndDelete(id);
+    if (!deleted) {
+      throw new Error('Blog not found');
+    }
   }
 
   async getBlogsPaginated(page: number, limit: number) {
@@ -61,5 +69,19 @@ export class BlogRepository extends BaseRepository<BlogDocument> implements IBlo
     await blog.save();
 
     return blog.comments[blog.comments.length - 1];
+  }
+
+  async findBlogsByDoctorId(doctorId: string): Promise<BlogDocument[]> {
+    return this.model.find({ doctorId }).sort({ createdAt: -1 });
+  }
+
+  async updateBlog(id: string, data: Partial<BlogTypes>): Promise<BlogDocument> {
+    const updated = await this.model.findByIdAndUpdate(id, data, { new: true });
+
+    if (!updated) {
+      throw new Error('Blog not found');
+    }
+
+    return updated;
   }
 }

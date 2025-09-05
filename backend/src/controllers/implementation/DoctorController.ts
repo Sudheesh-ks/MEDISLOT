@@ -558,6 +558,94 @@ export class DoctorController implements IDoctorController {
     }
   }
 
+  async getDoctorBlogs(req: Request, res: Response): Promise<void> {
+    try {
+      const doctorId = (req as any).docId;
+      const blogs = await this._blogService.getBlogsByDoctor(doctorId);
+      res.status(HttpStatus.OK).json({
+        success: true,
+        blogs,
+      });
+    } catch (error) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
+    }
+  }
+
+  async getDoctorBlogById(req: Request, res: Response): Promise<void> {
+    try {
+      const blogId = req.params.id;
+
+      const blog = await this._blogService.getBlogById(blogId);
+      if (!blog) {
+        res.status(HttpStatus.NOT_FOUND).json({
+          success: false,
+          message: 'Blog not found',
+        });
+        return;
+      }
+
+      res.status(HttpStatus.OK).json({
+        success: true,
+        blog,
+      });
+    } catch (error) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
+    }
+  }
+
+  async deleteBlog(req: Request, res: Response): Promise<void> {
+    try {
+      const doctorId = (req as any).docId;
+      const blogId = req.params.id;
+
+      const deleted = await this._blogService.deleteBlog(blogId, doctorId);
+      if (!deleted) {
+        res.status(HttpStatus.NOT_FOUND).json({
+          success: false,
+          message: 'Blog not found',
+        });
+        return;
+      }
+
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: 'Blog deleted successfully',
+      });
+    } catch (error) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
+    }
+  }
+
+  async updateBlog(req: Request, res: Response): Promise<void> {
+    try {
+      const doctorId = (req as any).docId;
+      const blogId = req.params.id;
+      const updated = await this._blogService.updateBlog(blogId, doctorId, {
+        ...req.body,
+        image: req.file ?? undefined,
+      });
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: 'Blog updated successfully',
+        blog: updated,
+      });
+    } catch (error) {
+      res.status(HttpStatus.BAD_REQUEST).json({
+        success: false,
+        message: (error as Error).message,
+      });
+    }
+  }
+
   async createPatientHistory(req: Request, res: Response): Promise<void> {
     try {
       const doctorId = (req as any).docId;
