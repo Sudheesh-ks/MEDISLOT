@@ -1,4 +1,5 @@
 import ComplaintModel, { ComplaintDocument } from '../../models/complaintModel';
+import doctorModel from '../../models/doctorModel';
 import userModel from '../../models/userModel';
 import { BaseRepository } from '../BaseRepository';
 import { IComplaintRepository } from '../interface/IComplaintRepository';
@@ -55,6 +56,7 @@ export class ComplaintRepository
     return this.model
       .find(query)
       .populate('userId', 'name email')
+      .populate('doctorId', 'name email')
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
@@ -83,6 +85,24 @@ export class ComplaintRepository
     return this.model
       .findByIdAndUpdate(id, { status }, { new: true })
       .populate('userId', 'name email')
+      .populate('doctorId', 'name email')
       .lean();
+  }
+
+  async reportDoctorIssue(
+    doctorId: string,
+    subject: string,
+    description: string
+  ): Promise<ComplaintDocument> {
+    const doctor = await doctorModel.findById(doctorId).lean();
+    if (!doctor) throw new Error('Doctor not found');
+
+    const issue = new this.model({
+      doctorId,
+      subject,
+      description,
+      status: 'pending',
+    });
+    return issue.save();
   }
 }

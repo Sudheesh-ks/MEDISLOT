@@ -10,6 +10,7 @@ import { PrescriptionRepository } from '../repositories/implementation/Prescript
 import { BlogService } from '../services/implementation/BlogService';
 import { PatientHistoryRepository } from '../repositories/implementation/PatientHistoryRepository';
 import { UserRepository } from '../repositories/implementation/UserRepository';
+import { ComplaintRepository } from '../repositories/implementation/ComplaintRepository';
 
 const doctorRepository = new DoctorRepository();
 const userRepository = new UserRepository();
@@ -18,13 +19,15 @@ const notificationService = new NotificationService();
 const blogService = new BlogService();
 const prescriptionRepository = new PrescriptionRepository();
 const patientHistoryRepository = new PatientHistoryRepository();
+const complaintRepository = new ComplaintRepository();
 const doctorService = new DoctorService(
   doctorRepository,
   userRepository,
   walletRepository,
   notificationService,
   prescriptionRepository,
-  patientHistoryRepository
+  patientHistoryRepository,
+  complaintRepository
 );
 const doctorController = new DoctorController(doctorService, notificationService, blogService);
 
@@ -203,6 +206,12 @@ doctorRouter.put(
   '/patient-history/:historyId',
   authRole(['doctor']),
   doctorController.updatePatientHistory.bind(doctorController)
+);
+
+doctorRouter.post(
+  '/complaints/report',
+  authRole(['doctor']),
+  doctorController.reportIssues.bind(doctorController)
 );
 
 doctorRouter.get('/:id', doctorController.getDoctorById.bind(doctorController));

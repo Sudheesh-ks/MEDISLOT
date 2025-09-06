@@ -300,3 +300,15 @@ export const updatePatientHistoryAPI = (
 ) => {
   return api.put(`/api/doctor/patient-history/${historyId}`, data);
 };
+
+export const reportDoctorIssueAPI = async (
+  token: string,
+  data: { subject: string; description: string }
+) => {
+  const res = await api.post('/api/doctor/complaints/report', data, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+  return res.data;
+};

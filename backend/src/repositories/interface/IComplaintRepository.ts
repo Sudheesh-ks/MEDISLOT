@@ -14,4 +14,9 @@ export interface IComplaintRepository {
     id: string,
     status: 'pending' | 'in-progress' | 'resolved' | 'rejected'
   ): Promise<ComplaintDocument | null>;
+  reportDoctorIssue(
+    doctorId: string,
+    subject: string,
+    description: string
+  ): Promise<ComplaintDocument>;
 }

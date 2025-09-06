@@ -801,4 +801,20 @@ export class DoctorController implements IDoctorController {
         .json({ success: false, message: (error as Error).message });
     }
   }
+
+  async reportIssues(req: Request, res: Response): Promise<void> {
+    try {
+      const doctorId = (req as any).docId;
+      const { subject, description } = req.body;
+
+      await this._doctorService.reportIssue(doctorId, subject, description);
+      res.status(HttpStatus.OK).json({ success: true, message: 'Report sent successfully' });
+    } catch (error) {
+      logger.error(`Error on doctor report issue: ${(error as Error).message}`);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
+    }
+  }
 }

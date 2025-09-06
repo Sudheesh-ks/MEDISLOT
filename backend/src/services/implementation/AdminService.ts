@@ -357,16 +357,20 @@ export class AdminService implements IAdminService {
     status: 'pending' | 'in-progress' | 'resolved' | 'rejected'
   ): Promise<ComplaintDTO | null> {
     const complaint = await this._complaintRepository.findComplaintById(id);
-    const userId = complaint?.userId.toString();
+    const userId = complaint?.userId?.toString();
+    const doctorId = complaint?.doctorId?.toString();
     const updated = await this._complaintRepository.updateComplaintStatus(id, status);
 
     if (!updated) {
       throw new Error('Complaint not found');
     }
 
+    const recipientId = userId || doctorId;
+    const recipientRole = userId ? 'user' : 'doctor';
+
     await this._notificationService.sendNotification({
-      recipientId: userId,
-      recipientRole: 'user',
+      recipientId,
+      recipientRole,
       type: 'system',
       title: 'Admin updation on your complaint',
       message: `Admin switched your complaint status to ${status}`,

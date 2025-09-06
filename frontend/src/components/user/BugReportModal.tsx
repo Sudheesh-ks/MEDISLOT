@@ -2,14 +2,16 @@ import { useState } from 'react';
 import { reportBugAPI } from '../../services/userProfileServices';
 import { toast } from 'react-toastify';
 import { showErrorToast } from '../../utils/errorHandler';
+import { reportDoctorIssueAPI } from '../../services/doctorServices';
 
 interface Props {
   token: string | null;
   isOpen: boolean;
+  role: 'user' | 'doctor';
   onClose: () => void;
 }
 
-const ReportBugModal = ({ token, isOpen, onClose }: Props) => {
+const ReportBugModal = ({ token, isOpen, role, onClose }: Props) => {
   const [subject, setSubject] = useState('');
   const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(false);
@@ -17,9 +19,16 @@ const ReportBugModal = ({ token, isOpen, onClose }: Props) => {
   const submit = async () => {
     if (!subject || !description) return toast.error('Fill all fields');
     setLoading(true);
+
     try {
-      const { message } = await reportBugAPI(token!, { subject, description });
-      toast.success(message);
+      let response;
+      if (role === 'user') {
+        response = await reportBugAPI(token!, { subject, description });
+      } else {
+        response = await reportDoctorIssueAPI(token!, { subject, description });
+      }
+
+      toast.success(response.message);
       setSubject('');
       setDescription('');
       onClose();

@@ -9,7 +9,10 @@ const complaintSchema: Schema<ComplaintDocument> = new mongoose.Schema({
   userId: {
     type: Schema.Types.ObjectId,
     ref: 'user',
-    required: true,
+  },
+  doctorId: {
+    type: Schema.Types.ObjectId,
+    ref: 'doctor',
   },
   subject: {
     type: String,

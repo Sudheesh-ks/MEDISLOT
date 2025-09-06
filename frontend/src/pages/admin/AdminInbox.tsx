@@ -64,10 +64,24 @@ const AdminInbox = () => {
   const filtered = complaints.filter(
     (msg: ComplaintTypes) =>
       msg.userData?.name?.toLowerCase().includes(query.toLowerCase()) ||
+      msg.docData?.name?.toLowerCase().includes(query.toLowerCase()) ||
       msg.userData?.email?.toLowerCase().includes(query.toLowerCase()) ||
+      msg.docData?.email?.toLowerCase().includes(query.toLowerCase()) ||
       msg.description?.toLowerCase().includes(query.toLowerCase()) ||
       msg.subject?.toLowerCase().includes(query.toLowerCase())
   );
+
+  const getComplaintName = (msg: ComplaintTypes) => {
+    if (msg.docData && msg.docData.name !== 'Unknown') return msg.docData.name;
+    if (msg.userData && msg.userData.name !== 'Unknown') return msg.userData.name;
+    return 'Unknown';
+  };
+
+  const getComplaintEmail = (msg: ComplaintTypes) => {
+    if (msg.docData && msg.docData.email !== 'N/A') return msg.docData.email;
+    if (msg.userData && msg.userData.email !== 'N/A') return msg.userData.email;
+    return 'N/A';
+  };
 
   const glass = 'bg-white/5 backdrop-blur ring-1 ring-white/10';
 
@@ -131,10 +145,10 @@ const AdminInbox = () => {
                       </div>
                       <div>
                         <h3 className="text-sm font-semibold text-slate-100 truncate">
-                          {message.userData?.name || 'Unknown User'}
+                          {getComplaintName(message)}
                         </h3>
                         <p className="text-xs text-slate-400 truncate">
-                          {message.userData?.email || 'N/A'}
+                          {getComplaintEmail(message)}
                         </p>
                       </div>
                     </div>
@@ -221,11 +235,9 @@ const AdminInbox = () => {
                 </div>
                 <div>
                   <h3 className="text-lg font-semibold text-slate-100">
-                    {selectedMessage.userData?.name || 'Unknown User'}
+                    {getComplaintName(selectedMessage)}
                   </h3>
-                  <p className="text-sm text-slate-400">
-                    {selectedMessage.userData?.email || 'N/A'}
-                  </p>
+                  <p className="text-sm text-slate-400">{getComplaintEmail(selectedMessage)}</p>
                 </div>
               </div>
               <div className="bg-white/10 px-3 py-1 rounded-full">

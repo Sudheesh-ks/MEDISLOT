@@ -9,4 +9,8 @@ export interface ComplaintTypes {
     name: string;
     email: string;
   };
+  docData: {
+    name: string;
+    email: string;
+  };
 }

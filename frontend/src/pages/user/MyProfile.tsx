@@ -355,7 +355,12 @@ const MyProfile = () => {
       </div>
 
       {/* Bug Modal */}
-      <ReportBugModal token={token} isOpen={showBugModal} onClose={() => setShowBugModal(false)} />
+      <ReportBugModal
+        token={token}
+        isOpen={showBugModal}
+        role="user"
+        onClose={() => setShowBugModal(false)}
+      />
     </div>
   );
 };

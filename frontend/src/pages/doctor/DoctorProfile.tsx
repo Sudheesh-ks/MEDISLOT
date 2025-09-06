@@ -7,6 +7,7 @@ import { assets } from '../../assets/user/assets';
 import { showErrorToast } from '../../utils/errorHandler';
 import { updateDoctorProfileAPI } from '../../services/doctorServices';
 import { currencySymbol } from '../../utils/commonUtils';
+import ReportBugModal from '../../components/user/BugReportModal';
 
 const DoctorProfile = () => {
   const ctx = useContext(DoctorContext);
@@ -19,6 +20,7 @@ const DoctorProfile = () => {
   const [form, setForm] = useState(profileData);
   const [image, setImage] = useState<File | null>(null);
   const [avail, setAvail] = useState(profileData?.available ?? false);
+  const [showBugModal, setShowBugModal] = useState(false);
 
   useEffect(() => {
     if (dToken) getProfileData();
@@ -235,6 +237,24 @@ const DoctorProfile = () => {
             </span>
           )}
         </div>
+
+        {/* Add Report Bug Button */}
+        <div className="mt-6 flex justify-end">
+          <button
+            onClick={() => setShowBugModal(true)}
+            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-500"
+          >
+            Report Bug
+          </button>
+        </div>
+
+        {/* Bug Modal */}
+        <ReportBugModal
+          token={dToken}
+          isOpen={showBugModal}
+          role="doctor"
+          onClose={() => setShowBugModal(false)}
+        />
 
         <motion.button
           whileHover={{ scale: 1.05 }}

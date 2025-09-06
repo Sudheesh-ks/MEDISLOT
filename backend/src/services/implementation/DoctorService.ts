@@ -23,6 +23,7 @@ import { ioInstance } from '../../sockets/ChatSocket';
 import { IPatientHistoryRepository } from '../../repositories/interface/IPatientHistoryRepository';
 import { patientHistoryTypes } from '../../types/patientHistoryTypes';
 import { IUserRepository } from '../../repositories/interface/IUserRepository';
+import { IComplaintRepository } from '../../repositories/interface/IComplaintRepository';
 
 export interface DoctorDocument extends DoctorTypes {
   _id: string;
@@ -35,7 +36,8 @@ export class DoctorService implements IDoctorService {
     private readonly _walletRepository: IWalletRepository,
     private readonly _notificationService: INotificationService,
     private readonly _prescriptionRepository: IPrescriptionRepository,
-    private readonly _patientHistoryRepository: IPatientHistoryRepository
+    private readonly _patientHistoryRepository: IPatientHistoryRepository,
+    private readonly _complaintRepository: IComplaintRepository
   ) {}
 
   async registerDoctor(data: DoctorTypes): Promise<void> {
@@ -525,5 +527,17 @@ export class DoctorService implements IDoctorService {
 
   async getPatientById(patientId: string) {
     return await this._userRepository.findUserById(patientId);
+  }
+
+  async reportIssue(doctorId: string, subject: string, description: string) {
+    if (!doctorId) {
+      throw new Error('Unauthorized doctor');
+    }
+
+    if (!subject && !description) {
+      throw new Error('Please provide the detailed issue');
+    }
+
+    return this._complaintRepository.reportDoctorIssue(doctorId, subject, description);
   }
 }
