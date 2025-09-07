@@ -11,7 +11,7 @@ export interface INotificationRepository {
     type?: string
   ): Promise<NotificationDocument[]>;
   countAll(recipientId: string, recipientRole: string, type?: string): Promise<number>;
-  countUnread(recipientRole: string, recipientId?: string): Promise<number>;
+  countUnread(recipientId: string, recipientRole: string): Promise<number>;
   markAsRead(notificationId: string): Promise<void>;
   markAllAsRead(recipientId: string, recipientRole: string): Promise<void>;
   deleteAll(recipientId: string, recipientRole: string, type?: string): Promise<void>;

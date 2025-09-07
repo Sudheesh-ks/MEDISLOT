@@ -28,6 +28,9 @@ export class NotificationRepository implements INotificationRepository {
   }
 
   async countUnread(recipientId: string, recipientRole: string): Promise<number> {
+    console.log(recipientId, recipientRole);
+
+    console.log(recipientId, recipientRole);
     return NotificationModel.countDocuments({
       recipientId,
       recipientRole,

@@ -50,7 +50,7 @@ export class SlotRepository {
     return slotModel.findOne({ doctorId, weekday, isDefault: true }).exec();
   }
 
-  async getDefaultSlot(doctorId: string, weekday: number) {
+  async getDefaultSlot(doctorId: string, weekday: number): Promise<any> {
     const doc = await slotModel.findOne({ doctorId, weekday }).exec();
     return doc ? doc.slots : [];
   }

@@ -6,11 +6,11 @@ export interface ComplaintDTO {
   description: string;
   status: 'pending' | 'in-progress' | 'resolved' | 'rejected';
   createdAt?: Date;
-  userData: {
+  userData?: {
     name: string;
     email: string;
   };
-  docData: {
+  docData?: {
     name: string;
     email: string;
   };

@@ -1,18 +1,18 @@
 import { Request, Response } from 'express';
-import { DoctorSlotService } from '../../services/implementation/SlotService';
 import logger from '../../utils/logger';
 import { HttpStatus } from '../../constants/status.constants';
 import { ISlotController } from '../interface/IslotController';
+import { ISlotService } from '../../services/interface/ISlotService';
 
 export class SlotController implements ISlotController {
-  constructor(private slotService: DoctorSlotService) {}
+  constructor(private readonly _slotService: ISlotService) {}
 
   async updateDaySlot(req: Request, res: Response): Promise<void> {
     try {
       const doctorId = (req as any).docId;
       const { date, slots, isCancelled } = req.body;
 
-      const data = await this.slotService.updateDaySlot(doctorId, date, slots, isCancelled);
+      const data = await this._slotService.updateDaySlot(doctorId, date, slots, isCancelled);
       logger.info(`Updated slots for ${doctorId} on ${date}`);
 
       res.status(HttpStatus.OK).json({ success: true, data });
@@ -30,7 +30,7 @@ export class SlotController implements ISlotController {
       const doctorId = (req as any).docId;
       const { date } = req.query;
 
-      const data = await this.slotService.getDayAvailability(doctorId, date as string);
+      const data = await this._slotService.getDayAvailability(doctorId, date as string);
       logger.info(`Fetched day slot for ${doctorId} on ${date}`);
 
       res.status(HttpStatus.OK).json({ success: true, data });
@@ -48,7 +48,7 @@ export class SlotController implements ISlotController {
       const doctorId = (req as any).docId;
       const { weekday, slots, isCancelled } = req.body;
 
-      const data = await this.slotService.updateDefaultSlot(doctorId, weekday, slots, isCancelled);
+      const data = await this._slotService.updateDefaultSlot(doctorId, weekday, slots, isCancelled);
       logger.info(`Updated default slots for ${doctorId} on weekday ${weekday}`);
 
       res.status(HttpStatus.OK).json({ success: true, data });
@@ -66,7 +66,7 @@ export class SlotController implements ISlotController {
       const doctorId = (req as any).docId;
       const weekday = Number(req.query.weekday);
 
-      const data = await this.slotService.getDefaultSlot(doctorId, weekday);
+      const data = await this._slotService.getDefaultSlot(doctorId, weekday);
 
       res.status(HttpStatus.OK).json({ success: true, data });
     } catch (error) {

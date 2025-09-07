@@ -11,12 +11,14 @@ import { WalletRepository } from '../repositories/implementation/WalletRepositor
 import { NotificationService } from '../services/implementation/NotificationService';
 import { FeedbackRepository } from '../repositories/implementation/FeedbackRepository';
 import { ComplaintRepository } from '../repositories/implementation/ComplaintRepository';
+import { NotificationRepository } from '../repositories/implementation/NotificationRepository';
 
 // Admin Layer
 const adminRepository = new AdminRepository();
 const doctorRepository = new DoctorRepository();
 const walletRepository = new WalletRepository();
-const notificationService = new NotificationService();
+const notificationRepository = new NotificationRepository();
+const notificationService = new NotificationService(notificationRepository);
 const feedbackRepository = new FeedbackRepository();
 const complaintRepository = new ComplaintRepository();
 const adminService = new AdminService(

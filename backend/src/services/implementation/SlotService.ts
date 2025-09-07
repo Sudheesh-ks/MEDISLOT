@@ -1,13 +1,13 @@
 import dayjs from 'dayjs';
 import customParse from 'dayjs/plugin/customParseFormat';
-import { SlotRepository } from '../../repositories/implementation/SlotRepository';
 import { ISlotService } from '../interface/ISlotService';
 import { SlotRange } from '../../types/slots';
+import { ISlotRepository } from '../../repositories/interface/ISlotRepository';
 
 dayjs.extend(customParse);
 
 export class DoctorSlotService implements ISlotService {
-  constructor(private readonly _slotRepository: SlotRepository) {}
+  constructor(private readonly _slotRepository: ISlotRepository) {}
 
   async getMonthlySlots(doctorId: string, year: number, month: number) {
     return this._slotRepository.getSlotsByMonth(doctorId, year, month);
@@ -51,12 +51,12 @@ export class DoctorSlotService implements ISlotService {
     weekday: number,
     slots: SlotRange[],
     isCancelled: boolean
-  ) {
+  ): Promise<any> {
     this.validateRanges(slots);
     return this._slotRepository.upsertSlot(doctorId, null, slots, isCancelled, weekday, true);
   }
 
-  async getDefaultSlot(doctorId: string, weekday: number) {
+  async getDefaultSlot(doctorId: string, weekday: number): Promise<any> {
     return this._slotRepository.getDefaultSlot(doctorId, weekday);
   }
 }

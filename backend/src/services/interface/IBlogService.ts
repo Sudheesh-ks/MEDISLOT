@@ -11,6 +11,7 @@ export interface IBlogService {
   getAllBlogs(): Promise<any>;
   getBlogsByDoctor(doctorId: string): Promise<BlogDTO[]>;
   updateBlog(id: string, doctorId: string, data: Partial<BlogTypes>): Promise<BlogDTO | null>;
+  deleteBlog(blogId: string, doctorId: string): Promise<boolean>;
   getBlogComments(blogId: string): Promise<any>;
   addBlogComment(blogId: string, userId: string, content: string): Promise<any>;
 }

@@ -1,16 +1,16 @@
 import { HttpStatus } from '../../constants/status.constants';
 import { BlogDTO } from '../../dtos/blog.dto';
 import { toBlogDTO } from '../../mappers/blog.mapper';
-import { BlogRepository } from '../../repositories/implementation/BlogRepository';
-import { UserRepository } from '../../repositories/implementation/UserRepository';
+import { IBlogRepository } from '../../repositories/interface/IBlogRepository';
+import { IUserRepository } from '../../repositories/interface/IUserRepository';
 import { BlogTypes } from '../../types/blog';
 import { IBlogService } from '../interface/IBlogService';
 import { v2 as cloudinary } from 'cloudinary';
 
 export class BlogService implements IBlogService {
   constructor(
-    private readonly _blogRepository = new BlogRepository(),
-    private readonly _userRepository = new UserRepository()
+    private readonly _blogRepository: IBlogRepository,
+    private readonly _userRepository: IUserRepository
   ) {}
 
   async createBlog(data: BlogTypes): Promise<BlogDTO> {

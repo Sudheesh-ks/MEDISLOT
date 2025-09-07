@@ -37,6 +37,7 @@ export interface IDoctorService {
     txnType?: 'credit' | 'debit' | 'all'
   ): Promise<{ history: any[]; total: number; balance: number }>;
   getDashboardData(doctorId: string, startDate: string, endDate: string): Promise<any>;
+  submitPrescription(doctorId: string, appointmentId: string, prescription: string): Promise<any>;
   createPatientHistory(data: patientHistoryTypes): Promise<void>;
   updatePatientHistory(
     historyId: string,
@@ -45,4 +46,5 @@ export interface IDoctorService {
   getPatientHistory(doctorId: string, userId: string): Promise<any>;
   getPatientHistoryById(historyId: string): Promise<any>;
   getPatientById(patientId: string): Promise<any>;
+  reportIssue(doctorId: string, subject: string, description: string): Promise<any>;
 }

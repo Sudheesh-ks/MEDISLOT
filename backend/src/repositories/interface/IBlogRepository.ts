@@ -18,4 +18,5 @@ export interface IBlogRepository {
   addBlogComment(blogId: string, userId: string, content: string): Promise<any>;
   findBlogsByDoctorId(doctorId: string): Promise<BlogDocument[]>;
   updateBlog(id: string, data: Partial<BlogTypes>): Promise<BlogDocument>;
+  deleteBlog(id: string): Promise<void>;
 }

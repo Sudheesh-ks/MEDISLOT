@@ -12,13 +12,11 @@ import {
   isValidPhone,
 } from '../../utils/validator';
 import { DoctorTypes } from '../../types/doctor';
-import { PaymentService } from './PaymentService';
 import {
   generateAccessToken,
   generateRefreshToken,
   verifyRefreshToken,
 } from '../../utils/jwt.utils';
-import { SlotRepository } from '../../repositories/implementation/SlotRepository';
 import { SlotRange } from '../../types/slots';
 import { isoDate } from '../../utils/date.util';
 import { UserDTO } from '../../dtos/user.dto';
@@ -31,20 +29,22 @@ import { sendOTP } from '../../utils/mail.util';
 import { AppointmentDTO } from '../../dtos/appointment.dto';
 import { toAppointmentDTO } from '../../mappers/appointment.mapper';
 import { PaginationResult } from '../../types/pagination';
-import { WalletRepository } from '../../repositories/implementation/WalletRepository';
 import { WalletDTO } from '../../dtos/wallet.dto';
-import { NotificationService } from './NotificationService';
-import { FeedbackRepository } from '../../repositories/implementation/FeedbackRepository';
 import { PrescriptionDTO } from '../../dtos/prescription.dto';
 import { toPrescriptionDTO } from '../../mappers/prescription.mapper';
-import { PrescriptionRepository } from '../../repositories/implementation/PrescriptionRepository';
 import { ioInstance } from '../../sockets/ChatSocket';
 import { FeedbackDTO } from '../../dtos/feedback.dto';
 import { toFeedbackDTO } from '../../mappers/feedback.mapper';
-import { ComplaintRepository } from '../../repositories/implementation/ComplaintRepository';
 import { ComplaintTypes } from '../../types/complaint';
-import { PatientHistoryRepository } from '../../repositories/implementation/PatientHistoryRepository';
 import dayjs from 'dayjs';
+import { IPaymentService } from '../interface/IPaymentService';
+import { ISlotRepository } from '../../repositories/interface/ISlotRepository';
+import { IWalletRepository } from '../../repositories/interface/IWalletRepository';
+import { INotificationService } from '../interface/INotificationService';
+import { IFeedbackRepository } from '../../repositories/interface/IFeedbackRepository';
+// import { IPrescriptionRepository } from '../../repositories/interface/IPrescriptionRepository';
+import { IComplaintRepository } from '../../repositories/interface/IComplaintRepository';
+import { IPatientHistoryRepository } from '../../repositories/interface/IPatientHistoryRepository';
 
 export interface UserDocument extends userTypes {
   _id: string;
@@ -55,14 +55,14 @@ const adminId = process.env.ADMIN_ID;
 export class UserService implements IUserService {
   constructor(
     private readonly _userRepository: IUserRepository,
-    private readonly _paymentService = new PaymentService(),
-    private readonly _slotRepository = new SlotRepository(),
-    private readonly _walletRepository = new WalletRepository(),
-    private readonly _notificationService = new NotificationService(),
-    private readonly _feedbackRepository = new FeedbackRepository(),
-    private readonly _prescriptionRepository = new PrescriptionRepository(),
-    private readonly _complaintRepository = new ComplaintRepository(),
-    private readonly _patientHistoryRepository = new PatientHistoryRepository()
+    private readonly _paymentService: IPaymentService,
+    private readonly _slotRepository: ISlotRepository,
+    private readonly _walletRepository: IWalletRepository,
+    private readonly _notificationService: INotificationService,
+    private readonly _feedbackRepository: IFeedbackRepository,
+    // private readonly _prescriptionRepository: IPrescriptionRepository,
+    private readonly _complaintRepository: IComplaintRepository,
+    private readonly _patientHistoryRepository: IPatientHistoryRepository
   ) {}
 
   async register(name: string, email: string, password: string): Promise<void> {

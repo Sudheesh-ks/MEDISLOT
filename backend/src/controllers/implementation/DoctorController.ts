@@ -1,20 +1,20 @@
 import { Request, Response } from 'express';
-import { DoctorService } from '../../services/implementation/DoctorService';
 import { IDoctorController } from '../interface/IdoctorController.interface';
 import { HttpStatus } from '../../constants/status.constants';
 import { HttpResponse } from '../../constants/responseMessage.constants';
 import { DoctorTypes } from '../../types/doctor';
 import logger from '../../utils/logger';
-import { NotificationService } from '../../services/implementation/NotificationService';
-import { BlogService } from '../../services/implementation/BlogService';
 import { BlogTypes } from '../../types/blog';
 import { patientHistoryTypes } from '../../types/patientHistoryTypes';
+import { INotificationService } from '../../services/interface/INotificationService';
+import { IDoctorService } from '../../services/interface/IDoctorService';
+import { IBlogService } from '../../services/interface/IBlogService';
 
 export class DoctorController implements IDoctorController {
   constructor(
-    private _doctorService: DoctorService,
-    private _notificationService: NotificationService,
-    private _blogService: BlogService
+    private readonly _doctorService: IDoctorService,
+    private readonly _notificationService: INotificationService,
+    private readonly _blogService: IBlogService
   ) {}
 
   async registerDoctor(req: Request, res: Response): Promise<void> {

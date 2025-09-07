@@ -3,20 +3,20 @@ import { IUserService } from '../../services/interface/IUserService';
 import { HttpStatus } from '../../constants/status.constants';
 import { HttpResponse } from '../../constants/responseMessage.constants';
 import { IUserController } from '../interface/IuserController.interface';
-import { PaymentService } from '../../services/implementation/PaymentService';
 import { generateAccessToken } from '../../utils/jwt.utils';
 import logger from '../../utils/logger';
-import { NotificationService } from '../../services/implementation/NotificationService';
-import { BlogService } from '../../services/implementation/BlogService';
-import { ChatBotService } from '../../services/implementation/chatBotService';
+import { INotificationService } from '../../services/interface/INotificationService';
+import { IPaymentService } from '../../services/interface/IPaymentService';
+import { IBlogService } from '../../services/interface/IBlogService';
+import { IChatBotService } from '../../services/interface/IChatBotService';
 
 export class UserController implements IUserController {
   constructor(
-    private _userService: IUserService,
-    private _paymentService: PaymentService,
-    private _notificationService: NotificationService,
-    private _blogService: BlogService,
-    private _chatBotService: ChatBotService
+    private readonly _userService: IUserService,
+    private readonly _paymentService: IPaymentService,
+    private readonly _notificationService: INotificationService,
+    private readonly _blogService: IBlogService,
+    private readonly _chatBotService: IChatBotService
   ) {}
 
   async registerUser(req: Request, res: Response): Promise<void> {

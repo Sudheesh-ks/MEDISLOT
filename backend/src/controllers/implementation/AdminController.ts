@@ -4,12 +4,12 @@ import { IAdminController } from '../interface/IadminController.interface';
 import { HttpStatus } from '../../constants/status.constants';
 import { HttpResponse } from '../../constants/responseMessage.constants';
 import logger from '../../utils/logger';
-import { NotificationService } from '../../services/implementation/NotificationService';
+import { INotificationService } from '../../services/interface/INotificationService';
 
 export class AdminController implements IAdminController {
   constructor(
-    private _adminService: IAdminService,
-    private _notificationService: NotificationService
+    private readonly _adminService: IAdminService,
+    private readonly _notificationService: INotificationService
   ) {}
 
   // For Admin login
@@ -409,6 +409,7 @@ export class AdminController implements IAdminController {
     try {
       const role = req.query.role as 'user' | 'doctor' | 'admin';
       const userId = (req as any).adminId;
+      // console.log(role, userId)
       const count = await this._notificationService.getUnreadCount(userId, role);
       res.status(HttpStatus.OK).json({ success: true, unreadCount: count });
     } catch (error) {

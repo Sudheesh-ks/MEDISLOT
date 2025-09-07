@@ -11,12 +11,16 @@ import { BlogService } from '../services/implementation/BlogService';
 import { PatientHistoryRepository } from '../repositories/implementation/PatientHistoryRepository';
 import { UserRepository } from '../repositories/implementation/UserRepository';
 import { ComplaintRepository } from '../repositories/implementation/ComplaintRepository';
+import { NotificationRepository } from '../repositories/implementation/NotificationRepository';
+import { BlogRepository } from '../repositories/implementation/BlogRepository';
 
 const doctorRepository = new DoctorRepository();
 const userRepository = new UserRepository();
 const walletRepository = new WalletRepository();
-const notificationService = new NotificationService();
-const blogService = new BlogService();
+const notificationRepository = new NotificationRepository();
+const blogRepository = new BlogRepository();
+const notificationService = new NotificationService(notificationRepository);
+const blogService = new BlogService(blogRepository, userRepository);
 const prescriptionRepository = new PrescriptionRepository();
 const patientHistoryRepository = new PatientHistoryRepository();
 const complaintRepository = new ComplaintRepository();

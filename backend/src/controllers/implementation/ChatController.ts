@@ -5,7 +5,7 @@ import { IChatService } from '../../services/interface/IChatService';
 import logger from '../../utils/logger';
 
 export class ChatController implements IChatController {
-  constructor(private chatService: IChatService) {}
+  constructor(private readonly chatService: IChatService) {}
 
   async getChatHistory(req: Request, res: Response): Promise<void> {
     try {

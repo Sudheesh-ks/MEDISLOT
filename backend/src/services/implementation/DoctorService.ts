@@ -468,7 +468,11 @@ export class DoctorService implements IDoctorService {
     };
   }
 
-  async submitPrescription(doctorId: string, appointmentId: string, prescription: string) {
+  async submitPrescription(
+    doctorId: string,
+    appointmentId: string,
+    prescription: string
+  ): Promise<any> {
     const appointment = await this._doctorRepository.findAppointmentById(appointmentId);
     if (!appointment) {
       throw new Error('Appointment not found');
@@ -529,7 +533,7 @@ export class DoctorService implements IDoctorService {
     return await this._userRepository.findUserById(patientId);
   }
 
-  async reportIssue(doctorId: string, subject: string, description: string) {
+  async reportIssue(doctorId: string, subject: string, description: string): Promise<any> {
     if (!doctorId) {
       throw new Error('Unauthorized doctor');
     }

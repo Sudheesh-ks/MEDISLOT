@@ -3,11 +3,14 @@ export interface ISlotRepository {
   getSlotsByMonth(doctorId: string, year: number, month: number): Promise<any[]>;
   upsertSlot(
     doctorId: string,
-    date: string,
+    date: string | null,
     slots: { start: string; end: string; isAvailable?: boolean }[],
-    isCancelled: boolean
+    isCancelled: boolean,
+    weekday?: number,
+    isDefault?: boolean
   ): Promise<any>;
   deleteSlot(doctorId: string, date: string): Promise<any>;
   getSlotByDate(doctorId: string, date: string): Promise<any>;
   getDefaultSlotByWeekday(doctorId: string, weekday: number): Promise<any>;
+  getDefaultSlot(doctorId: string, weekday: number): Promise<any>;
 }
