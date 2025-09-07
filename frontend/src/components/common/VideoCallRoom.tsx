@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { MdMic, MdMicOff, MdVideocam, MdVideocamOff, MdCallEnd } from 'react-icons/md';
+import { MdMic, MdMicOff, MdVideocam, MdVideocamOff, MdCallEnd, MdEdit } from 'react-icons/md';
 import { NotifContext } from '../../context/NotificationContext';
+import PatientHistoryForm from '../../components/doctor/PatientHistoryForm';
+import { getAppointmentByIdAPI } from '../../services/appointmentServices';
 
 interface VideoCallRoomProps {
   role: 'user' | 'doctor';
@@ -21,6 +23,22 @@ const VideoCallRoom: React.FC<VideoCallRoomProps> = ({ role, backUrl }) => {
   const [callStarted, setCallStarted] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [isHidden, setIsHidden] = useState(false);
+  const [showHistoryForm, setShowHistoryForm] = useState(false);
+  const [patientId, setPatientId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!appointmentId) return;
+
+    // ✅ fetch appointment to get patientId
+    (async () => {
+      try {
+        const appointment = await getAppointmentByIdAPI(appointmentId);
+        setPatientId(appointment.userData._id);
+      } catch (err) {
+        console.error('Error fetching appointment:', err);
+      }
+    })();
+  }, [appointmentId]);
 
   useEffect(() => {
     if (!socket || !appointmentId) return;
@@ -34,7 +52,6 @@ const VideoCallRoom: React.FC<VideoCallRoomProps> = ({ role, backUrl }) => {
 
     peerConnectionRef.current = peerConnection;
 
-    // for finding the remote person through that specific network api
     peerConnection.onicecandidate = (event) => {
       if (event.candidate) {
         socket.emit('ice-candidate', {
@@ -45,7 +62,6 @@ const VideoCallRoom: React.FC<VideoCallRoomProps> = ({ role, backUrl }) => {
       }
     };
 
-    // for getting the remote persons video and audio
     peerConnection.ontrack = (event) => {
       if (remoteVideoRef.current) {
         remoteVideoRef.current.srcObject = event.streams[0];
@@ -136,6 +152,7 @@ const VideoCallRoom: React.FC<VideoCallRoomProps> = ({ role, backUrl }) => {
 
   return (
     <div className="relative w-full h-screen bg-black text-white overflow-hidden">
+      {/* Remote Video */}
       <video
         ref={remoteVideoRef}
         autoPlay
@@ -143,20 +160,24 @@ const VideoCallRoom: React.FC<VideoCallRoomProps> = ({ role, backUrl }) => {
         className="absolute inset-0 w-full h-full object-cover"
       />
 
+      {/* Local Video */}
       <video
         ref={localVideoRef}
         autoPlay
         muted
         playsInline
-        className="absolute bottom-4 right-4 w-40 h-28 rounded-lg border-2 border-white object-cover shadow-lg"
+        className="absolute bottom-4 right-4 w-40 h-28 rounded-lg border-2 border-white object-cover shadow-lg z-20"
       />
 
+      {/* Header */}
       <div className="absolute top-4 left-4 text-xl font-bold z-10">
         Video Room - {role === 'doctor' ? 'Doctor' : 'Patient'}
       </div>
 
+      {/* Controls */}
       {callStarted && (
-        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-6">
+        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-6 z-20">
+          {/* Mic */}
           <button
             onClick={() => {
               if (!localStreamRef.current) return;
@@ -171,6 +192,7 @@ const VideoCallRoom: React.FC<VideoCallRoomProps> = ({ role, backUrl }) => {
             {isMuted ? <MdMicOff /> : <MdMic />}
           </button>
 
+          {/* Video */}
           <button
             onClick={() => {
               if (!localStreamRef.current) return;
@@ -185,6 +207,18 @@ const VideoCallRoom: React.FC<VideoCallRoomProps> = ({ role, backUrl }) => {
             {isHidden ? <MdVideocamOff /> : <MdVideocam />}
           </button>
 
+          {/* History (doctor only) */}
+          {role === 'doctor' && (
+            <button
+              onClick={() => setShowHistoryForm(true)}
+              className="bg-blue-600 hover:bg-blue-500 p-3 rounded-full text-white text-xl"
+              title="Add Patient History"
+            >
+              <MdEdit />
+            </button>
+          )}
+
+          {/* End Call */}
           <button
             onClick={() => {
               socket?.emit('end-call', { appointmentId });
@@ -201,6 +235,28 @@ const VideoCallRoom: React.FC<VideoCallRoomProps> = ({ role, backUrl }) => {
           >
             <MdCallEnd />
           </button>
+        </div>
+      )}
+
+      {/* Patient History Drawer */}
+      {showHistoryForm && role === 'doctor' && patientId && (
+        <div className="absolute top-20 right-6 w-[450px] max-h-[80%] bg-slate-900/95 text-white rounded-xl shadow-xl z-30 overflow-y-auto backdrop-blur-lg border border-slate-700">
+          <div className="flex justify-between items-center px-4 py-3 border-b border-slate-700">
+            <h2 className="text-lg font-semibold text-cyan-400">Patient History</h2>
+            <button
+              onClick={() => setShowHistoryForm(false)}
+              className="text-gray-400 hover:text-white text-xl"
+            >
+              ✕
+            </button>
+          </div>
+          <div className="p-4">
+            <PatientHistoryForm
+              patientId={patientId}
+              appointmentId={appointmentId!}
+              onClose={() => setShowHistoryForm(false)}
+            />
+          </div>
         </div>
       )}
     </div>

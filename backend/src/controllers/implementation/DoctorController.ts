@@ -319,6 +319,27 @@ export class DoctorController implements IDoctorController {
     }
   }
 
+  async getAppointmentById(req: Request, res: Response): Promise<void> {
+    try {
+      const { appointmentId } = req.params;
+      const appointment = await this._doctorService.getAppointmentById(appointmentId);
+
+      logger.info(`Appointment is found`);
+
+      res.status(HttpStatus.OK).json({
+        success: true,
+        appointment,
+      });
+      return;
+    } catch (error) {
+      logger.error(`Get appointment by id error: ${error}`);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
+    }
+  }
+
   async doctorProfile(req: Request, res: Response): Promise<void> {
     try {
       const doctId = (req as any).docId;

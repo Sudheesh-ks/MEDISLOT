@@ -350,6 +350,12 @@ export class DoctorService implements IDoctorService {
     return appointment ? toAppointmentDTO(appointment) : null;
   }
 
+  async getAppointmentById(appointmentId: string): Promise<AppointmentDTO> {
+    const appointment = await this._userRepository.findAppointmentById(appointmentId);
+    if (!appointment) throw new Error('appointment not found');
+    return toAppointmentDTO(appointment);
+  }
+
   async getDoctorProfile(docId: string): Promise<DoctorDTO> {
     const doctor = await this._doctorRepository.getDoctorProfileById(docId);
     if (!doctor) throw new Error('Doctor not found');

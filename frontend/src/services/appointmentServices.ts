@@ -1,4 +1,5 @@
 import { api } from '../axios/axiosInstance';
+import { doctorApi } from '../axios/doctorAxiosInstance';
 import { APPOINTMENT_API } from '../constants/apiRoutes';
 
 // Book an appointment
@@ -66,4 +67,9 @@ export const getDoctorReviewsAPI = async (doctorId: string, token: string) => {
       Authorization: `Bearer ${token}`,
     },
   });
+};
+
+export const getAppointmentByIdAPI = async (appointmentId: string) => {
+  const res = await doctorApi.get(`/api/doctor/appointments/${appointmentId}`);
+  return res.data.appointment;
 };

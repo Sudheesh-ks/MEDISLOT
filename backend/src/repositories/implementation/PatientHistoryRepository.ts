@@ -24,7 +24,7 @@ export class PatientHistoryRepository
     doctorId: string,
     userId: string
   ): Promise<PatientHistoryDocument[]> {
-    return this.findAll({ doctorId, userId });
+    return this.model.find({ doctorId, userId }).sort({ createdAt: -1 }).lean();
   }
 
   async findPrescriptionByAppointmentId(

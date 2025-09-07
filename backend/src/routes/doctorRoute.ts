@@ -87,6 +87,12 @@ doctorRouter.get(
 );
 
 doctorRouter.get(
+  '/appointments/:appointmentId',
+  authRole(['doctor']),
+  doctorController.getAppointmentById.bind(doctorController)
+);
+
+doctorRouter.get(
   '/profile',
   authRole(['doctor']),
   doctorController.doctorProfile.bind(doctorController)
