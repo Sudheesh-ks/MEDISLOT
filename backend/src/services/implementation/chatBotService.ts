@@ -37,7 +37,24 @@ If asked non-medical topics, say:
       });
 
       const result = await chat.sendMessage(message);
-      const reply = result.response.text();
+      let reply = result.response.text();
+
+      // --- Concern detection ---
+      const concernKeywords = [
+        'fever',
+        'headache',
+        'pain',
+        'doctor',
+        'cough',
+        'cold',
+        'appointment',
+        'not feeling well',
+      ];
+      const isConcern = concernKeywords.some((word) => message.toLowerCase().includes(word));
+
+      if (isConcern) {
+        reply += `\n\n👉 [Book an Appointment](/all-doctors)`;
+      }
 
       await this._chatBotRepository.saveMessage(userId, 'bot', reply);
 
@@ -53,5 +70,34 @@ If asked non-medical topics, say:
       throw new Error(HttpResponse.FIELDS_REQUIRED);
     }
     return this._chatBotRepository.getHistory(userId);
+  }
+
+  async getLatestChatSummary(userId: string): Promise<string> {
+    const recentMessages = await this._chatBotRepository.getRecentChatSummary(userId, 5);
+
+    if (!recentMessages.length) return 'No chat history available.';
+
+    // Only patient (user) messages are important
+    const userConcerns = recentMessages
+      .filter((msg) => msg.role === 'user')
+      .map((msg) => msg.text)
+      .join('\n');
+
+    const prompt = `
+  Summarize the following patient messages into a short paragraph (2–3 sentences).
+  Focus only on the health issue they are describing. Be concise and clear.
+
+  Patient messages:
+  ${userConcerns}
+  `;
+
+    try {
+      const chat = this._model.startChat();
+      const result = await chat.sendMessage(prompt);
+      return result.response.text();
+    } catch (err) {
+      console.error('Summarization failed:', err);
+      return 'Patient mentioned health concerns, but summary unavailable.';
+    }
   }
 }

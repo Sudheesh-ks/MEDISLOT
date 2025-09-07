@@ -8,4 +8,8 @@ export class ChatBotRepository {
   async getHistory(userId: string): Promise<chatBotDocument[]> {
     return await chatBotModel.find({ userId }).sort({ createdAt: 1 }).lean();
   }
+
+  async getRecentChatSummary(userId: string, limit: number = 3): Promise<chatBotDocument[]> {
+    return await chatBotModel.find({ userId }).sort({ createdAt: -1 }).limit(limit).lean();
+  }
 }

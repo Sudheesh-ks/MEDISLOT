@@ -84,10 +84,21 @@ const ChatBotModal: React.FC<ChatBotModalProps> = ({ isOpen, onClose }) => {
                   msg.role === 'user' ? 'bg-blue-600 text-white' : 'bg-slate-700 text-slate-100'
                 }`}
               >
-                {msg.text}
+                {msg.text.split(/(👉 \[.*?\]\(.*?\))/g).map((part, i) => {
+                  const match = part.match(/👉 \[(.*?)\]\((.*?)\)/);
+                  if (match) {
+                    return (
+                      <a key={i} href={match[2]} className="text-blue-400 underline ml-1">
+                        👉 {match[1]}
+                      </a>
+                    );
+                  }
+                  return <span key={i}>{part}</span>;
+                })}
               </div>
             </div>
           ))}
+
           {loading && <p className="text-slate-400 text-sm">Typing...</p>}
         </div>
 

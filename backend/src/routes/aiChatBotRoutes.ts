@@ -22,4 +22,10 @@ chatRouter.get(
   chatBotController.getChatHistory.bind(chatBotController)
 );
 
+chatRouter.get(
+  '/latest-summary/:userId',
+  authRole(['doctor']),
+  chatBotController.getLatestChatSummary.bind(chatBotController)
+);
+
 export default chatRouter;

@@ -38,4 +38,18 @@ export class ChatBotController implements IChatBotController {
       });
     }
   }
+
+  async getLatestChatSummary(req: Request, res: Response): Promise<void> {
+    try {
+      const userId = req.params.userId;
+      const summary = await this._chatBotService.getLatestChatSummary(userId);
+
+      res.status(HttpStatus.OK).json({ success: true, summary });
+    } catch (error) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
+    }
+  }
 }
