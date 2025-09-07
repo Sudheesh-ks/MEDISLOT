@@ -6,6 +6,7 @@ export interface feedbackTypes {
   apptId: string;
   userData: userTypes;
   message: string;
+  rating: number;
   timestamp: Date;
   isRead: boolean;
 }

@@ -16,5 +16,7 @@ export const toDoctorDTO = (doc: DoctorDocument): DoctorDTO => {
     status: doc.status,
     image: doc.image,
     certificate: doc.certificate,
+    averageRating: doc.averageRating,
+    ratingCount: doc.ratingCount,
   };
 };

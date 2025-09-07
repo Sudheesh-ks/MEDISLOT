@@ -11,7 +11,6 @@ import {
   isValidPassword,
   isValidPhone,
 } from '../../utils/validator';
-import { DoctorTypes } from '../../types/doctor';
 import {
   generateAccessToken,
   generateRefreshToken,
@@ -45,6 +44,7 @@ import { IFeedbackRepository } from '../../repositories/interface/IFeedbackRepos
 // import { IPrescriptionRepository } from '../../repositories/interface/IPrescriptionRepository';
 import { IComplaintRepository } from '../../repositories/interface/IComplaintRepository';
 import { IPatientHistoryRepository } from '../../repositories/interface/IPatientHistoryRepository';
+import { DoctorDTO } from '../../dtos/doctor.dto';
 
 export interface UserDocument extends userTypes {
   _id: string;
@@ -315,7 +315,7 @@ export class UserService implements IUserService {
     return user ? toUserDTO(user) : null;
   }
 
-  async getDoctorById(id: string): Promise<DoctorTypes> {
+  async getDoctorById(id: string): Promise<DoctorDTO> {
     const doctor = await this._userRepository.findDoctorById(id);
     if (!doctor) throw new Error('Doctor not found');
     return doctor;

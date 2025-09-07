@@ -4,6 +4,7 @@ import { UserContext } from '../../context/UserContext';
 import type { Doctor } from '../../assets/user/assets';
 import SearchBar from '../../components/common/SearchBar';
 import Pagination from '../../components/common/Pagination';
+import StarRating from '../../components/common/StarRating';
 
 const Doctors = () => {
   const nav = useNavigate();
@@ -18,6 +19,7 @@ const Doctors = () => {
 
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [minRating, setMinRating] = useState(0);
 
   if (!ctx) throw new Error('Doctors must be used within an UserContextProvider');
   const { getDoctorsPaginated } = ctx;
@@ -78,6 +80,30 @@ const Doctors = () => {
               </button>
             ))}
           </div>
+
+          <div className="flex flex-col gap-2 mt-6">
+            <h4 className="text-sm font-medium text-slate-300">Filter by Rating</h4>
+            {[5, 4, 3, 2, 1].map((rating) => (
+              <button
+                key={rating}
+                onClick={() => setMinRating(rating)}
+                className={`px-4 py-2 rounded-lg text-sm ring-1 ring-white/10 hover:bg-white/5 transition-colors ${
+                  minRating === rating ? 'bg-cyan-500/20 text-white' : ''
+                }`}
+              >
+                ⭐ {rating}
+              </button>
+            ))}
+
+            {minRating > 0 && (
+              <button
+                onClick={() => setMinRating(0)}
+                className="px-4 py-2 rounded-lg text-xs text-slate-400 hover:text-white"
+              >
+                Clear Rating Filter
+              </button>
+            )}
+          </div>
         </aside>
 
         <section className="flex-1 space-y-8">
@@ -92,6 +118,10 @@ const Doctors = () => {
               <div className="grid gap-10 grid-cols-[repeat(auto-fill,minmax(260px,1fr))]">
                 {doctors
                   .filter((d) => d.status === 'approved')
+                  .filter((d) =>
+                    minRating > 0 ? Math.floor(d.averageRating!) === minRating : true
+                  )
+                  .sort((a, b) => b.averageRating! - a.averageRating!)
                   .map((doc) => (
                     <div
                       key={doc._id}
@@ -120,6 +150,8 @@ const Doctors = () => {
                         </span>
                         <h3 className="font-semibold text-lg text-white">{doc.name}</h3>
                         <p className="text-sm text-slate-400">{doc.speciality}</p>
+
+                        <StarRating rating={doc.averageRating} />
                       </div>
                     </div>
                   ))}

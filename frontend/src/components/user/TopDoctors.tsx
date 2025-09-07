@@ -32,7 +32,8 @@ const TopDoctors = () => {
       <div className="grid gap-10 sm:gap-12 grid-cols-[repeat(auto-fill,minmax(280px,1fr))]">
         {doctors
           .filter((d) => d.status === 'approved')
-          .slice(0, 10)
+          .sort((a, b) => b.averageRating! - a.averageRating!)
+          .slice(0, 9)
           .map((doc: DoctorProfileType) => (
             <div
               key={doc._id}

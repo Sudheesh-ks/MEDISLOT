@@ -21,6 +21,7 @@ import { getDoctorsByIDAPI } from '../../services/doctorServices';
 import type { DoctorProfileType } from '../../types/doctor';
 import { currencySymbol } from '../../utils/commonUtils';
 import type { feedbackTypes } from '../../types/feedback';
+import StarRating from '../../components/common/StarRating';
 
 dayjs.extend(relativeTime);
 
@@ -213,6 +214,7 @@ const Appointment = () => {
           <h2 className="flex items-center gap-2 text-2xl font-extrabold text-white">
             {info?.name} <img src={assets.verified_icon} className="w-5" />
           </h2>
+
           <div className="flex items-center gap-2 text-sm text-slate-400">
             <span>
               {info?.degree} • {info?.speciality}
@@ -333,9 +335,9 @@ const Appointment = () => {
                 className="bg-white/5 backdrop-blur ring-1 ring-white/10 rounded-2xl p-5 flex gap-4"
               >
                 {/* Avatar */}
-                <div className="w-10 h-10 rounded-full object-cover ring-1 ring-white/10">
+                {/* <div className="w-10 h-10 rounded-full object-cover ring-1 ring-white/10">
                   <img src={r.userData.image} />
-                </div>
+                </div> */}
 
                 {/* Review content */}
                 <div className="flex-1 space-y-1">
@@ -343,6 +345,9 @@ const Appointment = () => {
                     <p className="font-medium text-white">{r.userData.name}</p>
                     <span className="text-xs text-slate-400">{dayjs(r.timestamp).fromNow()}</span>
                   </div>
+
+                  {/* Review rating */}
+                  {r.rating && <StarRating rating={r.rating} />}
                   <p className="text-slate-300 text-sm">{r.message}</p>
                 </div>
               </div>

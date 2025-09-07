@@ -14,5 +14,7 @@ export interface DoctorProfileType {
   };
   status?: 'pending' | 'approved' | 'rejected';
   available?: boolean;
+  averageRating?: number;
+  ratingCount?: number;
   date?: Date;
 }
