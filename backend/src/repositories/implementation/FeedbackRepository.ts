@@ -13,7 +13,6 @@ export class FeedbackRepository
     super(feedbackModel);
   }
 
-  // FeedbackRepository.ts
   async submitFeedback(
     userId: string,
     apptId: string,
@@ -42,7 +41,6 @@ export class FeedbackRepository
 
     const saved = await feedback.save();
 
-    // Update doctor's average rating
     const doctor = await doctorModel.findById(appointment.docId);
     if (doctor) {
       doctor.ratingCount! += 1;

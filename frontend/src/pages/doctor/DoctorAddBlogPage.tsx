@@ -3,7 +3,6 @@ import { createDoctorBlogAPI } from '../../services/doctorServices';
 import { toast } from 'react-toastify';
 import { showErrorToast } from '../../utils/errorHandler';
 
-// Lexical imports
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
@@ -30,7 +29,6 @@ const DoctorAddBlogPage = () => {
   const editorRef = useRef<any>(null);
   const [content, setContent] = useState('');
 
-  // Lexical config
   const editorConfig = {
     namespace: 'DoctorBlogEditor',
     theme: {
@@ -69,7 +67,7 @@ const DoctorAddBlogPage = () => {
 
   const handlePublish = async () => {
     if (!title || !summary || !category || !content) {
-      toast.error('⚠️ Please fill all required fields');
+      toast.error('Please fill all required fields');
       return;
     }
 
@@ -237,7 +235,7 @@ const DoctorAddBlogPage = () => {
             )}
           </div>
 
-          {/* Content Editor with Lexical */}
+          {/* Content Editor */}
           <div className="bg-slate-900/50 rounded-2xl p-6 border border-slate-800">
             <h2 className="text-xl font-semibold mb-6 text-blue-400">Article Content</h2>
             <LexicalComposer initialConfig={editorConfig}>

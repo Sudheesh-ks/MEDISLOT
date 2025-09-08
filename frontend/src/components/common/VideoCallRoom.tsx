@@ -29,7 +29,6 @@ const VideoCallRoom: React.FC<VideoCallRoomProps> = ({ role, backUrl }) => {
   useEffect(() => {
     if (!appointmentId) return;
 
-    // ✅ fetch appointment to get patientId
     (async () => {
       try {
         const appointment = await getAppointmentByIdAPI(appointmentId);
@@ -207,7 +206,7 @@ const VideoCallRoom: React.FC<VideoCallRoomProps> = ({ role, backUrl }) => {
             {isHidden ? <MdVideocamOff /> : <MdVideocam />}
           </button>
 
-          {/* History (doctor only) */}
+          {/* Add History For Doctors */}
           {role === 'doctor' && (
             <button
               onClick={() => setShowHistoryForm(true)}
@@ -238,7 +237,7 @@ const VideoCallRoom: React.FC<VideoCallRoomProps> = ({ role, backUrl }) => {
         </div>
       )}
 
-      {/* Patient History Drawer */}
+      {/* Patient History Modal */}
       {showHistoryForm && role === 'doctor' && patientId && (
         <div className="absolute top-20 right-6 w-[450px] max-h-[80%] bg-slate-900/95 text-white rounded-xl shadow-xl z-30 overflow-y-auto backdrop-blur-lg border border-slate-700">
           <div className="flex justify-between items-center px-4 py-3 border-b border-slate-700">

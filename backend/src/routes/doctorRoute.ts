@@ -160,21 +160,18 @@ doctorRouter.post(
   doctorController.createBlog.bind(doctorController)
 );
 
-// Get all blogs of logged-in doctor
 doctorRouter.get(
   '/blogs',
   authRole(['doctor']),
   doctorController.getDoctorBlogs.bind(doctorController)
 );
 
-// Get single blog by ID
 doctorRouter.get(
   '/blogs/:id',
   authRole(['doctor']),
   doctorController.getDoctorBlogById.bind(doctorController)
 );
 
-// Update blog
 doctorRouter.put(
   '/blogs/:id',
   authRole(['doctor']),

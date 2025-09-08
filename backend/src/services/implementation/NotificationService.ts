@@ -39,7 +39,6 @@ export class NotificationService implements INotificationService {
   }
 
   async getUnreadCount(recipientId: string, recipientRole: string): Promise<number> {
-    // console.log(recipientId, recipientRole)
     return this._notificationRepository.countUnread(recipientId.toString(), recipientRole);
   }
 

@@ -4,7 +4,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { showErrorToast } from '../../utils/errorHandler';
 
-// Lexical imports
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
 import { ContentEditable } from '@lexical/react/LexicalContentEditable';
@@ -65,7 +64,6 @@ const DoctorEditBlogPage = () => {
   const [content, setContent] = useState('');
   const [initialContent, setInitialContent] = useState('');
 
-  // Lexical config
   const editorConfig = {
     namespace: 'DoctorBlogEditor',
     theme: {
@@ -76,7 +74,6 @@ const DoctorEditBlogPage = () => {
     },
   };
 
-  // Fetch existing blog
   useEffect(() => {
     const fetchBlog = async () => {
       try {
@@ -91,7 +88,6 @@ const DoctorEditBlogPage = () => {
           setPreview(blog.image || '');
           setVisibility(blog.visibility || 'public');
           setInitialContent(blog.content || '');
-          //   setContent(blog.content || '');
         }
       } catch (error) {
         showErrorToast(error);

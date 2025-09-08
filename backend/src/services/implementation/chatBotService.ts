@@ -39,7 +39,6 @@ If asked non-medical topics, say:
       const result = await chat.sendMessage(message);
       let reply = result.response.text();
 
-      // --- Concern detection ---
       const concernKeywords = [
         'fever',
         'headache',
@@ -77,7 +76,6 @@ If asked non-medical topics, say:
 
     if (!recentMessages.length) return 'No chat history available.';
 
-    // Only patient (user) messages are important
     const userConcerns = recentMessages
       .filter((msg) => msg.role === 'user')
       .map((msg) => msg.text)

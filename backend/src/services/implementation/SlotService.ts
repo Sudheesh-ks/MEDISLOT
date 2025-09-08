@@ -41,7 +41,7 @@ export class DoctorSlotService implements ISlotService {
     const override = await this._slotRepository.getSlotByDate(doctorId, date);
     if (override) return override.slots;
 
-    const weekday = dayjs(date).day(); // Sunday=0..Saturday=6
+    const weekday = dayjs(date).day(); 
     const defaults = await this._slotRepository.getDefaultSlotByWeekday(doctorId, weekday);
     return defaults?.slots ?? [];
   }

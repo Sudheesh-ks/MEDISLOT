@@ -142,7 +142,6 @@ const BlogDetailPage: React.FC = () => {
           <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12">
             <div className="max-w-4xl mx-auto">
               <div className="mb-4">
-                {/* Keep SAME blue pill design */}
                 <span className="bg-blue-500/20 text-blue-400 px-3 py-1 rounded-full text-sm font-medium border border-blue-500/30">
                   {blog.category}
                 </span>

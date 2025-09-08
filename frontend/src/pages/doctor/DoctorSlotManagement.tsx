@@ -47,7 +47,6 @@ export default function DoctorSlotManager() {
   const [dayStatus, setDayStatus] = useState<Record<string, boolean>>({});
   const [mode, setMode] = useState<'day' | 'weekly'>('day');
 
-  // 📅 Calendar days
   const monthDays = useMemo(() => {
     const startDay = month.startOf('week');
     const endDay = month.endOf('month').endOf('week');
@@ -60,7 +59,6 @@ export default function DoctorSlotManager() {
     return days;
   }, [month]);
 
-  // ➕ Add new range
   const addRange = () => {
     const newStart = dayjs(start, 'HH:mm');
     const newEnd = dayjs(end, 'HH:mm');
@@ -85,16 +83,13 @@ export default function DoctorSlotManager() {
     toast.success('Slot added');
   };
 
-  // ✅ Toggle availability
   const toggleAvailability = (i: number) =>
     setRanges((r) =>
       r.map((range, idx) => (idx === i ? { ...range, isAvailable: !range.isAvailable } : range))
     );
 
-  // ❌ Delete slot
   const deleteRange = (i: number) => setRanges((r) => r.filter((_, idx) => idx !== i));
 
-  // 💾 Save (Day or Weekly)
   const saveSchedule = async () => {
     if (!selectedDate) return;
 
@@ -107,7 +102,7 @@ export default function DoctorSlotManager() {
         }));
         toast.success('Day schedule saved');
       } else {
-        const weekday = selectedDate.day(); // 0=Sunday … 6=Saturday
+        const weekday = selectedDate.day(); 
         await saveWeeklyDefaultAPI(weekday, ranges);
         toast.success('Weekly default saved');
       }
@@ -116,7 +111,6 @@ export default function DoctorSlotManager() {
     }
   };
 
-  // 🚫 Mark entire day unavailable
   const markDayUnavailable = () => {
     setRanges([{ start: '00:00', end: '23:59', isAvailable: false }]);
     setConfirmLeave(false);
@@ -129,7 +123,6 @@ export default function DoctorSlotManager() {
     }
   };
 
-  // 🔄 Load slots when date/mode changes
   useEffect(() => {
     if (!selectedDate) return;
 
@@ -150,7 +143,6 @@ export default function DoctorSlotManager() {
     })();
   }, [selectedDate, mode]);
 
-  // 🔄 Fetch monthly availability dots
   useEffect(() => {
     const fetchMonthStatus = async () => {
       const startOfMonth = month.startOf('month');
@@ -183,7 +175,6 @@ export default function DoctorSlotManager() {
     fetchMonthStatus();
   }, [month]);
 
-  // 🛡 Approval checks
   if (profileData?.status === 'pending')
     return (
       <div className="m-5 text-center bg-yellow-900/30 border border-yellow-600 rounded-xl p-6 text-yellow-200 shadow-md">
@@ -206,7 +197,6 @@ export default function DoctorSlotManager() {
       animate={{ opacity: 1, y: 0 }}
       className="max-w-7xl mx-auto px-4 md:px-10 py-12"
     >
-      {/* 🔄 Mode Switch */}
       <div className="flex justify-end mb-6">
         <select
           value={mode}
@@ -223,7 +213,7 @@ export default function DoctorSlotManager() {
       </h1>
 
       <div className="grid md:grid-cols-2 gap-10">
-        {/* 📅 Calendar */}
+        {/*  Calendar */}
         <Card className="rounded-2xl shadow-lg">
           <CardHeader className="flex flex-row justify-between items-center border-b border-muted-foreground/10 pb-4">
             <Button
@@ -277,7 +267,7 @@ export default function DoctorSlotManager() {
           </CardContent>
         </Card>
 
-        {/* 📋 Slots for Selected Date/Week */}
+        {/* Slots for Selected Date/Week */}
         <Card className="rounded-2xl shadow-lg h-fit sticky top-24">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">

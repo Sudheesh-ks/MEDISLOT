@@ -83,7 +83,7 @@ export class DoctorService implements IDoctorService {
     imageUrl = uploadResult.secure_url;
 
     const certificateUpload = await cloudinary.uploader.upload(certificate, {
-      resource_type: 'auto', // auto detects pdf/image
+      resource_type: 'auto', 
     });
 
     const doctorData: DoctorTypes = {

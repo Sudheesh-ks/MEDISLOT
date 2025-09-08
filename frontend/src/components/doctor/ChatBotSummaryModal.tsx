@@ -1,4 +1,3 @@
-// components/common/Modal.tsx
 import React from 'react';
 
 interface SummaryModalProps {

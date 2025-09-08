@@ -236,7 +236,7 @@ const DoctorAppointments = () => {
           <option value="custom">Custom</option>
         </select>
 
-        {/* Custom Range Inputs (visible only if custom is chosen) */}
+        {/* Custom Range Inputs */}
         {filterType === 'custom' && (
           <div className="flex items-center gap-2">
             <input

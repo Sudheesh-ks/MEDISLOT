@@ -41,7 +41,6 @@ import { ISlotRepository } from '../../repositories/interface/ISlotRepository';
 import { IWalletRepository } from '../../repositories/interface/IWalletRepository';
 import { INotificationService } from '../interface/INotificationService';
 import { IFeedbackRepository } from '../../repositories/interface/IFeedbackRepository';
-// import { IPrescriptionRepository } from '../../repositories/interface/IPrescriptionRepository';
 import { IComplaintRepository } from '../../repositories/interface/IComplaintRepository';
 import { IPatientHistoryRepository } from '../../repositories/interface/IPatientHistoryRepository';
 import { DoctorDTO } from '../../dtos/doctor.dto';
@@ -60,7 +59,6 @@ export class UserService implements IUserService {
     private readonly _walletRepository: IWalletRepository,
     private readonly _notificationService: INotificationService,
     private readonly _feedbackRepository: IFeedbackRepository,
-    // private readonly _prescriptionRepository: IPrescriptionRepository,
     private readonly _complaintRepository: IComplaintRepository,
     private readonly _patientHistoryRepository: IPatientHistoryRepository
   ) {}
@@ -537,14 +535,12 @@ export class UserService implements IUserService {
       throw new Error('doctorId and date are required');
     }
 
-    // 1. Try daily override
     const overrideDoc = await this._slotRepository.getSlotByDate(doctorId, isoDate(date));
     if (overrideDoc) {
       return (overrideDoc.slots as SlotRange[])?.filter((r) => r.isAvailable && !r.booked) ?? [];
     }
 
-    // 2. Fallback to weekly default
-    const weekday = dayjs(date).day(); // 0=Sunday..6=Saturday
+    const weekday = dayjs(date).day(); 
     const defaultDoc = await this._slotRepository.getDefaultSlotByWeekday(doctorId, weekday);
 
     return (defaultDoc?.slots as SlotRange[])?.filter((r) => r.isAvailable && !r.booked) ?? [];
@@ -558,7 +554,6 @@ export class UserService implements IUserService {
     return this._userRepository.getAvailableSlotsByDoctorAndMonth(doctorId, year, month);
   }
 
-  // UserService.ts
   async submitFeedback(
     userId: string,
     apptId: string,
