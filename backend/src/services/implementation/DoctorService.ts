@@ -24,6 +24,7 @@ import { IPatientHistoryRepository } from '../../repositories/interface/IPatient
 import { patientHistoryTypes } from '../../types/patientHistoryTypes';
 import { IUserRepository } from '../../repositories/interface/IUserRepository';
 import { IComplaintRepository } from '../../repositories/interface/IComplaintRepository';
+import { isValidPassword } from '../../utils/validator';
 
 export interface DoctorDocument extends DoctorTypes {
   _id: string;
@@ -83,7 +84,7 @@ export class DoctorService implements IDoctorService {
     imageUrl = uploadResult.secure_url;
 
     const certificateUpload = await cloudinary.uploader.upload(certificate, {
-      resource_type: 'auto', 
+      resource_type: 'auto',
     });
 
     const doctorData: DoctorTypes = {
@@ -432,6 +433,22 @@ export class DoctorService implements IDoctorService {
         available: String(available) === 'true',
       }),
     });
+  }
+
+  async changePassword(doctorId: string, oldPassword: string, newPassword: string): Promise<void> {
+    if (!isValidPassword(newPassword)) {
+      throw new Error(HttpResponse.INVALID_PASSWORD);
+    }
+
+    const doctor = await this._doctorRepository.findById(doctorId);
+    if (!doctor) throw new Error('Doctor not found');
+
+    const isMatch = await bcrypt.compare(oldPassword, doctor.password);
+    if (!isMatch) throw new Error('Current password is incorrect');
+
+    const hashedpassword = await bcrypt.hash(newPassword, 10);
+
+    await this._doctorRepository.updateDoctorById(doctorId, { password: hashedpassword });
   }
 
   async getDoctorWalletPaginated(

@@ -371,6 +371,22 @@ export class DoctorController implements IDoctorController {
     }
   }
 
+  async changePassword(req: Request, res: Response): Promise<void> {
+    try {
+      const doctorId = (req as any).docId;
+      const { oldPassword, newPassword } = req.body;
+
+      await this._doctorService.changePassword(doctorId, oldPassword, newPassword);
+      res.status(HttpStatus.OK).json({ success: true, message: 'Password updated successfully' });
+    } catch (error) {
+      logger.error(`change password error: ${error}`);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
+    }
+  }
+
   async getDoctorWallet(req: Request, res: Response): Promise<void> {
     try {
       const doctorId = (req as any).docId;

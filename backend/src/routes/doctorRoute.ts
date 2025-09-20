@@ -105,6 +105,12 @@ doctorRouter.patch(
   doctorController.updateDoctorProfile.bind(doctorController)
 );
 
+doctorRouter.post(
+  '/change-password',
+  authRole(['doctor']),
+  doctorController.changePassword.bind(doctorController)
+);
+
 doctorRouter.get(
   '/wallet',
   authRole(['doctor']),

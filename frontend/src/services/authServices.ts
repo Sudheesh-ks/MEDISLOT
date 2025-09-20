@@ -40,3 +40,16 @@ export const verifyEmailAPI = async (email: string) => {
 export const resetPasswordAPI = async (email: string, newPassword: string) => {
   return api.post(AUTH_API.RESET_PASSWORD, { email, newPassword });
 };
+
+export const changePasswordAPI = async (
+  token: string,
+  oldPassword: string,
+  newPassword: string
+) => {
+  const res = await api.post(
+    '/api/user/change-password',
+    { oldPassword, newPassword },
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+  return res.data;
+};

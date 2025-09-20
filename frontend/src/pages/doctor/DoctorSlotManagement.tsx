@@ -102,7 +102,7 @@ export default function DoctorSlotManager() {
         }));
         toast.success('Day schedule saved');
       } else {
-        const weekday = selectedDate.day(); 
+        const weekday = selectedDate.day();
         await saveWeeklyDefaultAPI(weekday, ranges);
         toast.success('Weekly default saved');
       }

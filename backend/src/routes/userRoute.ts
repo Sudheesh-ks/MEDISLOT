@@ -66,6 +66,12 @@ userRouter.put(
   userController.updateProfile.bind(userController)
 );
 
+userRouter.post(
+  '/change-password',
+  authRole(['user']),
+  userController.changePassword.bind(userController)
+);
+
 userRouter.get('/wallet', authRole(['user']), userController.getUserWallet.bind(userController));
 
 userRouter.post(

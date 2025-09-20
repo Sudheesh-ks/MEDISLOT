@@ -101,6 +101,19 @@ export const updateDoctorProfileAPI = (formData: any, image: File | null) => {
   });
 };
 
+export const changeDoctorPasswordAPI = async (
+  token: string,
+  oldPassword: string,
+  newPassword: string
+) => {
+  const res = await api.post(
+    '/api/doctor/change-password',
+    { oldPassword, newPassword },
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+  return res.data;
+};
+
 export const getDoctorWalletAPI = async (
   page: number,
   limit: number,

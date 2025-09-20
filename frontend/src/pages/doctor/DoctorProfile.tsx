@@ -11,7 +11,7 @@ import ReportBugModal from '../../components/user/BugReportModal';
 
 const DoctorProfile = () => {
   const ctx = useContext(DoctorContext);
-  const nav = useNavigate();
+  const navigate = useNavigate();
   if (!ctx) throw new Error('DoctorProfile within DoctorContext');
 
   const { dToken, profileData, getProfileData } = ctx;
@@ -26,7 +26,7 @@ const DoctorProfile = () => {
     if (dToken) getProfileData();
   }, [dToken]);
   useEffect(() => {
-    if (!dToken) nav('/doctor/login');
+    if (!dToken) navigate('/doctor/login');
   }, [dToken]);
   useEffect(() => {
     setForm(profileData);
@@ -239,13 +239,23 @@ const DoctorProfile = () => {
         </div>
 
         {/* Add Report Bug Button */}
-        <div className="mt-6 flex justify-end">
-          <button
-            onClick={() => setShowBugModal(true)}
-            className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-500"
-          >
-            Report Bug
-          </button>
+        <div className="mt-6 flex justify-end gap-3">
+          <div>
+            <button
+              onClick={() => navigate('/doctor/change-password')}
+              className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-500"
+            >
+              Change Password
+            </button>
+          </div>
+          <div>
+            <button
+              onClick={() => setShowBugModal(true)}
+              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-500"
+            >
+              Report Bug
+            </button>
+          </div>
         </div>
 
         {/* Bug Modal */}

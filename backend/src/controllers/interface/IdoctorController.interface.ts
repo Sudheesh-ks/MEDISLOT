@@ -11,4 +11,5 @@ export interface IDoctorController {
   appointmentCancel(req: Request, res: Response): Promise<void>;
   getActiveAppointment(req: Request, res: Response): Promise<void>;
   updateDoctorProfile(req: Request, res: Response): Promise<void>;
+  changePassword(req: Request, res: Response): Promise<void>;
 }

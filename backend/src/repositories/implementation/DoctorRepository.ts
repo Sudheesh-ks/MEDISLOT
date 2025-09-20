@@ -213,6 +213,10 @@ export class DoctorRepository extends BaseRepository<DoctorDocument> implements 
     return doctorModel.findById(id).select('-password');
   }
 
+  async updateDoctorById(id: string, data: Partial<DoctorTypes>): Promise<void> {
+    await doctorModel.findByIdAndUpdate(id, { $set: data });
+  }
+
   async updateDoctorProfile(
     id: string,
     updateData: Partial<

@@ -10,13 +10,14 @@ const DoctorNavbar = () => {
   const ctx = useContext(DoctorContext);
   if (!ctx) throw new Error('DoctorContext missing');
 
-  const { setDToken, profileData } = ctx;
+  const { setDToken, profileData, setProfileData } = ctx;
   const nav = useNavigate();
 
   const logout = async () => {
     try {
       await logoutDoctorAPI();
       setDToken('');
+      setProfileData(null);
       localStorage.removeItem('doctorAccessToken');
       localStorage.setItem('isDoctorLoggedOut', 'true');
       clearDoctorAccessToken();

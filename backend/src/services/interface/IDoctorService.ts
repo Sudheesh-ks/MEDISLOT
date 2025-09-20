@@ -28,6 +28,7 @@ export interface IDoctorService {
   getActiveAppointment(docId: string): Promise<AppointmentDTO | null>;
   getAppointmentById(appointmentId: string): Promise<AppointmentDTO>;
   getDoctorProfile(docId: string): Promise<DoctorDTO>;
+  changePassword(doctorId: string, oldPassword: string, newPassword: string): Promise<void>;
   updateDoctorProfile(body: any, imageFile?: Express.Multer.File): Promise<void>;
   getDoctorWalletPaginated(
     doctorId: string,

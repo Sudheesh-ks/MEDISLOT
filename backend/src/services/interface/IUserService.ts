@@ -37,6 +37,7 @@ export interface IUserService {
     data: Partial<userTypes>,
     imageFile?: Express.Multer.File
   ): Promise<void>;
+  changePassword(userId: string, oldPassword: string, newPassword: string): Promise<void>;
   getUserWalletPaginated(
     ownerId: string,
     ownerType: 'user' | 'doctor' | 'admin',

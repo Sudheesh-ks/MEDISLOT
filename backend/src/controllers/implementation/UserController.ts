@@ -277,6 +277,24 @@ export class UserController implements IUserController {
     }
   }
 
+  async changePassword(req: Request, res: Response): Promise<void> {
+    try {
+      const userId = (req as any).userId;
+      const { oldPassword, newPassword } = req.body;
+
+      console.log('anneyy userId:', userId);
+
+      await this._userService.changePassword(userId, oldPassword, newPassword);
+      res.status(HttpStatus.OK).json({ success: true, message: 'Password updated successfully' });
+    } catch (error) {
+      logger.error(`change password error: ${error}`);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
+    }
+  }
+
   async getUserWallet(req: Request, res: Response): Promise<void> {
     try {
       const userId = (req as any).userId;

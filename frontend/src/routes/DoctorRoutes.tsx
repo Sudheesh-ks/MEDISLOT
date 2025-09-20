@@ -20,6 +20,7 @@ import DoctorAddBlogPage from '../pages/doctor/DoctorAddBlogPage';
 import PatientHistoryPage from '../pages/doctor/PatientHistoryPage';
 import DoctorBlogsPage from '../pages/doctor/DoctorBlogPage';
 import DoctorEditBlogPage from '../pages/doctor/DoctorUpdateBlogs';
+import DoctorChangePassword from '../components/doctor/DoctorChangePassword';
 
 const DoctorRoutes = () => {
   return (
@@ -47,6 +48,14 @@ const DoctorRoutes = () => {
         element={
           <DoctorLayout>
             <DoctorProfile />
+          </DoctorLayout>
+        }
+      />
+      <Route
+        path="/doctor/change-password"
+        element={
+          <DoctorLayout>
+            <DoctorChangePassword />
           </DoctorLayout>
         }
       />

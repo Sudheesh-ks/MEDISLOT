@@ -10,7 +10,7 @@ import { currencySymbol } from '../../utils/commonUtils';
 import ReportBugModal from '../../components/user/BugReportModal';
 
 const MyProfile = () => {
-  const nav = useNavigate();
+  const navigate = useNavigate();
   const context = useContext(UserContext);
   if (!context) throw new Error('MyProfile must be within UserContext');
   const { userData, setUserData, token, loadUserProfileData } = context;
@@ -22,7 +22,7 @@ const MyProfile = () => {
 
   useEffect(() => {
     if (!token) {
-      nav('/');
+      navigate('/');
       return;
     }
 
@@ -37,7 +37,7 @@ const MyProfile = () => {
     };
 
     fetchWalletBalance();
-  }, [token, nav]);
+  }, [token, navigate]);
 
   if (!userData) return null;
 
@@ -294,7 +294,7 @@ const MyProfile = () => {
         {/* Wallet Card */}
         <div className="lg:col-span-1">
           <div
-            onClick={() => nav('/wallet')}
+            onClick={() => navigate('/wallet')}
             className="bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg p-4 cursor-pointer hover:from-blue-700 hover:to-purple-700 transition-all duration-300 h-fit"
           >
             <div className="text-center">
@@ -343,13 +343,23 @@ const MyProfile = () => {
           </div>
 
           {/* Add Report Bug Button */}
-          <div className="mt-6 flex justify-end">
-            <button
-              onClick={() => setShowBugModal(true)}
-              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-500"
-            >
-              Report Bug
-            </button>
+          <div className="mt-6 flex justify-end gap-3">
+            <div>
+              <button
+                onClick={() => navigate('/change-password')}
+                className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-500"
+              >
+                Change password
+              </button>
+            </div>
+            <div>
+              <button
+                onClick={() => setShowBugModal(true)}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-500"
+              >
+                Report Bug
+              </button>
+            </div>
           </div>
         </div>
       </div>

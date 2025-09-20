@@ -302,6 +302,22 @@ export class UserService implements IUserService {
     await this._userRepository.updateUserById(userId, data);
   }
 
+  async changePassword(userId: string, oldPassword: string, newPassword: string): Promise<void> {
+    if (!isValidPassword(newPassword)) {
+      throw new Error(HttpResponse.INVALID_PASSWORD);
+    }
+
+    const user = await this._userRepository.findUserById(userId);
+    if (!user) throw new Error('User not found');
+
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
+    if (!isMatch) throw new Error('Current password is incorrect');
+
+    const hashedpassword = await bcrypt.hash(newPassword, 10);
+
+    await this._userRepository.updateUserById(userId, { password: hashedpassword });
+  }
+
   async checkEmailExists(email: string): Promise<boolean> {
     const user = await this._userRepository.findUserByEmail(email);
     return !!user;
@@ -540,7 +556,7 @@ export class UserService implements IUserService {
       return (overrideDoc.slots as SlotRange[])?.filter((r) => r.isAvailable && !r.booked) ?? [];
     }
 
-    const weekday = dayjs(date).day(); 
+    const weekday = dayjs(date).day();
     const defaultDoc = await this._slotRepository.getDefaultSlotByWeekday(doctorId, weekday);
 
     return (defaultDoc?.slots as SlotRange[])?.filter((r) => r.isAvailable && !r.booked) ?? [];
