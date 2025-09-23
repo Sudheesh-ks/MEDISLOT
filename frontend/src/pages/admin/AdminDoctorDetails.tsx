@@ -4,14 +4,13 @@ import { AdminContext } from '../../context/AdminContext';
 
 const AdminDoctorDetail = () => {
   const { id } = useParams();
-  const nav = useNavigate();
-  const ctx = useContext(AdminContext);
-  if (!ctx) throw new Error('AdminContext missing');
+  const navigate = useNavigate();
+  const adminContext = useContext(AdminContext);
+  if (!adminContext) throw new Error('AdminContext missing');
 
-  const { getDoctorById, approveDoctor, rejectDoctor } = ctx;
+  const { getDoctorById, approveDoctor, rejectDoctor } = adminContext;
 
   const [doctor, setDoctor] = useState<any>(null);
-
   const [showModal, setShowModal] = useState(false);
   const [reason, setReason] = useState('');
 
@@ -30,14 +29,14 @@ const AdminDoctorDetail = () => {
 
   const doctorApprove = async () => {
     await approveDoctor(id!);
-    nav('/admin/doctor-requests');
+    navigate('/admin/doctor-requests');
   };
 
   const doctorReject = async () => {
     if (!reason.trim()) return;
     await rejectDoctor(id!, reason);
     setShowModal(false);
-    nav('/admin/doctor-requests');
+    navigate('/admin/doctor-requests');
   };
 
   if (!doctor) return <div className="p-6 text-slate-400">Loading…</div>;

@@ -40,12 +40,13 @@ const glass = 'bg-white/5 backdrop-blur ring-1 ring-white/10';
 const cardBase = 'cursor-pointer text-white p-6 rounded-xl shadow-md flex items-center gap-4';
 
 export default function AdminDashboard() {
-  const nav = useNavigate();
-  const ctx = useContext(AdminContext);
-  if (!ctx) throw new Error('Missing contexts');
+  const navigate = useNavigate();
+  const adminContext = useContext(AdminContext);
+  if (!adminContext) throw new Error('Missing contexts');
 
-  const { aToken, dashData, getDashData, cancelAppointment } = ctx;
-  const [latest, setLatest] = useState<any[]>([]);
+  const { aToken, dashData, getDashData, cancelAppointment } = adminContext;
+
+  const [latestAppointments, setLatestAppointments] = useState<any[]>([]);
   const [dateRange, setDateRange] = useState<DateRange>({ type: 'today' });
   const [appointmentsData, setAppointmentsData] = useState<{ date: string; count: number }[]>([]);
   const [topDoctors, setTopDoctors] = useState<any[]>([]);
@@ -57,11 +58,11 @@ export default function AdminDashboard() {
   }, [aToken]);
 
   useEffect(() => {
-    if (!aToken) nav('/admin/login');
-  }, [aToken, nav]);
+    if (!aToken) navigate('/admin/login');
+  }, [aToken, navigate]);
 
   useEffect(() => {
-    if (dashData?.latestAppointments) setLatest(dashData.latestAppointments);
+    if (dashData?.latestAppointments) setLatestAppointments(dashData.latestAppointments);
   }, [dashData]);
 
   const computeRange = (range: DateRange) => {
@@ -261,7 +262,9 @@ export default function AdminDashboard() {
   return (
     <div className="m-5 space-y-10 text-slate-100">
       {!dashData || loadingStats ? (
-        <div className="text-center py-20 text-lg">Loading dashboard...</div>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500"></div>
+        </div>
       ) : (
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -270,7 +273,7 @@ export default function AdminDashboard() {
                 key={i}
                 whileHover={{ scale: 1.05 }}
                 transition={{ type: 'spring', stiffness: 300 }}
-                onClick={() => nav(c.path)}
+                onClick={() => navigate(c.path)}
                 className={`${cardBase} bg-gradient-to-r ${c.grad}`}
               >
                 <img src={c.icon} className="w-12 h-12" />
@@ -315,7 +318,7 @@ export default function AdminDashboard() {
             </div>
 
             <div className="mt-6 divide-y divide-white/10 rounded overflow-hidden">
-              {latest.map((it: any, idx: number) => (
+              {latestAppointments.map((it: any, idx: number) => (
                 <motion.div
                   key={idx}
                   initial={{ opacity: 0, y: 10 }}
@@ -340,7 +343,9 @@ export default function AdminDashboard() {
                       className="w-6 cursor-pointer hover:opacity-80"
                       onClick={async () => {
                         await cancelAppointment(it._id!);
-                        setLatest((prev) => updateItemInList(prev, it._id!, { cancelled: true }));
+                        setLatestAppointments((prev) =>
+                          updateItemInList(prev, it._id!, { cancelled: true })
+                        );
                       }}
                     />
                   )}

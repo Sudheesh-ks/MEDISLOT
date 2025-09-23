@@ -112,7 +112,7 @@ const Navbar = () => {
         ) : (
           <button
             onClick={() => navigate('/login')}
-            className="hidden md:inline-flex items-center bg-gradient-to-r from-cyan-500 to-fuchsia-600 text-white px-5 py-2 rounded-full text-sm shadow-lg hover:-translate-y-0.5 transition-transform"
+            className="hidden md:inline-flex items-center bg-gradient-to-r from-cyan-500 to-blue-600 text-white px-5 py-2 rounded-full text-sm shadow-lg hover:-translate-y-0.5 transition-transform"
           >
             Login
           </button>
@@ -154,7 +154,7 @@ const Navbar = () => {
                 setOpen(false);
                 navigate('/login');
               }}
-              className="w-full bg-gradient-to-r from-cyan-500 to-fuchsia-600 text-white py-2 rounded-full"
+              className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white py-2 rounded-full"
             >
               Login
             </button>

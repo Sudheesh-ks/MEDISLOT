@@ -15,7 +15,7 @@ const Header = () => {
         <div className="space-y-8 text-center md:text-left">
           <h1 className="text-4xl sm:text-6xl font-extrabold leading-tight text-white">
             Cure Health Issues,{' '}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-fuchsia-500 to-indigo-600">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-600">
               With Trusted Doctors
             </span>
           </h1>
@@ -29,7 +29,7 @@ const Header = () => {
               onClick={() =>
                 document.getElementById('speciality')?.scrollIntoView({ behavior: 'smooth' })
               }
-              className="inline-flex items-center bg-gradient-to-r from-cyan-500 to-fuchsia-600 text-white px-6 py-3 rounded-full text-sm font-medium shadow-lg hover:-translate-y-0.5 transition-transform"
+              className="inline-flex items-center bg-gradient-to-r from-cyan-500 to-blue-600 text-white px-6 py-3 rounded-full text-sm font-medium shadow-lg hover:-translate-y-0.5 transition-transform"
             >
               Browse Specialities
             </button>

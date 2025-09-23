@@ -12,11 +12,11 @@ import { calculateAge, currencySymbol, slotDateFormat } from '../../utils/common
 const glass = 'bg-white/5 backdrop-blur ring-1 ring-white/10';
 
 const AdminAppointments = () => {
-  const nav = useNavigate();
-  const adminCtx = useContext(AdminContext);
-  if (!adminCtx) throw new Error('Missing contexts');
+  const navigate = useNavigate();
+  const adminContext = useContext(AdminContext);
+  if (!adminContext) throw new Error('Missing contexts');
 
-  const { aToken, getAppointmentsPaginated, cancelAppointment } = adminCtx;
+  const { aToken, getAppointmentsPaginated, cancelAppointment } = adminContext;
 
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
@@ -43,8 +43,8 @@ const AdminAppointments = () => {
   };
 
   useEffect(() => {
-    if (!aToken) nav('/admin/login');
-  }, [aToken, nav]);
+    if (!aToken) navigate('/admin/login');
+  }, [aToken, navigate]);
 
   const columns = [
     {

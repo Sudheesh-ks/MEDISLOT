@@ -44,7 +44,7 @@ const ConsultationEndedCard = ({ role, appointmentId }: ConsultationEndedCardPro
     <main className="max-w-4xl mx-auto px-4 md:px-10 py-24 text-slate-100 animate-fade">
       <h1 className="text-3xl md:text-4xl font-extrabold text-center mb-12">
         CONSULTATION{' '}
-        <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-fuchsia-500 to-indigo-600">
+        <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-600">
           ENDED
         </span>
       </h1>

@@ -7,14 +7,14 @@ import type { ComplaintTypes } from '../../types/complaint';
 import { toast } from 'react-toastify';
 
 const AdminInbox = () => {
-  const adminCtx = useContext(AdminContext);
-  if (!adminCtx) throw new Error('Missing contexts');
+  const adminContext = useContext(AdminContext);
+  if (!adminContext) throw new Error('Missing contexts');
 
-  const { aToken } = adminCtx;
+  const { aToken } = adminContext;
 
   const [page, setPage] = useState<number>(1);
   const [query, setQuery] = useState<string>('');
-  const [load, setLoad] = useState<boolean>(false);
+  const [loading, setLoading] = useState<boolean>(false);
 
   const [complaints, setComplaints] = useState<ComplaintTypes[]>([]);
   const [totalPages, setTotalPages] = useState<number>(1);
@@ -26,7 +26,7 @@ const AdminInbox = () => {
 
   useEffect(() => {
     const fetchComplaints = async () => {
-      setLoad(true);
+      setLoading(true);
       try {
         const res = await getComplaintsPaginatedAPI(page, 6, aToken, query, status);
         if (res.data.success) {
@@ -36,7 +36,7 @@ const AdminInbox = () => {
       } catch (err) {
         console.error('Error fetching Complaints:', err);
       } finally {
-        setLoad(false);
+        setLoading(false);
       }
     };
 
@@ -126,8 +126,10 @@ const AdminInbox = () => {
         </select>
       </div>
 
-      {load ? (
-        <div className="text-center py-10 text-slate-400 text-sm">Loading Complaints…</div>
+      {loading ? (
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500"></div>
+        </div>
       ) : filtered.length ? (
         <>
           <div className="w-full flex flex-wrap gap-6">

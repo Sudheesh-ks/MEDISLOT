@@ -23,8 +23,8 @@ const LoadingButton: React.FC<LoadingButtonProps> = ({
       onClick={onClick}
       disabled={loading || disabled}
       className={`flex items-center justify-center gap-2 px-4 py-2 rounded-md
-        text-white bg-gradient-to-r from-indigo-500 to-purple-600
-        hover:from-indigo-400 hover:to-purple-500
+        text-white bg-gradient-to-r from-indigo-500 to-blue-600
+        hover:from-indigo-400 hover:to-blue-500
         transition duration-200 ease-in-out
         backdrop-blur-sm ring-1 ring-white/10 shadow-md
         ${loading || disabled ? 'opacity-60 cursor-not-allowed' : ''}

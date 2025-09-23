@@ -40,7 +40,7 @@ const DoctorLogin = () => {
   const input =
     'w-full bg-transparent ring-1 ring-white/10 rounded px-4 py-2 mt-1 text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500';
   const btn =
-    'w-full bg-gradient-to-r from-cyan-500 to-fuchsia-600 py-2 rounded-md text-base hover:-translate-y-0.5 transition-transform';
+    'w-full bg-gradient-to-r from-cyan-500 to-blue-600 py-2 rounded-md text-base hover:-translate-y-0.5 transition-transform';
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center relative">

@@ -10,15 +10,15 @@ import { updateAdminAccessToken } from '../../context/tokenManagerAdmin';
 const AdminLogin = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const nav = useNavigate();
+  const navigate = useNavigate();
 
-  const ctx = useContext(AdminContext);
-  if (!ctx) throw new Error('AdminContext must be used within AdminContextProvider');
-  const { aToken, setAToken } = ctx;
+  const adminContext = useContext(AdminContext);
+  if (!adminContext) throw new Error('AdminContext must be used within AdminContextProvider');
+  const { aToken, setAToken } = adminContext;
 
   useEffect(() => {
-    if (aToken) nav('/admin/dashboard');
-  }, [aToken, nav]);
+    if (aToken) navigate('/admin/dashboard');
+  }, [aToken, navigate]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -29,7 +29,7 @@ const AdminLogin = () => {
         setAToken(data.token);
         localStorage.removeItem('isAdminLoggedOut');
         toast.success('Login successful');
-        nav('/admin/dashboard');
+        navigate('/admin/dashboard');
       } else toast.error(data.message);
     } catch (err) {
       showErrorToast(err);

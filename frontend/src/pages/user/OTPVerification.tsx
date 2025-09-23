@@ -6,9 +6,9 @@ import { resendOtpAPI, verifyOtpAPI } from '../../services/authServices';
 
 const OtpVerificationPage = () => {
   const navigate = useNavigate();
-  const ctx = useContext(UserContext);
-  if (!ctx) throw new Error('OtpVerification must be within UserContext');
-  const { token, setToken, loadUserProfileData } = ctx;
+  const context = useContext(UserContext);
+  if (!context) throw new Error('OtpVerification must be within UserContext');
+  const { token, setToken, loadUserProfileData } = context;
 
   const [otp, setOtp] = useState<string[]>(['', '', '', '', '', '']);
   const [email, setEmail] = useState('');
@@ -86,7 +86,7 @@ const OtpVerificationPage = () => {
   const inputBox =
     'w-12 h-12 text-center text-xl bg-transparent ring-1 ring-white/10 rounded-md focus:outline-none focus:ring-2 focus:ring-cyan-500';
   const primaryBtn =
-    'w-full bg-gradient-to-r from-cyan-500 to-fuchsia-600 py-2 rounded-md text-base hover:-translate-y-0.5 transition-transform';
+    'w-full bg-gradient-to-r from-cyan-500 to-blue-600 py-2 rounded-md text-base hover:-translate-y-0.5 transition-transform';
 
   return (
     <form

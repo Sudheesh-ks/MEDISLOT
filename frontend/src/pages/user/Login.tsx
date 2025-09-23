@@ -9,10 +9,10 @@ import { showErrorToast } from '../../utils/errorHandler';
 import LoadingButton from '../../components/common/LoadingButton';
 
 const Login: React.FC = () => {
-  const nav = useNavigate();
-  const ctx = useContext(UserContext);
-  if (!ctx) throw new Error('Login must be used within UserContextProvider');
-  const { backendUrl, token, setToken, loadUserProfileData } = ctx;
+  const navigate = useNavigate();
+  const context = useContext(UserContext);
+  if (!context) throw new Error('Login must be used within UserContextProvider');
+  const { backendUrl, token, setToken, loadUserProfileData } = context;
 
   const [state, setState] = useState<'Sign Up' | 'Login'>('Sign Up');
   const [email, setEmail] = useState('');
@@ -40,7 +40,7 @@ const Login: React.FC = () => {
             JSON.stringify({ email, name, purpose: 'register' })
           );
           toast.success('OTP sent to your email');
-          nav('/verify-otp');
+          navigate('/verify-otp');
         } else toast.error(data.message);
       } else {
         const { data } = await loginUserAPI(email, password);
@@ -49,7 +49,7 @@ const Login: React.FC = () => {
           localStorage.removeItem('isUserLoggedOut');
           loadUserProfileData();
           toast.success('Login successful');
-          nav('/home');
+          navigate('/home');
         } else toast.error(data.message);
       }
     } catch (err) {
@@ -60,15 +60,15 @@ const Login: React.FC = () => {
   };
 
   useEffect(() => {
-    if (token) nav('/home');
-  }, [token, nav]);
+    if (token) navigate('/home');
+  }, [token, navigate]);
 
   const inputStyle =
     'w-full bg-transparent ring-1 ring-white/10 rounded px-4 py-2 mt-1 text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500';
   const card =
     'flex flex-col sm:flex-row bg-white/5 backdrop-blur ring-1 ring-white/10 rounded-xl overflow-hidden';
   const gradientBtn =
-    'bg-gradient-to-r from-cyan-500 to-fuchsia-600 text-white w-full py-2 rounded-md text-base hover:-translate-y-0.5 transition-transform';
+    'bg-gradient-to-r from-cyan-500 to-blue-600 text-white w-full py-2 rounded-md text-base hover:-translate-y-0.5 transition-transform';
 
   return (
     <form
@@ -77,7 +77,7 @@ const Login: React.FC = () => {
     >
       <button
         type="button"
-        onClick={() => nav('/')}
+        onClick={() => navigate('/')}
         className="absolute top-6 left-6 flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur ring-1 ring-white/10 hover:bg-white/20 transition"
       >
         🏠 <span className="text-sm hidden sm:inline">Back to Home</span>
@@ -137,7 +137,7 @@ const Login: React.FC = () => {
           {state === 'Login' && (
             <div className="text-right text-xs">
               <span
-                onClick={() => nav('/verify-email')}
+                onClick={() => navigate('/verify-email')}
                 className="text-cyan-400 cursor-pointer hover:underline"
               >
                 Forgot Password?
@@ -184,12 +184,12 @@ const Login: React.FC = () => {
               </>
             ) : (
               <>
-                New here?{' '}
+                Are you here for the first time?{' '}
                 <span
                   onClick={() => setState('Sign Up')}
                   className="text-cyan-400 cursor-pointer underline"
                 >
-                  Create one
+                  Create Account
                 </span>
               </>
             )}

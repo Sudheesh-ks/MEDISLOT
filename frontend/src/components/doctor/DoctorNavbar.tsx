@@ -55,7 +55,7 @@ const DoctorNavbar = () => {
           <NotificationBell role="doctor" />
           <button
             onClick={logout}
-            className="bg-gradient-to-r from-cyan-500 to-fuchsia-600 text-white text-sm px-8 py-2 rounded-full shadow hover:-translate-y-0.5 transition-transform"
+            className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-sm px-8 py-2 rounded-full shadow hover:-translate-y-0.5 transition-transform"
           >
             Logout
           </button>

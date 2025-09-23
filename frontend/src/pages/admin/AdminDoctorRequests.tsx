@@ -15,7 +15,7 @@ const AdminDoctorRequests = () => {
   const [page, setPage] = useState(1);
   const [rows, setRows] = useState<any[]>([]);
   const [pages, setPages] = useState(1);
-  const [load, setLoad] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
 
   // const [showModal, setShowModal] = useState(false);
@@ -36,14 +36,14 @@ const AdminDoctorRequests = () => {
 
   const fetchRows = async () => {
     try {
-      setLoad(true);
+      setLoading(true);
       const r = await getDoctorsPaginated(page, perPage, search);
       setRows(r.data);
       setPages(r.totalPages);
     } catch (err) {
       console.error('Failed to fetch doctors', err);
     } finally {
-      setLoad(false);
+      setLoading(false);
     }
   };
 
@@ -79,8 +79,10 @@ const AdminDoctorRequests = () => {
         <SearchBar placeholder="Search by name or speciality" onSearch={setSearch} />
       </div>
 
-      {load ? (
-        <div className="text-center py-10 text-slate-400 text-sm">Loading doctor requests…</div>
+      {loading ? (
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500"></div>
+        </div>
       ) : pending.length ? (
         <>
           <div className="w-full flex flex-wrap gap-6">

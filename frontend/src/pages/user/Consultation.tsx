@@ -10,14 +10,14 @@ dayjs.extend(customParseFormat);
 const Consultation = () => {
   const { doctorId, appointmentId } = useParams();
   const { state } = useLocation();
-  const nav = useNavigate();
+  const navigate = useNavigate();
 
   const [timeLeft, setTimeLeft] = useState<number>(0);
   const [showTimer, setShowTimer] = useState(false);
 
   useEffect(() => {
     if (!state?.slotDate || !state?.slotEndTime) {
-      nav('/my-appointments');
+      navigate('/my-appointments');
       return;
     }
 
@@ -34,7 +34,7 @@ const Consultation = () => {
       if (diff <= 0) {
         setTimeLeft(0);
         clearInterval(timer);
-        nav('/my-appointments');
+        navigate('/my-appointments');
       } else {
         setTimeLeft(diff);
       }

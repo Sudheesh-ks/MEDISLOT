@@ -6,7 +6,7 @@ import Pagination from '../../components/common/Pagination';
 import { currencySymbol } from '../../utils/commonUtils';
 
 const Wallet = () => {
-  const nav = useNavigate();
+  const navigate = useNavigate();
   const context = useContext(UserContext);
   if (!context) throw new Error('Wallet must be within UserContext');
   const { token } = context;
@@ -43,11 +43,11 @@ const Wallet = () => {
 
   useEffect(() => {
     if (!token) {
-      nav('/');
+      navigate('/');
       return;
     }
     fetchWallet(page);
-  }, [token, nav, page]);
+  }, [token, navigate, page]);
 
   const filteredTransactions = transactions.filter((transaction) => {
     if (filter === 'all') return true;
@@ -87,7 +87,7 @@ const Wallet = () => {
       <div className="flex items-center justify-between mb-6">
         <div>
           <button
-            onClick={() => nav('/my-profile')}
+            onClick={() => navigate('/my-profile')}
             className="text-blue-400 hover:text-blue-300 mb-2 text-sm"
           >
             ← Back to Profile

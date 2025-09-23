@@ -152,7 +152,7 @@ const DoctorAppointments = () => {
                 e.stopPropagation();
                 navigate(`/doctor/consultation/${it.userData._id}/${it._id}`);
               }}
-              className="bg-gradient-to-r from-cyan-500 to-fuchsia-600 px-4 py-1.5 text-sm rounded-lg text-white shadow relative"
+              className="bg-gradient-to-r from-cyan-500 to-blue-600 px-4 py-1.5 text-sm rounded-lg text-white shadow relative"
             >
               Consultation
               {notif?.unread?.[`${it.userData._id}_${profileData!._id}`] > 0 && (

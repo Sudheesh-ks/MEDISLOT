@@ -1,5 +1,4 @@
 import { useState, useEffect, useContext } from 'react';
-import { UserContext } from '../../context/UserContext';
 import {
   clearAllUserNotificationsAPI,
   getUserNotificationsAPI,
@@ -7,6 +6,7 @@ import {
   markUserNotificationAsReadAPI,
 } from '../../services/userProfileServices';
 import Pagination from '../../components/common/Pagination';
+import { UserContext } from '../../context/UserContext';
 
 const UserNotifications = () => {
   const [type, setType] = useState<'all' | 'appointment' | 'system' | 'prescription'>('all');
@@ -16,9 +16,9 @@ const UserNotifications = () => {
   const [totalPages, setTotalPages] = useState(1);
   const pageSize = 10;
 
-  const userContext = useContext(UserContext);
-  if (!userContext) throw new Error('Missing contexts');
-  const { token } = userContext;
+  const context = useContext(UserContext);
+  if (!context) throw new Error('Missing contexts');
+  const { token } = context;
 
   const fetchNotifications = async () => {
     setLoading(true);

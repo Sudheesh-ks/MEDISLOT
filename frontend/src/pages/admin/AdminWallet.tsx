@@ -48,7 +48,11 @@ const AdminWallet = () => {
     });
 
   if (loading) {
-    return <div className="text-white p-10 text-center">Loading wallet data...</div>;
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500"></div>
+      </div>
+    );
   }
 
   if (!walletData) {

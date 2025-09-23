@@ -20,10 +20,10 @@ dayjs.extend(customParseFormat);
 const to12h = (t: string) => dayjs(t, 'HH:mm').format('hh:mm A').toLowerCase();
 
 const MyAppointments = () => {
-  const ctx = useContext(UserContext);
-  if (!ctx) throw new Error('MyAppointments must be within UserContext');
-  const { token, userData } = ctx;
-  const notif = useContext(NotifContext);
+  const context = useContext(UserContext);
+  if (!context) throw new Error('MyAppointments must be within UserContext');
+  const { token, userData } = context;
+  const notificationContext = useContext(NotifContext);
 
   const [appointments, setAppointments] = useState<any[]>([]);
   const [page, setPage] = useState(1);
@@ -142,12 +142,12 @@ const MyAppointments = () => {
                       },
                     })
                   }
-                  className={`${btn} bg-gradient-to-r from-cyan-500 to-fuchsia-600 text-white relative`}
+                  className={`${btn} bg-gradient-to-r from-cyan-500 to-blue-600 text-white relative`}
                 >
                   Go to Consultation
-                  {notif?.unread?.[`${userData!._id}_${a.docData._id}`] > 0 && (
+                  {notificationContext?.unread?.[`${userData!._id}_${a.docData._id}`] > 0 && (
                     <span className="absolute -top-2 -right-2 h-5 min-w-[20px] px-1 bg-red-500 text-xs rounded-full flex items-center justify-center">
-                      {notif.unread[`${userData!._id}_${a.docData._id}`]}
+                      {notificationContext.unread[`${userData!._id}_${a.docData._id}`]}
                     </span>
                   )}
                 </button>

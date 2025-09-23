@@ -5,7 +5,7 @@ const About = () => (
     {/* Heading */}
     <h1 className="text-center text-3xl md:text-4xl font-extrabold mb-16">
       ABOUT{' '}
-      <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-fuchsia-500 to-indigo-600">
+      <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-600">
         US
       </span>
     </h1>
@@ -40,7 +40,7 @@ const About = () => (
     {/* Why choose us */}
     <h2 className="text-2xl font-extrabold mb-8 text-center">
       WHY{' '}
-      <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-fuchsia-500 to-indigo-600">
+      <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-600">
         CHOOSE US
       </span>
     </h2>

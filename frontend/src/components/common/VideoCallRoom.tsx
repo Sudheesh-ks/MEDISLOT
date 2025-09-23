@@ -1,9 +1,18 @@
 import { useEffect, useRef, useState, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { MdMic, MdMicOff, MdVideocam, MdVideocamOff, MdCallEnd, MdEdit } from 'react-icons/md';
+import {
+  MdMic,
+  MdMicOff,
+  MdVideocam,
+  MdVideocamOff,
+  MdCallEnd,
+  MdEdit,
+  MdSignalCellularAlt,
+} from 'react-icons/md';
 import { NotifContext } from '../../context/NotificationContext';
 import PatientHistoryForm from '../../components/doctor/PatientHistoryForm';
 import { getAppointmentByIdAPI } from '../../services/appointmentServices';
+import type { AppointmentTypes } from '../../types/appointment';
 
 interface VideoCallRoomProps {
   role: 'user' | 'doctor';
@@ -25,6 +34,27 @@ const VideoCallRoom: React.FC<VideoCallRoomProps> = ({ role, backUrl }) => {
   const [isHidden, setIsHidden] = useState(false);
   const [showHistoryForm, setShowHistoryForm] = useState(false);
   const [patientId, setPatientId] = useState<string | null>(null);
+  const [appointmentData, setAppointmentsData] = useState<AppointmentTypes | null>(null);
+  const [callDuration, setCallDuration] = useState(0);
+
+  // Call timer
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (callStarted) {
+      timer = setInterval(() => {
+        setCallDuration((prev) => prev + 1);
+      }, 1000);
+    }
+    return () => clearInterval(timer);
+  }, [callStarted]);
+
+  const formatDuration = (seconds: number) => {
+    const m = Math.floor(seconds / 60)
+      .toString()
+      .padStart(2, '0');
+    const s = (seconds % 60).toString().padStart(2, '0');
+    return `${m}:${s}`;
+  };
 
   useEffect(() => {
     if (!appointmentId) return;
@@ -33,6 +63,7 @@ const VideoCallRoom: React.FC<VideoCallRoomProps> = ({ role, backUrl }) => {
       try {
         const appointment = await getAppointmentByIdAPI(appointmentId);
         setPatientId(appointment.userData._id);
+        setAppointmentsData(appointment);
       } catch (err) {
         console.error('Error fetching appointment:', err);
       }
@@ -149,8 +180,31 @@ const VideoCallRoom: React.FC<VideoCallRoomProps> = ({ role, backUrl }) => {
     if (remoteVideoRef.current) remoteVideoRef.current.srcObject = null;
   };
 
+  const toggleMic = () => {
+    if (!localStreamRef.current) return;
+    localStreamRef.current.getAudioTracks().forEach((track) => (track.enabled = !track.enabled));
+    setIsMuted((prev) => !prev);
+  };
+
+  const toggleVideo = () => {
+    if (!localStreamRef.current) return;
+    localStreamRef.current.getVideoTracks().forEach((track) => (track.enabled = !track.enabled));
+    setIsHidden((prev) => !prev);
+  };
+
+  const endCall = () => {
+    socket?.emit('end-call', { appointmentId });
+    cleanup();
+    navigate(
+      backUrl ||
+        (role === 'doctor'
+          ? `/doctor/consultation-end/${appointmentId}`
+          : `/consultation-end/${appointmentId}`)
+    );
+  };
+
   return (
-    <div className="relative w-full h-screen bg-black text-white overflow-hidden">
+    <div className="relative w-full h-screen bg-gradient-to-br from-slate-900 via-black to-slate-800 text-white overflow-hidden">
       {/* Remote Video */}
       <video
         ref={remoteVideoRef}
@@ -159,80 +213,97 @@ const VideoCallRoom: React.FC<VideoCallRoomProps> = ({ role, backUrl }) => {
         className="absolute inset-0 w-full h-full object-cover"
       />
 
+      {/* Overlay with participant info */}
+      {callStarted && (
+        <div className="absolute top-4 left-4 bg-slate-900/60 backdrop-blur-md px-4 py-2 rounded-lg shadow-md flex items-center gap-3">
+          <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-cyan-500">
+            {role === 'doctor' ? (
+              <img
+                src={appointmentData?.userData?.image}
+                alt="Patient"
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <img
+                src={appointmentData?.docData?.image}
+                alt="Doctor"
+                className="w-full h-full object-cover"
+              />
+            )}
+          </div>
+          <div>
+            <p className="font-semibold">
+              {role === 'doctor' ? appointmentData?.userData.name : appointmentData?.docData.name}
+            </p>
+            <p className="text-xs text-gray-300">Duration: {formatDuration(callDuration)}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Network Indicator */}
+      {callStarted && (
+        <div className="absolute top-4 right-4 bg-slate-900/60 backdrop-blur-md px-3 py-2 rounded-lg shadow-md flex items-center gap-2">
+          <MdSignalCellularAlt className="text-green-400" />
+          <span className="text-sm text-gray-200">Good</span>
+        </div>
+      )}
+
       {/* Local Video */}
       <video
         ref={localVideoRef}
         autoPlay
         muted
         playsInline
-        className="absolute bottom-4 right-4 w-40 h-28 rounded-lg border-2 border-white object-cover shadow-lg z-20"
+        className="absolute bottom-4 right-4 w-40 h-28 rounded-lg border-2 border-white object-cover shadow-xl z-20"
       />
-
-      {/* Header */}
-      <div className="absolute top-4 left-4 text-xl font-bold z-10">
-        Video Room - {role === 'doctor' ? 'Doctor' : 'Patient'}
-      </div>
 
       {/* Controls */}
       {callStarted && (
-        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 flex gap-6 z-20">
+        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-5 bg-slate-900/70 backdrop-blur-xl px-6 py-3 rounded-full shadow-lg z-20">
           {/* Mic */}
           <button
-            onClick={() => {
-              if (!localStreamRef.current) return;
-              localStreamRef.current
-                .getAudioTracks()
-                .forEach((track) => (track.enabled = !track.enabled));
-              setIsMuted((prev) => !prev);
-            }}
-            className="bg-gray-700 hover:bg-gray-600 p-3 rounded-full text-white text-xl"
+            onClick={toggleMic}
+            className="p-3 rounded-full hover:bg-slate-700 transition"
             title={isMuted ? 'Unmute' : 'Mute'}
           >
-            {isMuted ? <MdMicOff /> : <MdMic />}
+            {isMuted ? (
+              <MdMicOff className="text-red-400 text-2xl" />
+            ) : (
+              <MdMic className="text-green-400 text-2xl" />
+            )}
           </button>
 
           {/* Video */}
           <button
-            onClick={() => {
-              if (!localStreamRef.current) return;
-              localStreamRef.current
-                .getVideoTracks()
-                .forEach((track) => (track.enabled = !track.enabled));
-              setIsHidden((prev) => !prev);
-            }}
-            className="bg-gray-700 hover:bg-gray-600 p-3 rounded-full text-white text-xl"
+            onClick={toggleVideo}
+            className="p-3 rounded-full hover:bg-slate-700 transition"
             title={isHidden ? 'Show Video' : 'Hide Video'}
           >
-            {isHidden ? <MdVideocamOff /> : <MdVideocam />}
+            {isHidden ? (
+              <MdVideocamOff className="text-red-400 text-2xl" />
+            ) : (
+              <MdVideocam className="text-blue-400 text-2xl" />
+            )}
           </button>
 
           {/* Add History For Doctors */}
           {role === 'doctor' && (
             <button
               onClick={() => setShowHistoryForm(true)}
-              className="bg-blue-600 hover:bg-blue-500 p-3 rounded-full text-white text-xl"
+              className="p-3 rounded-full hover:bg-slate-700 transition"
               title="Add Patient History"
             >
-              <MdEdit />
+              <MdEdit className="text-yellow-400 text-2xl" />
             </button>
           )}
 
           {/* End Call */}
           <button
-            onClick={() => {
-              socket?.emit('end-call', { appointmentId });
-              cleanup();
-              navigate(
-                backUrl ||
-                  (role === 'doctor'
-                    ? `/doctor/consultation-end/${appointmentId}`
-                    : `/consultation-end/${appointmentId}`)
-              );
-            }}
-            className="bg-red-600 hover:bg-red-500 p-3 rounded-full text-white text-xl"
+            onClick={endCall}
+            className="p-3 rounded-full bg-red-600 hover:bg-red-500 transition"
             title="Hang Up"
           >
-            <MdCallEnd />
+            <MdCallEnd className="text-white text-2xl" />
           </button>
         </div>
       )}

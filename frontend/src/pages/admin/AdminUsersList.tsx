@@ -8,11 +8,11 @@ import DataTable from '../../components/common/DataTable';
 import { updateItemInList } from '../../utils/stateHelper.util';
 
 const AdminUsersList = () => {
-  const nav = useNavigate();
-  const ctx = useContext(AdminContext);
-  if (!ctx) throw new Error('AdminContext missing');
+  const navigate = useNavigate();
+  const adminContext = useContext(AdminContext);
+  if (!adminContext) throw new Error('AdminContext missing');
 
-  const { aToken, getUsersPaginated, toggleBlockUser } = ctx;
+  const { aToken, getUsersPaginated, toggleBlockUser } = adminContext;
 
   const [page, setPage] = useState(1);
   const [rows, setRows] = useState<any[]>([]);
@@ -26,7 +26,7 @@ const AdminUsersList = () => {
   }, [aToken, page, search]);
 
   useEffect(() => {
-    if (!aToken) nav('/admin/login');
+    if (!aToken) navigate('/admin/login');
   }, [aToken]);
 
   const fetchRows = async () => {

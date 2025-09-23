@@ -4,7 +4,7 @@ const Contact = () => (
   <main className="max-w-7xl mx-auto px-4 md:px-10 py-24 text-slate-100 animate-fade">
     <h1 className="text-center text-3xl md:text-4xl font-extrabold mb-16">
       CONTACT{' '}
-      <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-fuchsia-500 to-indigo-600">
+      <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-600">
         US
       </span>
     </h1>
@@ -36,7 +36,7 @@ const Contact = () => (
         <p>Learn more about our teams and open roles.</p>
 
         <button
-          className="mt-2 self-start bg-gradient-to-r from-cyan-500 to-fuchsia-600 text-white px-8 py-3 rounded-full hover:-translate-y-0.5 transition-transform"
+          className="mt-2 self-start bg-gradient-to-r from-cyan-500 to-blue-600 text-white px-8 py-3 rounded-full hover:-translate-y-0.5 transition-transform"
           onClick={() => window.open('https://medislot.com/careers', '_blank')}
         >
           Explore Jobs

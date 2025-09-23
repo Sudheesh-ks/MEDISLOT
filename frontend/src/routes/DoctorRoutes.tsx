@@ -21,6 +21,7 @@ import PatientHistoryPage from '../pages/doctor/PatientHistoryPage';
 import DoctorBlogsPage from '../pages/doctor/DoctorBlogPage';
 import DoctorEditBlogPage from '../pages/doctor/DoctorUpdateBlogs';
 import DoctorChangePassword from '../components/doctor/DoctorChangePassword';
+import DoctorChatList from '../pages/doctor/DoctorChatList';
 
 const DoctorRoutes = () => {
   return (
@@ -131,6 +132,15 @@ const DoctorRoutes = () => {
         element={
           <DoctorLayout>
             <PatientHistoryPage />
+          </DoctorLayout>
+        }
+      />
+
+      <Route
+        path="/doctor/chatlist"
+        element={
+          <DoctorLayout>
+            <DoctorChatList />
           </DoctorLayout>
         }
       />

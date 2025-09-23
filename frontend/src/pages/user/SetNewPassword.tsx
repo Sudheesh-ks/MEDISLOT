@@ -6,12 +6,12 @@ import { resetPasswordAPI } from '../../services/authServices';
 import axios from 'axios';
 
 const NewPasswordPage = () => {
-  const nav = useNavigate();
+  const navigate = useNavigate();
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
-  const ctx = useContext(UserContext);
-  if (!ctx) throw new Error('NewPasswordPage must be in UserContext');
-  const { token } = ctx;
+  const context = useContext(UserContext);
+  if (!context) throw new Error('NewPasswordPage must be in UserContext');
+  const { token } = context;
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -22,7 +22,7 @@ const NewPasswordPage = () => {
       if (data.success) {
         toast.success('Password reset successful');
         localStorage.removeItem('tempUserData');
-        nav('/login');
+        navigate('/login');
       } else toast.error(data.message);
     } catch (err) {
       if (axios.isAxiosError(err))
@@ -33,13 +33,13 @@ const NewPasswordPage = () => {
   };
 
   useEffect(() => {
-    if (token) nav('/');
-  }, [token, nav]);
+    if (token) navigate('/');
+  }, [token, navigate]);
 
   const input =
     'w-full bg-transparent ring-1 ring-white/10 rounded px-4 py-2 mt-1 text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500';
   const btn =
-    'w-full bg-gradient-to-r from-cyan-500 to-fuchsia-600 py-2 rounded-md text-base hover:-translate-y-0.5 transition-transform';
+    'w-full bg-gradient-to-r from-cyan-500 to-blue-600 py-2 rounded-md text-base hover:-translate-y-0.5 transition-transform';
 
   return (
     <form

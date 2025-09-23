@@ -7,9 +7,9 @@ import Pagination from '../../components/common/Pagination';
 import StarRating from '../../components/common/StarRating';
 
 const Doctors = () => {
-  const nav = useNavigate();
+  const navigate = useNavigate();
   const { speciality } = useParams();
-  const ctx = useContext(UserContext);
+  const context = useContext(UserContext);
 
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilter, setShowFilter] = useState(false);
@@ -21,8 +21,8 @@ const Doctors = () => {
   const [loading, setLoading] = useState(false);
   const [minRating, setMinRating] = useState(0);
 
-  if (!ctx) throw new Error('Doctors must be used within an UserContextProvider');
-  const { getDoctorsPaginated } = ctx;
+  if (!context) throw new Error('Doctors must be used within an UserContextProvider');
+  const { getDoctorsPaginated } = context;
 
   const itemsPerPage = 6;
 
@@ -72,7 +72,7 @@ const Doctors = () => {
               <button
                 key={spec}
                 onClick={() =>
-                  speciality === spec ? nav('/all-doctors') : nav(`/all-doctors/${spec}`)
+                  speciality === spec ? navigate('/all-doctors') : navigate(`/all-doctors/${spec}`)
                 }
                 className={`text-left px-4 py-2 rounded-lg text-sm ring-1 ring-white/10 hover:bg-white/5 transition-colors ${speciality === spec ? 'bg-cyan-500/20 text-white' : ''}`}
               >
@@ -125,7 +125,7 @@ const Doctors = () => {
                   .map((doc) => (
                     <div
                       key={doc._id}
-                      onClick={() => nav(`/appointment/${doc._id}`)}
+                      onClick={() => navigate(`/appointment/${doc._id}`)}
                       className="group cursor-pointer bg-white/5 backdrop-blur rounded-3xl ring-1 ring-white/10 overflow-hidden hover:-translate-y-1 transition-transform"
                     >
                       <div className="h-72 flex items-end justify-center bg-white/5 overflow-hidden">

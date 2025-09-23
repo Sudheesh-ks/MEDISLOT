@@ -70,7 +70,9 @@ const DataTable: React.FC<DataTableProps> = ({
       )}
 
       {loading ? (
-        <div className="text-center py-10 text-slate-400">Loading…</div>
+        <div className="flex justify-center items-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500"></div>
+        </div>
       ) : data.length ? (
         data.map((item, i) => (
           <motion.div

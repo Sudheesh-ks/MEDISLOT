@@ -389,7 +389,7 @@ const ChatPage: React.FC = () => {
           <button
             type="submit"
             disabled={!newMessage.trim() && !pickedFile}
-            className="p-3 rounded-full bg-gradient-to-r from-cyan-500 to-fuchsia-600 disabled:opacity-40 hover:-translate-y-0.5 transition-transform"
+            className="p-3 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 disabled:opacity-40 hover:-translate-y-0.5 transition-transform"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2}>
               <path

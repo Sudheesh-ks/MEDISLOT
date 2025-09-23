@@ -29,8 +29,13 @@ const DocChatPage: React.FC = () => {
   const { profileData, loading } = useContext(DoctorContext);
   const { socket, markRead } = useContext(NotifContext);
 
-  if (loading)
-    return <div className="flex h-screen items-center justify-center text-slate-200">Loading…</div>;
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500"></div>
+      </div>
+    );
+  }
 
   if (!profileData) throw new Error('DoctorContext missing profile');
 
@@ -393,7 +398,7 @@ const DocChatPage: React.FC = () => {
           <button
             type="submit"
             disabled={!newMessage.trim() && !pickedFile}
-            className="p-2 rounded-full bg-gradient-to-r from-cyan-500 to-fuchsia-600 disabled:opacity-40 hover:-translate-y-0.5 transition-transform"
+            className="p-2 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 disabled:opacity-40 hover:-translate-y-0.5 transition-transform"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path

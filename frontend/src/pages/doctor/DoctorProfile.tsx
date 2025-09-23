@@ -270,7 +270,7 @@ const DoctorProfile = () => {
           whileHover={{ scale: 1.05 }}
           className={`px-8 py-2 rounded-full ${
             isEdit
-              ? 'bg-gradient-to-r from-cyan-500 to-fuchsia-600 text-white'
+              ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white'
               : 'border border-cyan-500 text-cyan-400 hover:bg-cyan-500 hover:text-white'
           } transition-transform`}
           onClick={

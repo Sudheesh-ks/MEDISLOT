@@ -60,7 +60,9 @@ const DoctorBlogsPage = () => {
         </div>
 
         {loading ? (
-          <p>Loading blogs...</p>
+          <div className="flex justify-center items-center h-64">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500"></div>
+          </div>
         ) : blogs.length === 0 ? (
           <p className="text-slate-400">You haven’t published any articles yet.</p>
         ) : (

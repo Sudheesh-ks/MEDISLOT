@@ -8,10 +8,10 @@ import { useNavigate } from 'react-router-dom';
 
 const Home = () => {
   const navigate = useNavigate();
-  const ctx = useContext(UserContext);
-  if (!ctx) throw new Error('Home must be used within an UserContextProvider');
+  const context = useContext(UserContext);
+  if (!context) throw new Error('Home must be used within an UserContextProvider');
 
-  const { token } = ctx;
+  const { token } = context;
 
   useEffect(() => {
     if (!token) navigate('/login');

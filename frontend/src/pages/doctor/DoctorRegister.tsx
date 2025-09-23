@@ -228,7 +228,7 @@ const DoctorRegister = () => {
           <div className="flex justify-end">
             <button
               type="submit"
-              className="bg-gradient-to-r from-cyan-500 to-fuchsia-600 px-10 py-2 rounded-full hover:-translate-y-0.5 transition-transform shadow-lg"
+              className="bg-gradient-to-r from-cyan-500 to-blue-600 px-10 py-2 rounded-full hover:-translate-y-0.5 transition-transform shadow-lg"
             >
               Register
             </button>

@@ -81,7 +81,7 @@ const RelatedDoctors = ({ docId, speciality }: RelatedDoctorsProps) => {
                 navigate('/all-doctors');
                 scrollTo({ top: 0, behavior: 'smooth' });
               }}
-              className="mt-14 bg-gradient-to-r from-cyan-500 to-fuchsia-600 text-white px-10 py-3 rounded-full hover:-translate-y-0.5 transition-transform"
+              className="mt-14 bg-gradient-to-r from-cyan-500 to-blue-600 text-white px-10 py-3 rounded-full hover:-translate-y-0.5 transition-transform"
             >
               More Doctors
             </button>

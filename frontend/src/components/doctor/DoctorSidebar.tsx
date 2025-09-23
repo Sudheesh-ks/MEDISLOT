@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 
-const AdminSidebar = () => {
+const DoctorSidebar = () => {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   const assets = {
@@ -11,6 +11,7 @@ const AdminSidebar = () => {
     slot_icon: '⏰',
     wallet_icon: '💳',
     blog_icon: '📄',
+    chats_icon: '💬',
   };
 
   const menu = [
@@ -36,19 +37,24 @@ const AdminSidebar = () => {
       icon: assets.blog_icon,
       label: 'Add Blog',
     },
+    {
+      to: '/doctor/chatlist',
+      icon: assets.chats_icon,
+      label: 'Chats',
+    },
   ];
 
   const glass = 'bg-white/5 backdrop-blur ring-1 ring-white/10';
-  const gradient = 'from-cyan-500 to-fuchsia-600';
+  const gradient = 'from-cyan-500 to-blue-600';
 
   return (
     <aside
       className={`min-h-screen ${glass} relative text-slate-100 transition-all duration-300
         ${isCollapsed ? 'w-20' : 'w-72'}`}
     >
-      <div className="absolute inset-x-0 h-32 bg-gradient-to-br from-cyan-400/15 via-fuchsia-500/15 to-transparent" />
+      <div className="absolute inset-x-0 h-32 bg-gradient-to-br from-cyan-400/15 via-blue-500/15 to-transparent" />
       <div className="absolute top-12 right-6 w-8 h-8 bg-cyan-400/20 rounded-full animate-pulse" />
-      <div className="absolute top-28 right-10 w-4 h-4 bg-fuchsia-400/20 rounded-full animate-bounce" />
+      <div className="absolute top-28 right-10 w-4 h-4 bg-blue-400/20 rounded-full animate-bounce" />
 
       <header className="relative z-10 flex items-center justify-between p-5">
         <div className="flex items-center gap-3">
@@ -165,4 +171,4 @@ const AdminSidebar = () => {
   );
 };
 
-export default AdminSidebar;
+export default DoctorSidebar;

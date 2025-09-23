@@ -29,7 +29,7 @@ const ChatCard: React.FC<ChatCardProps> = ({ doctorId }) => {
 
         <button
           onClick={() => nav(`/chats/${doctorId}`)}
-          className="relative mt-6 w-full bg-gradient-to-r from-cyan-500 to-fuchsia-600 text-white py-3 rounded-full hover:-translate-y-0.5 transition-transform"
+          className="relative mt-6 w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white py-3 rounded-full hover:-translate-y-0.5 transition-transform"
         >
           Message
           {unreadCount > 0 && (

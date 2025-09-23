@@ -119,19 +119,21 @@ const DoctorAddBlogPage = () => {
               Share your medical expertise with the healthcare community
             </p>
           </div>
-          <button
-            onClick={() => navigate('/doctor/blogs')}
-            className="px-6 py-2 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-medium rounded-lg transition-all duration-300 hover:-translate-y-0.5"
-          >
-            My Blogs
-          </button>
-          <button
-            onClick={handlePublish}
-            disabled={loading}
-            className="px-6 py-2 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-medium rounded-lg transition-all duration-300 hover:-translate-y-0.5"
-          >
-            {loading ? 'Publishing...' : 'Publish Article'}
-          </button>
+          <div className="flex gap-5">
+            <button
+              onClick={() => navigate('/doctor/blogs')}
+              className="px-6 py-2 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700 text-white font-medium rounded-lg transition-all duration-300 hover:-translate-y-0.5"
+            >
+              My Blogs
+            </button>
+            <button
+              onClick={handlePublish}
+              disabled={loading}
+              className="px-6 py-2 bg-gradient-to-r from-green-600 to-green-400 hover:from-green-700 hover:to-green-500 text-white font-medium rounded-lg transition-all duration-300 hover:-translate-y-0.5"
+            >
+              {loading ? 'Publishing...' : 'Publish Article'}
+            </button>
+          </div>
         </div>
       </div>
 

@@ -51,13 +51,13 @@ const UserLandingPage: React.FC = () => {
   ];
 
   const cta =
-    'bg-gradient-to-r from-cyan-500 to-fuchsia-600 text-white py-2 px-6 rounded-full text-sm sm:text-base font-medium transition-transform hover:-translate-y-1 shadow-lg';
+    'bg-gradient-to-r from-cyan-500 to-blue-600 text-white py-2 px-6 rounded-full text-sm sm:text-base font-medium transition-transform hover:-translate-y-1 shadow-lg';
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 overflow-x-hidden relative">
       <div className="fixed top-[10%] left-[10%] w-2.5 h-2.5 bg-cyan-400/30 rounded-full animate-pulse" />
       <div
-        className="fixed top-[20%] right-[20%] w-4 h-4 bg-fuchsia-400/30 rounded-full animate-bounce"
+        className="fixed top-[20%] right-[20%] w-4 h-4 bg-blue-400/30 rounded-full animate-bounce"
         style={{ animationDelay: '2s' }}
       />
       <div
@@ -65,7 +65,7 @@ const UserLandingPage: React.FC = () => {
         style={{ animationDelay: '4s' }}
       />
       <div
-        className="fixed bottom-[20%] right-[10%] w-3 h-3 bg-fuchsia-400/30 rounded-full animate-pulse"
+        className="fixed bottom-[20%] right-[10%] w-3 h-3 bg-blue-400/30 rounded-full animate-pulse"
         style={{ animationDelay: '1s' }}
       />
 
@@ -90,7 +90,7 @@ const UserLandingPage: React.FC = () => {
           <div className="flex-1 text-left">
             <h1
               className="text-5xl sm:text-6xl font-extrabold mb-6
-                   bg-gradient-to-r from-cyan-400 via-fuchsia-500 to-indigo-600
+                   bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-600
                    bg-clip-text text-transparent animate-bounce"
               style={{
                 animationDuration: '3s',
@@ -147,7 +147,7 @@ const UserLandingPage: React.FC = () => {
               >
                 <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-transparent via-cyan-400/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-500" />
                 <div
-                  className="w-[60px] h-[60px] bg-gradient-to-r from-cyan-500 to-fuchsia-600 rounded-full flex items-center justify-center text-2xl mb-4 animate-spin"
+                  className="w-[60px] h-[60px] bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full flex items-center justify-center text-2xl mb-4 animate-spin"
                   style={{ animationDuration: '10s' }}
                 >
                   {f.icon}
@@ -166,7 +166,7 @@ const UserLandingPage: React.FC = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 mt-8">
             {stats.map((s, i) => (
               <div key={i}>
-                <div className="text-5xl font-extrabold bg-gradient-to-r from-cyan-400 via-fuchsia-500 to-indigo-600 bg-clip-text text-transparent">
+                <div className="text-5xl font-extrabold bg-gradient-to-r from-cyan-400 via-blue-500 to-indigo-600 bg-clip-text text-transparent">
                   {s.number}
                 </div>
                 <div className="text-lg text-slate-400 mt-2">{s.label}</div>

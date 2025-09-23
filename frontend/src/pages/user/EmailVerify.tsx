@@ -7,10 +7,10 @@ import { showErrorToast } from '../../utils/errorHandler';
 
 const EmailVerificationPage = () => {
   const [email, setEmail] = useState('');
-  const nav = useNavigate();
-  const ctx = useContext(UserContext);
-  if (!ctx) throw new Error('EmailVerificationPage must be used within UserContextProvider');
-  const { token } = ctx;
+  const navigate = useNavigate();
+  const context = useContext(UserContext);
+  if (!context) throw new Error('EmailVerificationPage must be used within UserContextProvider');
+  const { token } = context;
 
   const send = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,7 +19,7 @@ const EmailVerificationPage = () => {
       if (data.success) {
         toast.success('OTP sent to your email');
         localStorage.setItem('tempUserData', JSON.stringify({ email, purpose: 'reset-password' }));
-        nav('/verify-otp');
+        navigate('/verify-otp');
       } else toast.error(data.message);
     } catch (err) {
       showErrorToast(err);
@@ -27,8 +27,8 @@ const EmailVerificationPage = () => {
   };
 
   useEffect(() => {
-    if (token) nav('/');
-  }, [token, nav]);
+    if (token) navigate('/');
+  }, [token, navigate]);
 
   return (
     <main className="min-h-screen bg-slate-950 flex items-center justify-center text-slate-100 animate-fade">
@@ -58,7 +58,7 @@ const EmailVerificationPage = () => {
 
         <button
           type="submit"
-          className="w-full bg-gradient-to-r from-cyan-500 to-fuchsia-600 text-white py-3 rounded-full hover:-translate-y-0.5 transition-transform"
+          className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white py-3 rounded-full hover:-translate-y-0.5 transition-transform"
         >
           Send Verification Code
         </button>

@@ -22,6 +22,7 @@ import type { DoctorProfileType } from '../../types/doctor';
 import { currencySymbol } from '../../utils/commonUtils';
 import type { feedbackTypes } from '../../types/feedback';
 import StarRating from '../../components/common/StarRating';
+import LoadingPage from '../../components/common/LoadingPage';
 
 dayjs.extend(relativeTime);
 
@@ -33,11 +34,11 @@ const to12h = (t: string) => dayjs(`1970-01-01T${t}`).format('hh:mm A').toLowerC
 const Appointment = () => {
   type TimeSlot = { datetime: Date; slotStartTime: string; slotEndTime: string };
 
-  const nav = useNavigate();
+  const navigate = useNavigate();
   const { docId } = useParams();
-  const ctx = useContext(UserContext);
-  if (!ctx) throw new Error('AppContext missing');
-  const { token } = ctx;
+  const context = useContext(UserContext);
+  if (!context) throw new Error('AppContext missing');
+  const { token } = context;
 
   if (!token) {
     toast.error('Please login to continue…');
@@ -53,18 +54,29 @@ const Appointment = () => {
   const [customDate, setCustomDate] = useState<Date | null>(null);
   const [reviews, setReviews] = useState<feedbackTypes[]>([]);
   const [visibleReviews, setVisibleReviews] = useState(3);
+  const [loading, setLoading] = useState(true);
 
   const slotCache = useRef(new Map<string, TimeSlot[]>());
 
   useEffect(() => {
     const fetchDoctor = async () => {
       if (!docId) return;
+      setLoading(true);
+      const startTime = Date.now();
       try {
         const { data } = await getDoctorsByIDAPI(docId);
         if (data.success) setInfo(data.doctor);
         else setInfo(null);
       } catch {
         setInfo(null);
+      } finally {
+        const elapsed = Date.now() - startTime;
+        const minDuration = 500; // 2 seconds
+        if (elapsed < minDuration) {
+          setTimeout(() => setLoading(false), minDuration - elapsed);
+        } else {
+          setLoading(false);
+        }
       }
     };
     fetchDoctor();
@@ -141,7 +153,7 @@ const Appointment = () => {
         } catch (err) {
           showErrorToast(err);
         } finally {
-          nav('/my-appointments');
+          navigate('/my-appointments');
         }
       },
       modal: {
@@ -182,7 +194,7 @@ const Appointment = () => {
         initPay(paymentRes.data.order, apptId);
       } else {
         toast.error('Unable to initiate payment');
-        nav('/my-appointments');
+        navigate('/my-appointments');
       }
     } catch (err) {
       showErrorToast(err);
@@ -202,6 +214,10 @@ const Appointment = () => {
     };
     fetchReviews();
   }, [token]);
+
+  if (loading) {
+    return <LoadingPage />;
+  }
 
   return (
     <div className="max-w-7xl mx-auto px-4 md:px-10 py-24 text-slate-100 animate-fade">
@@ -254,7 +270,7 @@ const Appointment = () => {
                 }}
                 className={`min-w-16 py-5 rounded-2xl text-center text-sm transition-colors ${
                   dayIdx === idx && !showPicker
-                    ? 'bg-gradient-to-r from-cyan-500 to-fuchsia-600 text-white'
+                    ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white'
                     : 'ring-1 ring-white/10'
                 }`}
               >
@@ -271,7 +287,7 @@ const Appointment = () => {
             }}
             className={`min-w-16 py-5 rounded-2xl text-center text-sm transition-colors ${
               showPicker
-                ? 'bg-gradient-to-r from-cyan-500 to-fuchsia-600 text-white'
+                ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white'
                 : 'ring-1 ring-white/10'
             }`}
           >
@@ -304,7 +320,7 @@ const Appointment = () => {
                 onClick={() => setSlotTime(s.slotStartTime)}
                 className={`px-6 py-2 rounded-full text-sm transition-colors ${
                   slotTime === s.slotStartTime
-                    ? 'bg-gradient-to-r from-cyan-500 to-fuchsia-600 text-white'
+                    ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white'
                     : 'ring-1 ring-white/10 text-slate-400'
                 }`}
               >
@@ -318,7 +334,7 @@ const Appointment = () => {
 
         <button
           onClick={book}
-          className="bg-gradient-to-r from-cyan-500 to-fuchsia-600 text-white px-14 py-3 rounded-full hover:-translate-y-0.5 transition-transform"
+          className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white px-14 py-3 rounded-full hover:-translate-y-0.5 transition-transform"
         >
           Book an appointment
         </button>
@@ -358,7 +374,7 @@ const Appointment = () => {
               <div className="text-center">
                 <button
                   onClick={() => setVisibleReviews((prev) => prev + 3)}
-                  className="px-6 py-2 rounded-full bg-gradient-to-r from-cyan-500 to-fuchsia-600 text-white text-sm hover:-translate-y-0.5 transition-transform"
+                  className="px-6 py-2 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-sm hover:-translate-y-0.5 transition-transform"
                 >
                   Load more reviews
                 </button>
