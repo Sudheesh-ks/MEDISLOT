@@ -22,7 +22,6 @@ import type { DoctorProfileType } from '../../types/doctor';
 import { currencySymbol } from '../../utils/commonUtils';
 import type { feedbackTypes } from '../../types/feedback';
 import StarRating from '../../components/common/StarRating';
-import LoadingPage from '../../components/common/LoadingPage';
 
 dayjs.extend(relativeTime);
 
@@ -34,11 +33,11 @@ const to12h = (t: string) => dayjs(`1970-01-01T${t}`).format('hh:mm A').toLowerC
 const Appointment = () => {
   type TimeSlot = { datetime: Date; slotStartTime: string; slotEndTime: string };
 
-  const navigate = useNavigate();
+  const nav = useNavigate();
   const { docId } = useParams();
-  const context = useContext(UserContext);
-  if (!context) throw new Error('AppContext missing');
-  const { token } = context;
+  const ctx = useContext(UserContext);
+  if (!ctx) throw new Error('AppContext missing');
+  const { token } = ctx;
 
   if (!token) {
     toast.error('Please login to continue…');
@@ -54,29 +53,19 @@ const Appointment = () => {
   const [customDate, setCustomDate] = useState<Date | null>(null);
   const [reviews, setReviews] = useState<feedbackTypes[]>([]);
   const [visibleReviews, setVisibleReviews] = useState(3);
-  const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<'overview' | 'reviews' | 'availability'>('overview');
 
   const slotCache = useRef(new Map<string, TimeSlot[]>());
 
   useEffect(() => {
     const fetchDoctor = async () => {
       if (!docId) return;
-      setLoading(true);
-      const startTime = Date.now();
       try {
         const { data } = await getDoctorsByIDAPI(docId);
         if (data.success) setInfo(data.doctor);
         else setInfo(null);
       } catch {
         setInfo(null);
-      } finally {
-        const elapsed = Date.now() - startTime;
-        const minDuration = 500; // 2 seconds
-        if (elapsed < minDuration) {
-          setTimeout(() => setLoading(false), minDuration - elapsed);
-        } else {
-          setLoading(false);
-        }
       }
     };
     fetchDoctor();
@@ -153,7 +142,7 @@ const Appointment = () => {
         } catch (err) {
           showErrorToast(err);
         } finally {
-          navigate('/my-appointments');
+          nav('/my-appointments');
         }
       },
       modal: {
@@ -194,7 +183,7 @@ const Appointment = () => {
         initPay(paymentRes.data.order, apptId);
       } else {
         toast.error('Unable to initiate payment');
-        navigate('/my-appointments');
+        nav('/my-appointments');
       }
     } catch (err) {
       showErrorToast(err);
@@ -215,178 +204,449 @@ const Appointment = () => {
     fetchReviews();
   }, [token]);
 
-  if (loading) {
-    return <LoadingPage />;
-  }
+  const averageRating =
+    reviews.length > 0
+      ? (reviews.reduce((sum, r) => sum + (r.rating || 0), 0) / reviews.length).toFixed(1)
+      : '0.0';
+
+  const TabButton = ({
+    label,
+    isActive,
+    onClick,
+  }: {
+    tab: string;
+    label: string;
+    isActive: boolean;
+    onClick: () => void;
+  }) => (
+    <button
+      onClick={onClick}
+      className={`px-6 py-3 font-medium text-sm transition-all relative ${
+        isActive ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-100 hover:text-blue-600'
+      }`}
+    >
+      {label}
+    </button>
+  );
 
   return (
-    <div className="max-w-7xl mx-auto px-4 md:px-10 py-24 text-slate-100 animate-fade">
-      {/* Doctor profile section */}
-      <div className="flex flex-col sm:flex-row gap-6">
-        <div className="bg-white/5 backdrop-blur ring-1 ring-white/10 rounded-3xl overflow-hidden w-full sm:max-w-72">
-          <img src={info?.image} alt="doctor" className="w-full h-full object-cover" />
-        </div>
-        <div className="flex-1 bg-white/5 backdrop-blur ring-1 ring-white/10 rounded-3xl p-8 space-y-4">
-          <h2 className="flex items-center gap-2 text-2xl font-extrabold text-white">
-            {info?.name} <img src={assets.verified_icon} className="w-5" />
-          </h2>
+    <div className="min-h-screen bg-gray-900 text-gray-200">
+      {/* Header Section */}
+      <div className="bg-gray-800 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 md:px-6 py-6">
+          <div className="flex items-start gap-6">
+            {/* Doctor Image */}
+            <div className="relative">
+              <div className="w-32 h-32 rounded-2xl overflow-hidden bg-gray-700 shadow-lg">
+                <img src={info?.image} alt={info?.name} className="w-full h-full object-cover" />
+              </div>
+              {/* Online Status */}
+              <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-green-500 rounded-full border-4 border-gray-900 flex items-center justify-center">
+                <span className="text-gray-900 text-xs font-bold">✓</span>
+              </div>
+            </div>
 
-          <div className="flex items-center gap-2 text-sm text-slate-400">
-            <span>
-              {info?.degree} • {info?.speciality}
-            </span>
-            <span className="py-0.5 px-2 rounded-full ring-1 ring-white/10">
-              {info?.experience}
-            </span>
+            {/* Doctor Info */}
+            <div className="flex-1">
+              <div className="flex items-start justify-between">
+                <div>
+                  <div className="flex items-center gap-2 mb-2">
+                    <h1 className="text-2xl font-bold text-gray-100">{info?.name}</h1>
+                    <img src={assets.verified_icon} className="w-6 h-6" alt="Verified" />
+                  </div>
+
+                  <div className="space-y-2 mb-4">
+                    <p className="text-lg text-blue-400 font-semibold">{info?.speciality}</p>
+                    <p className="text-gray-300">{info?.degree}</p>
+                    <div className="flex items-center gap-4 text-sm text-gray-300">
+                      <span className="flex items-center gap-1">💼 {info?.experience}</span>
+                      <span className="flex items-center gap-1">
+                        ⭐ {averageRating} ({reviews.length} reviews)
+                      </span>
+                      <span className="flex items-center gap-1">
+                        💰 {currencySymbol}
+                        {info?.fees}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-700 text-green-100">
+                      Available Today
+                    </span>
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-700 text-blue-100">
+                      Video Consultation
+                    </span>
+                  </div>
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex flex-col gap-2">
+                  <button
+                    onClick={() => setActiveTab('availability')}
+                    className="bg-blue-600 hover:bg-blue-500 text-gray-100 px-6 py-3 rounded-lg font-medium transition-colors shadow-md"
+                  >
+                    Book Appointment
+                  </button>
+                  {/* <button className="border border-gray-700 hover:bg-gray-700 text-gray-200 px-6 py-2 rounded-lg font-medium transition-colors">
+                  Message Doctor
+                </button> */}
+                </div>
+              </div>
+            </div>
           </div>
-          <div>
-            <p className="font-medium">About</p>
-            <p className="text-sm text-slate-400 mt-1">{info?.about}</p>
-          </div>
-          <p className="text-slate-400">
-            Appointment fee:{' '}
-            <span className="text-slate-100 font-semibold">
-              {currencySymbol}
-              {info?.fees}
-            </span>
-          </p>
         </div>
       </div>
 
-      {/* Booking slots */}
-      <section className="sm:ml-80 mt-12 space-y-6">
-        <h3 className="font-semibold text-lg">Booking Slots</h3>
-
-        {/* Date selector */}
-        <div className="flex gap-3 overflow-x-auto">
-          {slots.map((day, idx) =>
-            day.length ? (
-              <button
-                key={idx}
-                onClick={() => {
-                  setDayIdx(idx);
-                  setShowPicker(false);
-                  setSlotTime('');
-                }}
-                className={`min-w-16 py-5 rounded-2xl text-center text-sm transition-colors ${
-                  dayIdx === idx && !showPicker
-                    ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white'
-                    : 'ring-1 ring-white/10'
-                }`}
-              >
-                <p>{days[day[0].datetime.getDay()]}</p>
-                <p className="mt-1 text-lg font-bold">{day[0].datetime.getDate()}</p>
-              </button>
-            ) : null
-          )}
-
-          <button
-            onClick={() => {
-              void (showPicker ? fetchInitialSlots() : setShowPicker(true));
-              setSlotTime('');
-            }}
-            className={`min-w-16 py-5 rounded-2xl text-center text-sm transition-colors ${
-              showPicker
-                ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white'
-                : 'ring-1 ring-white/10'
-            }`}
-          >
-            📅<p className="text-xs">{showPicker ? 'Back' : 'More'}</p>
-          </button>
+      {/* Navigation Tabs */}
+      <div className="bg-gray-800 border-b border-gray-700">
+        <div className="max-w-7xl mx-auto px-4 md:px-6">
+          <div className="flex">
+            <TabButton
+              tab="overview"
+              label="Overview"
+              isActive={activeTab === 'overview'}
+              onClick={() => setActiveTab('overview')}
+            />
+            <TabButton
+              tab="availability"
+              label="Book Appointment"
+              isActive={activeTab === 'availability'}
+              onClick={() => setActiveTab('availability')}
+            />
+            <TabButton
+              tab="reviews"
+              label={`Reviews (${reviews.length})`}
+              isActive={activeTab === 'reviews'}
+              onClick={() => setActiveTab('reviews')}
+            />
+          </div>
         </div>
+      </div>
 
-        {/* DatePicker */}
-        {showPicker && (
-          <DatePicker
-            selected={customDate}
-            onChange={(d) => {
-              if (d) {
-                setCustomDate(d);
-                fetchCustomDateSlots(d);
-              }
-            }}
-            minDate={new Date()}
-            placeholderText="Select a future date"
-            className="mt-4 bg-white/5 backdrop-blur ring-1 ring-white/10 text-slate-100 px-4 py-2 rounded"
-          />
-        )}
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto px-4 md:px-6 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Left Column */}
+          <div className="lg:col-span-2">
+            {activeTab === 'overview' && (
+              <div className="space-y-6">
+                {/* About */}
+                <div className="bg-gray-800 rounded-xl p-6 shadow-sm">
+                  <h2 className="text-xl font-semibold mb-4 text-gray-100">About {info?.name}</h2>
+                  <p className="text-gray-300 leading-relaxed mb-6">{info?.about}</p>
 
-        {/* Time slots */}
-        <div className="flex gap-3 overflow-x-auto">
-          {slots[dayIdx]?.length ? (
-            slots[dayIdx].map((s, i) => (
-              <button
-                key={i}
-                onClick={() => setSlotTime(s.slotStartTime)}
-                className={`px-6 py-2 rounded-full text-sm transition-colors ${
-                  slotTime === s.slotStartTime
-                    ? 'bg-gradient-to-r from-cyan-500 to-blue-600 text-white'
-                    : 'ring-1 ring-white/10 text-slate-400'
-                }`}
-              >
-                {to12h(s.slotStartTime)}
-              </button>
-            ))
-          ) : (
-            <p className="text-slate-400">No available slots</p>
-          )}
-        </div>
-
-        <button
-          onClick={book}
-          className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white px-14 py-3 rounded-full hover:-translate-y-0.5 transition-transform"
-        >
-          Book an appointment
-        </button>
-      </section>
-
-      <section className="mt-16 space-y-6">
-        <h3 className="font-semibold text-lg">Patient Reviews</h3>
-
-        {reviews.length ? (
-          <div className="space-y-4">
-            {reviews.slice(0, visibleReviews).map((r, idx) => (
-              <div
-                key={idx}
-                className="bg-white/5 backdrop-blur ring-1 ring-white/10 rounded-2xl p-5 flex gap-4"
-              >
-                {/* Avatar */}
-                {/* <div className="w-10 h-10 rounded-full object-cover ring-1 ring-white/10">
-                  <img src={r.userData.image} />
-                </div> */}
-
-                {/* Review content */}
-                <div className="flex-1 space-y-1">
-                  <div className="flex items-center justify-between">
-                    <p className="font-medium text-white">{r.userData.name}</p>
-                    <span className="text-xs text-slate-400">{dayjs(r.timestamp).fromNow()}</span>
+                  {/* Specializations */}
+                  <div className="mb-6">
+                    <h3 className="font-semibold text-gray-100 mb-3">Specializations</h3>
+                    <div className="flex flex-wrap gap-2">
+                      <span className="px-3 py-1 bg-blue-900 text-blue-400 rounded-full text-sm font-medium">
+                        {info?.speciality}
+                      </span>
+                    </div>
                   </div>
 
-                  {/* Review rating */}
-                  {r.rating && <StarRating rating={r.rating} />}
-                  <p className="text-slate-300 text-sm">{r.message}</p>
+                  {/* Education & Experience */}
+                  <div className="grid md:grid-cols-2 gap-6">
+                    <div>
+                      <h3 className="font-semibold text-gray-100 mb-3">Education</h3>
+                      <p className="text-gray-300">{info?.degree}</p>
+                    </div>
+                    <div>
+                      <h3 className="font-semibold text-gray-100 mb-3">Experience</h3>
+                      <p className="text-gray-300">{info?.experience}</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Services */}
+                <div className="bg-gray-800 rounded-xl p-6 shadow-sm">
+                  <h2 className="text-xl font-semibold mb-4 text-gray-300">Services Offered</h2>
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="flex items-center gap-3 p-3 bg-gray-900 rounded-lg">
+                      <div className="w-10 h-10 bg-blue-800 rounded-lg flex items-center justify-center text-gray-200">
+                        💻
+                      </div>
+                      <div>
+                        <p className="font-medium text-gray-100">Video Consultation</p>
+                        <p className="text-sm text-gray-400">Online consultation available</p>
+                      </div>
+                    </div>
+                    {/* <div className="flex items-center gap-3 p-3 bg-gray-900 rounded-lg">
+                    <div className="w-10 h-10 bg-green-800 rounded-lg flex items-center justify-center text-gray-200">
+                      🏥
+                    </div>
+                    <div>
+                      <p className="font-medium text-gray-100">In-Person Visit</p>
+                      <p className="text-sm text-gray-400">Clinic consultation</p>
+                    </div>
+                  </div> */}
+                  </div>
                 </div>
               </div>
-            ))}
+            )}
 
-            {/* Load More Button */}
-            {visibleReviews < reviews.length && (
-              <div className="text-center">
+            {activeTab === 'availability' && (
+              <div className="bg-gray-800 rounded-xl p-6 shadow-sm">
+                <h2 className="text-xl font-semibold mb-6 text-gray-100">
+                  Select Appointment Slot
+                </h2>
+
+                {/* Date Selector */}
+                <div className="mb-6">
+                  <h3 className="font-medium text-gray-100 mb-3">Choose Date</h3>
+                  <div className="flex gap-3 overflow-x-auto pb-2">
+                    {slots.map((day, idx) =>
+                      day.length ? (
+                        <button
+                          key={idx}
+                          onClick={() => {
+                            setDayIdx(idx);
+                            setShowPicker(false);
+                            setSlotTime('');
+                          }}
+                          className={`min-w-[80px] py-4 px-3 rounded-xl text-center text-sm transition-all border ${
+                            dayIdx === idx && !showPicker
+                              ? 'bg-blue-600 text-gray-100 border-blue-600 shadow-md'
+                              : 'bg-gray-900 border-gray-700 hover:border-blue-500 text-gray-300'
+                          }`}
+                        >
+                          <p className="text-xs font-medium opacity-80">
+                            {days[day[0].datetime.getDay()]}
+                          </p>
+                          <p className="text-lg font-bold">{day[0].datetime.getDate()}</p>
+                          <p className="text-xs opacity-80">
+                            {day[0].datetime.toLocaleDateString('en', { month: 'short' })}
+                          </p>
+                        </button>
+                      ) : null
+                    )}
+
+                    <button
+                      onClick={() => {
+                        void (showPicker ? fetchInitialSlots() : setShowPicker(true));
+                        setSlotTime('');
+                      }}
+                      className={`min-w-[80px] py-4 px-3 rounded-xl text-center text-sm transition-all border ${
+                        showPicker
+                          ? 'bg-blue-600 text-gray-100 border-blue-600 shadow-md'
+                          : 'bg-gray-900 border-gray-700 hover:border-blue-500 text-gray-300'
+                      }`}
+                    >
+                      📅
+                      <p className="text-xs font-medium mt-1">{showPicker ? 'Back' : 'More'}</p>
+                    </button>
+                  </div>
+
+                  {/* DatePicker */}
+                  {showPicker && (
+                    <div className="mt-4">
+                      <DatePicker
+                        selected={customDate}
+                        onChange={(d) => {
+                          if (d) {
+                            setCustomDate(d);
+                            fetchCustomDateSlots(d);
+                          }
+                        }}
+                        minDate={new Date()}
+                        placeholderText="Select a future date"
+                        className="w-full bg-gray-900 border border-gray-700 text-gray-100 px-4 py-3 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      />
+                    </div>
+                  )}
+                </div>
+
+                {/* Time Slots */}
+                <div className="mb-8">
+                  <h3 className="font-medium text-gray-100 mb-3">Available Time Slots</h3>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                    {slots[dayIdx]?.length ? (
+                      slots[dayIdx].map((s, i) => (
+                        <button
+                          key={i}
+                          onClick={() => setSlotTime(s.slotStartTime)}
+                          className={`p-3 rounded-lg text-sm font-medium transition-all border ${
+                            slotTime === s.slotStartTime
+                              ? 'bg-blue-600 text-gray-100 border-blue-600 shadow-md'
+                              : 'bg-gray-900 border-gray-700 hover:border-blue-500 text-gray-300'
+                          }`}
+                        >
+                          {to12h(s.slotStartTime)}
+                        </button>
+                      ))
+                    ) : (
+                      <p className="text-gray-500 col-span-full text-center py-8">
+                        No available slots for this date
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Booking Summary */}
+                {slotTime && (
+                  <div className="bg-gray-800 border border-gray-700 rounded-lg p-4 mb-6">
+                    <h4 className="font-semibold text-gray-100 mb-2">Appointment Summary</h4>
+                    <div className="text-sm text-gray-300 space-y-1">
+                      <p>Date: {slots[dayIdx]?.[0]?.datetime.toDateString()}</p>
+                      <p>Start Time: {to12h(slotTime)}</p>
+                      <p>
+                        End Time:{' '}
+                        {to12h(
+                          slots[dayIdx]?.find((s) => s.slotStartTime === slotTime)?.slotEndTime ||
+                            ''
+                        )}
+                      </p>
+                      <p>
+                        Fee: {currencySymbol}
+                        {info?.fees}
+                      </p>
+                    </div>
+                  </div>
+                )}
+
                 <button
-                  onClick={() => setVisibleReviews((prev) => prev + 3)}
-                  className="px-6 py-2 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-sm hover:-translate-y-0.5 transition-transform"
+                  onClick={book}
+                  disabled={!slotTime}
+                  className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-700 disabled:cursor-not-allowed text-gray-100 py-4 rounded-lg font-semibold text-lg transition-colors shadow-md"
                 >
-                  Load more reviews
+                  {slotTime
+                    ? `Book Appointment - ${currencySymbol}${info?.fees}`
+                    : 'Select a time slot'}
                 </button>
               </div>
             )}
-          </div>
-        ) : (
-          <p className="text-slate-400 text-sm">No reviews yet</p>
-        )}
-      </section>
 
-      <RelatedDoctors docId={docId} speciality={info?.speciality} />
+            {activeTab === 'reviews' && (
+              <div className="bg-gray-800 rounded-xl p-6 shadow-sm">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-xl font-semibold text-gray-100">Patient Reviews</h2>
+                  <div className="text-right">
+                    <div className="text-2xl font-bold text-gray-100">{averageRating}</div>
+                    <div className="text-sm text-gray-400">{reviews.length} reviews</div>
+                  </div>
+                </div>
+
+                {reviews.length ? (
+                  <div className="space-y-4">
+                    {reviews.slice(0, visibleReviews).map((r, idx) => (
+                      <div key={idx} className="border-b border-gray-700 pb-4 last:border-b-0">
+                        <div className="flex items-start gap-4">
+                          <div className="w-12 h-12 bg-gray-700 rounded-full flex items-center justify-center text-gray-100 font-semibold">
+                            {r.userData.name.charAt(0).toUpperCase()}
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex items-center justify-between mb-2">
+                              <h4 className="font-semibold text-gray-100">{r.userData.name}</h4>
+                              <span className="text-sm text-gray-400">
+                                {dayjs(r.timestamp).fromNow()}
+                              </span>
+                            </div>
+                            {r.rating && <StarRating rating={r.rating} />}
+                            <p className="text-gray-300 mt-2">{r.message}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+
+                    {visibleReviews < reviews.length && (
+                      <div className="text-center pt-4">
+                        <button
+                          onClick={() => setVisibleReviews((prev) => prev + 3)}
+                          className="text-blue-500 hover:text-blue-400 font-medium"
+                        >
+                          Load more reviews
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-center py-8">
+                    <div className="w-16 h-16 bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
+                      ⭐
+                    </div>
+                    <p className="text-gray-500">No reviews yet</p>
+                    <p className="text-sm text-gray-400 mt-1">Be the first to review this doctor</p>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Right Column */}
+          <div className="space-y-6">
+            {/* Quick Info Card */}
+            <div className="bg-gray-800 rounded-xl p-6 shadow-sm">
+              <h3 className="font-semibold text-gray-100 mb-4">Quick Info</h3>
+              <div className="space-y-3">
+                <div className="flex justify-between">
+                  <span className="text-gray-300">Consultation Fee</span>
+                  <span className="font-semibold text-gray-100">
+                    {currencySymbol}
+                    {info?.fees}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-300">Experience</span>
+                  <span className="font-semibold text-gray-100">{info?.experience}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-300">Rating</span>
+                  <span className="font-semibold text-gray-100">{averageRating}/5</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-gray-300">Next Available</span>
+                  <span className="font-semibold text-green-400">Today</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Contact Info */}
+            {/* <div className="bg-gray-800 rounded-xl p-6 shadow-sm">
+            <h3 className="font-semibold text-gray-100 mb-4">Need Help?</h3>
+            <div className="space-y-3">
+              <button className="w-full flex items-center gap-3 p-3 text-left hover:bg-gray-700 rounded-lg transition-colors">
+                📞
+                <div>
+                  <p className="font-medium text-gray-100">Call Support</p>
+                  <p className="text-sm text-gray-400">Get instant help</p>
+                </div>
+              </button>
+              <button className="w-full flex items-center gap-3 p-3 text-left hover:bg-gray-700 rounded-lg transition-colors">
+                💬
+                <div>
+                  <p className="font-medium text-gray-100">Live Chat</p>
+                  <p className="text-sm text-gray-400">Chat with us now</p>
+                </div>
+              </button>
+            </div>
+          </div> */}
+
+            {/* Safety Badge */}
+            <div className="bg-green-900 border border-green-700 rounded-xl p-6">
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-10 h-10 bg-green-700 rounded-lg flex items-center justify-center text-gray-100">
+                  🛡️
+                </div>
+                <div>
+                  <h3 className="font-semibold text-green-100">Verified Doctor</h3>
+                  <p className="text-sm text-green-200">Licensed & Authenticated</p>
+                </div>
+              </div>
+              <p className="text-sm text-green-200">
+                This doctor's credentials have been verified by our medical team.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Related Doctors */}
+      <div className="bg-gray-800 py-12">
+        <div className="max-w-7xl mx-auto px-4 md:px-6">
+          <RelatedDoctors docId={docId} speciality={info?.speciality} />
+        </div>
+      </div>
     </div>
   );
 };

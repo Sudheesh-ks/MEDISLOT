@@ -23,7 +23,7 @@ interface Chat {
   unreadCount: number;
   online: boolean;
   role: string;
-  updatedAt: string; 
+  updatedAt: string;
   slotDate: string;
   slotStartTime: string;
   slotEndTime: string;
@@ -135,7 +135,7 @@ const DoctorChatList: React.FC = () => {
         });
 
         const resolved = await Promise.all(chatPromises);
-        const messageChats = resolved.filter(Boolean) as Chat[]; 
+        const messageChats = resolved.filter(Boolean) as Chat[];
 
         const patients = messageChats.sort(
           (a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime()
@@ -215,7 +215,7 @@ const DoctorChatList: React.FC = () => {
       return matchesSearch && endTime > now && chat.isConfirmed;
     }
 
-    return matchesSearch; 
+    return matchesSearch;
   });
 
   const getAvatarColor = (name: string) => {
