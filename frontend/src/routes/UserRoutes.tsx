@@ -26,7 +26,6 @@ import NotificationsPage from '../pages/user/NotificationPage';
 import BlogPage from '../pages/user/BlogPage';
 import BlogDetailPage from '../pages/user/BlogDetailPage';
 import BlockedPage from '../pages/user/BlockedUsersPage';
-import ChangePassword from '../components/user/ChangePassword';
 import AppointmentDetail from '../pages/user/AppointmentDetail';
 
 const UserRoutes = () => {
@@ -83,14 +82,6 @@ const UserRoutes = () => {
         element={
           <UserLayout>
             <MyProfile />
-          </UserLayout>
-        }
-      />
-      <Route
-        path="/change-password"
-        element={
-          <UserLayout>
-            <ChangePassword />
           </UserLayout>
         }
       />

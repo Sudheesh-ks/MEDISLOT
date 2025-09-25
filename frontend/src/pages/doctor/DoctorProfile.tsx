@@ -8,6 +8,7 @@ import { showErrorToast } from '../../utils/errorHandler';
 import { updateDoctorProfileAPI } from '../../services/doctorServices';
 import { currencySymbol } from '../../utils/commonUtils';
 import ReportBugModal from '../../components/user/BugReportModal';
+import DoctorChangePasswordModal from '../../components/doctor/DoctorChangePasswordModal';
 
 const DoctorProfile = () => {
   const ctx = useContext(DoctorContext);
@@ -21,6 +22,7 @@ const DoctorProfile = () => {
   const [image, setImage] = useState<File | null>(null);
   const [avail, setAvail] = useState(profileData?.available ?? false);
   const [showBugModal, setShowBugModal] = useState(false);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
 
   useEffect(() => {
     if (dToken) getProfileData();
@@ -242,7 +244,7 @@ const DoctorProfile = () => {
         <div className="mt-6 flex justify-end gap-3">
           <div>
             <button
-              onClick={() => navigate('/doctor/change-password')}
+              onClick={() => setShowPasswordModal(true)}
               className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-500"
             >
               Change Password
@@ -257,6 +259,12 @@ const DoctorProfile = () => {
             </button>
           </div>
         </div>
+
+        {/* Change Password Modal */}
+        <DoctorChangePasswordModal
+          isOpen={showPasswordModal}
+          onClose={() => setShowPasswordModal(false)}
+        />
 
         {/* Bug Modal */}
         <ReportBugModal

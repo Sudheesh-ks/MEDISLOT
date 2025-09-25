@@ -8,6 +8,7 @@ import { isValidDateOfBirth, isValidPhone } from '../../utils/validator';
 import { showErrorToast } from '../../utils/errorHandler';
 import { currencySymbol } from '../../utils/commonUtils';
 import ReportBugModal from '../../components/user/BugReportModal';
+import ChangePasswordModal from '../../components/user/ChangePasswordModal';
 
 const MyProfile = () => {
   const navigate = useNavigate();
@@ -19,6 +20,7 @@ const MyProfile = () => {
   const [image, setImage] = useState<File | null>(null);
   const [walletBalance, setWalletBalance] = useState(0);
   const [showBugModal, setShowBugModal] = useState(false);
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
 
   useEffect(() => {
     if (!token) {
@@ -346,7 +348,7 @@ const MyProfile = () => {
           <div className="mt-6 flex justify-end gap-3">
             <div>
               <button
-                onClick={() => navigate('/change-password')}
+                onClick={() => setShowPasswordModal(true)}
                 className="px-4 py-2 bg-orange-600 text-white rounded-lg hover:bg-orange-500"
               >
                 Change password
@@ -364,7 +366,10 @@ const MyProfile = () => {
         </div>
       </div>
 
-      {/* Bug Modal */}
+      {/* Change Password Modal */}
+      <ChangePasswordModal isOpen={showPasswordModal} onClose={() => setShowPasswordModal(false)} />
+
+      {/* Report Bug Modal */}
       <ReportBugModal
         token={token}
         isOpen={showBugModal}
