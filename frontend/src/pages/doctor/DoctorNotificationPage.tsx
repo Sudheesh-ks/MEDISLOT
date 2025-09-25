@@ -9,9 +9,9 @@ import Pagination from '../../components/common/Pagination';
 import { DoctorContext } from '../../context/DoctorContext';
 
 const DoctorNotifications = () => {
-  const ctx = useContext(DoctorContext);
-  if (!ctx) throw new Error('DoctorContext missing');
-  const { dToken } = ctx;
+  const context = useContext(DoctorContext);
+  if (!context) throw new Error('DoctorContext missing');
+  const { dToken } = context;
 
   const [type, setType] = useState<'all' | 'appointment' | 'system' | 'prescription'>('all');
   const [notifications, setNotifications] = useState<any[]>([]);

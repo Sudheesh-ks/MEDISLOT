@@ -5,12 +5,12 @@ import { useNavigate } from 'react-router-dom';
 import SearchBar from '../../components/common/SearchBar';
 import DataTable from '../../components/common/DataTable';
 import Pagination from '../../components/common/Pagination';
-import { NotifContext } from '../../context/NotificationContext';
 import { updateItemInList } from '../../utils/stateHelper.util';
 import { calculateAge, currencySymbol, slotDateFormat } from '../../utils/commonUtils';
 import { to12h } from '../../utils/slotManagementHelper';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
+import { NotifContext } from '../../context/NotificationContext';
 
 dayjs.extend(customParseFormat);
 
@@ -22,7 +22,7 @@ const isSessionEnded = (slotDate: string, slotEndTime: string) => {
 const DoctorAppointments = () => {
   const context = useContext(DoctorContext);
   const navigate = useNavigate();
-  const notif = useContext(NotifContext);
+  const notificationContext = useContext(NotifContext);
 
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
@@ -155,9 +155,9 @@ const DoctorAppointments = () => {
               className="bg-gradient-to-r from-cyan-500 to-blue-600 px-4 py-1.5 text-sm rounded-lg text-white shadow relative"
             >
               Consultation
-              {notif?.unread?.[`${it.userData._id}_${profileData!._id}`] > 0 && (
+              {notificationContext?.unread?.[`${it.userData._id}_${profileData!._id}`] > 0 && (
                 <span className="absolute -top-2 -right-2 h-5 min-w-[20px] px-1 bg-red-500 text-xs rounded-full flex items-center justify-center">
-                  {notif.unread[`${it.userData._id}_${profileData!._id}`]}
+                  {notificationContext.unread[`${it.userData._id}_${profileData!._id}`]}
                 </span>
               )}
             </button>

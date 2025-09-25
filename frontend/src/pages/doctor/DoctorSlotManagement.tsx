@@ -33,10 +33,10 @@ interface Range {
 }
 
 export default function DoctorSlotManager() {
-  const doctorContext = useContext(DoctorContext);
-  if (!doctorContext) throw new Error('context missing');
+  const context = useContext(DoctorContext);
+  if (!context) throw new Error('context missing');
 
-  const { profileData } = doctorContext;
+  const { profileData } = context;
 
   const [month, setMonth] = useState<Dayjs>(dayjs().startOf('month'));
   const [selectedDate, setSelectedDate] = useState<Dayjs | null>(dayjs());

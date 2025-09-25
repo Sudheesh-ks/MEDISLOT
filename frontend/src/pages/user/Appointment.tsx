@@ -33,11 +33,11 @@ const to12h = (t: string) => dayjs(`1970-01-01T${t}`).format('hh:mm A').toLowerC
 const Appointment = () => {
   type TimeSlot = { datetime: Date; slotStartTime: string; slotEndTime: string };
 
-  const nav = useNavigate();
+  const navigate = useNavigate();
   const { docId } = useParams();
-  const ctx = useContext(UserContext);
-  if (!ctx) throw new Error('AppContext missing');
-  const { token } = ctx;
+  const context = useContext(UserContext);
+  if (!context) throw new Error('AppContext missing');
+  const { token } = context;
 
   if (!token) {
     toast.error('Please login to continue…');
@@ -142,7 +142,7 @@ const Appointment = () => {
         } catch (err) {
           showErrorToast(err);
         } finally {
-          nav('/my-appointments');
+          navigate('/my-appointments');
         }
       },
       modal: {
@@ -183,7 +183,7 @@ const Appointment = () => {
         initPay(paymentRes.data.order, apptId);
       } else {
         toast.error('Unable to initiate payment');
-        nav('/my-appointments');
+        navigate('/my-appointments');
       }
     } catch (err) {
       showErrorToast(err);

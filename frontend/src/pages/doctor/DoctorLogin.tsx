@@ -10,13 +10,13 @@ import { updateDoctorAccessToken } from '../../context/tokenManagerDoctor';
 const DoctorLogin = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const nav = useNavigate();
-  const ctx = useContext(DoctorContext);
-  if (!ctx) throw new Error('DoctorContext missing');
-  const { dToken, setDToken, getProfileData } = ctx;
+  const navigate = useNavigate();
+  const context = useContext(DoctorContext);
+  if (!context) throw new Error('DoctorContext missing');
+  const { dToken, setDToken, getProfileData } = context;
 
   useEffect(() => {
-    if (dToken) nav('/doctor/dashboard');
+    if (dToken) navigate('/doctor/dashboard');
   }, [dToken]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -29,7 +29,7 @@ const DoctorLogin = () => {
         localStorage.removeItem('isDoctorLoggedOut');
         getProfileData();
         toast.success('Login successful');
-        nav('/doctor/dashboard');
+        navigate('/doctor/dashboard');
       } else toast.error(data.message);
     } catch (err) {
       showErrorToast(err);
@@ -45,7 +45,7 @@ const DoctorLogin = () => {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center relative">
       <div
-        onClick={() => nav('/')}
+        onClick={() => navigate('/')}
         className="absolute top-6 left-6 flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-500/20 text-cyan-400 font-medium shadow-md hover:bg-cyan-500/30 cursor-pointer"
       >
         <span className="text-lg">🏠</span>

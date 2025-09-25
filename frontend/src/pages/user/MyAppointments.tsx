@@ -29,7 +29,7 @@ const MyAppointments = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
 
-  const nav = useNavigate();
+  const navigate = useNavigate();
 
   if (!token) {
     toast.error('Please login to continue…');
@@ -145,7 +145,7 @@ const MyAppointments = () => {
               ) : (
                 <button
                   onClick={() =>
-                    nav(`/consultation/${a.docData._id}/${a._id}`, {
+                    navigate(`/consultation/${a.docData._id}/${a._id}`, {
                       state: {
                         slotDate: a.slotDate,
                         slotEndTime: a.slotEndTime,
@@ -221,7 +221,7 @@ const MyAppointments = () => {
             )}
 
             <button
-              onClick={() => nav(`/appointment-details/${a._id}`)}
+              onClick={() => navigate(`/appointment-details/${a._id}`)}
               className={`${btn} border-blue-800 text-slate-300 hover:bg-slate-700`}
             >
               View Details

@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { getUserWallet } from '../../services/userProfileServices';
 import Pagination from '../../components/common/Pagination';
 import { currencySymbol } from '../../utils/commonUtils';
+import type { WalletHistoryEntry, WalletTypes } from '../../types/wallet';
 
 const Wallet = () => {
   const navigate = useNavigate();
@@ -25,14 +26,16 @@ const Wallet = () => {
 
       setWalletBalance(wallet.balance || 0);
 
-      const mappedTransactions = (wallet.history || []).map((entry, idx) => ({
-        id: `TXN${(pageNum - 1) * limit + idx + 1}`,
-        type: entry.type,
-        amount: entry.amount,
-        description: entry.reason || 'N/A',
-        date: new Date(entry.date).toLocaleDateString(),
-        time: new Date(entry.date).toLocaleTimeString(),
-      }));
+      const mappedTransactions: WalletTypes[] = (wallet.history || []).map(
+        (entry: WalletHistoryEntry, index: number) => ({
+          id: `TXN${(pageNum - 1) * limit + index + 1}`,
+          type: entry.type,
+          amount: entry.amount,
+          description: entry.reason || 'N/A',
+          date: new Date(entry.date).toLocaleDateString(),
+          time: new Date(entry.date).toLocaleTimeString(),
+        })
+      );
 
       setTransactions(mappedTransactions);
       setTotalPages(Math.ceil(wallet.total / limit));
@@ -54,31 +57,13 @@ const Wallet = () => {
     return transaction.type === filter;
   });
 
-  const formatAmount = (amount, type) => {
+  const formatAmount = (amount: number, type: string) => {
     const sign = type === 'credit' ? '+' : '-';
     return `${sign}${currencySymbol}${amount.toFixed(2)}`;
   };
 
-  const getTransactionIcon = (type) => {
+  const getTransactionIcon = (type: string) => {
     return type === 'credit' ? '↗️' : '↙️';
-  };
-
-  const getStatusBadge = (status) => {
-    const statusClasses = {
-      completed: 'bg-green-600 text-white',
-      pending: 'bg-yellow-600 text-white',
-      failed: 'bg-red-600 text-white',
-    };
-
-    return (
-      <span
-        className={`px-2 py-1 rounded text-xs font-medium ${
-          statusClasses[status] || 'bg-gray-600 text-white'
-        }`}
-      >
-        {status.charAt(0).toUpperCase() + status.slice(1)}
-      </span>
-    );
   };
 
   return (

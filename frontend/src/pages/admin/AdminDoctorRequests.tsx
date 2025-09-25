@@ -6,11 +6,11 @@ import SearchBar from '../../components/common/SearchBar';
 import Pagination from '../../components/common/Pagination';
 
 const AdminDoctorRequests = () => {
-  const nav = useNavigate();
-  const ctx = useContext(AdminContext);
-  if (!ctx) throw new Error('AdminContext missing');
+  const navigate = useNavigate();
+  const adminContext = useContext(AdminContext);
+  if (!adminContext) throw new Error('AdminContext missing');
 
-  const { aToken, getDoctorsPaginated } = ctx;
+  const { aToken, getDoctorsPaginated } = adminContext;
 
   const [page, setPage] = useState(1);
   const [rows, setRows] = useState<any[]>([]);
@@ -29,7 +29,7 @@ const AdminDoctorRequests = () => {
   }, [aToken, page, search]);
 
   useEffect(() => {
-    if (!aToken) nav('/admin/login');
+    if (!aToken) navigate('/admin/login');
   }, [aToken]);
 
   useEffect(() => window.scrollTo({ top: 0, behavior: 'smooth' }), [page]);
@@ -114,7 +114,7 @@ const AdminDoctorRequests = () => {
                       Reject
                     </button> */}
                     <button
-                      onClick={() => nav(`/admin/doctors/${doc._id}`)}
+                      onClick={() => navigate(`/admin/doctors/${doc._id}`)}
                       className={`${pill} bg-sky-500 text-white`}
                     >
                       View Details

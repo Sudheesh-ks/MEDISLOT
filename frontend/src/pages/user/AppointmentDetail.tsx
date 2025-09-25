@@ -14,7 +14,7 @@ import { slotDateFormat } from '../../utils/commonUtils';
 
 const AppointmentDetail = () => {
   const { appointmentId } = useParams();
-  const nav = useNavigate();
+  const navigate = useNavigate();
   const context = useContext(UserContext);
   if (!context) throw new Error('Must be within UserContext');
   const { token } = context;
@@ -24,7 +24,7 @@ const AppointmentDetail = () => {
   useEffect(() => {
     if (!token) {
       toast.error('Please login to continue…');
-      nav('/login');
+      navigate('/login');
       return;
     }
     fetchAppointment();
@@ -143,7 +143,7 @@ const AppointmentDetail = () => {
         {/* Actions */}
         <div className="flex gap-3 pt-6 border-t border-slate-700">
           <button
-            onClick={() => nav(-1)}
+            onClick={() => navigate(-1)}
             className="px-4 py-2 border rounded-lg border-slate-500 hover:bg-slate-700"
           >
             Back

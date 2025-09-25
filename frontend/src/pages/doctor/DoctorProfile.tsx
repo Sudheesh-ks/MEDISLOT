@@ -11,11 +11,11 @@ import ReportBugModal from '../../components/user/BugReportModal';
 import DoctorChangePasswordModal from '../../components/doctor/DoctorChangePasswordModal';
 
 const DoctorProfile = () => {
-  const ctx = useContext(DoctorContext);
+  const context = useContext(DoctorContext);
   const navigate = useNavigate();
-  if (!ctx) throw new Error('DoctorProfile within DoctorContext');
+  if (!context) throw new Error('DoctorProfile within DoctorContext');
 
-  const { dToken, profileData, getProfileData } = ctx;
+  const { dToken, profileData, getProfileData } = context;
 
   const [isEdit, setEdit] = useState(false);
   const [form, setForm] = useState(profileData);

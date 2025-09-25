@@ -81,13 +81,13 @@ const DoctorRegister = () => {
   const [address2, setAddress2] = useState('');
   const [certificate, setCertificate] = useState<File | null>(null);
 
-  const nav = useNavigate();
-  const ctx = useContext(DoctorContext);
-  if (!ctx) throw new Error('DoctorContext required');
-  const { dToken } = ctx;
+  const navigate = useNavigate();
+  const context = useContext(DoctorContext);
+  if (!context) throw new Error('DoctorContext required');
+  const { dToken } = context;
 
   useEffect(() => {
-    if (dToken) nav('/doctor/dashboard');
+    if (dToken) navigate('/doctor/dashboard');
   }, [dToken]);
 
   const onSubmitHandler = async (e: React.FormEvent) => {
@@ -121,7 +121,7 @@ const DoctorRegister = () => {
       const { data } = await registerDoctorAPI(fd);
       if (data.success) {
         toast.success(data.message);
-        nav('/doctor/login');
+        navigate('/doctor/login');
       } else toast.error(data.message);
     } catch (err) {
       showErrorToast(err);
@@ -131,7 +131,7 @@ const DoctorRegister = () => {
   return (
     <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center px-4">
       <div
-        onClick={() => nav('/')}
+        onClick={() => navigate('/')}
         className="fixed top-6 left-6 flex items-center gap-2 px-4 py-2 rounded-full bg-cyan-500/10 text-cyan-400 shadow hover:-translate-y-0.5 transition cursor-pointer"
       >
         🏠 <span className="hidden sm:inline">Back to Home</span>
@@ -237,7 +237,7 @@ const DoctorRegister = () => {
           <p className="text-center text-sm">
             Already registered?{' '}
             <span
-              onClick={() => nav('/doctor/login')}
+              onClick={() => navigate('/doctor/login')}
               className="text-cyan-400 underline cursor-pointer hover:text-cyan-300"
             >
               Login here
