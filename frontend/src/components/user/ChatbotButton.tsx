@@ -1,5 +1,5 @@
-import React from "react";
-import { assets } from "../../assets/user/assets";
+import React from 'react';
+import { assets } from '../../assets/user/assets';
 
 interface ChatbotButtonProps {
   onClick: () => void;

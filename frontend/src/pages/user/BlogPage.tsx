@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useContext } from "react";
-import { getBlogsAPI } from "../../services/blogService";
-import { UserContext } from "../../context/UserContext";
-import { useNavigate } from "react-router-dom";
-import ChatBotModal from "../../components/user/ChatBotModal";
-import { formatPublishDate, getCategoryColor } from "../../utils/blogUtils";
-import BlogCard from "../../components/user/BlogCard";
-import ChatbotButton from "../../components/user/ChatbotButton";
+import React, { useState, useEffect, useContext } from 'react';
+import { getBlogsAPI } from '../../services/blogService';
+import { UserContext } from '../../context/UserContext';
+import { useNavigate } from 'react-router-dom';
+import ChatBotModal from '../../components/user/ChatBotModal';
+import { formatPublishDate, getCategoryColor } from '../../utils/blogUtils';
+import BlogCard from '../../components/user/BlogCard';
+import ChatbotButton from '../../components/user/ChatbotButton';
 
 const BlogPage: React.FC = () => {
   const navigate = useNavigate();
@@ -15,7 +15,7 @@ const BlogPage: React.FC = () => {
 
   const articlesPerPage = 6;
   const context = useContext(UserContext);
-  if (!context) throw new Error("AppContext missing");
+  if (!context) throw new Error('AppContext missing');
   const { token } = context;
 
   useEffect(() => {
@@ -24,7 +24,7 @@ const BlogPage: React.FC = () => {
         const res = await getBlogsAPI(token!);
         setArticles(res.data.data);
       } catch (err) {
-        console.error("Error fetching blogs:", err);
+        console.error('Error fetching blogs:', err);
       }
     };
     fetchBlogs();
@@ -32,9 +32,7 @@ const BlogPage: React.FC = () => {
 
   const handleArticleClick = (id: string) => navigate(`/blogs/${id}`);
   const handleLoadMore = () =>
-    setVisibleArticles((prev) =>
-      Math.min(prev + articlesPerPage, articles.length)
-    );
+    setVisibleArticles((prev) => Math.min(prev + articlesPerPage, articles.length));
 
   const articlesToDisplay = articles.slice(0, visibleArticles);
   const canLoadMore = visibleArticles < articles.length;
@@ -45,14 +43,14 @@ const BlogPage: React.FC = () => {
         {/* Hero Section */}
         <section className="max-w-7xl mx-auto px-4 md:px-10 pt-20 pb-12 text-center">
           <h1 className="text-4xl md:text-5xl font-bold mb-6">
-            HEALTHCARE{" "}
+            HEALTHCARE{' '}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-400 to-blue-500">
               INSIGHTS
             </span>
           </h1>
           <p className="text-xl text-slate-400 max-w-3xl mx-auto leading-relaxed">
-            Stay informed with the latest breakthroughs in medical technology,
-            healthcare innovation, and scientific research from leading experts.
+            Stay informed with the latest breakthroughs in medical technology, healthcare
+            innovation, and scientific research from leading experts.
           </p>
         </section>
 

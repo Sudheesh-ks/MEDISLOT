@@ -12,7 +12,9 @@ export interface IDoctorRepository {
     page: number,
     limit: number,
     search?: string,
-    speciality?: string
+    speciality?: string,
+    minRating?: number,
+    sortOrder?: string
   ): Promise<PaginationResult<DoctorDocument>>;
   findByEmail(email: string): Promise<DoctorDocument | null>;
   save(doctor: DoctorDocument): Promise<void>;

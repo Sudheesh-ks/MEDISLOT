@@ -76,11 +76,15 @@ export class DoctorRepository extends BaseRepository<DoctorDocument> implements 
     page: number,
     limit: number,
     search?: string,
-    speciality?: string
+    speciality?: string,
+    minRating?: number,
+    sortOrder?: string
   ): Promise<PaginationResult<DoctorDocument>> {
     const skip = (page - 1) * limit;
 
     const query: any = { status: 'approved' };
+
+    const sort: any = {};
 
     if (search) {
       query.name = { $regex: search, $options: 'i' };
@@ -90,8 +94,23 @@ export class DoctorRepository extends BaseRepository<DoctorDocument> implements 
       query.speciality = speciality;
     }
 
+    if (minRating) {
+      query.averageRating = { $gte: minRating, $lt: minRating + 1 };
+    }
+
+    if (sortOrder === 'asc') {
+      sort.averageRating = 1;
+    } else {
+      sort.averageRating = -1;
+    }
+
     const totalCount = await doctorModel.countDocuments(query);
-    const data = await doctorModel.find(query).select('-password').skip(skip).limit(limit);
+    const data = await doctorModel
+      .find(query)
+      .select('-password')
+      .skip(skip)
+      .limit(limit)
+      .sort(sort);
 
     const totalPages = Math.ceil(totalCount / limit);
 

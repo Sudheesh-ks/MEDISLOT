@@ -38,7 +38,9 @@ interface UserContextType {
     page: number,
     limit: number,
     searchQuery?: string,
-    speciality?: string
+    speciality?: string,
+    minRating?: number,
+    sortOrder?: string
   ) => Promise<PaginationData>;
   backendUrl: string;
   token: string | null;
@@ -65,10 +67,19 @@ const UserContextProvider: React.FC<UserContextProviderProps> = ({ children }) =
       page: number,
       limit: number,
       searchQuery?: string,
-      speciality?: string
+      speciality?: string,
+      minRating?: number,
+      sortOrder?: string
     ): Promise<PaginationData> => {
       try {
-        const { data } = await getDoctorsPaginatedAPI(page, limit, searchQuery, speciality);
+        const { data } = await getDoctorsPaginatedAPI(
+          page,
+          limit,
+          searchQuery,
+          speciality,
+          minRating,
+          sortOrder
+        );
         if (data.success) {
           return {
             data: data.data,

@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react';
 
 interface BlogCardProps {
   id: string;
@@ -37,13 +37,11 @@ const BlogCard: React.FC<BlogCardProps> = ({
           className="w-full h-52 object-cover group-hover:scale-105 transition-transform duration-500"
           onError={(e) => {
             (e.target as HTMLImageElement).src =
-              "https://via.placeholder.com/400x240.png?text=No+Image";
+              'https://via.placeholder.com/400x240.png?text=No+Image';
           }}
         />
         <div className="absolute top-4 left-4">
-          <span
-            className={`px-3 py-1 rounded-full text-xs font-medium border ${categoryColor}`}
-          >
+          <span className={`px-3 py-1 rounded-full text-xs font-medium border ${categoryColor}`}>
             {category}
           </span>
         </div>
@@ -59,9 +57,7 @@ const BlogCard: React.FC<BlogCardProps> = ({
           {title}
         </h3>
 
-        <p className="text-slate-400 text-sm leading-relaxed mb-4 line-clamp-3">
-          {summary}
-        </p>
+        <p className="text-slate-400 text-sm leading-relaxed mb-4 line-clamp-3">{summary}</p>
 
         <div className="flex items-center justify-between">
           <span className="text-sm font-medium text-slate-300">{author}</span>

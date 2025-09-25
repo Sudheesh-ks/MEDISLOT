@@ -160,9 +160,18 @@ export class DoctorService implements IDoctorService {
     const limit = parseInt(query.limit as string) || 6;
     const search = query.search as string | undefined;
     const speciality = query.speciality as string | undefined;
+    const minRating = query.minRating ? Number(query.minRating) : undefined;
+    const sortOrder = query.sortOrder as string | undefined;
 
     const { data, totalCount, currentPage, totalPages, hasNextPage, hasPrevPage } =
-      await this._doctorRepository.getDoctorsPaginated(page, limit, search, speciality);
+      await this._doctorRepository.getDoctorsPaginated(
+        page,
+        limit,
+        search,
+        speciality,
+        minRating,
+        sortOrder
+      );
 
     const mappedData = data.map(toDoctorDTO);
 

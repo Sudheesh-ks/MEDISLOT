@@ -6,13 +6,18 @@ export const getDoctorsPaginatedAPI = (
   page: number,
   limit: number,
   search?: string,
-  speciality?: string
+  speciality?: string,
+  minRating?: number,
+  sortOrder?: string
 ) => {
   let url = `${DOCTOR_API.DOCTORS_PAGINATED}?page=${page}&limit=${limit}`;
   if (search) url += `&search=${encodeURIComponent(search)}`;
   if (speciality) url += `&speciality=${encodeURIComponent(speciality)}`;
+  if (minRating) url += `&minRating=${minRating}`;
+  if (sortOrder) url += `&sortOrder=${sortOrder}`;
   return api.get(url);
 };
+
 export const getDoctorsByIDAPI = (id: string) => {
   return api.get(DOCTOR_API.DOCTOR_ID(id));
 };

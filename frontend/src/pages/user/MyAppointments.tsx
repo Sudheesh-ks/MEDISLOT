@@ -61,30 +61,29 @@ const MyAppointments = () => {
     }
   };
 
-const fetchPrescription = async (appointmentId: string) => {
-  try {
-    if (!token) throw new Error('Unauthorized');
+  const fetchPrescription = async (appointmentId: string) => {
+    try {
+      if (!token) throw new Error('Unauthorized');
 
-    const { data } = await getPrescriptionAPI(appointmentId, token);
+      const { data } = await getPrescriptionAPI(appointmentId, token);
 
-    if (data.success && data.data) {
-      // Make sure required fields exist before passing forward
-      if (!data.data.appointmentId) {
-        toast.error("Prescription data is incomplete.");
-        return;
+      if (data.success && data.data) {
+        // Make sure required fields exist before passing forward
+        if (!data.data.appointmentId) {
+          toast.error('Prescription data is incomplete.');
+          return;
+        }
+
+        downloadPrescriptionPDF(data.data);
+      } else {
+        // No prescription found
+        toast.info('No prescription added yet.');
       }
-
-      downloadPrescriptionPDF(data.data);
-    } else {
-      // No prescription found
-      toast.info("No prescription added yet.");
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to fetch prescription.');
     }
-  } catch (err) {
-    console.error(err);
-    toast.error("Failed to fetch prescription.");
-  }
-};
-
+  };
 
   useEffect(() => {
     fetchAppointments(page);
@@ -194,40 +193,39 @@ const fetchPrescription = async (appointmentId: string) => {
               </span>
             )} */}
 
-              {/* Cancel button → only before session starts */}
-  {!a.cancelled && !hasAppointmentStarted(a.slotDate, a.slotStartTime) && (
-    <button
-      onClick={() => cancelAppointment(a._id)}
-      className={`${btn} border-red-500 text-red-400 hover:bg-red-500 hover:text-white`}
-    >
-      Cancel Appointment
-    </button>
-  )}
+            {/* Cancel button → only before session starts */}
+            {!a.cancelled && !hasAppointmentStarted(a.slotDate, a.slotStartTime) && (
+              <button
+                onClick={() => cancelAppointment(a._id)}
+                className={`${btn} border-red-500 text-red-400 hover:bg-red-500 hover:text-white`}
+              >
+                Cancel Appointment
+              </button>
+            )}
 
+            {/* After session → prescription handling */}
+            {!a.cancelled && isSessionEnded(a.slotDate, a.slotEndTime) && (
+              <button
+                onClick={() => fetchPrescription(a._id)}
+                className={`${btn} border-green-500 text-green-400 hover:bg-green-500 hover:text-white`}
+              >
+                Download Prescription
+              </button>
+            )}
 
-{/* After session → prescription handling */}
-  {!a.cancelled && isSessionEnded(a.slotDate, a.slotEndTime) && (
-      <button
-        onClick={() => fetchPrescription(a._id)}
-        className={`${btn} border-green-500 text-green-400 hover:bg-green-500 hover:text-white`}
-      >
-        Download Prescription
-      </button>
-    )}
+            {/* Appointment cancelled */}
+            {a.cancelled && (
+              <span className="border border-red-500 text-red-400 text-xs py-1 px-3 rounded">
+                Appointment Cancelled
+              </span>
+            )}
 
-  {/* Appointment cancelled */}
-  {a.cancelled && (
-    <span className="border border-red-500 text-red-400 text-xs py-1 px-3 rounded">
-      Appointment Cancelled
-    </span>
-  )}
-
-  <button
-  onClick={() => nav(`/appointment-details/${a._id}`)}
-  className={`${btn} border-blue-800 text-slate-300 hover:bg-slate-700`}
->
-  View Details
-</button>
+            <button
+              onClick={() => nav(`/appointment-details/${a._id}`)}
+              className={`${btn} border-blue-800 text-slate-300 hover:bg-slate-700`}
+            >
+              View Details
+            </button>
           </div>
         </div>
       ))}
