@@ -24,7 +24,7 @@ const Doctors = () => {
   if (!context) throw new Error('Doctors must be used within an UserContextProvider');
   const { getDoctorsPaginated } = context;
 
-  const itemsPerPage = 6;
+  const itemsPerPage = 4;
 
   useEffect(() => {
     fetchDoctors();

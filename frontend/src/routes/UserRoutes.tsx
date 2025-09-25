@@ -27,6 +27,7 @@ import BlogPage from '../pages/user/BlogPage';
 import BlogDetailPage from '../pages/user/BlogDetailPage';
 import BlockedPage from '../pages/user/BlockedUsersPage';
 import ChangePassword from '../components/user/ChangePassword';
+import AppointmentDetail from '../pages/user/AppointmentDetail';
 
 const UserRoutes = () => {
   return (
@@ -114,6 +115,14 @@ const UserRoutes = () => {
         element={
           <UserLayout>
             <MyAppointments />
+          </UserLayout>
+        }
+      />
+      <Route
+        path="/appointment-details/:appointmentId"
+        element={
+          <UserLayout>
+            <AppointmentDetail />
           </UserLayout>
         }
       />
