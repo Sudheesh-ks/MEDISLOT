@@ -13,4 +13,4 @@ export interface WalletHistoryEntry {
   reason?: string;
   date: string;
   status?: 'completed' | 'pending' | 'failed';
-};
+}

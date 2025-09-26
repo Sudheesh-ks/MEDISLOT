@@ -50,10 +50,10 @@ export class AdminService implements IAdminService {
     }
 
     const admin = await this._adminRepository.findByEmail(email);
-    if (!admin) throw new Error('Admin not found');
+    if (!admin) throw new Error(HttpResponse.INVALID_CREDENTIALS);
 
     const isMatch = await bcrypt.compare(password, admin.password);
-    if (!isMatch) throw new Error('Invalid credentials');
+    if (!isMatch) throw new Error(HttpResponse.INCORRECT_PASSWORD);
 
     const accessToken = generateAccessToken(admin._id.toString(), admin.email, 'admin');
     const refreshToken = generateRefreshToken(admin._id.toString());

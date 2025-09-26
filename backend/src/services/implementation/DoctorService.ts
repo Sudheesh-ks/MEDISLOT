@@ -194,10 +194,10 @@ export class DoctorService implements IDoctorService {
     if (!email || !password) throw new Error('Email and password required');
 
     const doctor = await this._doctorRepository.findByEmail(email);
-    if (!doctor) throw new Error('Doctor not found');
+    if (!doctor) throw new Error(HttpResponse.INVALID_CREDENTIALS);
 
     const match = await bcrypt.compare(password, doctor.password);
-    if (!match) throw new Error('Incorrect password');
+    if (!match) throw new Error(HttpResponse.INCORRECT_PASSWORD);
 
     const token = generateAccessToken(doctor._id!, doctor.email, 'doctor');
     const refreshToken = generateRefreshToken(doctor._id!);

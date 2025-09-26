@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { getDoctorBlogByIdAPI, updateDoctorBlogAPI } from '../../services/doctorServices';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -14,6 +14,7 @@ import Toolbar from '../../components/common/Toolbar';
 import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
 import { useLexicalComposerContext } from '@lexical/react/LexicalComposerContext';
 import { $getRoot, $createParagraphNode } from 'lexical';
+import { DoctorContext } from '../../context/DoctorContext';
 
 function LoadContentPlugin({ initialHTML }: { initialHTML: string }) {
   const [editor] = useLexicalComposerContext();
@@ -63,6 +64,12 @@ const DoctorEditBlogPage = () => {
   const [visibility, setVisibility] = useState('public');
   const [content, setContent] = useState('');
   const [initialContent, setInitialContent] = useState('');
+
+  const { dToken } = useContext(DoctorContext);
+
+  useEffect(() => {
+    if (!dToken) navigate('/doctor/login');
+  }, [dToken]);
 
   const editorConfig = {
     namespace: 'DoctorBlogEditor',

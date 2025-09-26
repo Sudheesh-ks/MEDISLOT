@@ -1,5 +1,9 @@
 import axios, { type AxiosRequestConfig } from 'axios';
-import { getDoctorAccessToken, updateDoctorAccessToken } from '../context/tokenManagerDoctor';
+import {
+  clearDoctorAccessToken,
+  getDoctorAccessToken,
+  updateDoctorAccessToken,
+} from '../context/tokenManagerDoctor';
 
 export const doctorApi = axios.create({
   baseURL: import.meta.env.VITE_BACKEND_URL,
@@ -25,6 +29,17 @@ doctorApi.interceptors.response.use(
   (res) => res,
   async (err) => {
     const original = err.config as AxiosRequestConfig & { _retry?: boolean };
+
+    if (original.url?.includes('/doctor/login')) {
+      return Promise.reject(err);
+    }
+
+    if (err.response?.status === 403) {
+      clearDoctorAccessToken();
+      window.location.href = '/doctor/login';
+      return Promise.reject(err);
+    }
+
     if (err.response?.status !== 401 || original._retry) {
       return Promise.reject(err);
     }

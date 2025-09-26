@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { AdminContext } from '../../context/AdminContext';
@@ -6,10 +6,10 @@ import { adminLoginAPI } from '../../services/adminServices';
 import { showErrorToast } from '../../utils/errorHandler';
 import { assets } from '../../assets/user/assets';
 import { updateAdminAccessToken } from '../../context/tokenManagerAdmin';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
+import * as Yup from 'yup';
 
 const AdminLogin = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const navigate = useNavigate();
 
   const adminContext = useContext(AdminContext);
@@ -20,19 +20,32 @@ const AdminLogin = () => {
     if (aToken) navigate('/admin/dashboard');
   }, [aToken, navigate]);
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
+  const validationSchema = Yup.object({
+    email: Yup.string().email('Invalid email address').required('Email is required'),
+    password: Yup.string()
+      .min(8, 'Password must be at least 8 characters')
+      .required('Password is required'),
+  });
+
+  const handleSubmit = async (
+    values: { email: string; password: string },
+    { setSubmitting }: { setSubmitting: (isSubmitting: boolean) => void }
+  ) => {
     try {
-      const { data } = await adminLoginAPI(email, password);
+      const { data } = await adminLoginAPI(values.email, values.password);
       if (data.success) {
         updateAdminAccessToken(data.token);
         setAToken(data.token);
         localStorage.removeItem('isAdminLoggedOut');
         toast.success('Login successful');
         navigate('/admin/dashboard');
-      } else toast.error(data.message);
+      } else {
+        toast.error(data.message);
+      }
     } catch (err) {
       showErrorToast(err);
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -47,49 +60,62 @@ const AdminLogin = () => {
       <div className="absolute -top-16 -left-16 w-72 h-72 bg-fuchsia-500/20 rounded-full blur-3xl animate-blob" />
       <div className="absolute bottom-0 right-0 w-80 h-80 bg-indigo-500/20 rounded-full blur-3xl animate-blob animation-delay-2000" />
 
-      <form onSubmit={handleSubmit}>
-        <div className={`flex flex-col sm:flex-row ${glass} shadow-xl rounded-3xl overflow-hidden`}>
-          <div className="hidden sm:block w-full sm:w-96 shrink-0">
-            <img
-              src={assets.about_image}
-              alt="Admin Login Visual"
-              className="w-full h-full object-cover"
-            />
-          </div>
+      <Formik
+        initialValues={{ email: '', password: '' }}
+        validationSchema={validationSchema}
+        onSubmit={handleSubmit}
+      >
+        {({ isSubmitting }) => (
+          <Form>
+            <div
+              className={`flex flex-col sm:flex-row ${glass} shadow-xl rounded-3xl overflow-hidden`}
+            >
+              <div className="hidden sm:block w-full sm:w-96 shrink-0">
+                <img
+                  src={assets.about_image}
+                  alt="Admin Login Visual"
+                  className="w-full h-full object-cover"
+                />
+              </div>
 
-          <div className="flex flex-col gap-4 p-8 min-w-[340px] sm:min-w-96">
-            <h1 className="text-2xl font-semibold text-center bg-gradient-to-r from-indigo-400 to-fuchsia-500 bg-clip-text text-transparent">
-              Admin&nbsp;Login
-            </h1>
+              <div className="flex flex-col gap-4 p-8 min-w-[340px] sm:min-w-96">
+                <h1 className="text-2xl font-semibold text-center bg-gradient-to-r from-indigo-400 to-fuchsia-500 bg-clip-text text-transparent">
+                  Admin&nbsp;Login
+                </h1>
 
-            <div>
-              <label className="text-sm">Email</label>
-              <input
-                type="email"
-                required
-                className={input}
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="admin@medislot.com"
-              />
+                <div>
+                  <label className="text-sm">Email</label>
+                  <Field
+                    type="email"
+                    name="email"
+                    className={input}
+                    placeholder="admin@medislot.com"
+                  />
+                  <ErrorMessage
+                    name="email"
+                    component="div"
+                    className="text-red-400 text-sm mt-1"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-sm">Password</label>
+                  <Field type="password" name="password" className={input} placeholder="••••••••" />
+                  <ErrorMessage
+                    name="password"
+                    component="div"
+                    className="text-red-400 text-sm mt-1"
+                  />
+                </div>
+
+                <button type="submit" disabled={isSubmitting} className={btn}>
+                  {isSubmitting ? 'Logging in...' : 'Login'}
+                </button>
+              </div>
             </div>
-
-            <div>
-              <label className="text-sm">Password</label>
-              <input
-                type="password"
-                required
-                className={input}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-              />
-            </div>
-
-            <button className={btn}>Login</button>
-          </div>
-        </div>
-      </form>
+          </Form>
+        )}
+      </Formik>
     </div>
   );
 };

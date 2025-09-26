@@ -39,8 +39,11 @@ const Appointment = () => {
   if (!context) throw new Error('AppContext missing');
   const { token } = context;
 
+  useEffect(() => {
+    if (!token) navigate('/login');
+  }, [token]);
+
   if (!token) {
-    toast.error('Please login to continue…');
     return null;
   }
 

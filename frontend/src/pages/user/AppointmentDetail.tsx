@@ -23,7 +23,6 @@ const AppointmentDetail = () => {
 
   useEffect(() => {
     if (!token) {
-      toast.error('Please login to continue…');
       navigate('/login');
       return;
     }

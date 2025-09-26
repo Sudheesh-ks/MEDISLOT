@@ -19,6 +19,12 @@ const BlogPage: React.FC = () => {
   const { token } = context;
 
   useEffect(() => {
+    if (!token) {
+      navigate('/login');
+    }
+  }, [token]);
+
+  useEffect(() => {
     const fetchBlogs = async () => {
       try {
         const res = await getBlogsAPI(token!);

@@ -23,6 +23,7 @@ import {
 } from '../../services/doctorServices';
 import { toast } from 'react-toastify';
 import { DoctorContext } from '../../context/DoctorContext';
+import { useNavigate } from 'react-router-dom';
 
 const to12h = (t: string) => dayjs(t, 'HH:mm').format('hh:mm A').toLowerCase();
 
@@ -33,10 +34,11 @@ interface Range {
 }
 
 export default function DoctorSlotManager() {
+  const navigate = useNavigate();
   const context = useContext(DoctorContext);
   if (!context) throw new Error('context missing');
 
-  const { profileData } = context;
+  const { dToken, profileData } = context;
 
   const [month, setMonth] = useState<Dayjs>(dayjs().startOf('month'));
   const [selectedDate, setSelectedDate] = useState<Dayjs | null>(dayjs());
@@ -46,6 +48,10 @@ export default function DoctorSlotManager() {
   const [confirmLeave, setConfirmLeave] = useState(false);
   const [dayStatus, setDayStatus] = useState<Record<string, boolean>>({});
   const [mode, setMode] = useState<'day' | 'weekly'>('day');
+
+  useEffect(() => {
+    if (!dToken) navigate('/doctor/login');
+  }, [dToken]);
 
   const monthDays = useMemo(() => {
     const startDay = month.startOf('week');

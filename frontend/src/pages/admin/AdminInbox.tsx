@@ -5,8 +5,10 @@ import { AdminContext } from '../../context/AdminContext';
 import { getComplaintsPaginatedAPI, updateComplainStatusAPI } from '../../services/adminServices';
 import type { ComplaintTypes } from '../../types/complaint';
 import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
 const AdminInbox = () => {
+  const navigate = useNavigate();
   const adminContext = useContext(AdminContext);
   if (!adminContext) throw new Error('Missing contexts');
 
@@ -23,6 +25,10 @@ const AdminInbox = () => {
   const [status, setStatus] = useState<'all' | 'pending' | 'in-progress' | 'resolved' | 'rejected'>(
     'all'
   );
+
+  useEffect(() => {
+    if (!aToken) navigate('/admin/login');
+  }, [aToken]);
 
   useEffect(() => {
     const fetchComplaints = async () => {

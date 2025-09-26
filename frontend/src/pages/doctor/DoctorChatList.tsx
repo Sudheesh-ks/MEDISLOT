@@ -45,8 +45,12 @@ const DoctorChatList: React.FC = () => {
   const navigate = useNavigate();
 
   const { unread } = useContext(NotifContext);
-  const { profileData } = useContext(DoctorContext);
+  const { dToken, profileData } = useContext(DoctorContext);
   const doctorId = profileData?._id;
+
+  useEffect(() => {
+    if (!dToken) navigate('/doctor/login');
+  }, [dToken]);
 
   const glass = 'bg-slate-900/50 backdrop-blur border border-slate-800';
   const gradient = 'from-blue-500 to-cyan-500';

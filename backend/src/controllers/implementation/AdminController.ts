@@ -40,7 +40,7 @@ export class AdminController implements IAdminController {
       });
       res.status(HttpStatus.UNAUTHORIZED).json({
         success: false,
-        message: (error as Error).message || HttpResponse.UNAUTHORIZED,
+        message: (error as Error).message,
       });
     }
   }

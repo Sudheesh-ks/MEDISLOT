@@ -7,8 +7,11 @@ import {
 } from '../../services/adminServices';
 import { AdminContext } from '../../context/AdminContext';
 import Pagination from '../../components/common/Pagination';
+import { useNavigate } from 'react-router-dom';
 
 const AdminNotifications = () => {
+  const navigate = useNavigate();
+
   const [type, setType] = useState<'all' | 'appointment' | 'system' | 'prescription'>('all');
   const [notifications, setNotifications] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -20,6 +23,10 @@ const AdminNotifications = () => {
   if (!adminContext) throw new Error('Missing contexts');
 
   const { aToken } = adminContext;
+
+  useEffect(() => {
+    if (!aToken) navigate('/admin/login');
+  }, [aToken]);
 
   const fetchNotifications = async () => {
     setLoading(true);

@@ -1,14 +1,23 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { CreditCard, Eye, EyeOff, Search, TrendingUp, Wallet } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { getAdminWalletAPI } from '../../services/adminServices';
 import { currencySymbol } from '../../utils/commonUtils';
 import Pagination from '../../components/common/Pagination';
+import { useNavigate } from 'react-router-dom';
+import { AdminContext } from '../../context/AdminContext';
 
 const glass = 'bg-white/5 backdrop-blur ring-1 ring-white/10';
 const cardBase = 'text-white p-6 rounded-xl shadow-md flex items-center gap-4';
 
 const AdminWallet = () => {
+  const navigate = useNavigate();
+
+  const adminContext = useContext(AdminContext);
+  if (!adminContext) throw new Error('Missing contexts');
+
+  const { aToken } = adminContext;
+
   const [walletData, setWalletData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [showBalance, setShowBalance] = useState(true);
@@ -17,6 +26,10 @@ const AdminWallet = () => {
   const [filteredTransactions, setFilteredTransactions] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [transactionType, setTransactionType] = useState('all');
+
+  useEffect(() => {
+    if (!aToken) navigate('/admin/login');
+  }, [aToken]);
 
   useEffect(() => {
     const fetchWallet = async () => {

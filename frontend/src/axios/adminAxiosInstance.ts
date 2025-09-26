@@ -1,5 +1,9 @@
 import axios, { type AxiosRequestConfig } from 'axios';
-import { getAdminAccessToken, updateAdminAccessToken } from '../context/tokenManagerAdmin';
+import {
+  clearAdminAccessToken,
+  getAdminAccessToken,
+  updateAdminAccessToken,
+} from '../context/tokenManagerAdmin';
 
 export const adminApi = axios.create({
   baseURL: import.meta.env.VITE_BACKEND_URL,
@@ -25,6 +29,17 @@ adminApi.interceptors.response.use(
   (res) => res,
   async (err) => {
     const original = err.config as AxiosRequestConfig & { _retry?: boolean };
+
+    if (original.url?.includes('/admin/login')) {
+      return Promise.reject(err);
+    }
+
+    if (err.response?.status === 403) {
+      clearAdminAccessToken();
+      window.location.href = '/admin/login';
+      return Promise.reject(err);
+    }
+
     if (err.response?.status !== 401 || original._retry) {
       return Promise.reject(err);
     }

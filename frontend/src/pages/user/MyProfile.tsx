@@ -24,7 +24,7 @@ const MyProfile = () => {
 
   useEffect(() => {
     if (!token) {
-      navigate('/');
+      navigate('/login');
       return;
     }
 

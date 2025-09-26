@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useState, useEffect, useContext } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { showErrorToast } from '../../utils/errorHandler';
 import {
@@ -10,8 +10,10 @@ import {
   updatePatientHistoryAPI,
 } from '../../services/doctorServices';
 import type { PatientHistoryTypes } from '../../types/patientHistoryTypes';
+import { DoctorContext } from '../../context/DoctorContext';
 
 const PatientHistoryPage = () => {
+  const navigate = useNavigate();
   const { userId, appointmentId } = useParams();
 
   const [activeTab, setActiveTab] = useState<'overview' | 'sessions' | 'add' | 'edit'>('overview');
@@ -44,6 +46,12 @@ const PatientHistoryPage = () => {
       instructions: string;
     }[],
   });
+
+  const { dToken } = useContext(DoctorContext);
+
+  useEffect(() => {
+    if (!dToken) navigate('/doctor/login');
+  }, [dToken]);
 
   useEffect(() => {
     const fetchData = async () => {

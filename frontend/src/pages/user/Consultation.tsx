@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import VideoCallCard from '../../components/user/VideoCallCard';
 import ChatCard from '../../components/user/ChatCard';
+import { UserContext } from '../../context/UserContext';
 
 dayjs.extend(customParseFormat);
 
@@ -11,6 +12,17 @@ const Consultation = () => {
   const { doctorId, appointmentId } = useParams();
   const { state } = useLocation();
   const navigate = useNavigate();
+
+  const context = useContext(UserContext);
+  if (!context) throw new Error('Must be within UserContext');
+
+  const { token } = context;
+
+  useEffect(() => {
+    if (!token) {
+      navigate('/login');
+    }
+  }, [token]);
 
   const [timeLeft, setTimeLeft] = useState<number>(0);
   const [showTimer, setShowTimer] = useState(false);

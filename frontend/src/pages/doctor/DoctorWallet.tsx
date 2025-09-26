@@ -1,14 +1,19 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { CreditCard, Eye, EyeOff, Search, TrendingUp, Wallet } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { getDoctorWalletAPI } from '../../services/doctorServices';
 import { currencySymbol } from '../../utils/commonUtils';
 import Pagination from '../../components/common/Pagination';
+import { DoctorContext } from '../../context/DoctorContext';
+import { useNavigate } from 'react-router-dom';
 
 const glass = 'bg-white/5 backdrop-blur ring-1 ring-white/10';
 const cardBase = 'text-white p-6 rounded-xl shadow-md flex items-center gap-4';
 
 const DoctorWallet = () => {
+  const navigate = useNavigate();
+  const context = useContext(DoctorContext);
+
   const [walletData, setWalletData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [showBalance, setShowBalance] = useState(true);
@@ -17,6 +22,15 @@ const DoctorWallet = () => {
   const [filteredTransactions, setFilteredTransactions] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [transactionType, setTransactionType] = useState('all');
+
+  if (!context) throw new Error('DoctorContext missing');
+  const { dToken } = context;
+
+  useEffect(() => {
+    if (!dToken) {
+      navigate('/doctor/login');
+    }
+  });
 
   useEffect(() => {
     const fetchWallet = async () => {

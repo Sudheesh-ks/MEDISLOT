@@ -8,7 +8,7 @@ const AdminDoctorDetail = () => {
   const adminContext = useContext(AdminContext);
   if (!adminContext) throw new Error('AdminContext missing');
 
-  const { getDoctorById, approveDoctor, rejectDoctor } = adminContext;
+  const { aToken, getDoctorById, approveDoctor, rejectDoctor } = adminContext;
 
   const [doctor, setDoctor] = useState<any>(null);
   const [showModal, setShowModal] = useState(false);
@@ -17,6 +17,10 @@ const AdminDoctorDetail = () => {
   useEffect(() => {
     if (id) fetchDoctor();
   }, [id]);
+
+  useEffect(() => {
+    if (!aToken) navigate('/admin/login');
+  }, [aToken]);
 
   const fetchDoctor = async () => {
     try {

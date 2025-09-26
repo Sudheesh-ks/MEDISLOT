@@ -7,8 +7,10 @@ import {
 } from '../../services/doctorServices';
 import Pagination from '../../components/common/Pagination';
 import { DoctorContext } from '../../context/DoctorContext';
+import { useNavigate } from 'react-router-dom';
 
 const DoctorNotifications = () => {
+  const navigate = useNavigate();
   const context = useContext(DoctorContext);
   if (!context) throw new Error('DoctorContext missing');
   const { dToken } = context;
@@ -19,6 +21,10 @@ const DoctorNotifications = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const pageSize = 10;
+
+  useEffect(() => {
+    if (!dToken) navigate('/doctor/login');
+  }, [dToken]);
 
   const fetchNotifications = async () => {
     setLoading(true);

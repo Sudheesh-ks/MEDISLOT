@@ -7,6 +7,7 @@ import {
 } from '../../services/userProfileServices';
 import Pagination from '../../components/common/Pagination';
 import { UserContext } from '../../context/UserContext';
+import { useNavigate } from 'react-router-dom';
 
 const UserNotifications = () => {
   const [type, setType] = useState<'all' | 'appointment' | 'system' | 'prescription'>('all');
@@ -19,6 +20,11 @@ const UserNotifications = () => {
   const context = useContext(UserContext);
   if (!context) throw new Error('Missing contexts');
   const { token } = context;
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!token) navigate('/login');
+  }, [token, navigate]);
 
   const fetchNotifications = async () => {
     setLoading(true);

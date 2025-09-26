@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Line } from 'react-chartjs-2';
@@ -16,6 +16,7 @@ import DateFilter from '../../components/common/DateFilter';
 import { assets } from '../../assets/admin/assets';
 import { getDoctorDashboardDataAPI } from '../../services/doctorServices';
 import { currencySymbol } from '../../utils/commonUtils';
+import { DoctorContext } from '../../context/DoctorContext';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend);
 
@@ -24,12 +25,16 @@ const cardBase = 'text-white p-6 rounded-xl shadow-md flex items-center gap-4';
 
 export default function DoctorDashboard() {
   const navigate = useNavigate();
+  const context = useContext(DoctorContext);
   const [dateRange, setDateRange] = useState<DateRange>({ type: 'today' });
   const [appointmentsData, setAppointmentsData] = useState<{ date: string; count: number }[]>([]);
   const [revenueData, setRevenueData] = useState<{ date: string; revenue: number }[]>([]);
   const [loadingStats, setLoadingStats] = useState(false);
   const [totalAppointments, setTotalAppointments] = useState(0);
   const [totalRevenue, setTotalRevenue] = useState(0);
+
+  if (!context) throw new Error('DoctorContext missing');
+  const { dToken } = context;
 
   const computeRange = (range: DateRange) => {
     const today = new Date();
@@ -146,6 +151,12 @@ export default function DoctorDashboard() {
       y: { ticks: { color: '#fff' }, grid: { color: 'rgba(255,255,255,0.1)' } },
     },
   };
+
+  useEffect(() => {
+    if (!dToken) {
+      navigate('/doctor/login');
+    }
+  }, [dToken]);
 
   return (
     <div className="m-5 space-y-10 text-slate-100">

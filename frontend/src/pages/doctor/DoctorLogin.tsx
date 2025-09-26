@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { DoctorContext } from '../../context/DoctorContext';
@@ -6,10 +6,10 @@ import { doctorLoginAPI } from '../../services/doctorServices';
 import { showErrorToast } from '../../utils/errorHandler';
 import { assets } from '../../assets/user/assets';
 import { updateDoctorAccessToken } from '../../context/tokenManagerDoctor';
+import { Formik, Form, Field, ErrorMessage } from 'formik';
+import * as Yup from 'yup';
 
 const DoctorLogin = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const navigate = useNavigate();
   const context = useContext(DoctorContext);
   if (!context) throw new Error('DoctorContext missing');
@@ -19,10 +19,24 @@ const DoctorLogin = () => {
     if (dToken) navigate('/doctor/dashboard');
   }, [dToken]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const validationSchema = Yup.object({
+    email: Yup.string().email('Please enter a valid email address').required('Email is required'),
+    password: Yup.string()
+      .min(8, 'Password must be at least 8 characters')
+      .matches(/^(?=.*[a-z])/, 'At least one lowercase letter')
+      .matches(/^(?=.*[A-Z])/, 'At least one uppercase letter')
+      .matches(/^(?=.*\d)/, 'At least one number')
+      .matches(/^(?=.*[@$!%*?&])/, 'At least one special character (@$!%*?&)')
+      .required('Password is required'),
+  });
+
+  // ✅ Handle form submit with Formik
+  const handleSubmit = async (
+    values: { email: string; password: string },
+    { setSubmitting }: { setSubmitting: (isSubmitting: boolean) => void }
+  ) => {
     try {
-      const { data } = await doctorLoginAPI(email, password);
+      const { data } = await doctorLoginAPI(values.email, values.password);
       if (data.success) {
         updateDoctorAccessToken(data.token);
         setDToken(data.token);
@@ -30,9 +44,13 @@ const DoctorLogin = () => {
         getProfileData();
         toast.success('Login successful');
         navigate('/doctor/dashboard');
-      } else toast.error(data.message);
+      } else {
+        toast.error(data.message);
+      }
     } catch (err) {
       showErrorToast(err);
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -52,44 +70,43 @@ const DoctorLogin = () => {
         <span className="text-sm sm:text-base">Back to Home</span>
       </div>
 
-      <form
+      <Formik
+        initialValues={{ email: '', password: '' }}
+        validationSchema={validationSchema}
         onSubmit={handleSubmit}
-        className="w-full max-w-lg flex flex-col sm:flex-row rounded-3xl overflow-hidden shadow-xl"
       >
-        <div className="hidden sm:block w-1/2">
-          <img src={assets.about_image} className="w-full h-full object-cover" />
-        </div>
+        {({ isSubmitting }) => (
+          <Form className="w-full max-w-lg flex flex-col sm:flex-row rounded-3xl overflow-hidden shadow-xl">
+            <div className="hidden sm:block w-1/2">
+              <img src={assets.about_image} className="w-full h-full object-cover" />
+            </div>
 
-        <div className={`flex-1 p-8 space-y-6 ${glass}`}>
-          <h1 className="text-2xl font-semibold text-center text-cyan-400">Doctor Login</h1>
+            <div className={`flex-1 p-8 space-y-6 ${glass}`}>
+              <h1 className="text-2xl font-semibold text-center text-cyan-400">Doctor Login</h1>
 
-          <div>
-            <label className="text-sm">Email</label>
-            <input
-              type="email"
-              required
-              className={input}
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </div>
+              <div>
+                <label className="text-sm">Email</label>
+                <Field type="email" name="email" className={input} />
+                <ErrorMessage name="email" component="div" className="text-red-400 text-sm mt-1" />
+              </div>
 
-          <div>
-            <label className="text-sm">Password</label>
-            <input
-              type="password"
-              required
-              className={input}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-            />
-          </div>
+              <div>
+                <label className="text-sm">Password</label>
+                <Field type="password" name="password" className={input} />
+                <ErrorMessage
+                  name="password"
+                  component="div"
+                  className="text-red-400 text-sm mt-1"
+                />
+              </div>
 
-          <button type="submit" className={btn}>
-            Login
-          </button>
-        </div>
-      </form>
+              <button type="submit" disabled={isSubmitting} className={btn}>
+                {isSubmitting ? 'Logging in...' : 'Login'}
+              </button>
+            </div>
+          </Form>
+        )}
+      </Formik>
     </div>
   );
 };

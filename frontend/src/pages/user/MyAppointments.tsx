@@ -31,8 +31,11 @@ const MyAppointments = () => {
 
   const navigate = useNavigate();
 
+  useEffect(() => {
+    if (!token) navigate('/login');
+  }, [token, navigate]);
+
   if (!token) {
-    toast.error('Please login to continue…');
     return null;
   }
 

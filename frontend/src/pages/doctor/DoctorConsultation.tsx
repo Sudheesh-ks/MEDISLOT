@@ -1,17 +1,26 @@
-import { useParams } from 'react-router-dom';
-import { useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useContext, useEffect, useState } from 'react';
 import { Info } from 'lucide-react';
 import DocVideoCallCard from '../../components/doctor/DocVideoCallCard';
 import DocChatCard from '../../components/doctor/DocChatCard';
 import PatientHistoryCard from '../../components/doctor/PatientHistoryCard';
 import { getChatSummaryAPI } from '../../services/aiChatService';
 import ChatBotSummaryModal from '../../components/doctor/ChatBotSummaryModal';
+import { DoctorContext } from '../../context/DoctorContext';
 
 const DoctorConsultation = () => {
+  const navigate = useNavigate();
+
   const { userId, appointmentId } = useParams();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [summary, setSummary] = useState<string>('Loading...');
   const [loading, setLoading] = useState(false);
+
+  const { dToken } = useContext(DoctorContext);
+
+  useEffect(() => {
+    if (!dToken) navigate('/doctor/login');
+  }, [dToken]);
 
   const openSummary = async () => {
     if (!userId) return;

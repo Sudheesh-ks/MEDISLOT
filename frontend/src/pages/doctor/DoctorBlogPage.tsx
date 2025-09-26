@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { deleteDoctorBlogAPI, getDoctorBlogsAPI } from '../../services/doctorServices';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { showErrorToast } from '../../utils/errorHandler';
+import { DoctorContext } from '../../context/DoctorContext';
 
 interface Blog {
   id: string;
@@ -16,8 +17,18 @@ interface Blog {
 }
 
 const DoctorBlogsPage = () => {
+  const navigate = useNavigate();
+  const context = useContext(DoctorContext);
+
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [loading, setLoading] = useState(false);
+
+  if (!context) throw new Error('DoctorContext missing');
+  const { dToken } = context;
+
+  useEffect(() => {
+    if (!dToken) navigate('/doctor/login');
+  }, [dToken]);
 
   const fetchBlogs = async () => {
     try {

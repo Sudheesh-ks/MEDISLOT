@@ -6,7 +6,7 @@ import React, {
   type FormEvent,
   type MouseEvent,
 } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { DoctorContext } from '../../context/DoctorContext';
 import { NotifContext } from '../../context/NotificationContext';
 
@@ -26,8 +26,14 @@ const timeOf = (iso?: string) =>
 const fileName = (url: string) => url.split('/').pop()?.split('?')[0] ?? 'file';
 
 const DocChatPage: React.FC = () => {
-  const { profileData, loading } = useContext(DoctorContext);
+  const navigate = useNavigate();
+
+  const { dToken, profileData, loading } = useContext(DoctorContext);
   const { socket, markRead } = useContext(NotifContext);
+
+  useEffect(() => {
+    if (!dToken) navigate('/doctor/login');
+  }, [dToken]);
 
   if (loading) {
     return (

@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useContext, useEffect } from 'react';
 import { createDoctorBlogAPI } from '../../services/doctorServices';
 import { toast } from 'react-toastify';
 import { showErrorToast } from '../../utils/errorHandler';
@@ -12,6 +12,7 @@ import { $generateHtmlFromNodes } from '@lexical/html';
 import Toolbar from '../../components/common/Toolbar';
 import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
 import { useNavigate } from 'react-router-dom';
+import { DoctorContext } from '../../context/DoctorContext';
 
 const DoctorAddBlogPage = () => {
   const navigate = useNavigate();
@@ -28,6 +29,12 @@ const DoctorAddBlogPage = () => {
 
   const editorRef = useRef<any>(null);
   const [content, setContent] = useState('');
+
+  const { dToken } = useContext(DoctorContext);
+
+  useEffect(() => {
+    if (!dToken) navigate('/doctor/login');
+  }, [dToken]);
 
   const editorConfig = {
     namespace: 'DoctorBlogEditor',

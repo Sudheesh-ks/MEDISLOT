@@ -24,9 +24,15 @@ const Doctors = () => {
   const [showSort, setShowSort] = useState(false);
 
   if (!context) throw new Error('Doctors must be used within an UserContextProvider');
-  const { getDoctorsPaginated } = context;
+  const { token, getDoctorsPaginated } = context;
 
   const itemsPerPage = 4;
+
+  useEffect(() => {
+    if (!token) {
+      navigate('/login');
+    }
+  }, [token]);
 
   useEffect(() => {
     fetchDoctors();

@@ -154,7 +154,7 @@ export class DoctorController implements IDoctorController {
 
       res.status(HttpStatus.UNAUTHORIZED).json({
         success: false,
-        message: HttpResponse.UNAUTHORIZED,
+        message: (error as Error).message,
       });
     }
   }

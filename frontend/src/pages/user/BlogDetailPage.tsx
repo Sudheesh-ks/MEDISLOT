@@ -56,6 +56,12 @@ const BlogDetailPage: React.FC = () => {
   const [cText, setCText] = useState('');
   const [posting, setPosting] = useState(false);
 
+  useEffect(() => {
+    if (!token) {
+      navigate('/login');
+    }
+  }, [token]);
+
   const formatDate = (d: string) =>
     d
       ? new Date(d).toLocaleDateString('en-US', {

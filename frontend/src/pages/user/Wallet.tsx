@@ -46,7 +46,7 @@ const Wallet = () => {
 
   useEffect(() => {
     if (!token) {
-      navigate('/');
+      navigate('/login');
       return;
     }
     fetchWallet(page);

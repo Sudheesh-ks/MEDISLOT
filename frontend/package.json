@@ -22,6 +22,7 @@
     "@tailwindcss/vite": "^4.1.5",
     "axios": "^1.9.0",
     "chart.js": "^4.5.0",
+    "formik": "^2.4.6",
     "framer-motion": "^12.18.1",
     "jspdf": "^3.0.1",
     "jspdf-autotable": "^5.0.2",
@@ -37,7 +38,8 @@
     "react-router-dom": "^7.5.3",
     "react-toastify": "^11.0.5",
     "stream-chat": "^9.5.1",
-    "stream-chat-react": "^13.0.5"
+    "stream-chat-react": "^13.0.5",
+    "yup": "^1.7.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.32.0",

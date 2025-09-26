@@ -224,12 +224,12 @@ export class UserService implements IUserService {
 
     const user = await this._userRepository.findUserByEmail(email);
     if (!user) {
-      throw new Error('User not found');
+      throw new Error(HttpResponse.INVALID_CREDENTIALS);
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      throw new Error('Invalid credentials');
+      throw new Error(HttpResponse.INCORRECT_PASSWORD);
     }
 
     if (user.isBlocked) {

@@ -1,8 +1,17 @@
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import ConsultationEndedCard from '../../components/common/ConsulationEnded';
+import { useContext, useEffect } from 'react';
+import { DoctorContext } from '../../context/DoctorContext';
 
 const DoctorConsultationEndedPage = () => {
   const { appointmentId } = useParams<{ appointmentId: string }>();
+
+  const navigate = useNavigate();
+  const { dToken } = useContext(DoctorContext);
+
+  useEffect(() => {
+    if (!dToken) navigate('/doctor/login');
+  }, [dToken]);
 
   return (
     <div className="min-h-screen p-6 flex justify-center items-center bg-[#0a0a0a]">

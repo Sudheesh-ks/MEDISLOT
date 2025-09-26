@@ -1,5 +1,5 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { UserContext } from '../../context/UserContext';
 import { NotifContext } from '../../context/NotificationContext';
 import { getDoctorsByIDAPI } from '../../services/doctorServices';
@@ -18,7 +18,8 @@ const timeOf = (iso?: string) =>
 const fileName = (url: string) => url.split('/').pop()?.split('?')[0] ?? 'file';
 
 const ChatPage: React.FC = () => {
-  const { userData } = useContext(UserContext)!;
+  const navigate = useNavigate();
+  const { token, userData } = useContext(UserContext)!;
   const { socket, markRead } = useContext(NotifContext);
 
   const { doctorId } = useParams<{ doctorId: string }>();
@@ -33,6 +34,12 @@ const ChatPage: React.FC = () => {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [isTyping, setIsTyping] = useState(false);
   const [pendingId, setPendingId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!token) {
+      navigate('/login');
+    }
+  }, [token]);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
