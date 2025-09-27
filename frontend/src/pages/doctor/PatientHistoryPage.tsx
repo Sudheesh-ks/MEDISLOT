@@ -65,7 +65,7 @@ const PatientHistoryPage = () => {
       }
     };
     fetchData();
-  }, [userId]);
+  }, [userId, sessions]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
