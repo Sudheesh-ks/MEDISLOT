@@ -1,35 +1,6 @@
 import express from 'express';
 import authRole from '../middlewares/authRole';
-
-// Dependency layers
-import { AdminRepository } from '../repositories/implementation/AdminRepository';
-import { AdminService } from '../services/implementation/AdminService';
-import { AdminController } from '../controllers/implementation/AdminController';
-
-import { DoctorRepository } from '../repositories/implementation/DoctorRepository';
-import { WalletRepository } from '../repositories/implementation/WalletRepository';
-import { NotificationService } from '../services/implementation/NotificationService';
-import { FeedbackRepository } from '../repositories/implementation/FeedbackRepository';
-import { ComplaintRepository } from '../repositories/implementation/ComplaintRepository';
-import { NotificationRepository } from '../repositories/implementation/NotificationRepository';
-
-// Admin Layer
-const adminRepository = new AdminRepository();
-const doctorRepository = new DoctorRepository();
-const walletRepository = new WalletRepository();
-const notificationRepository = new NotificationRepository();
-const notificationService = new NotificationService(notificationRepository);
-const feedbackRepository = new FeedbackRepository();
-const complaintRepository = new ComplaintRepository();
-const adminService = new AdminService(
-  adminRepository,
-  doctorRepository,
-  walletRepository,
-  notificationService,
-  feedbackRepository,
-  complaintRepository
-);
-const adminController = new AdminController(adminService, notificationService);
+import { adminController } from '../dependencyHandlers/admin.dependencies';
 
 const adminRouter = express.Router();
 

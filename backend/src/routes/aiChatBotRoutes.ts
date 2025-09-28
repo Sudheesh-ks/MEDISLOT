@@ -1,12 +1,6 @@
 import express from 'express';
-import { ChatBotRepository } from '../repositories/implementation/chatBotRepository';
-import { ChatBotService } from '../services/implementation/chatBotService';
-import { ChatBotController } from '../controllers/implementation/ChatBotController';
 import authRole from '../middlewares/authRole';
-
-const chatBotRepository = new ChatBotRepository();
-const chatBotService = new ChatBotService(chatBotRepository);
-const chatBotController = new ChatBotController(chatBotService);
+import { chatBotController } from '../dependencyHandlers/aiChatBot.dependencies';
 
 const chatRouter = express.Router();
 

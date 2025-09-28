@@ -1,12 +1,6 @@
 import express from 'express';
-import { SlotController } from '../controllers/implementation/SlotController';
-import { DoctorSlotService } from '../services/implementation/SlotService';
-import { SlotRepository } from '../repositories/implementation/SlotRepository';
 import authRole from '../middlewares/authRole';
-
-const slotRepository = new SlotRepository();
-const slotService = new DoctorSlotService(slotRepository);
-const slotController = new SlotController(slotService);
+import { slotController } from '../dependencyHandlers/slots.dependencies';
 
 const slotRouter = express.Router();
 
