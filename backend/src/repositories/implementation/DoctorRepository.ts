@@ -214,6 +214,7 @@ export class DoctorRepository extends BaseRepository<DoctorDocument> implements 
       docId,
       payment: true,
       cancelled: false,
+      isConfirmed: true,
     });
 
     for (const appt of appointments) {

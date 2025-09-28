@@ -25,6 +25,7 @@ export const VideoCallProvider = ({ children }: { children: React.ReactNode }) =
 
   const [active, setActive] = useState(false);
   const [joined, setJoined] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
   const [appointmentId, setAppointmentId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -37,9 +38,10 @@ export const VideoCallProvider = ({ children }: { children: React.ReactNode }) =
           res = await getActiveAppointmentAPI();
         }
 
-        if (res?.active && res?.appointmentId) {
+        if (res?.active && res?.appointmentId ) {
           setActive(true);
           setAppointmentId(res.appointmentId);
+          setDismissed(false);
         }
       } catch {
         setActive(false);
@@ -54,10 +56,21 @@ export const VideoCallProvider = ({ children }: { children: React.ReactNode }) =
   return (
     <VideoCallContext.Provider value={{ active, appointmentId }}>
       {children}
-      {active && !joined && notInRoom && appointmentId && (
+      {active && !joined && !dismissed && notInRoom && appointmentId && (
         <div className="fixed bottom-4 right-4 z-50 bg-white shadow-lg rounded-xl px-4 py-3 w-80">
-          <h3 className="font-semibold text-lg">📞 Appointment Active</h3>
-          <p className="text-gray-700 mt-1">Your consultation is live. Join now.</p>
+          <div className="flex justify-between items-start">
+            <div>
+              <h3 className="font-semibold text-lg">📞 Appointment Active</h3>
+              <p className="text-gray-700 mt-1">Your consultation is live. Join now.</p>
+            </div>
+            {/* Close button */}
+            <button
+              className="ml-3 text-gray-500 hover:text-gray-700"
+              onClick={() => setDismissed(true)}
+            >
+              ✕
+            </button>
+          </div>
           <button
             className="mt-3 w-full bg-green-500 hover:bg-green-600 text-white py-2 px-4 rounded"
             onClick={() => {

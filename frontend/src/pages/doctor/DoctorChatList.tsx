@@ -13,6 +13,7 @@ import { getDoctorAppointmentsAPI } from '../../services/doctorServices';
 import { doctorChat } from '../../services/chatService';
 import { DoctorContext } from '../../context/DoctorContext';
 import { NotifContext } from '../../context/NotificationContext';
+import type { AppointmentTypes } from '../../types/appointment';
 
 interface Chat {
   id: string;
@@ -67,7 +68,7 @@ const DoctorChatList: React.FC = () => {
           return;
         }
 
-        const appts: any[] = data.appointments ?? [];
+        const appts: any[] = (data.appointments ?? []).filter((a: AppointmentTypes) => !a.cancelled);
 
         const latestApptByUser = new Map<string, any>();
         for (const appt of appts) {

@@ -163,6 +163,7 @@ export class UserRepository extends BaseRepository<userDocument> implements IUse
       userId,
       payment: true,
       cancelled: false,
+      isConfirmed: true,
     });
 
     for (const appt of appointments) {
