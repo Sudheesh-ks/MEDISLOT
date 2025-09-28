@@ -115,8 +115,11 @@ export const SLOT_API = {
 export const BLOG_API = {
   CREATE: '/api/doctor/add-blog',
   BY_ID: (id: string) => `/api/doctor/blogs/${id}`,
-  PAGINATED: (page: number, limit: number) => `/api/doctor/blogs?page=${page}&limit=${limit}`,
-  GET_BLOGS: 'api/user/blogs',
   DOCTOR_BLOGS: '/api/doctor/blogs',
+  PAGINATED: (page: number, limit: number) => `/api/doctor/blogs?page=${page}&limit=${limit}`,
   UPDATE: '/api/doctor/blogs',
+  GET_ALLBLOGS: '/api/user/blogs',
+  GET_BLOGS: (page: number, limit: number) => `/api/user/blogs?page=${page}&limit=${limit}`,
+  GET_BLOGS_BYID: (id: string) => `/api/user/blogs/${id}`,
+  BLOG_COMMENTS: (id: string) => `/api/user/blogs/${id}/comments`,
 };

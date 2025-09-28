@@ -1,19 +1,21 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { getBlogsAPI } from '../../services/blogService';
 import { UserContext } from '../../context/UserContext';
 import { useNavigate } from 'react-router-dom';
 import ChatBotModal from '../../components/user/ChatBotModal';
 import { formatPublishDate, getCategoryColor } from '../../utils/blogUtils';
 import BlogCard from '../../components/user/BlogCard';
 import ChatbotButton from '../../components/user/ChatbotButton';
+import Pagination from '../../components/common/Pagination';
+import { getBlogsPaginatedAPI } from '../../services/blogService';
 
 const BlogPage: React.FC = () => {
   const navigate = useNavigate();
   const [articles, setArticles] = useState<any[]>([]);
-  const [visibleArticles, setVisibleArticles] = useState<number>(9);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const [isChatOpen, setIsChatOpen] = useState(false);
 
-  const articlesPerPage = 6;
+  const limit = 2;
   const context = useContext(UserContext);
   if (!context) throw new Error('AppContext missing');
   const { token } = context;
@@ -27,21 +29,17 @@ const BlogPage: React.FC = () => {
   useEffect(() => {
     const fetchBlogs = async () => {
       try {
-        const res = await getBlogsAPI(token!);
-        setArticles(res.data.data);
+        const res = await getBlogsPaginatedAPI(token!, currentPage, limit);
+        setArticles(res.data.data.blogs);
+        setTotalPages(Math.ceil(res.data.data.total / limit));
       } catch (err) {
         console.error('Error fetching blogs:', err);
       }
     };
     fetchBlogs();
-  }, []);
+  }, [token, currentPage]);
 
   const handleArticleClick = (id: string) => navigate(`/blogs/${id}`);
-  const handleLoadMore = () =>
-    setVisibleArticles((prev) => Math.min(prev + articlesPerPage, articles.length));
-
-  const articlesToDisplay = articles.slice(0, visibleArticles);
-  const canLoadMore = visibleArticles < articles.length;
 
   return (
     <>
@@ -63,10 +61,10 @@ const BlogPage: React.FC = () => {
         {/* Articles Grid */}
         <section className="max-w-7xl mx-auto px-4 md:px-10 pb-20">
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 mb-12">
-            {articlesToDisplay.map((article) => (
+            {articles.map((article) => (
               <BlogCard
-                key={article._id}
-                id={article._id}
+                key={article.id}
+                id={article.id}
                 title={article.title}
                 summary={article.summary}
                 publishDate={formatPublishDate(article.publishDate)}
@@ -80,23 +78,12 @@ const BlogPage: React.FC = () => {
             ))}
           </div>
 
-          {canLoadMore ? (
-            <div className="text-center">
-              <button
-                onClick={handleLoadMore}
-                className="bg-gradient-to-r from-blue-600 to-cyan-600 text-white font-semibold px-10 py-4 rounded-full transition-all hover:-translate-y-1 hover:shadow-lg hover:shadow-blue-500/25"
-              >
-                Load More Articles
-              </button>
-            </div>
-          ) : (
-            articles.length > 0 && (
-              <div className="text-center">
-                <p className="text-slate-400 text-lg">
-                  You've reached the end of our healthcare insights collection.
-                </p>
-              </div>
-            )
+          {totalPages > 1 && (
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+            />
           )}
         </section>
       </main>

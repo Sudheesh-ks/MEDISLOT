@@ -68,7 +68,9 @@ const DoctorChatList: React.FC = () => {
           return;
         }
 
-        const appts: any[] = (data.appointments ?? []).filter((a: AppointmentTypes) => !a.cancelled);
+        const appts: any[] = (data.appointments ?? []).filter(
+          (a: AppointmentTypes) => !a.cancelled
+        );
 
         const latestApptByUser = new Map<string, any>();
         for (const appt of appts) {

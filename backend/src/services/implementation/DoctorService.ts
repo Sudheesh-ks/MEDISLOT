@@ -543,34 +543,37 @@ export class DoctorService implements IDoctorService {
       patientId: new Types.ObjectId(data.patientId),
     };
 
-      const today = new Date();
-  today.setHours(0, 0, 0, 0); 
-  const inputDate = new Date(data.date);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const inputDate = new Date(data.date);
 
-  if (isNaN(inputDate.getTime()) || inputDate < today) {
-    throw new Error("Invalid date: date cannot be in the past.");
-  }
+    if (isNaN(inputDate.getTime()) || inputDate < today) {
+      throw new Error('Invalid date: date cannot be in the past.');
+    }
 
- if (
-    !data.date?.toString().trim() ||
-    !data.time?.trim() ||
-    !data.type?.trim() || // 🔹 changed from status → type
-    !data.chiefComplaint?.trim() ||
-    !data.diagnosis?.trim() ||
-    !Array.isArray(data.symptoms) || data.symptoms.length === 0 ||
-    !data.vitals || Object.values(data.vitals).every(v => !v?.trim?.()) || // 🔹 ensure at least one vital filled
-    !Array.isArray(data.prescription) || data.prescription.length === 0 ||
-    data.prescription.some(p =>
-      !p.medication?.trim() ||
-      !p.dosage?.trim() ||
-      !p.frequency?.trim() ||
-      !p.duration?.trim() ||
-      !p.instructions?.trim()
-    )
-  ) {
-    throw new Error("All required fields must be filled.");
-  }
-
+    if (
+      !data.date?.toString().trim() ||
+      !data.time?.trim() ||
+      !data.type?.trim() || // 🔹 changed from status → type
+      !data.chiefComplaint?.trim() ||
+      !data.diagnosis?.trim() ||
+      !Array.isArray(data.symptoms) ||
+      data.symptoms.length === 0 ||
+      !data.vitals ||
+      Object.values(data.vitals).every((v) => !v?.trim?.()) || // 🔹 ensure at least one vital filled
+      !Array.isArray(data.prescription) ||
+      data.prescription.length === 0 ||
+      data.prescription.some(
+        (p) =>
+          !p.medication?.trim() ||
+          !p.dosage?.trim() ||
+          !p.frequency?.trim() ||
+          !p.duration?.trim() ||
+          !p.instructions?.trim()
+      )
+    ) {
+      throw new Error('All required fields must be filled.');
+    }
 
     await this._patientHistoryRepository.createHistory(patientHistory);
   }

@@ -50,8 +50,10 @@ export class BlogRepository extends BaseRepository<BlogDocument> implements IBlo
   }
 
   async getBlogComments(blogId: string): Promise<any> {
-    const blog = await this.model.findById(blogId).select('comments').lean();
-    return blog ? blog.comments : [];
+    const blog = await this.model.findById(blogId).select('comments').sort({ createdAt: 1 }).lean();
+    return blog?.comments?.sort(
+      (a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
   }
 
   async addBlogComment(blogId: string, userId: string, content: string): Promise<any> {

@@ -38,7 +38,7 @@ export const VideoCallProvider = ({ children }: { children: React.ReactNode }) =
           res = await getActiveAppointmentAPI();
         }
 
-        if (res?.active && res?.appointmentId ) {
+        if (res?.active && res?.appointmentId) {
           setActive(true);
           setAppointmentId(res.appointmentId);
           setDismissed(false);

@@ -5,11 +5,11 @@ import {
   addBlogCommentAPI,
   getBlogByIdAPI,
   getBlogCommentsAPI,
-  getBlogsAPI,
+  getBlogsPaginatedAPI,
 } from '../../services/blogService';
 
 interface Blog {
-  _id: string;
+  id: string;
   title: string;
   summary: string;
   content: string;
@@ -55,6 +55,10 @@ const BlogDetailPage: React.FC = () => {
 
   const [cText, setCText] = useState('');
   const [posting, setPosting] = useState(false);
+  const [visibleComments, setVisibleComments] = useState(3);
+
+  const page = 1;
+  const limit = 20;
 
   useEffect(() => {
     if (!token) {
@@ -88,10 +92,10 @@ const BlogDetailPage: React.FC = () => {
         }
 
         try {
-          const allRes = await getBlogsAPI(token);
+          const allRes = await getBlogsPaginatedAPI(token, page, limit);
           const all: Blog[] = allRes.data.data || [];
           const rel = all
-            .filter((b) => b._id !== blogData._id && b.category === blogData.category)
+            .filter((b) => b.id !== blogData.id && b.category === blogData.category)
             .slice(0, 3);
           setRelated(rel);
         } catch {
@@ -120,6 +124,10 @@ const BlogDetailPage: React.FC = () => {
       setPosting(false);
     }
   };
+
+  useEffect(() => {
+    setVisibleComments(3);
+  }, [articleId]);
 
   if (loading || !blog) {
     return (
@@ -216,9 +224,9 @@ const BlogDetailPage: React.FC = () => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               {related.map((a) => (
                 <article
-                  key={a._id}
+                  key={a.id}
                   className="group bg-slate-900/50 rounded-2xl overflow-hidden border border-slate-800 hover:border-slate-600 transition-all duration-300 hover:-translate-y-2 cursor-pointer"
-                  onClick={() => navigate(`/blogs/${a._id}`)}
+                  onClick={() => navigate(`/blogs/${a.id}`)}
                 >
                   <img
                     src={a.image}
@@ -270,7 +278,7 @@ const BlogDetailPage: React.FC = () => {
           </div>
 
           <div className="space-y-6">
-            {comments.map((c) => (
+            {comments.slice(0, visibleComments).map((c) => (
               <div key={c._id} className="bg-slate-900/30 rounded-xl p-6 border border-slate-800">
                 <div className="flex items-start justify-between mb-3">
                   <div>
@@ -283,6 +291,16 @@ const BlogDetailPage: React.FC = () => {
             ))}
             {comments.length === 0 && <p className="text-slate-500">No comments yet.</p>}
           </div>
+          {visibleComments < comments.length && (
+            <div className="text-center pt-4">
+              <button
+                onClick={() => setVisibleComments((prev) => prev + 3)}
+                className="text-blue-500 hover:text-blue-400 font-medium"
+              >
+                Load more comments
+              </button>
+            </div>
+          )}
         </section>
       </main>
 

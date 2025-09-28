@@ -649,7 +649,9 @@ export class UserController implements IUserController {
 
   async getAllBlogs(req: Request, res: Response): Promise<void> {
     try {
-      const blogs = await this._blogService.getAllBlogs();
+      const page = Number(req.query.page) as number;
+      const limit = Number(req.query.limit) as number;
+      const blogs = await this._blogService.getBlogsPaginated(page, limit);
       res.status(HttpStatus.OK).json({
         success: true,
         data: blogs,
