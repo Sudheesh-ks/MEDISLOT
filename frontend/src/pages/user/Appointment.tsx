@@ -193,6 +193,18 @@ const Appointment = () => {
     }
   };
 
+
+  const getNextAvailableDate = () => {
+    for(let i = 0; i < slots.length; i++){
+      if(slots[i].length > 0){
+        return slots[i][0].datetime;
+      }
+    }
+    return null;
+  }
+
+  const nextAvailableDate = getNextAvailableDate();
+
   useEffect(() => {
     const fetchReviews = async () => {
       try {
@@ -274,9 +286,15 @@ const Appointment = () => {
                   </div>
 
                   <div className="flex items-center gap-3">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-700 text-green-100">
-                      Available Today
-                    </span>
+                    {nextAvailableDate ? (
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-700 text-green-100">
+                        Available {ymd(nextAvailableDate) === ymd(new Date()) ? "Today" : dayjs(nextAvailableDate).format("MMM D")}
+                      </span>
+                    ) : (
+                                          <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-700 text-green-100">
+                      Not Available
+                    </span> 
+                    )}
                     <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-700 text-blue-100">
                       Video Consultation
                     </span>
@@ -599,7 +617,14 @@ const Appointment = () => {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-300">Next Available</span>
-                  <span className="font-semibold text-green-400">Today</span>
+                  <span className={`font-semibold ${nextAvailableDate ? "text-green-400" : "text-red-400"}`}>
+                    {nextAvailableDate
+                      ? ymd(nextAvailableDate) === ymd(new Date())
+                        ? "Today"
+                        : dayjs(nextAvailableDate).format("MMM D, ddd")
+                       : "No Slots" 
+                    }
+                  </span>
                 </div>
               </div>
             </div>
