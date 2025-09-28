@@ -41,7 +41,7 @@ const MyAppointments = () => {
 
   const fetchAppointments = async (pageToFetch = 1) => {
     try {
-      const { data } = await getAppointmentsPaginatedAPI(token, pageToFetch);
+      const { data } = await getAppointmentsPaginatedAPI(pageToFetch);
       if (data.success) {
         setAppointments(data.data);
         setTotalPages(data.totalPages);
@@ -54,7 +54,7 @@ const MyAppointments = () => {
 
   const cancelAppointment = async (id: string) => {
     try {
-      const { data } = await cancelAppointmentAPI(id, token);
+      const { data } = await cancelAppointmentAPI(id);
       if (data.success) {
         toast.success(data.message);
         setAppointments((prev) => updateItemInList(prev, id, { cancelled: true }));
@@ -68,7 +68,7 @@ const MyAppointments = () => {
     try {
       if (!token) throw new Error('Unauthorized');
 
-      const { data } = await getPrescriptionAPI(appointmentId, token);
+      const { data } = await getPrescriptionAPI(appointmentId);
 
       if (data.success && data.data) {
         // Make sure required fields exist before passing forward

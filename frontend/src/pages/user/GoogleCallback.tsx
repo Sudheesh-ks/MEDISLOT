@@ -1,8 +1,8 @@
 import React, { useEffect, useContext } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { UserContext } from '../../context/UserContext';
-import { updateUserAccessToken } from '../../context/tokenManagerUser';
 import { toast } from 'react-toastify';
+import { updateAccessToken } from '../../context/tokenManagerContext';
 
 const GoogleCallback = () => {
   const [params] = useSearchParams();
@@ -18,7 +18,7 @@ const GoogleCallback = () => {
   useEffect(() => {
     const token = params.get('token');
     if (token) {
-      updateUserAccessToken(token);
+      updateAccessToken('USER', token);
       setToken(token);
       localStorage.removeItem('isDoctorLoggedOut');
       toast.success('Registration successful');

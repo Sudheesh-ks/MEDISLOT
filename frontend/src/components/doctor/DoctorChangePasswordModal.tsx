@@ -1,8 +1,7 @@
-import { useContext, useState } from 'react';
+import { useState } from 'react';
 import { toast } from 'react-toastify';
 import { showErrorToast } from '../../utils/errorHandler';
 import { changeDoctorPasswordAPI } from '../../services/doctorServices';
-import { DoctorContext } from '../../context/DoctorContext';
 
 interface Props {
   isOpen: boolean;
@@ -10,11 +9,6 @@ interface Props {
 }
 
 const DoctorChangePasswordModal = ({ isOpen, onClose }: Props) => {
-  const context = useContext(DoctorContext);
-  if (!context)
-    throw new Error('DoctorChangePasswordModal must be used within a DoctorContextProvider');
-  const { dToken } = context;
-
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -29,7 +23,7 @@ const DoctorChangePasswordModal = ({ isOpen, onClose }: Props) => {
 
     try {
       setLoading(true);
-      const res = await changeDoctorPasswordAPI(dToken!, oldPassword, newPassword);
+      const res = await changeDoctorPasswordAPI(oldPassword, newPassword);
       if (res.success) {
         toast.success('Password updated successfully');
         setOldPassword('');

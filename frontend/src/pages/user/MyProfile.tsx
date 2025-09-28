@@ -50,7 +50,6 @@ const MyProfile = () => {
       if (!isValidDateOfBirth(userData.dob)) return toast.error('Enter a valid birth date');
 
       const { message } = await updateUserProfileAPI(
-        token,
         {
           name: userData.name,
           phone: userData.phone,

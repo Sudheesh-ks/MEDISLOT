@@ -33,7 +33,7 @@ const AdminNotifications = () => {
     try {
       const params: any = { page, limit: pageSize };
       if (type !== 'all') params.type = type;
-      const fetched = await getAdminNotificationsAPI(params, aToken);
+      const fetched = await getAdminNotificationsAPI(params);
       setNotifications(fetched.notifications);
       setTotalPages(fetched.totalPages);
     } catch (err) {
@@ -49,7 +49,7 @@ const AdminNotifications = () => {
 
   const handleMarkAsRead = async (id: string) => {
     try {
-      await markAdminNotificationAsReadAPI(id, aToken);
+      await markAdminNotificationAsReadAPI(id);
       setNotifications((prev) => prev.map((n) => (n._id === id ? { ...n, isRead: true } : n)));
     } catch (err) {
       console.error('Error marking notification as read:', err);
@@ -58,7 +58,7 @@ const AdminNotifications = () => {
 
   const handleMarkAllAsRead = async () => {
     try {
-      await markAllAdminNotificationsAsReadAPI(aToken);
+      await markAllAdminNotificationsAsReadAPI();
       setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
     } catch (err) {
       console.error('Error marking all notifications as read:', err);
@@ -92,7 +92,7 @@ const AdminNotifications = () => {
           <button
             onClick={async () => {
               try {
-                await clearAllAdminNotificationsAPI(aToken!, type !== 'all' ? type : undefined);
+                await clearAllAdminNotificationsAPI(type !== 'all' ? type : undefined);
                 setNotifications([]);
                 setTotalPages(1);
                 setPage(1);

@@ -1,55 +1,47 @@
-import { api } from '../axios/axiosInstance';
+import { userApi } from '../axios/axiosInstance';
 import { AUTH_API } from '../constants/apiRoutes';
 
 // Register
 export const registerUserAPI = async (name: string, email: string, password: string) => {
-  return await api.post(AUTH_API.REGISTER, { name, email, password });
+  return await userApi.post(AUTH_API.REGISTER, { name, email, password });
 };
 
 // Login
 export const loginUserAPI = async (email: string, password: string) => {
-  return await api.post(AUTH_API.LOGIN, { email, password });
+  return await userApi.post(AUTH_API.LOGIN, { email, password });
 };
 
 // Logout
 export const logoutUserAPI = () => {
-  return api.post(AUTH_API.LOGOUT);
+  return userApi.post(AUTH_API.LOGOUT);
 };
 
 // Refresh token
 export const refreshAccessTokenAPI = async () => {
-  return await api.post(AUTH_API.REFRESH);
+  return await userApi.post(AUTH_API.REFRESH);
 };
 
 // OTP Verification
 export const verifyOtpAPI = async (email: string, otp: string) => {
-  return api.post(AUTH_API.OTP_VERIFY, { email, otp });
+  return userApi.post(AUTH_API.OTP_VERIFY, { email, otp });
 };
 
 // Resend OTP
 export const resendOtpAPI = async (email: string) => {
-  return api.post(AUTH_API.OTP_RESEND, { email });
+  return userApi.post(AUTH_API.OTP_RESEND, { email });
 };
 
 // Forgot password
 export const verifyEmailAPI = async (email: string) => {
-  return api.post(AUTH_API.FORGOT_PASSWORD, { email });
+  return userApi.post(AUTH_API.FORGOT_PASSWORD, { email });
 };
 
 // Reset password
 export const resetPasswordAPI = async (email: string, newPassword: string) => {
-  return api.post(AUTH_API.RESET_PASSWORD, { email, newPassword });
+  return userApi.post(AUTH_API.RESET_PASSWORD, { email, newPassword });
 };
 
-export const changePasswordAPI = async (
-  token: string,
-  oldPassword: string,
-  newPassword: string
-) => {
-  const res = await api.post(
-    '/api/user/change-password',
-    { oldPassword, newPassword },
-    { headers: { Authorization: `Bearer ${token}` } }
-  );
+export const changePasswordAPI = async (oldPassword: string, newPassword: string) => {
+  const res = await userApi.post('/api/user/change-password', { oldPassword, newPassword });
   return res.data;
 };

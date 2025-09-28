@@ -17,11 +17,7 @@ import {
 } from '../services/adminServices';
 import { showErrorToast } from '../utils/errorHandler';
 import type { AppointmentTypes } from '../types/appointment';
-import {
-  clearAdminAccessToken,
-  getAdminAccessToken,
-  updateAdminAccessToken,
-} from './tokenManagerAdmin';
+import { clearAccessToken, getAccessToken, updateAccessToken } from './tokenManagerContext';
 
 interface PaginationData {
   data: any[];
@@ -65,7 +61,7 @@ interface AdminContextProviderProps {
 }
 
 const AdminContextProvider = ({ children }: AdminContextProviderProps) => {
-  const [aToken, setAToken] = useState(getAdminAccessToken() ?? '');
+  const [aToken, setAToken] = useState(getAccessToken('ADMIN') ?? '');
   const [doctors, setDoctors] = useState<Doctor[]>([]);
   const [users, setUsers] = useState<userData[]>([]);
   const [appointments, setAppointments] = useState<AppointmentTypes[]>([]);
@@ -77,9 +73,9 @@ const AdminContextProvider = ({ children }: AdminContextProviderProps) => {
   const setToken = (newToken: string | null) => {
     setAToken(newToken ?? '');
     if (newToken) {
-      updateAdminAccessToken(newToken);
+      updateAccessToken('ADMIN', newToken);
     } else {
-      clearAdminAccessToken();
+      clearAccessToken('ADMIN');
     }
   };
 
@@ -89,7 +85,7 @@ const AdminContextProvider = ({ children }: AdminContextProviderProps) => {
     search: string
   ): Promise<PaginationData> => {
     try {
-      const { data } = await getDoctorsPaginatedAPI(page, limit, aToken, search);
+      const { data } = await getDoctorsPaginatedAPI(page, limit, search);
       if (data.success) {
         return {
           data: data.data,
@@ -111,7 +107,7 @@ const AdminContextProvider = ({ children }: AdminContextProviderProps) => {
 
   const getDoctorById = async (doctorId: string): Promise<Doctor | null> => {
     try {
-      const { data } = await getDoctorByIdAPI(doctorId, aToken);
+      const { data } = await getDoctorByIdAPI(doctorId);
       if (data.success) {
         return data.doctor;
       } else {
@@ -126,7 +122,7 @@ const AdminContextProvider = ({ children }: AdminContextProviderProps) => {
 
   const approveDoctor = async (doctorId: string) => {
     try {
-      const { data } = await approveDoctorAPI(doctorId, aToken);
+      const { data } = await approveDoctorAPI(doctorId);
       if (data.success) {
         toast.success(data.message);
         setDoctors((prevDoctors) =>
@@ -142,7 +138,7 @@ const AdminContextProvider = ({ children }: AdminContextProviderProps) => {
 
   const rejectDoctor = async (doctorId: string, reason: string) => {
     try {
-      const { data } = await rejectDoctorAPI(doctorId, reason, aToken);
+      const { data } = await rejectDoctorAPI(doctorId, reason);
       if (data.success) {
         toast.success(data.message);
         setDoctors((prevDoctors) => prevDoctors.filter((doc) => doc._id !== doctorId));
@@ -160,7 +156,7 @@ const AdminContextProvider = ({ children }: AdminContextProviderProps) => {
     search?: string
   ): Promise<PaginationData> => {
     try {
-      const { data } = await getUsersPaginatedAPI(page, limit, aToken, search);
+      const { data } = await getUsersPaginatedAPI(page, limit, search);
       if (data.success) {
         setUsers(data.data);
         return {
@@ -190,7 +186,7 @@ const AdminContextProvider = ({ children }: AdminContextProviderProps) => {
       }
 
       const newBlockStatus = !user.isBlocked;
-      const { data } = await toggleUserBlockAPI(userId, newBlockStatus, aToken);
+      const { data } = await toggleUserBlockAPI(userId, newBlockStatus);
 
       if (data.success) {
         const updatedUser = data.data;
@@ -216,7 +212,7 @@ const AdminContextProvider = ({ children }: AdminContextProviderProps) => {
     dateFilter: string
   ): Promise<PaginationData> => {
     try {
-      const { data } = await getAppointmentsPaginatedAPI(page, limit, search, dateFilter, aToken);
+      const { data } = await getAppointmentsPaginatedAPI(page, limit, search, dateFilter);
       if (data.success) {
         return {
           data: data.data,
@@ -238,7 +234,7 @@ const AdminContextProvider = ({ children }: AdminContextProviderProps) => {
 
   const cancelAppointment = async (appointmentId: string) => {
     try {
-      const { data } = await adminCancelAppointmentAPI(appointmentId, aToken);
+      const { data } = await adminCancelAppointmentAPI(appointmentId);
 
       if (data.success) {
         toast.success(data.message);
@@ -254,7 +250,7 @@ const AdminContextProvider = ({ children }: AdminContextProviderProps) => {
 
   const getDashData = async () => {
     try {
-      const { data } = await adminDashboardAPI(aToken);
+      const { data } = await adminDashboardAPI();
 
       if (data.success) {
         setDashData(data.dashData);
@@ -287,7 +283,7 @@ const AdminContextProvider = ({ children }: AdminContextProviderProps) => {
 
     const wasLoggedOut = localStorage.getItem('isAdminLoggedOut') === 'true';
 
-    if (!getAdminAccessToken()) {
+    if (!getAccessToken('ADMIN')) {
       if (!wasLoggedOut) {
         tryRefresh();
       }

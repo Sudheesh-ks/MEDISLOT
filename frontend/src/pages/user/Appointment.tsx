@@ -140,7 +140,7 @@ const Appointment = () => {
       receipt: order.receipt,
       handler: async (res: RazorpayPaymentResponse) => {
         try {
-          const { data } = await VerifyRazorpayAPI(appointmentId, res, token);
+          const { data } = await VerifyRazorpayAPI(appointmentId, res);
           if (data.success) toast.success('Payment successful');
         } catch (err) {
           showErrorToast(err);
@@ -152,7 +152,7 @@ const Appointment = () => {
         ondismiss: async () => {
           toast.warn('Payment failed');
           try {
-            await cancelAppointmentAPI(appointmentId, token);
+            await cancelAppointmentAPI(appointmentId);
           } catch (err) {
             console.error('Failed to cancel appointment:', err);
           }
@@ -172,8 +172,7 @@ const Appointment = () => {
         docId!,
         ymd(target.datetime),
         target.slotStartTime,
-        target.slotEndTime,
-        token
+        target.slotEndTime
       );
 
       if (!res.data.success) return toast.error(res.data.message);
@@ -181,7 +180,7 @@ const Appointment = () => {
       const apptId = res.data?.appointmentId ?? res.data?.appointment?._id;
       if (!apptId) return toast.error('Failed to retrieve appointment ID');
 
-      const paymentRes = await PaymentRazorpayAPI(apptId, token);
+      const paymentRes = await PaymentRazorpayAPI(apptId);
       if (paymentRes.data.success) {
         initPay(paymentRes.data.order, apptId);
       } else {
@@ -207,7 +206,7 @@ const Appointment = () => {
   useEffect(() => {
     const fetchReviews = async () => {
       try {
-        const res = await getDoctorReviewsAPI(docId!, token);
+        const res = await getDoctorReviewsAPI(docId!);
         if (res.data.success) {
           setReviews(res.data.data);
         }

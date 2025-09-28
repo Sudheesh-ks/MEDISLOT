@@ -12,11 +12,7 @@ import {
 } from '../services/doctorServices';
 import type { AppointmentTypes } from '../types/appointment';
 import type { DoctorProfileType } from '../types/doctor';
-import {
-  getDoctorAccessToken,
-  updateDoctorAccessToken,
-  clearDoctorAccessToken,
-} from './tokenManagerDoctor';
+import { clearAccessToken, getAccessToken, updateAccessToken } from './tokenManagerContext';
 
 interface PaginationData {
   data: any[];
@@ -57,7 +53,7 @@ interface DoctorContextProviderProps {
 const DoctorContextProvider = ({ children }: DoctorContextProviderProps) => {
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
-  const [dToken, setDToken] = useState(getDoctorAccessToken() ?? '');
+  const [dToken, setDToken] = useState(getAccessToken('DOCTOR') ?? '');
   const [appointments, setAppointments] = useState<AppointmentTypes[]>([]);
   const [profileData, setProfileData] = useState<DoctorProfileType | null>(null);
   const [loading, setLoading] = useState(true);
@@ -65,9 +61,9 @@ const DoctorContextProvider = ({ children }: DoctorContextProviderProps) => {
   const setToken = (newToken: string | null) => {
     setDToken(newToken ?? '');
     if (newToken) {
-      updateDoctorAccessToken(newToken);
+      updateAccessToken('DOCTOR', newToken);
     } else {
-      clearDoctorAccessToken();
+      clearAccessToken('DOCTOR');
       setAppointments([]);
       setProfileData(null);
     }
@@ -173,7 +169,7 @@ const DoctorContextProvider = ({ children }: DoctorContextProviderProps) => {
 
     const wasLoggedOut = localStorage.getItem('isDoctorLoggedOut') === 'true';
 
-    if (!getDoctorAccessToken()) {
+    if (!getAccessToken('DOCTOR')) {
       if (!wasLoggedOut) {
         tryRefresh();
       }

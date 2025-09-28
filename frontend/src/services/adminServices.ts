@@ -1,143 +1,70 @@
-import { adminApi as api } from '../axios/adminAxiosInstance';
+import { adminApi } from '../axios/axiosInstance';
 import { ADMIN_API } from '../constants/apiRoutes';
 
 export const adminLoginAPI = async (email: string, password: string) => {
-  return await api.post(ADMIN_API.LOGIN, { email, password });
+  return await adminApi.post(ADMIN_API.LOGIN, { email, password });
 };
 
 export const refreshAdminAccessTokenAPI = () => {
-  return api.post(ADMIN_API.REFRESH);
+  return adminApi.post(ADMIN_API.REFRESH);
 };
 
 export const logoutAdminAPI = () => {
-  return api.post(ADMIN_API.LOGOUT);
+  return adminApi.post(ADMIN_API.LOGOUT);
 };
 
-export const approveDoctorAPI = async (doctorId: string, token: string) => {
-  return await api.patch(
-    ADMIN_API.APPROVE_DOCTOR(doctorId),
-    {},
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
+export const approveDoctorAPI = async (doctorId: string) => {
+  return await adminApi.patch(ADMIN_API.APPROVE_DOCTOR(doctorId), {});
 };
 
-export const rejectDoctorAPI = async (doctorId: string, reason: string, token: string) => {
-  return await api.patch(
-    ADMIN_API.REJECT_DOCTOR(doctorId),
-    { reason },
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
+export const rejectDoctorAPI = async (doctorId: string, reason: string) => {
+  return await adminApi.patch(ADMIN_API.REJECT_DOCTOR(doctorId), { reason });
 };
 
-export const adminAddDoctorAPI = async (formData: FormData, token: string) => {
-  return await api.post(ADMIN_API.DOCTORS, formData, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-      'Content-Type': 'multipart/form-data',
-    },
+export const adminAddDoctorAPI = async (formData: FormData) => {
+  return await adminApi.post(ADMIN_API.DOCTORS, formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
   });
 };
 
-export const getDoctorByIdAPI = async (doctorId: string, token: string) => {
-  return await api.get(ADMIN_API.GET_DOCTOR_BY_ID(doctorId), {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+export const getDoctorByIdAPI = async (doctorId: string) => {
+  return await adminApi.get(ADMIN_API.GET_DOCTOR_BY_ID(doctorId));
 };
 
-export const getDoctorsPaginatedAPI = async (
-  page: number,
-  limit: number,
-  token: string,
-  search?: string
-) => {
+export const getDoctorsPaginatedAPI = async (page: number, limit: number, search?: string) => {
   let url = `${ADMIN_API.DOCTORS_PAGINATED}?page=${page}&limit=${limit}`;
   if (search) url += `&search=${encodeURIComponent(search)}`;
-
-  return await api.get(url, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  return await adminApi.get(url);
 };
 
-export const changeAvailabilityAPI = async (docId: string, isAvailable: boolean, token: string) => {
-  return await api.patch(
-    ADMIN_API.CHANGE_AVAILABILITY(docId),
-    { isAvailable },
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
+export const changeAvailabilityAPI = async (docId: string, isAvailable: boolean) => {
+  return await adminApi.patch(ADMIN_API.CHANGE_AVAILABILITY(docId), { isAvailable });
 };
 
-export const getUsersPaginatedAPI = async (
-  page: number,
-  limit: number,
-  token: string,
-  search?: string
-) => {
+export const getUsersPaginatedAPI = async (page: number, limit: number, search?: string) => {
   let url = `${ADMIN_API.USERS_PAGINATED}?page=${page}&limit=${limit}`;
   if (search) url += `&search=${encodeURIComponent(search)}`;
-
-  return await api.get(url, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  return await adminApi.get(url);
 };
 
-export const toggleUserBlockAPI = async (userId: string, block: boolean, token: string) => {
-  return await api.patch(
-    ADMIN_API.BLOCK_USER(userId),
-    { block },
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
+export const toggleUserBlockAPI = async (userId: string, block: boolean) => {
+  return await adminApi.patch(ADMIN_API.BLOCK_USER(userId), { block });
 };
 
 export const getAppointmentsPaginatedAPI = async (
   page: number,
   limit: number,
   search = '',
-  dateRange: string,
-  token: string
+  dateRange?: string
 ) => {
   let url = `${ADMIN_API.APPOINTMENTS_PAGINATED}?page=${page}&limit=${limit}`;
   if (search) url += `&search=${encodeURIComponent(search)}`;
   if (dateRange) url += `&dateRange=${encodeURIComponent(dateRange)}`;
-
-  return api.get(url, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  return adminApi.get(url);
 };
 
-export const adminCancelAppointmentAPI = async (appointmentId: string, token: string) => {
-  return await api.patch(
-    ADMIN_API.CANCEL_APPOINTMENT(appointmentId),
-    {},
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
+export const adminCancelAppointmentAPI = async (appointmentId: string) => {
+  return await adminApi.patch(ADMIN_API.CANCEL_APPOINTMENT(appointmentId), {});
 };
 
 export const getAdminWalletAPI = async (
@@ -151,140 +78,87 @@ export const getAdminWalletAPI = async (
   if (search) url += `&search=${encodeURIComponent(search)}`;
   if (period) url += `&period=${encodeURIComponent(period)}`;
   if (type && type !== 'all') url += `&txnType=${encodeURIComponent(type)}`;
-
-  return await api.get(url);
+  return await adminApi.get(url);
 };
 
-export const adminDashboardAPI = async (token: string) => {
-  return await api.get(ADMIN_API.DASHBOARD, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+export const adminDashboardAPI = async () => {
+  return await adminApi.get(ADMIN_API.DASHBOARD);
 };
 
-export const getLatestDoctorRequestsAPI = async (token: string, limit = 5) => {
-  const res = await api.get(`${ADMIN_API.DASHBOARD_LATEST_REQUESTS}?limit=${limit}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+export const getLatestDoctorRequestsAPI = async (limit = 5) => {
+  const res = await adminApi.get(`${ADMIN_API.DASHBOARD_LATEST_REQUESTS}?limit=${limit}`);
   return res.data.requests;
 };
 
-export const getAppointmentsStatsAPI = async (
-  token: string,
-  startDate?: string,
-  endDate?: string
-) => {
+export const getAppointmentsStatsAPI = async (startDate?: string, endDate?: string) => {
   const params: any = {};
   if (startDate) params.startDate = startDate;
   if (endDate) params.endDate = endDate;
-  const res = await api.get(ADMIN_API.DASHBOARD_APPOINTMENTS_STATS, {
-    headers: { Authorization: `Bearer ${token}` },
-    params,
-  });
+  const res = await adminApi.get(ADMIN_API.DASHBOARD_APPOINTMENTS_STATS, { params });
   return res.data.data;
 };
 
-export const getTopDoctorsAPI = async (token: string, limit = 5) => {
-  const res = await api.get(ADMIN_API.DASHBOARD_TOP_DOCTORS, {
-    headers: { Authorization: `Bearer ${token}` },
-    params: { limit },
-  });
+export const getTopDoctorsAPI = async (limit = 5) => {
+  const res = await adminApi.get(ADMIN_API.DASHBOARD_TOP_DOCTORS, { params: { limit } });
   return res.data.data;
 };
 
-export const getRevenueStatsAPI = async (token: string, startDate?: string, endDate?: string) => {
+export const getRevenueStatsAPI = async (startDate?: string, endDate?: string) => {
   const params: any = {};
   if (startDate) params.startDate = startDate;
   if (endDate) params.endDate = endDate;
-  const res = await api.get(ADMIN_API.DASHBOARD_REVENUE, {
-    headers: { Authorization: `Bearer ${token}` },
-    params,
-  });
+  const res = await adminApi.get(ADMIN_API.DASHBOARD_REVENUE, { params });
   return res.data.data;
 };
 
-export const getAdminNotificationsAPI = async (
-  params: { page?: number; limit?: number; type?: string },
-  token: string
-) => {
+export const getAdminNotificationsAPI = async (params: {
+  page?: number;
+  limit?: number;
+  type?: string;
+}) => {
   const searchParams = new URLSearchParams();
   searchParams.append('role', 'admin');
   if (params.page) searchParams.append('page', String(params.page));
   if (params.limit) searchParams.append('limit', String(params.limit));
   if (params.type) searchParams.append('type', params.type);
 
-  const res = await api.get(`${ADMIN_API.NOTIFICATIONS}?${searchParams.toString()}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  const res = await adminApi.get(`${ADMIN_API.NOTIFICATIONS}?${searchParams.toString()}`);
   return res.data;
 };
 
-export const markAdminNotificationAsReadAPI = async (id: string, token: string) => {
-  return api.patch(
-    `${ADMIN_API.NOTIFICATION_MARK_READ(id)}?role=admin`,
-    {},
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
+export const markAdminNotificationAsReadAPI = async (id: string) => {
+  return adminApi.patch(`${ADMIN_API.NOTIFICATION_MARK_READ(id)}?role=admin`, {});
 };
 
-export const markAllAdminNotificationsAsReadAPI = async (token: string) => {
-  return api.patch(
-    `${ADMIN_API.NOTIFICATION_MARK_ALL_READ}?role=admin`,
-    {},
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
+export const markAllAdminNotificationsAsReadAPI = async () => {
+  return adminApi.patch(`${ADMIN_API.NOTIFICATION_MARK_ALL_READ}?role=admin`, {});
 };
 
 export const getAdminUnreadCountAPI = async () => {
-  const res = await api.get(`${ADMIN_API.NOTIFICATIONS_UNREAD_COUNT}?role=admin`);
+  const res = await adminApi.get(`${ADMIN_API.NOTIFICATIONS_UNREAD_COUNT}?role=admin`);
   return res.data;
 };
 
-export const clearAllAdminNotificationsAPI = async (token: string, type?: string) => {
+export const clearAllAdminNotificationsAPI = async (type?: string) => {
   const searchParams = new URLSearchParams();
   searchParams.append('role', 'admin');
   if (type) searchParams.append('type', type);
 
-  return api.post(`${ADMIN_API.NOTIFICATION_CLEAR_ALL}?${searchParams.toString()}`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
+  return adminApi.post(`${ADMIN_API.NOTIFICATION_CLEAR_ALL}?${searchParams.toString()}`);
 };
 
 export const getComplaintsPaginatedAPI = async (
   page: number,
   limit: number,
-  token: string,
   search?: string,
   status?: 'pending' | 'in-progress' | 'resolved' | 'rejected' | 'all'
 ) => {
   let url = `${ADMIN_API.COMPLAINTS}?page=${page}&limit=${limit}`;
   if (search) url += `&q=${encodeURIComponent(search)}`;
   if (status && status !== 'all') url += `&status=${status}`;
-
-  return await api.get(url, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  return await adminApi.get(url);
 };
 
-export const updateComplainStatusAPI = async (id: string, status: string, token: string) => {
-  return await api.patch(
-    `${ADMIN_API.UPDATE_COMPLAINT(id)}`,
-    { status },
-    {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    }
-  );
+export const updateComplainStatusAPI = async (id: string, status: string) => {
+  return await adminApi.patch(`${ADMIN_API.UPDATE_COMPLAINT(id)}`, { status });
 };

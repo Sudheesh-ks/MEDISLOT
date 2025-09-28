@@ -3,12 +3,8 @@ import { toast } from 'react-toastify';
 import { getUserProfileAPI } from '../services/userProfileServices';
 import { getDoctorsPaginatedAPI } from '../services/doctorServices';
 import { showErrorToast } from '../utils/errorHandler';
-import {
-  getUserAccessToken,
-  updateUserAccessToken,
-  clearUserAccessToken,
-} from './tokenManagerUser';
 import { refreshAccessTokenAPI } from '../services/authServices';
+import { clearAccessToken, getAccessToken, updateAccessToken } from './tokenManagerContext';
 
 interface userData {
   _id?: string;
@@ -59,7 +55,7 @@ interface UserContextProviderProps {
 const UserContextProvider: React.FC<UserContextProviderProps> = ({ children }) => {
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
-  const [token, setTokenState] = useState<string | null>(getUserAccessToken());
+  const [token, setTokenState] = useState<string | null>(getAccessToken('USER'));
   const [userData, setUserData] = useState<null | userData>(null);
 
   const getDoctorsPaginated = useCallback(
@@ -103,13 +99,13 @@ const UserContextProvider: React.FC<UserContextProviderProps> = ({ children }) =
 
   const loadUserProfileData = async () => {
     try {
-      const accessToken = getUserAccessToken();
+      const accessToken = getAccessToken('USER');
       if (!accessToken) {
         toast.error('Please login to continue...');
         return;
       }
 
-      const { data } = await getUserProfileAPI(accessToken);
+      const { data } = await getUserProfileAPI();
       if (data.success) {
         if (data.userData.isBlocked) {
           toast.error('Your account has been blocked. Logging out.');
@@ -128,15 +124,15 @@ const UserContextProvider: React.FC<UserContextProviderProps> = ({ children }) =
   const setToken = (newToken: string | null) => {
     setTokenState(newToken);
     if (newToken) {
-      updateUserAccessToken(newToken);
+      updateAccessToken('USER', newToken);
     } else {
-      clearUserAccessToken();
+      clearAccessToken('USER');
     }
   };
 
   const clearToken = () => {
     setTokenState(null);
-    clearUserAccessToken();
+    clearAccessToken('USER');
   };
 
   useEffect(() => {
@@ -159,7 +155,7 @@ const UserContextProvider: React.FC<UserContextProviderProps> = ({ children }) =
 
     const wasLoggedOut = localStorage.getItem('isUserLoggedOut') === 'true';
 
-    if (!getUserAccessToken()) {
+    if (!getAccessToken('USER')) {
       if (!wasLoggedOut) {
         tryRefresh();
       }

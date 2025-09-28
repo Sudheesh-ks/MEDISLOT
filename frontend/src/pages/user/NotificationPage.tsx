@@ -32,7 +32,7 @@ const UserNotifications = () => {
       const params: any = { page, limit: pageSize };
       if (type !== 'all') params.type = type;
 
-      const fetched = await getUserNotificationsAPI(params, token!);
+      const fetched = await getUserNotificationsAPI(params);
       setNotifications(fetched.notifications);
       setTotalPages(fetched.totalPages);
     } catch (err) {
@@ -48,7 +48,7 @@ const UserNotifications = () => {
 
   const handleMarkAsRead = async (id: string) => {
     try {
-      await markUserNotificationAsReadAPI(id, token!);
+      await markUserNotificationAsReadAPI(id);
       setNotifications((prev) => prev.map((n) => (n._id === id ? { ...n, isRead: true } : n)));
     } catch (err) {
       console.error('Error marking notification as read:', err);
@@ -57,7 +57,7 @@ const UserNotifications = () => {
 
   const handleMarkAllAsRead = async () => {
     try {
-      await markAllUserNotificationsAsReadAPI(token!);
+      await markAllUserNotificationsAsReadAPI();
       setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
     } catch (err) {
       console.error('Error marking all notifications as read:', err);
@@ -91,7 +91,7 @@ const UserNotifications = () => {
           <button
             onClick={async () => {
               try {
-                await clearAllUserNotificationsAPI(token!, type !== 'all' ? type : undefined);
+                await clearAllUserNotificationsAPI(type !== 'all' ? type : undefined);
                 setNotifications([]); // reset UI
                 setTotalPages(1);
                 setPage(1);

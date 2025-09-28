@@ -46,7 +46,7 @@ const AppointmentDetail = () => {
 
   const fetchPrescription = async () => {
     try {
-      const { data } = await getPrescriptionAPI(appointmentId!, token!);
+      const { data } = await getPrescriptionAPI(appointmentId!);
       if (data.success && data.data) {
         downloadPrescriptionPDF(data.data);
       } else {
@@ -59,7 +59,7 @@ const AppointmentDetail = () => {
 
   const cancelAppointment = async (id: string) => {
     try {
-      const { data } = await cancelAppointmentAPI(id, token!);
+      const { data } = await cancelAppointmentAPI(id);
       if (data.success) {
         toast.success(data.message);
         setAppointment((prev: any) => ({

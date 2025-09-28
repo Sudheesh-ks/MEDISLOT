@@ -2,10 +2,10 @@ import { useContext, useState } from 'react';
 import { assets } from '../../assets/user/assets';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { UserContext } from '../../context/UserContext';
-import { clearUserAccessToken } from '../../context/tokenManagerUser';
 import { logoutUserAPI } from '../../services/authServices';
 import { NotifContext } from '../../context/NotificationContext';
 import NotificationBell from '../common/NotificationBell';
+import { clearAccessToken } from '../../context/tokenManagerContext';
 
 const Navbar = () => {
   const navigate = useNavigate();
@@ -18,7 +18,7 @@ const Navbar = () => {
   const logout = async () => {
     try {
       await logoutUserAPI();
-      clearUserAccessToken();
+      clearAccessToken('USER');
       setToken(null);
       setUserData(null);
       navigate('/login');

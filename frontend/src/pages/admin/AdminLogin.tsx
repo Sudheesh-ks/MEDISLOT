@@ -5,9 +5,9 @@ import { AdminContext } from '../../context/AdminContext';
 import { adminLoginAPI } from '../../services/adminServices';
 import { showErrorToast } from '../../utils/errorHandler';
 import { assets } from '../../assets/user/assets';
-import { updateAdminAccessToken } from '../../context/tokenManagerAdmin';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
+import { updateAccessToken } from '../../context/tokenManagerContext';
 
 const AdminLogin = () => {
   const navigate = useNavigate();
@@ -34,7 +34,7 @@ const AdminLogin = () => {
     try {
       const { data } = await adminLoginAPI(values.email, values.password);
       if (data.success) {
-        updateAdminAccessToken(data.token);
+        updateAccessToken('ADMIN', data.token);
         setAToken(data.token);
         localStorage.removeItem('isAdminLoggedOut');
         toast.success('Login successful');

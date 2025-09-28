@@ -32,7 +32,7 @@ const DoctorNotifications = () => {
       const params: any = { page, limit: pageSize };
       if (type !== 'all') params.type = type;
 
-      const fetched = await getDoctorNotificationsAPI(params, dToken);
+      const fetched = await getDoctorNotificationsAPI(params);
       setNotifications(fetched.notifications);
       setTotalPages(fetched.totalPages);
     } catch (err) {
@@ -92,7 +92,7 @@ const DoctorNotifications = () => {
           <button
             onClick={async () => {
               try {
-                await clearAllDoctorNotificationsAPI(dToken!, type !== 'all' ? type : undefined);
+                await clearAllDoctorNotificationsAPI(type !== 'all' ? type : undefined);
                 setNotifications([]);
                 setTotalPages(1);
                 setPage(1);

@@ -3,8 +3,8 @@ import { assets } from '../../assets/admin/assets';
 import { DoctorContext } from '../../context/DoctorContext';
 import { useNavigate } from 'react-router-dom';
 import { logoutDoctorAPI } from '../../services/doctorServices';
-import { clearDoctorAccessToken } from '../../context/tokenManagerDoctor';
 import NotificationBell from '../common/NotificationBell';
+import { clearAccessToken } from '../../context/tokenManagerContext';
 
 const DoctorNavbar = () => {
   const ctx = useContext(DoctorContext);
@@ -20,7 +20,7 @@ const DoctorNavbar = () => {
       setProfileData(null);
       localStorage.removeItem('doctorAccessToken');
       localStorage.setItem('isDoctorLoggedOut', 'true');
-      clearDoctorAccessToken();
+      clearAccessToken('DOCTOR');
       nav('/doctor/login');
     } catch (err) {
       console.error('Doctor logout failed:', err);

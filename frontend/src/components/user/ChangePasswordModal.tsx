@@ -1,7 +1,6 @@
-import { useContext, useState } from 'react';
+import { useState } from 'react';
 import { toast } from 'react-toastify';
 import { showErrorToast } from '../../utils/errorHandler';
-import { UserContext } from '../../context/UserContext';
 import { changePasswordAPI } from '../../services/authServices';
 
 interface Props {
@@ -10,10 +9,6 @@ interface Props {
 }
 
 const ChangePasswordModal = ({ isOpen, onClose }: Props) => {
-  const context = useContext(UserContext);
-  if (!context) throw new Error('ChangePasswordModal must be used within a UserContextProvider');
-  const { token } = context;
-
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -28,7 +23,7 @@ const ChangePasswordModal = ({ isOpen, onClose }: Props) => {
 
     try {
       setLoading(true);
-      const res = await changePasswordAPI(token!, oldPassword, newPassword);
+      const res = await changePasswordAPI(oldPassword, newPassword);
       if (res.success) {
         toast.success('Password updated successfully');
         setOldPassword('');

@@ -2,9 +2,9 @@ import { useContext } from 'react';
 import { assets } from '../../assets/admin/assets';
 import { AdminContext } from '../../context/AdminContext';
 import { useNavigate } from 'react-router-dom';
-import { clearAdminAccessToken } from '../../context/tokenManagerAdmin';
 import { logoutAdminAPI } from '../../services/adminServices';
 import NotificationBell from '../common/NotificationBell';
+import { clearAccessToken } from '../../context/tokenManagerContext';
 
 const AdminNavbar = () => {
   const ctx = useContext(AdminContext);
@@ -18,7 +18,7 @@ const AdminNavbar = () => {
       await logoutAdminAPI();
       setAToken('');
       localStorage.setItem('isAdminLoggedOut', 'true');
-      clearAdminAccessToken();
+      clearAccessToken('ADMIN');
       nav('/admin/login');
     } catch (err) {
       console.error('Admin logout failed:', err);

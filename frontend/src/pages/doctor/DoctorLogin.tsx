@@ -5,9 +5,9 @@ import { DoctorContext } from '../../context/DoctorContext';
 import { doctorLoginAPI } from '../../services/doctorServices';
 import { showErrorToast } from '../../utils/errorHandler';
 import { assets } from '../../assets/user/assets';
-import { updateDoctorAccessToken } from '../../context/tokenManagerDoctor';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
+import { updateAccessToken } from '../../context/tokenManagerContext';
 
 const DoctorLogin = () => {
   const navigate = useNavigate();
@@ -30,7 +30,6 @@ const DoctorLogin = () => {
       .required('Password is required'),
   });
 
-  // ✅ Handle form submit with Formik
   const handleSubmit = async (
     values: { email: string; password: string },
     { setSubmitting }: { setSubmitting: (isSubmitting: boolean) => void }
@@ -38,7 +37,7 @@ const DoctorLogin = () => {
     try {
       const { data } = await doctorLoginAPI(values.email, values.password);
       if (data.success) {
-        updateDoctorAccessToken(data.token);
+        updateAccessToken('DOCTOR', data.token);
         setDToken(data.token);
         localStorage.removeItem('isDoctorLoggedOut');
         getProfileData();

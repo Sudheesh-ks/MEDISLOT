@@ -80,19 +80,19 @@ const BlogDetailPage: React.FC = () => {
       if (!articleId || !token) return;
       setLoading(true);
       try {
-        const res = await getBlogByIdAPI(articleId, token);
+        const res = await getBlogByIdAPI(articleId);
         const blogData: Blog = res.data.data;
         setBlog(blogData);
 
         try {
-          const cRes = await getBlogCommentsAPI(articleId, token);
+          const cRes = await getBlogCommentsAPI(articleId);
           setComments(cRes.data.data || []);
         } catch {
           setComments([]);
         }
 
         try {
-          const allRes = await getBlogsPaginatedAPI(token, page, limit);
+          const allRes = await getBlogsPaginatedAPI(page, limit);
           const all: Blog[] = allRes.data.data || [];
           const rel = all
             .filter((b) => b.id !== blogData.id && b.category === blogData.category)
@@ -114,7 +114,7 @@ const BlogDetailPage: React.FC = () => {
     if (!articleId || !token || !cText.trim()) return;
     setPosting(true);
     try {
-      const res = await addBlogCommentAPI(articleId, cText.trim(), token);
+      const res = await addBlogCommentAPI(articleId, cText.trim());
       const newComment: CommentItem = res.data.data;
       setComments((prev) => [newComment, ...prev]);
       setCText('');

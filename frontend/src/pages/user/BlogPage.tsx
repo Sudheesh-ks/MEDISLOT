@@ -29,7 +29,7 @@ const BlogPage: React.FC = () => {
   useEffect(() => {
     const fetchBlogs = async () => {
       try {
-        const res = await getBlogsPaginatedAPI(token!, currentPage, limit);
+        const res = await getBlogsPaginatedAPI(currentPage, limit);
         setArticles(res.data.data.blogs);
         setTotalPages(Math.ceil(res.data.data.total / limit));
       } catch (err) {

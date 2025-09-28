@@ -111,9 +111,9 @@ export default function AdminDashboard() {
     const { start, end } = computeRange(dateRange);
     setLoadingStats(true);
     Promise.all([
-      getAppointmentsStatsAPI(aToken, start, end),
-      getTopDoctorsAPI(aToken, 5),
-      getRevenueStatsAPI(aToken, start, end),
+      getAppointmentsStatsAPI(start, end),
+      getTopDoctorsAPI(5),
+      getRevenueStatsAPI(start, end),
     ])
       .then(([a, t, r]) => {
         setAppointmentsData(a || []);

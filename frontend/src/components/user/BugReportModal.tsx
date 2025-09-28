@@ -11,7 +11,7 @@ interface Props {
   onClose: () => void;
 }
 
-const ReportBugModal = ({ token, isOpen, role, onClose }: Props) => {
+const ReportBugModal = ({ isOpen, role, onClose }: Props) => {
   const [subject, setSubject] = useState('');
   const [description, setDescription] = useState('');
   const [loading, setLoading] = useState(false);
@@ -23,9 +23,9 @@ const ReportBugModal = ({ token, isOpen, role, onClose }: Props) => {
     try {
       let response;
       if (role === 'user') {
-        response = await reportBugAPI(token!, { subject, description });
+        response = await reportBugAPI({ subject, description });
       } else {
-        response = await reportDoctorIssueAPI(token!, { subject, description });
+        response = await reportDoctorIssueAPI({ subject, description });
       }
 
       toast.success(response.message);

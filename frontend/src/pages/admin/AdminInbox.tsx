@@ -34,7 +34,7 @@ const AdminInbox = () => {
     const fetchComplaints = async () => {
       setLoading(true);
       try {
-        const res = await getComplaintsPaginatedAPI(page, 6, aToken, query, status);
+        const res = await getComplaintsPaginatedAPI(page, 6, query, status);
         if (res.data.success) {
           setComplaints(res.data.data || []);
           setTotalPages(res.data.pagination.totalPages);
@@ -96,7 +96,7 @@ const AdminInbox = () => {
 
   const updateStatus = async (id: string, status: string) => {
     try {
-      const res = await updateComplainStatusAPI(id, status, aToken);
+      const res = await updateComplainStatusAPI(id, status);
       if (res.data.success) {
         setComplaints((prev) =>
           prev.map((c) => (c._id === id ? { ...c, status: status as ComplaintTypes['status'] } : c))
