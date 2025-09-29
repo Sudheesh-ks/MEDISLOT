@@ -44,6 +44,7 @@ import { IFeedbackRepository } from '../../repositories/interface/IFeedbackRepos
 import { IComplaintRepository } from '../../repositories/interface/IComplaintRepository';
 import { IPatientHistoryRepository } from '../../repositories/interface/IPatientHistoryRepository';
 import { DoctorDTO } from '../../dtos/doctor.dto';
+import { generateShortAppointmentId } from '../../utils/generateApptId.utils';
 
 export interface UserDocument extends userTypes {
   _id: string;
@@ -442,7 +443,7 @@ export class UserService implements IUserService {
     if (!amount || amount <= 0) return;
 
     const doctorId = appointment.docData._id.toString();
-    const reason = `Refund for Cancelled Appointment (${appointment._id}) of ${appointment.docData.name}`;
+    const reason = `Refund for Cancelled Appointment ${generateShortAppointmentId(appointment._id.toString())} of ${appointment.docData.name}`;
 
     await this._walletRepository.creditWallet(userId.toString(), 'user', amount, reason);
 
@@ -535,14 +536,14 @@ export class UserService implements IUserService {
       adminId,
       'admin',
       adminShare,
-      `Admin share for appointment ${appointmentId} from ${appointment.userData.name} to ${appointment.docData.name}`
+      `Admin share for appointment ${generateShortAppointmentId(appointmentId)} from ${appointment.userData.name} to ${appointment.docData.name}`
     );
 
     await this._walletRepository.creditWallet(
       appointment.docId.toString(),
       'doctor',
       doctorShare,
-      `Doctor share for appointment ${appointmentId} from ${appointment.userData.name}`
+      `Doctor share for appointment ${generateShortAppointmentId(appointmentId)} from ${appointment.userData.name}`
     );
   }
 

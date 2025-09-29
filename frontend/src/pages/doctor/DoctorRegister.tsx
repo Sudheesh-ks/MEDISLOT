@@ -60,7 +60,7 @@ const DoctorRegister: React.FC = () => {
       fd.append('image', docImg);
       fd.append('certificate', certificate);
       Object.entries(values).forEach(([key, value]) => {
-        if (key === 'address1' || key === 'address2') return; // skip for now
+        if (key === 'address1' || key === 'address2') return;
         fd.append(key, value as string);
       });
       fd.append('address', JSON.stringify({ line1: values.address1, line2: values.address2 }));

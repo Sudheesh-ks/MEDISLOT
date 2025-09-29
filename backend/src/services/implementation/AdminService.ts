@@ -26,6 +26,7 @@ import { ComplaintDTO } from '../../dtos/complaint.dto';
 import { IComplaintRepository } from '../../repositories/interface/IComplaintRepository';
 import { tocomplaintDTO } from '../../mappers/complaint.mapper';
 import { toDoctorDTO } from '../../mappers/doctor.mapper';
+import { generateShortAppointmentId } from '../../utils/generateApptId.utils';
 dotenv.config();
 
 export class AdminService implements IAdminService {
@@ -239,7 +240,7 @@ export class AdminService implements IAdminService {
     const adminId = process.env.ADMIN_ID;
     const userId = appointment.userData._id.toString();
     const doctorId = appointment.docData._id.toString();
-    const reason = `Refund for Cancelled Appointment (${appointment._id}) of ${appointment.docData.name}`;
+    const reason = `Refund for Cancelled Appointment ${generateShortAppointmentId(appointment._id.toString())} of ${appointment.docData.name}`;
 
     // console.log(adminId);
     // console.log(doctorId);

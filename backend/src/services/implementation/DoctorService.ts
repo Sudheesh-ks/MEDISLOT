@@ -25,6 +25,7 @@ import { patientHistoryTypes } from '../../types/patientHistoryTypes';
 import { IUserRepository } from '../../repositories/interface/IUserRepository';
 import { IComplaintRepository } from '../../repositories/interface/IComplaintRepository';
 import { isValidPassword } from '../../utils/validator';
+import { generateShortAppointmentId } from '../../utils/generateApptId.utils';
 
 export interface DoctorDocument extends DoctorTypes {
   _id: string;
@@ -315,7 +316,7 @@ export class DoctorService implements IDoctorService {
     const adminId = process.env.ADMIN_ID;
     const userId = appointment.userData._id.toString();
     const doctorId = appointment.docData._id.toString();
-    const reason = `Refund for Cancelled Appointment (${appointment._id}) of ${appointment.docData.name}`;
+    const reason = `Refund for Cancelled Appointment ${generateShortAppointmentId(appointment._id.toString())} of ${appointment.docData.name}`;
 
     await this._walletRepository.creditWallet(userId, 'user', amount, reason);
 
@@ -554,13 +555,13 @@ export class DoctorService implements IDoctorService {
     if (
       !data.date?.toString().trim() ||
       !data.time?.trim() ||
-      !data.type?.trim() || // 🔹 changed from status → type
+      !data.type?.trim() ||
       !data.chiefComplaint?.trim() ||
       !data.diagnosis?.trim() ||
       !Array.isArray(data.symptoms) ||
       data.symptoms.length === 0 ||
       !data.vitals ||
-      Object.values(data.vitals).every((v) => !v?.trim?.()) || // 🔹 ensure at least one vital filled
+      Object.values(data.vitals).every((v) => !v?.trim?.()) ||
       !Array.isArray(data.prescription) ||
       data.prescription.length === 0 ||
       data.prescription.some(

@@ -52,7 +52,7 @@ const DataTable: React.FC<DataTableProps> = ({
     <div
       className={`${glass} text-sm text-slate-200 max-h-[80vh] min-h-[60vh] overflow-y-auto ${containerClassName}`}
     >
-      {/* Header - only visible on sm+ */}
+      {/* Header */}
       {showHeader && (
         <div
           className={`hidden sm:grid ${
@@ -96,7 +96,6 @@ const DataTable: React.FC<DataTableProps> = ({
                 key={col.key}
                 className={`${col.hideOnMobile ? 'max-sm:hidden' : ''} ${col.className ?? ''}`}
               >
-                {/* Mobile: show label above value */}
                 <div className="sm:hidden text-xs text-slate-400">{col.header}</div>
                 <div>{col.render ? col.render(item, i) : item[col.key]}</div>
               </div>

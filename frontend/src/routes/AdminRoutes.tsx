@@ -8,7 +8,6 @@ import AdminLogin from '../pages/admin/AdminLogin';
 import AdminDashboard from '../pages/admin/AdminDashboard';
 import AdminUsersList from '../pages/admin/AdminUsersList';
 import AdminAppointments from '../pages/admin/AdminAppointments';
-// import AdminUpdateDoctor from "../pages/admin/AdminUpdateDoctor";
 import AdminDoctorList from '../pages/admin/AdminDoctorList';
 import AdminInbox from '../pages/admin/AdminInbox';
 import AdminDoctorRequests from '../pages/admin/AdminDoctorRequests';

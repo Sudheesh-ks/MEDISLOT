@@ -1,5 +1,4 @@
 import { ComplaintDTO } from '../dtos/complaint.dto';
-// import { ComplaintDocument } from '../models/complaintModel';
 
 export const tocomplaintDTO = (complaint: any): ComplaintDTO => {
   return {

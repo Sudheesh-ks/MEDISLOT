@@ -1,6 +1,7 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import type { PrescriptionData } from '../types/prescription';
+import { generateShortAppointmentId } from './generateApptId.utils';
 
 export const downloadPrescriptionPDF = (data: PrescriptionData) => {
   const doc = new jsPDF();
@@ -8,6 +9,9 @@ export const downloadPrescriptionPDF = (data: PrescriptionData) => {
   // Colors
   const primaryColor: [number, number, number] = [41, 128, 185];
   const gray: [number, number, number] = [100, 100, 100];
+
+  // Altering appointmentId
+  const shortAppointmentId = generateShortAppointmentId(data.appointmentId);
 
   // ----- HEADER -----
   doc.setFont('helvetica', 'bold');
@@ -23,7 +27,7 @@ export const downloadPrescriptionPDF = (data: PrescriptionData) => {
   doc.setTextColor(0, 0, 0);
   doc.setFontSize(12);
   doc.setFont('helvetica', 'normal');
-  doc.text(`Appointment ID: ${data.appointmentId}`, 20, 40);
+  doc.text(`Appointment ID: ${shortAppointmentId}`, 20, 40);
   doc.text(`Date: ${new Date(data.createdAt).toLocaleDateString()}`, 20, 48);
 
   // Doctor Info

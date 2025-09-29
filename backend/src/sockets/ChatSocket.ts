@@ -57,7 +57,6 @@ export function registerChatSocket(io: Server, chatService: ChatService) {
             await chatService.delivered(saved.id!, msg.receiverId);
           }
 
-          // await chatService.delivered(saved.id, msg.receiverId);
           io.to(saved.chatId).emit('delivered', {
             messageId: saved.id,
             userId: msg.receiverId,

@@ -71,7 +71,6 @@ const MyAppointments = () => {
       const { data } = await getPrescriptionAPI(appointmentId);
 
       if (data.success && data.data) {
-        // Make sure required fields exist before passing forward
         if (!data.data.appointmentId) {
           toast.error('Prescription data is incomplete.');
           return;
@@ -79,7 +78,6 @@ const MyAppointments = () => {
 
         downloadPrescriptionPDF(data.data);
       } else {
-        // No prescription found
         toast.info('No prescription added yet.');
       }
     } catch (err) {

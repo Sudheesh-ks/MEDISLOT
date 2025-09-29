@@ -63,7 +63,7 @@ const ConsultationEndedCard = ({ role, appointmentId }: ConsultationEndedCardPro
               {[1, 2, 3, 4, 5].map((star) => (
                 <FaStar
                   key={star}
-                  size={24} // smaller on mobile
+                  size={24}
                   className={
                     star <= rating
                       ? 'text-yellow-400 cursor-pointer'
