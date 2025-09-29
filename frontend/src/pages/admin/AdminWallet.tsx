@@ -95,21 +95,22 @@ const AdminWallet = () => {
   ];
 
   return (
-    <div className="m-5 space-y-10 text-slate-100">
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+    <div className="m-3 sm:m-5 space-y-8 sm:space-y-10 text-slate-100">
+      {/* Balance Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
         {balanceCards.map((c, i) => (
           <motion.div
             key={i}
             whileHover={{ scale: 1.05 }}
             transition={{ type: 'spring', stiffness: 300 }}
-            className={`${cardBase} bg-gradient-to-r ${c.gradient}`}
+            className={`${cardBase} bg-gradient-to-r ${c.gradient} flex items-center gap-3 sm:gap-4 p-4 sm:p-6`}
           >
-            <c.icon className="w-12 h-12" />
-            <div>
-              <p className="text-2xl font-bold">
+            <c.icon className="w-10 h-10 sm:w-12 sm:h-12" />
+            <div className="flex-1">
+              <p className="text-lg sm:text-2xl font-bold truncate">
                 {showBalance ? `${currencySymbol}${c.amount}` : '••••••'}
               </p>
-              <p className="text-sm opacity-80">{c.title}</p>
+              <p className="text-xs sm:text-sm opacity-80">{c.title}</p>
             </div>
             <button
               onClick={() => setShowBalance((s) => !s)}
@@ -121,26 +122,31 @@ const AdminWallet = () => {
         ))}
       </div>
 
+      {/* Wallet Transactions */}
       <div className={`${glass} rounded-xl`}>
-        <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
-          <h2 className="font-semibold text-lg flex items-center gap-2">
-            <CreditCard className="w-5" /> Wallet Transactions
+        {/* Header & Filters */}
+        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 px-4 sm:px-6 py-3 sm:py-4 border-b border-white/10">
+          <h2 className="font-semibold text-base sm:text-lg flex items-center gap-2">
+            <CreditCard className="w-4 sm:w-5" /> Wallet Transactions
           </h2>
-          <div className="flex gap-3">
-            <div className="relative">
+          <div className="flex flex-col sm:flex-row gap-3 sm:items-center w-full lg:w-auto">
+            {/* Search */}
+            <div className="relative flex-1 sm:flex-initial">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
               <input
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search..."
-                className="pl-9 pr-4 py-1.5 text-sm rounded-lg bg-white/10 border border-white/20 text-white placeholder:text-slate-400 focus:outline-none"
+                className="w-full pl-9 pr-4 py-1.5 text-sm rounded-lg bg-white/10 border border-white/20 text-white placeholder:text-slate-400 focus:outline-none"
               />
             </div>
+
+            {/* Period Filter */}
             <select
               value={selectedPeriod}
               onChange={(e) => setSelectedPeriod(e.target.value)}
-              className="text-sm bg-slate-800 text-slate-200 border-white/20 rounded-lg px-3 py-1.5 text-white"
+              className="text-sm bg-slate-800 text-slate-200 border-white/20 rounded-lg px-3 py-1.5"
             >
               <option value="all">All</option>
               <option value="today">Today</option>
@@ -148,10 +154,11 @@ const AdminWallet = () => {
               <option value="month">Last Month</option>
             </select>
 
+            {/* Transaction Type Filter */}
             <select
               value={transactionType}
               onChange={(e) => setTransactionType(e.target.value)}
-              className="text-sm bg-slate-800 text-slate-200 border-white/20 rounded-lg px-3 py-1.5 text-white"
+              className="text-sm bg-slate-800 text-slate-200 border-white/20 rounded-lg px-3 py-1.5"
             >
               <option value="all">Type</option>
               <option value="credit">Credit</option>
@@ -160,14 +167,15 @@ const AdminWallet = () => {
           </div>
         </div>
 
+        {/* Transactions Table */}
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full text-xs sm:text-sm">
             <thead className="bg-white/5 border-b border-white/10 text-left text-slate-300">
               <tr>
-                <th className="px-6 py-3">Reason</th>
-                <th className="px-6 py-3">Type</th>
-                <th className="px-6 py-3">Amount</th>
-                <th className="px-6 py-3">Date</th>
+                <th className="px-4 sm:px-6 py-3">Reason</th>
+                <th className="px-4 sm:px-6 py-3">Type</th>
+                <th className="px-4 sm:px-6 py-3">Amount</th>
+                <th className="px-4 sm:px-6 py-3">Date</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-white/10">
@@ -179,10 +187,12 @@ const AdminWallet = () => {
                   transition={{ delay: i * 0.05 }}
                   className="hover:bg-white/5"
                 >
-                  <td className="px-6 py-4 text-white font-medium">{tx.reason || '—'}</td>
-                  <td className="px-6 py-4">
+                  <td className="px-4 sm:px-6 py-3 sm:py-4 text-white font-medium">
+                    {tx.reason || '—'}
+                  </td>
+                  <td className="px-4 sm:px-6 py-3 sm:py-4">
                     <span
-                      className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                      className={`px-2 py-1 rounded-full text-[10px] sm:text-xs font-semibold ${
                         tx.type === 'credit'
                           ? 'text-green-400 bg-green-500/20'
                           : 'text-red-400 bg-red-500/20'
@@ -191,25 +201,31 @@ const AdminWallet = () => {
                       {tx.type}
                     </span>
                   </td>
-                  <td className="px-6 py-4 font-semibold">
+                  <td className="px-4 sm:px-6 py-3 sm:py-4 font-semibold">
                     {tx.type === 'credit' ? '+' : '-'}
                     {`${currencySymbol}${tx.amount}`}
                   </td>
-                  <td className="px-6 py-4 text-slate-300">{formatDate(tx.date)}</td>
+                  <td className="px-4 sm:px-6 py-3 sm:py-4 text-slate-300">
+                    {formatDate(tx.date)}
+                  </td>
                 </motion.tr>
               ))}
             </tbody>
           </table>
 
+          {/* No Transactions */}
           {filteredTransactions.length === 0 && (
-            <div className="py-10 text-center text-slate-400">No transactions found</div>
+            <div className="py-8 sm:py-10 text-center text-slate-400">No transactions found</div>
           )}
 
-          <Pagination
-            currentPage={currentPage}
-            totalPages={Math.ceil((walletData?.total || 0) / 10)}
-            onPageChange={(page) => setCurrentPage(page)}
-          />
+          {/* Pagination */}
+          <div className="px-4 sm:px-6 pb-4">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={Math.ceil((walletData?.total || 0) / 10)}
+              onPageChange={(page) => setCurrentPage(page)}
+            />
+          </div>
         </div>
       </div>
     </div>

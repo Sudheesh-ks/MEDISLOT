@@ -198,8 +198,9 @@ const ChatPage: React.FC = () => {
     return <div className="flex h-screen items-center justify-center text-slate-100">Loading…</div>;
 
   return (
-    <div className="flex h-screen bg-slate-950 text-slate-100">
-      <aside className="w-80 shrink-0 justify-center bg-white/5 backdrop-blur ring-1 ring-white/10 p-6 flex flex-col items-center text-center">
+    <div className="flex flex-col md:flex-row h-screen bg-slate-950 text-slate-100">
+      {/* Sidebar */}
+      <aside className="hidden md:flex w-80 shrink-0 justify-center bg-white/5 backdrop-blur ring-1 ring-white/10 p-6 flex-col items-center text-center">
         <img
           src={doctorProfile.avatar}
           alt={doctorProfile.name}
@@ -216,17 +217,21 @@ const ChatPage: React.FC = () => {
         </p>
       </aside>
 
+      {/* Main Section */}
       <main className="flex flex-col flex-1 h-full">
-        <header className="bg-white/5 backdrop-blur ring-1 ring-white/10 px-6 py-4 flex items-center gap-3">
+        {/* Header */}
+        <header className="bg-white/5 backdrop-blur ring-1 ring-white/10 px-4 md:px-6 py-3 md:py-4 flex items-center gap-3">
           <img
             src={doctorProfile.avatar}
             alt="avatar"
-            className="w-10 h-10 rounded-full object-cover ring-1 ring-white/10"
+            className="w-8 h-8 md:w-10 md:h-10 rounded-full object-cover ring-1 ring-white/10"
           />
           <div>
-            <h3 className="text-lg font-semibold text-slate-100">{doctorProfile.name}</h3>
+            <h3 className="text-base md:text-lg font-semibold text-slate-100">
+              {doctorProfile.name}
+            </h3>
             <p
-              className={`mt-2 text-xs font-medium ${
+              className={`mt-1 md:mt-2 text-[10px] md:text-xs font-medium ${
                 isDoctorOnline ? 'text-emerald-400' : 'text-slate-500'
               }`}
             >
@@ -235,13 +240,14 @@ const ChatPage: React.FC = () => {
           </div>
         </header>
 
-        <section className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+        {/* Messages Section */}
+        <section className="flex-1 overflow-y-auto px-4 md:px-6 py-3 md:py-4 space-y-4">
           {messages.map((m) => {
             const isUser = m.senderRole === 'user';
             return (
               <div key={m._id} className={`flex ${isUser ? 'justify-end' : 'justify-start'}`}>
                 <div
-                  className={`relative group flex max-w-xs items-end space-x-2 ${
+                  className={`relative group flex max-w-[75%] md:max-w-xs items-end space-x-2 ${
                     isUser ? 'flex-row-reverse' : ''
                   }`}
                 >
@@ -258,21 +264,24 @@ const ChatPage: React.FC = () => {
                   )}
 
                   {!isUser && (
-                    <img src={doctorProfile.avatar} className="w-8 h-8 rounded-full object-cover" />
+                    <img
+                      src={doctorProfile.avatar}
+                      className="w-6 h-6 md:w-8 md:h-8 rounded-full object-cover"
+                    />
                   )}
                   <div
-                    className={`px-4 py-2 rounded-2xl text-sm ${
+                    className={`px-3 md:px-4 py-2 rounded-2xl text-sm ${
                       isUser
                         ? 'bg-cyan-600 text-white rounded-br-none'
                         : 'bg-white/10 ring-1 ring-white/10 text-slate-100 rounded-bl-none'
                     }`}
                   >
                     {m.deleted ? (
-                      <em className="text-xs text-slate-400">message removed</em>
+                      <em className="text-[10px] md:text-xs text-slate-400">message removed</em>
                     ) : m.kind === 'text' || m.kind === 'emoji' ? (
                       <p className="break-words">{m.text}</p>
                     ) : m.kind === 'image' ? (
-                      <img src={m.mediaUrl} className="max-w-[200px] rounded" />
+                      <img src={m.mediaUrl} className="max-w-[150px] md:max-w-[200px] rounded" />
                     ) : (
                       <a
                         href={m.mediaUrl}
@@ -293,12 +302,16 @@ const ChatPage: React.FC = () => {
                             d="M12 4v4h4M16 20H8a2 2 0 01-2-2V6a2 2 0 012-2h6l4 4v10a2 2 0 01-2 2z"
                           />
                         </svg>
-                        <span className="max-w-[140px] truncate">{fileName(m.mediaUrl!)}</span>
+                        <span className="max-w-[100px] md:max-w-[140px] truncate">
+                          {fileName(m.mediaUrl!)}
+                        </span>
                       </a>
                     )}
 
                     <p
-                      className={`text-[10px] mt-1 ${isUser ? 'text-slate-200' : 'text-slate-400'}`}
+                      className={`text-[9px] md:text-[10px] mt-1 ${
+                        isUser ? 'text-slate-200' : 'text-slate-400'
+                      }`}
                     >
                       {timeOf(m.createdAt)}{' '}
                       {isUser && (m.readBy?.length ? '✓✓' : m.deliveredTo?.length ? '✓' : '')}
@@ -314,9 +327,10 @@ const ChatPage: React.FC = () => {
           <div ref={messagesEndRef} />
         </section>
 
+        {/* Input Form */}
         <form
           onSubmit={send}
-          className="bg-white/5 backdrop-blur ring-1 ring-white/10 px-6 py-4 flex items-center gap-3"
+          className="bg-white/5 backdrop-blur ring-1 ring-white/10 px-4 md:px-6 py-3 md:py-4 flex items-center gap-2 md:gap-3"
         >
           <input
             type="file"
@@ -353,15 +367,15 @@ const ChatPage: React.FC = () => {
           </button>
 
           {pickedFile && (
-            <div className="flex items-center gap-2 bg-white/10 px-3 py-1 rounded-full">
+            <div className="flex items-center gap-2 bg-white/10 px-2 md:px-3 py-1 rounded-full">
               {pickedFile.type.startsWith('image/') ? (
                 <img
                   src={previewUrl!}
                   alt={pickedFile.name}
-                  className="w-8 h-8 rounded object-cover"
+                  className="w-6 h-6 md:w-8 md:h-8 rounded object-cover"
                 />
               ) : (
-                <svg className="w-5 h-5" fill="none" stroke="currentColor">
+                <svg className="w-4 h-4 md:w-5 md:h-5" fill="none" stroke="currentColor">
                   <path
                     strokeLinecap="round"
                     strokeLinejoin="round"
@@ -370,14 +384,16 @@ const ChatPage: React.FC = () => {
                   />
                 </svg>
               )}
-              <span className="max-w-[120px] truncate text-xs">{pickedFile.name}</span>
+              <span className="max-w-[90px] md:max-w-[120px] truncate text-[10px] md:text-xs">
+                {pickedFile.name}
+              </span>
               <button
                 type="button"
                 onClick={() => {
                   setPickedFile(null);
                   clearFileInput();
                 }}
-                className="text-slate-400 hover:text-red-400 text-lg leading-none"
+                className="text-slate-400 hover:text-red-400 text-base leading-none"
               >
                 &times;
               </button>
@@ -390,15 +406,20 @@ const ChatPage: React.FC = () => {
             onFocus={() => socket?.emit('typing', { chatId })}
             onBlur={() => socket?.emit('stopTyping', { chatId })}
             placeholder="Type a message…"
-            className="flex-1 bg-transparent ring-1 ring-white/10 rounded-full px-4 py-2 text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
+            className="flex-1 bg-transparent ring-1 ring-white/10 rounded-full px-3 md:px-4 py-1.5 md:py-2 text-sm placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500"
           />
 
           <button
             type="submit"
             disabled={!newMessage.trim() && !pickedFile}
-            className="p-3 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 disabled:opacity-40 hover:-translate-y-0.5 transition-transform"
+            className="p-2.5 md:p-3 rounded-full bg-gradient-to-r from-cyan-500 to-blue-600 disabled:opacity-40 hover:-translate-y-0.5 transition-transform"
           >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2}>
+            <svg
+              className="w-4 h-4 md:w-5 md:h-5"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -409,27 +430,30 @@ const ChatPage: React.FC = () => {
         </form>
       </main>
 
+      {/* Delete Confirm Modal */}
       {pendingId && (
-        <div className="fixed inset-0 z-40 flex items-center justify-center">
+        <div className="fixed inset-0 z-40 flex items-center justify-center px-4">
           <div
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
             onClick={() => setPendingId(null)}
           />
-          <div className="relative z-50 w-72 rounded-2xl bg-slate-900 p-6 text-center ring-1 ring-white/10 shadow-2xl">
-            <h4 className="mb-4 text-lg font-semibold text-slate-100">Delete message?</h4>
-            <p className="mb-6 text-sm text-slate-400">
+          <div className="relative z-50 w-full max-w-xs md:max-w-sm rounded-2xl bg-slate-900 p-5 md:p-6 text-center ring-1 ring-white/10 shadow-2xl">
+            <h4 className="mb-3 md:mb-4 text-base md:text-lg font-semibold text-slate-100">
+              Delete message?
+            </h4>
+            <p className="mb-4 md:mb-6 text-xs md:text-sm text-slate-400">
               This will remove the message for everyone.
             </p>
-            <div className="flex justify-center gap-4">
+            <div className="flex justify-center gap-3 md:gap-4">
               <button
                 onClick={() => setPendingId(null)}
-                className="px-4 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 text-sm"
+                className="px-3 md:px-4 py-1.5 rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-200 text-xs md:text-sm"
               >
                 Cancel
               </button>
               <button
                 onClick={confirmDelete}
-                className="px-4 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-white text-sm"
+                className="px-3 md:px-4 py-1.5 rounded-lg bg-red-600 hover:bg-red-500 text-white text-xs md:text-sm"
               >
                 Delete
               </button>

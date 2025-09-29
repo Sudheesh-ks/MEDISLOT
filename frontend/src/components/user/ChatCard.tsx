@@ -14,11 +14,11 @@ const ChatCard: React.FC<ChatCardProps> = ({ doctorId }) => {
   const unreadCount = chatKey ? (unread[chatKey] ?? 0) : 0;
   return (
     <div className="flex flex-col bg-white/5 backdrop-blur ring-1 ring-white/10 rounded-3xl overflow-hidden h-full">
-      <div className="h-72 overflow-hidden">
+      <div className="h-64 md:h-72 overflow-hidden">
         <img src={assets.contact_image} alt="Chat cover" className="w-full h-full object-cover" />
       </div>
 
-      <div className="p-6 flex-1 flex flex-col justify-between">
+      <div className="p-4 md:p-6 flex-1 flex flex-col justify-between">
         <div>
           <h3 className="text-lg font-semibold text-slate-100 mb-2 flex items-center gap-2">
             Start Messaging
@@ -29,7 +29,7 @@ const ChatCard: React.FC<ChatCardProps> = ({ doctorId }) => {
 
         <button
           onClick={() => nav(`/chats/${doctorId}`)}
-          className="relative mt-6 w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white py-3 rounded-full hover:-translate-y-0.5 transition-transform"
+          className="relative mt-4 md:mt-6 w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white py-3 rounded-full hover:-translate-y-0.5 transition-transform"
         >
           Message
           {unreadCount > 0 && (

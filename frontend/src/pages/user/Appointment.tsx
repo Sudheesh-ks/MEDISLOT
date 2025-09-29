@@ -247,31 +247,37 @@ const Appointment = () => {
       {/* Header Section */}
       <div className="bg-gray-800 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 md:px-6 py-6">
-          <div className="flex items-start gap-6">
+          <div className="flex flex-col md:flex-row items-center md:items-start gap-6">
             {/* Doctor Image */}
             <div className="relative">
-              <div className="w-32 h-32 rounded-2xl overflow-hidden bg-gray-700 shadow-lg">
+              <div className="w-24 h-24 md:w-32 md:h-32 rounded-2xl overflow-hidden bg-gray-700 shadow-lg">
                 <img src={info?.image} alt={info?.name} className="w-full h-full object-cover" />
               </div>
               {/* Online Status */}
-              <div className="absolute -bottom-1 -right-1 w-8 h-8 bg-green-500 rounded-full border-4 border-gray-900 flex items-center justify-center">
-                <span className="text-gray-900 text-xs font-bold">✓</span>
+              <div className="absolute -bottom-1 -right-1 w-6 h-6 md:w-8 md:h-8 bg-green-500 rounded-full border-4 border-gray-900 flex items-center justify-center">
+                <span className="text-gray-900 text-[10px] md:text-xs font-bold">✓</span>
               </div>
             </div>
 
             {/* Doctor Info */}
-            <div className="flex-1">
-              <div className="flex items-start justify-between">
+            <div className="flex-1 w-full">
+              <div className="flex flex-col md:flex-row items-start md:items-start justify-between w-full">
                 <div>
-                  <div className="flex items-center gap-2 mb-2">
-                    <h1 className="text-2xl font-bold text-gray-100">{info?.name}</h1>
-                    <img src={assets.verified_icon} className="w-6 h-6" alt="Verified" />
+                  <div className="flex flex-wrap items-center gap-2 mb-2">
+                    <h1 className="text-xl md:text-2xl font-bold text-gray-100">{info?.name}</h1>
+                    <img
+                      src={assets.verified_icon}
+                      className="w-5 h-5 md:w-6 md:h-6"
+                      alt="Verified"
+                    />
                   </div>
 
                   <div className="space-y-2 mb-4">
-                    <p className="text-lg text-blue-400 font-semibold">{info?.speciality}</p>
-                    <p className="text-gray-300">{info?.degree}</p>
-                    <div className="flex items-center gap-4 text-sm text-gray-300">
+                    <p className="text-base md:text-lg text-blue-400 font-semibold">
+                      {info?.speciality}
+                    </p>
+                    <p className="text-sm md:text-base text-gray-300">{info?.degree}</p>
+                    <div className="flex flex-wrap items-center gap-4 text-xs md:text-sm text-gray-300">
                       <span className="flex items-center gap-1">💼 {info?.experience}</span>
                       <span className="flex items-center gap-1">
                         ⭐ {averageRating} ({reviews.length} reviews)
@@ -283,7 +289,7 @@ const Appointment = () => {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-3">
+                  <div className="flex flex-wrap items-center gap-3">
                     {nextAvailableDate ? (
                       <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-700 text-green-100">
                         Available{' '}
@@ -303,10 +309,10 @@ const Appointment = () => {
                 </div>
 
                 {/* Action Buttons */}
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-2 items-center md:items-end mt-3 md:mt-0">
                   <button
                     onClick={() => setActiveTab('availability')}
-                    className="bg-blue-600 hover:bg-blue-500 text-gray-100 px-6 py-3 rounded-lg font-medium transition-colors shadow-md"
+                    className="bg-blue-600 hover:bg-blue-500 text-gray-100 px-4 py-2 md:px-6 md:py-3 rounded-lg font-medium transition-colors shadow-md"
                   >
                     Book Appointment
                   </button>
@@ -323,7 +329,7 @@ const Appointment = () => {
       {/* Navigation Tabs */}
       <div className="bg-gray-800 border-b border-gray-700">
         <div className="max-w-7xl mx-auto px-4 md:px-6">
-          <div className="flex">
+          <div className="flex flex-wrap">
             <TabButton
               tab="overview"
               label="Overview"
@@ -355,7 +361,9 @@ const Appointment = () => {
               <div className="space-y-6">
                 {/* About */}
                 <div className="bg-gray-800 rounded-xl p-6 shadow-sm">
-                  <h2 className="text-xl font-semibold mb-4 text-gray-100">About {info?.name}</h2>
+                  <h2 className="text-lg md:text-xl font-semibold mb-4 text-gray-100">
+                    About {info?.name}
+                  </h2>
                   <p className="text-gray-300 leading-relaxed mb-6">{info?.about}</p>
 
                   {/* Specializations */}
@@ -383,9 +391,11 @@ const Appointment = () => {
 
                 {/* Services */}
                 <div className="bg-gray-800 rounded-xl p-6 shadow-sm">
-                  <h2 className="text-xl font-semibold mb-4 text-gray-300">Services Offered</h2>
+                  <h2 className="text-lg md:text-xl font-semibold mb-4 text-gray-300">
+                    Services Offered
+                  </h2>
                   <div className="grid md:grid-cols-2 gap-4">
-                    <div className="flex items-center gap-3 p-3 bg-gray-900 rounded-lg">
+                    <div className="flex items-center gap-3 p-2 md:p-3 bg-gray-900 rounded-lg">
                       <div className="w-10 h-10 bg-blue-800 rounded-lg flex items-center justify-center text-gray-200">
                         💻
                       </div>
@@ -410,7 +420,7 @@ const Appointment = () => {
 
             {activeTab === 'availability' && (
               <div className="bg-gray-800 rounded-xl p-6 shadow-sm">
-                <h2 className="text-xl font-semibold mb-6 text-gray-100">
+                <h2 className="text-lg md:text-xl font-semibold mb-6 text-gray-100">
                   Select Appointment Slot
                 </h2>
 
@@ -427,7 +437,7 @@ const Appointment = () => {
                             setShowPicker(false);
                             setSlotTime('');
                           }}
-                          className={`min-w-[80px] py-4 px-3 rounded-xl text-center text-sm transition-all border ${
+                          className={`min-w-[80px] py-3 md:py-4 px-3 rounded-xl text-center text-sm transition-all border ${
                             dayIdx === idx && !showPicker
                               ? 'bg-blue-600 text-gray-100 border-blue-600 shadow-md'
                               : 'bg-gray-900 border-gray-700 hover:border-blue-500 text-gray-300'
@@ -449,7 +459,7 @@ const Appointment = () => {
                         void (showPicker ? fetchInitialSlots() : setShowPicker(true));
                         setSlotTime('');
                       }}
-                      className={`min-w-[80px] py-4 px-3 rounded-xl text-center text-sm transition-all border ${
+                      className={`min-w-[80px] py-3 md:py-4 px-3 rounded-xl text-center text-sm transition-all border ${
                         showPicker
                           ? 'bg-blue-600 text-gray-100 border-blue-600 shadow-md'
                           : 'bg-gray-900 border-gray-700 hover:border-blue-500 text-gray-300'
@@ -488,7 +498,7 @@ const Appointment = () => {
                         <button
                           key={i}
                           onClick={() => setSlotTime(s.slotStartTime)}
-                          className={`p-3 rounded-lg text-sm font-medium transition-all border ${
+                          className={`p-2 md:p-3 rounded-lg text-xs md:text-sm font-medium transition-all border ${
                             slotTime === s.slotStartTime
                               ? 'bg-blue-600 text-gray-100 border-blue-600 shadow-md'
                               : 'bg-gray-900 border-gray-700 hover:border-blue-500 text-gray-300'
@@ -530,7 +540,7 @@ const Appointment = () => {
                 <button
                   onClick={book}
                   disabled={!slotTime}
-                  className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-700 disabled:cursor-not-allowed text-gray-100 py-4 rounded-lg font-semibold text-lg transition-colors shadow-md"
+                  className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-700 disabled:cursor-not-allowed text-gray-100 py-3 md:py-4 rounded-lg font-semibold text-base md:text-lg transition-colors shadow-md"
                 >
                   {slotTime
                     ? `Book Appointment - ${currencySymbol}${info?.fees}`
@@ -541,8 +551,10 @@ const Appointment = () => {
 
             {activeTab === 'reviews' && (
               <div className="bg-gray-800 rounded-xl p-6 shadow-sm">
-                <div className="flex items-center justify-between mb-6">
-                  <h2 className="text-xl font-semibold text-gray-100">Patient Reviews</h2>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
+                  <h2 className="text-lg md:text-xl font-semibold text-gray-100">
+                    Patient Reviews
+                  </h2>
                   <div className="text-right">
                     <div className="text-2xl font-bold text-gray-100">{averageRating}</div>
                     <div className="text-sm text-gray-400">{reviews.length} reviews</div>
@@ -554,7 +566,7 @@ const Appointment = () => {
                     {reviews.slice(0, visibleReviews).map((r, idx) => (
                       <div key={idx} className="border-b border-gray-700 pb-4 last:border-b-0">
                         <div className="flex items-start gap-4">
-                          <div className="w-12 h-12 bg-gray-700 rounded-full flex items-center justify-center text-gray-100 font-semibold">
+                          <div className="w-10 h-10 md:w-12 md:h-12 bg-gray-700 rounded-full flex items-center justify-center text-gray-100 font-semibold">
                             {r.userData.name.charAt(0).toUpperCase()}
                           </div>
                           <div className="flex-1">

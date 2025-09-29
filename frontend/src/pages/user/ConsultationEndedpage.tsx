@@ -18,7 +18,7 @@ const ConsultationEndedPage = () => {
   }, [token]);
 
   return (
-    <div className="min-h-screen p-6 flex justify-center items-center bg-[#0a0a0a]">
+    <div className="min-h-screen p-4 md:p-6 flex justify-center items-center bg-[#0a0a0a]">
       <div className="w-full max-w-xl">
         <ConsultationEndedCard role="user" appointmentId={appointmentId!} />
       </div>

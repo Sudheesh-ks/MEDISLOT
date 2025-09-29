@@ -2,9 +2,9 @@ import React, { useEffect, useState, useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Search,
-  MoreVertical,
+  // MoreVertical,
   MessageCircle,
-  Camera,
+  // Camera,
   Users,
   Clock,
   ActivitySquareIcon,
@@ -237,42 +237,44 @@ const DoctorChatList: React.FC = () => {
   };
 
   return (
-    <div className="h-screen bg-slate-950 flex overflow-hidden relative text-slate-100">
+    <div className="h-screen bg-slate-950 flex flex-col sm:flex-row overflow-hidden relative text-slate-100">
       {/* Background decorations */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-40 h-40 bg-gradient-to-br from-cyan-400/8 via-blue-500/8 to-transparent rounded-full animate-pulse" />
-        <div className="absolute top-1/2 right-20 w-32 h-32 bg-gradient-to-br from-blue-400/6 to-cyan-500/6 rounded-full animate-bounce" />
-        <div className="absolute bottom-20 left-1/4 w-24 h-24 bg-cyan-300/10 rounded-full animate-pulse" />
-        <div className="absolute top-40 right-1/3 w-16 h-16 bg-blue-400/12 rounded-full animate-bounce" />
-        <div className="absolute bottom-1/3 right-10 w-20 h-20 bg-gradient-to-r from-cyan-300/8 to-blue-400/8 rounded-full animate-pulse" />
+        <div className="absolute top-20 left-10 w-32 sm:w-40 h-32 sm:h-40 bg-gradient-to-br from-cyan-400/8 via-blue-500/8 to-transparent rounded-full animate-pulse" />
+        <div className="absolute top-1/2 right-10 sm:right-20 w-24 sm:w-32 h-24 sm:h-32 bg-gradient-to-br from-blue-400/6 to-cyan-500/6 rounded-full animate-bounce" />
+        <div className="absolute bottom-20 left-1/4 w-20 sm:w-24 h-20 sm:h-24 bg-cyan-300/10 rounded-full animate-pulse" />
+        <div className="absolute top-40 right-1/3 w-12 sm:w-16 h-12 sm:h-16 bg-blue-400/12 rounded-full animate-bounce" />
+        <div className="absolute bottom-1/3 right-6 sm:right-10 w-16 sm:w-20 h-16 sm:h-20 bg-gradient-to-r from-cyan-300/8 to-blue-400/8 rounded-full animate-pulse" />
       </div>
 
-      {/* Left Section - Stats */}
-      <div className="flex-1 flex flex-col relative z-10 p-8">
+      {/* Left Section - Stats (hidden on small screens) */}
+      <div className="hidden sm:flex flex-1 flex-col relative z-10 p-6 sm:p-8">
         <div className="mb-8">
           <div className="flex items-center gap-4 mb-6">
             <div
-              className={`w-16 h-16 rounded-2xl flex items-center justify-center text-2xl font-bold shadow-2xl bg-gradient-to-r ${gradient} animate-pulse`}
+              className={`w-14 h-14 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center text-xl sm:text-2xl font-bold shadow-2xl bg-gradient-to-r ${gradient} animate-pulse`}
             >
               💬
             </div>
             <div>
-              <h1 className="text-4xl font-bold text-slate-100 mb-2">Chats</h1>
-              <p className="text-xl text-slate-400">Go through the latest messages from patients</p>
+              <h1 className="text-2xl sm:text-4xl font-bold text-slate-100 mb-1 sm:mb-2">Chats</h1>
+              <p className="text-sm sm:text-xl text-slate-400">
+                Go through the latest messages from patients
+              </p>
             </div>
           </div>
 
           {/* Quick Stats */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-8">
             {stats.map((stat, index) => (
               <div
                 key={stat.label}
-                className={`${glass} p-6 rounded-2xl border border-white/10 hover:bg-white/10 cursor-pointer transition-all duration-300 group relative overflow-hidden
-                ${
-                  chatFilter === stat.filterKey
-                    ? 'border-transparent bg-white/5 shadow-lg shadow-cyan-500/20 ring-2 ring-offset-2 ring-offset-slate-900 ring-cyan-400'
-                    : 'border-white/10 hover:bg-white/10'
-                }                `}
+                className={`${glass} p-4 sm:p-6 rounded-2xl border border-white/10 hover:bg-white/10 cursor-pointer transition-all duration-300 group relative overflow-hidden
+            ${
+              chatFilter === stat.filterKey
+                ? 'border-transparent bg-white/5 shadow-lg shadow-cyan-500/20 ring-2 ring-offset-2 ring-offset-slate-900 ring-cyan-400'
+                : 'border-white/10 hover:bg-white/10'
+            }`}
                 style={{ animationDelay: `${index * 0.1}s` }}
                 onClick={() => setChatFilter(stat.filterKey)}
               >
@@ -280,10 +282,10 @@ const DoctorChatList: React.FC = () => {
                   className={`absolute inset-0 bg-gradient-to-br ${gradient} opacity-0 group-hover:opacity-5 transition-opacity duration-300`}
                 />
                 <div className="flex items-center justify-between mb-3">
-                  <stat.icon className="w-8 h-8 text-cyan-400" />
+                  <stat.icon className="w-6 h-6 sm:w-8 sm:h-8 text-cyan-400" />
                 </div>
-                <p className="text-3xl font-bold text-slate-100 mb-1">{stat.value}</p>
-                <p className="text-slate-400 text-sm">{stat.label}</p>
+                <p className="text-2xl sm:text-3xl font-bold text-slate-100 mb-1">{stat.value}</p>
+                <p className="text-slate-400 text-xs sm:text-sm">{stat.label}</p>
                 <div
                   className={`absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r ${gradient} transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300`}
                 />
@@ -294,24 +296,26 @@ const DoctorChatList: React.FC = () => {
       </div>
 
       {/* Right Section - Chat List */}
-      <div className={`w-96 ${glass} border-l border-white/10 flex flex-col relative z-10`}>
+      <div
+        className={`w-full sm:w-96 ${glass} border-t sm:border-t-0 sm:border-l border-white/10 flex flex-col relative z-10`}
+      >
         <div className="p-4 border-b border-white/10">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
               <div
-                className={`w-10 h-10 rounded-xl flex items-center justify-center text-lg font-bold shadow-lg bg-gradient-to-r ${gradient}`}
+                className={`w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center text-base sm:text-lg font-bold shadow-lg bg-gradient-to-r ${gradient}`}
               >
                 💬
               </div>
               <div>
-                <h2 className="text-lg font-semibold text-slate-100">Active Chats</h2>
+                <h2 className="text-base sm:text-lg font-semibold text-slate-100">Active Chats</h2>
                 <p className="text-xs text-slate-400">{filteredChats.length} conversations</p>
               </div>
             </div>
-            <div className="flex items-center space-x-3">
-              <Camera className="w-5 h-5 cursor-pointer text-slate-300 hover:text-cyan-400 transition-colors" />
-              <MoreVertical className="w-5 h-5 cursor-pointer text-slate-300 hover:text-cyan-400 transition-colors" />
-            </div>
+            {/* <div className="flex items-center space-x-3">
+          <Camera className="w-5 h-5 cursor-pointer text-slate-300 hover:text-cyan-400 transition-colors" />
+          <MoreVertical className="w-5 h-5 cursor-pointer text-slate-300 hover:text-cyan-400 transition-colors" />
+        </div> */}
           </div>
 
           {/* Search Bar */}
@@ -320,7 +324,7 @@ const DoctorChatList: React.FC = () => {
             <input
               type="text"
               placeholder="Search conversations..."
-              className="w-full pl-10 pr-4 py-3 bg-white/10 backdrop-blur text-slate-100 placeholder-slate-400 rounded-xl border border-white/20 focus:outline-none focus:border-cyan-400 focus:bg-white/15 transition-all duration-300 text-sm"
+              className="w-full pl-9 sm:pl-10 pr-4 py-2 sm:py-3 bg-white/10 backdrop-blur text-slate-100 placeholder-slate-400 rounded-xl border border-white/20 focus:outline-none focus:border-cyan-400 focus:bg-white/15 transition-all duration-300 text-sm"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
@@ -333,7 +337,7 @@ const DoctorChatList: React.FC = () => {
             <div
               key={chat.id}
               onClick={() => navigate(`/doctor/chats/${chat.id}`)}
-              className="group relative flex items-center p-4 hover:bg-white/10 cursor-pointer border-b border-white/5 transition-all duration-300 overflow-hidden animate-fade-in"
+              className="group relative flex items-center p-3 sm:p-4 hover:bg-white/10 cursor-pointer border-b border-white/5 transition-all duration-300 overflow-hidden animate-fade-in"
               style={{ animationDelay: `${index * 0.05}s` }}
             >
               <div className="relative z-10">
@@ -341,17 +345,17 @@ const DoctorChatList: React.FC = () => {
                   <img
                     src={chat.avatar}
                     alt={chat.name}
-                    className="w-12 h-12 rounded-full object-cover mr-3 shadow-lg"
+                    className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover mr-3 shadow-lg"
                   />
                 ) : (
                   <div
-                    className={`w-12 h-12 rounded-full ${getAvatarColor(chat.name)} flex items-center justify-center text-white font-semibold text-sm mr-3 shadow-lg`}
+                    className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full ${getAvatarColor(chat.name)} flex items-center justify-center text-white font-semibold text-xs sm:text-sm mr-3 shadow-lg`}
                   >
                     {chat.name?.charAt(0) ?? '?'}
                   </div>
                 )}
                 {chat.online && (
-                  <div className="absolute bottom-0 right-3 w-3 h-3 bg-gradient-to-r from-cyan-400 to-blue-500 border-2 border-slate-900 rounded-full animate-pulse"></div>
+                  <div className="absolute bottom-0 right-2 sm:right-3 w-2.5 sm:w-3 h-2.5 sm:h-3 bg-gradient-to-r from-cyan-400 to-blue-500 border-2 border-slate-900 rounded-full animate-pulse"></div>
                 )}
               </div>
 
@@ -385,15 +389,15 @@ const DoctorChatList: React.FC = () => {
       </div>
 
       <style>{`
-        @keyframes fade-in {
-          from { opacity: 0; transform: translateX(20px); }
-          to { opacity: 1; transform: translateX(0); }
-        }
-        .animate-fade-in {
-          animation: fade-in 0.3s ease-out forwards;
-          opacity: 0;
-        }
-      `}</style>
+    @keyframes fade-in {
+      from { opacity: 0; transform: translateX(20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    .animate-fade-in {
+      animation: fade-in 0.3s ease-out forwards;
+      opacity: 0;
+    }
+  `}</style>
     </div>
   );
 };

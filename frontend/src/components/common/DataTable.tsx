@@ -52,6 +52,7 @@ const DataTable: React.FC<DataTableProps> = ({
     <div
       className={`${glass} text-sm text-slate-200 max-h-[80vh] min-h-[60vh] overflow-y-auto ${containerClassName}`}
     >
+      {/* Header - only visible on sm+ */}
       {showHeader && (
         <div
           className={`hidden sm:grid ${
@@ -69,6 +70,7 @@ const DataTable: React.FC<DataTableProps> = ({
         </div>
       )}
 
+      {/* Body */}
       {loading ? (
         <div className="flex justify-center items-center h-64">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500"></div>
@@ -83,9 +85,9 @@ const DataTable: React.FC<DataTableProps> = ({
             variants={fadeInUp}
             whileHover={{ scale: 1.015 }}
             onClick={() => onRowClick?.(item)}
-            className={`flex flex-wrap justify-between max-sm:gap-2 sm:grid ${
+            className={`max-sm:flex max-sm:flex-col sm:grid ${
               gridCols ?? defaultGrid
-            } items-center py-3 px-6 ${divider} border-b hover:bg-white/5 transition ${
+            } gap-2 sm:gap-0 items-start sm:items-center py-4 px-6 ${divider} border-b hover:bg-white/5 transition ${
               onRowClick ? 'cursor-pointer' : ''
             } ${className}`}
           >
@@ -94,7 +96,9 @@ const DataTable: React.FC<DataTableProps> = ({
                 key={col.key}
                 className={`${col.hideOnMobile ? 'max-sm:hidden' : ''} ${col.className ?? ''}`}
               >
-                {col.render ? col.render(item, i) : item[col.key]}
+                {/* Mobile: show label above value */}
+                <div className="sm:hidden text-xs text-slate-400">{col.header}</div>
+                <div>{col.render ? col.render(item, i) : item[col.key]}</div>
               </div>
             ))}
           </motion.div>

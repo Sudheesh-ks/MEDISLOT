@@ -159,25 +159,25 @@ export default function DoctorDashboard() {
   }, [dToken]);
 
   return (
-    <div className="m-5 space-y-10 text-slate-100">
+    <div className="m-4 sm:m-5 space-y-8 sm:space-y-10 text-slate-100">
       {loadingStats ? (
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500"></div>
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-b-2 border-cyan-500"></div>
         </div>
       ) : (
         <>
           {/* Stats Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             <motion.div
               onClick={() => navigate('/doctor/appointments')}
               whileHover={{ scale: 1.05 }}
               transition={{ type: 'spring', stiffness: 300 }}
               className={`${cardBase} bg-gradient-to-r from-emerald-500 to-teal-500`}
             >
-              <img src={assets.appointments_icon} className="w-12 h-12" />
+              <img src={assets.appointments_icon} className="w-10 h-10 sm:w-12 sm:h-12" />
               <div>
-                <p className="text-2xl font-bold">{totalAppointments}</p>
-                <p className="text-sm opacity-80">Appointments</p>
+                <p className="text-xl sm:text-2xl font-bold">{totalAppointments}</p>
+                <p className="text-xs sm:text-sm opacity-80">Appointments</p>
               </div>
             </motion.div>
 
@@ -187,34 +187,34 @@ export default function DoctorDashboard() {
               transition={{ type: 'spring', stiffness: 300 }}
               className={`${cardBase} bg-gradient-to-r from-indigo-500 to-violet-600`}
             >
-              <img src={assets.earning_icon} className="w-12 h-12" />
+              <img src={assets.earning_icon} className="w-10 h-10 sm:w-12 sm:h-12" />
               <div>
-                <p className="text-2xl font-bold">
+                <p className="text-xl sm:text-2xl font-bold">
                   {currencySymbol}
                   {totalRevenue}
                 </p>
-                <p className="text-sm opacity-80">Total Revenue</p>
+                <p className="text-xs sm:text-sm opacity-80">Total Revenue</p>
               </div>
             </motion.div>
           </div>
 
           {/* Charts */}
-          <div className={`${glass} rounded-xl overflow-hidden p-6`}>
-            <div className="flex items-center justify-between">
-              <p className="font-semibold text-lg">Performance Overview</p>
+          <div className={`${glass} rounded-xl overflow-hidden p-4 sm:p-6`}>
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
+              <p className="font-semibold text-base sm:text-lg">Performance Overview</p>
               <DateFilter value={dateRange} onChange={setDateRange} />
             </div>
 
-            <div className="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="bg-slate-800 p-4 rounded">
-                <p className="text-sm font-semibold mb-2">Appointments Trend</p>
+            <div className="mt-4 grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+              <div className="bg-slate-800 p-3 sm:p-4 rounded">
+                <p className="text-xs sm:text-sm font-semibold mb-2">Appointments Trend</p>
                 <div style={{ height: 200 }}>
                   <Line data={lineData} options={chartOptions} />
                 </div>
               </div>
 
-              <div className="bg-slate-800 p-4 rounded">
-                <p className="text-sm font-semibold mb-2">Revenue</p>
+              <div className="bg-slate-800 p-3 sm:p-4 rounded">
+                <p className="text-xs sm:text-sm font-semibold mb-2">Revenue</p>
                 <div style={{ height: 200 }}>
                   <Line data={revenueLineData} options={chartOptions} />
                 </div>

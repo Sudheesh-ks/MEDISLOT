@@ -65,71 +65,79 @@ const UserNotifications = () => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto px-4 py-8">
-      <div className="mb-4 flex justify-between items-center">
-        <h2 className="text-2xl font-bold text-white">User Notifications</h2>
-        <div className="flex gap-2 items-center">
+    <div className="max-w-3xl mx-auto px-4 sm:px-6 md:px-10 py-8">
+      {/* Header */}
+      <div className="mb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-2">
+        <h2 className="text-2xl sm:text-3xl font-bold text-white">User Notifications</h2>
+
+        {/* Filters & Actions */}
+        <div className="flex flex-wrap gap-2 items-center w-full sm:w-auto">
           <select
             value={type}
             onChange={(e) => {
               setType(e.target.value as any);
               setPage(1);
             }}
-            className="bg-slate-800 text-white px-4 py-2 rounded-lg"
+            className="bg-slate-800 text-white px-4 py-2 rounded-lg min-w-[120px]"
           >
             <option value="all">All</option>
             <option value="appointment">Appointment</option>
             <option value="system">System</option>
             <option value="prescription">Prescription</option>
           </select>
+
           <button
             onClick={handleMarkAllAsRead}
-            className="text-sm bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
+            className="text-sm bg-blue-600 text-white px-3 py-2 rounded hover:bg-blue-700 w-full sm:w-auto"
           >
             Mark All as Read
           </button>
+
           <button
             onClick={async () => {
               try {
                 await clearAllUserNotificationsAPI(type !== 'all' ? type : undefined);
-                setNotifications([]); // reset UI
+                setNotifications([]);
                 setTotalPages(1);
                 setPage(1);
               } catch (err) {
                 console.error('Error clearing notifications:', err);
               }
             }}
-            className="text-sm bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700"
+            className="text-sm bg-red-600 text-white px-3 py-2 rounded hover:bg-red-700 w-full sm:w-auto"
           >
             Clear All
           </button>
         </div>
       </div>
 
+      {/* Notifications List */}
       {loading ? (
-        <p className="text-slate-400 text-center">Loading notifications...</p>
+        <p className="text-slate-400 text-center mt-10">Loading notifications...</p>
+      ) : notifications.length === 0 ? (
+        <p className="text-slate-400 text-center mt-10">No notifications found.</p>
       ) : (
         <ul className="space-y-4">
           {notifications.map((notif) => (
             <li
               key={notif._id}
-              className={`p-4 rounded-lg shadow border ${
+              className={`p-4 sm:p-6 rounded-lg shadow border transition-colors duration-200 ${
                 notif.isRead
                   ? 'bg-slate-800 text-slate-400'
                   : 'bg-slate-700 text-white border-white/10'
               }`}
             >
-              <div className="flex justify-between items-start gap-4">
-                <div>
-                  <p className="text-sm">{notif.message}</p>
-                  <p className="text-xs text-slate-400 mt-1">
+              <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-2">
+                <div className="flex-1">
+                  <p className="text-sm sm:text-base">{notif.message}</p>
+                  <p className="text-xs sm:text-sm text-slate-400 mt-1">
                     {new Date(notif.createdAt).toLocaleString()}
                   </p>
                 </div>
                 {!notif.isRead && (
                   <button
                     onClick={() => handleMarkAsRead(notif._id)}
-                    className="text-xs text-blue-400 hover:underline"
+                    className="text-xs sm:text-sm text-blue-400 hover:underline mt-2 sm:mt-0"
                   >
                     Mark as read
                   </button>
@@ -140,12 +148,15 @@ const UserNotifications = () => {
         </ul>
       )}
 
+      {/* Pagination */}
       {totalPages > 1 && (
-        <Pagination
-          currentPage={page}
-          totalPages={totalPages}
-          onPageChange={(newPage) => setPage(newPage)}
-        />
+        <div className="mt-6 sm:mt-8">
+          <Pagination
+            currentPage={page}
+            totalPages={totalPages}
+            onPageChange={(newPage) => setPage(newPage)}
+          />
+        </div>
       )}
     </div>
   );

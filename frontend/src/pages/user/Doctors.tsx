@@ -13,6 +13,7 @@ const Doctors = () => {
 
   const [searchQuery, setSearchQuery] = useState('');
   const [showFilter, setShowFilter] = useState(false);
+  const [showStarFilter, setShowStarFilter] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
 
   const [doctors, setDoctors] = useState<Doctor[]>([]);
@@ -70,26 +71,37 @@ const Doctors = () => {
   ];
 
   return (
-    <main className="max-w-7xl mx-auto px-4 md:px-10 py-24 text-slate-100 animate-fade">
-      <p className="mb-8 text-slate-400">Browse through the doctors specialist.</p>
+    <main className="max-w-7xl mx-auto px-4 sm:px-6 md:px-10 py-16 sm:py-20 md:py-24 text-slate-100 animate-fade">
+      <p className="mb-6 sm:mb-8 text-slate-400 text-sm sm:text-base">
+        Browse through the doctors specialist.
+      </p>
 
-      <div className="flex flex-col sm:flex-row gap-8">
-        <aside className="sm:w-56 space-y-4">
+      <div className="flex flex-col md:flex-row gap-6 md:gap-8">
+        {/* Sidebar */}
+        <aside className="md:w-56 space-y-4">
+          {/* Toggle button for small screens */}
           <button
-            className={`sm:hidden py-1.5 px-4 rounded-full ring-1 ring-white/20 text-sm ${showFilter ? 'bg-white/10' : ''}`}
+            className={`md:hidden w-full py-2 px-4 rounded-full ring-1 ring-white/20 text-sm ${
+              showFilter ? 'bg-white/10' : ''
+            }`}
             onClick={() => setShowFilter(!showFilter)}
           >
-            {showFilter ? 'Hide Filters' : 'Filters'}
+            {showFilter ? 'Hide Specialities' : 'Specialities'}
           </button>
 
-          <div className={`${showFilter ? 'flex' : 'hidden sm:flex'} flex-col gap-3`}>
+          {/* Specialities */}
+          <div
+            className={`${showFilter ? 'flex' : 'hidden md:flex'} flex-col gap-3 transition-all`}
+          >
             {specialities.map((spec) => (
               <button
                 key={spec}
                 onClick={() =>
                   speciality === spec ? navigate('/all-doctors') : navigate(`/all-doctors/${spec}`)
                 }
-                className={`text-left px-4 py-2 rounded-lg text-sm ring-1 ring-white/10 hover:bg-white/5 transition-colors ${speciality === spec ? 'bg-cyan-500/20 text-white' : ''}`}
+                className={`text-left px-4 py-2 rounded-lg text-sm ring-1 ring-white/10 hover:bg-white/5 transition-colors ${
+                  speciality === spec ? 'bg-cyan-500/20 text-white' : ''
+                }`}
               >
                 {spec}
               </button>
@@ -97,30 +109,31 @@ const Doctors = () => {
           </div>
         </aside>
 
+        {/* Main Content */}
         <section className="flex-1 space-y-8">
-          <div className="flex items-center justify-between gap-4">
+          {/* Top Controls */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             {/* Search Bar */}
-            <div className="flex-1">
+            <div className="w-full sm:flex-1">
               <SearchBar placeholder="Search by name" onSearch={setSearchQuery} />
             </div>
 
             {/* Filter Dropdown */}
-            <div className="relative">
+            <div className="relative w-full sm:w-auto">
               <button
                 onClick={() => {
                   if (minRating > 0) {
-                    // If already filtered, clicking will clear filter instead of opening dropdown
                     setMinRating(0);
                   } else {
-                    setShowFilter(!showFilter);
+                    setShowStarFilter(!showStarFilter);
                   }
                 }}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 ring-1 ring-white/10 hover:bg-white/10 text-sm text-slate-300"
+                className="flex w-full sm:w-auto items-center justify-center sm:justify-start gap-2 px-4 py-2 rounded-lg bg-white/5 ring-1 ring-white/10 hover:bg-white/10 text-sm text-slate-300"
               >
                 {minRating > 0 ? (
                   <>
                     ⭐ {minRating} Star
-                    <span className="text-red-400 hover:text-white text-3xl leading-none">
+                    <span className="text-red-400 hover:text-white text-2xl sm:text-3xl leading-none">
                       &times;
                     </span>
                   </>
@@ -129,14 +142,14 @@ const Doctors = () => {
                 )}
               </button>
 
-              {showFilter && minRating === 0 && (
+              {showStarFilter && minRating === 0 && (
                 <div className="absolute right-0 mt-2 w-40 bg-gray-800 rounded-lg shadow-lg ring-1 ring-white/10 z-10">
                   {[5, 4, 3, 2, 1].map((rating) => (
                     <button
                       key={rating}
                       onClick={() => {
                         setMinRating(rating);
-                        setShowFilter(false);
+                        setShowStarFilter(false);
                       }}
                       className={`block w-full text-left px-4 py-2 text-sm hover:bg-gray-700 ${
                         minRating === rating ? 'bg-cyan-500/20 text-white' : 'text-slate-300'
@@ -149,10 +162,11 @@ const Doctors = () => {
               )}
             </div>
 
-            <div className="relative">
+            {/* Sort Dropdown */}
+            <div className="relative w-full sm:w-auto">
               <button
                 onClick={() => setShowSort(!showSort)}
-                className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 ring-1 ring-white/10 hover:bg-white/10 text-sm text-slate-300"
+                className="flex w-full sm:w-auto items-center justify-center sm:justify-start gap-2 px-4 py-2 rounded-lg bg-white/5 ring-1 ring-white/10 hover:bg-white/10 text-sm text-slate-300"
               >
                 {sortOrder ? (sortOrder === 'asc' ? 'Lowest Rating' : 'Highest Rating') : 'Sort'}
                 {(sortOrder === 'asc' || sortOrder === 'desc') && (
@@ -161,7 +175,7 @@ const Doctors = () => {
                       setSortOrder(null);
                       setShowSort(false);
                     }}
-                    className="text-red-400 hover:text-white text-3xl leading-none"
+                    className="text-red-400 hover:text-white text-2xl sm:text-3xl leading-none"
                   >
                     &times;
                   </span>
@@ -204,21 +218,21 @@ const Doctors = () => {
             </div>
           ) : doctors.length ? (
             <>
-              <div className="grid gap-10 grid-cols-[repeat(auto-fill,minmax(260px,1fr))]">
+              <div className="grid gap-6 sm:gap-8 grid-cols-1 sm:grid-cols-2 md:grid-cols-[repeat(auto-fill,minmax(260px,1fr))]">
                 {doctors.map((doc) => (
                   <div
                     key={doc._id}
                     onClick={() => navigate(`/appointment/${doc._id}`)}
-                    className="group cursor-pointer bg-white/5 backdrop-blur rounded-3xl ring-1 ring-white/10 overflow-hidden hover:-translate-y-1 transition-transform"
+                    className="group cursor-pointer bg-white/5 backdrop-blur rounded-2xl sm:rounded-3xl ring-1 ring-white/10 overflow-hidden hover:-translate-y-1 transition-transform"
                   >
-                    <div className="h-72 flex items-end justify-center bg-white/5 overflow-hidden">
+                    <div className="h-60 sm:h-72 flex items-end justify-center bg-white/5 overflow-hidden">
                       <img
                         src={doc.image}
                         alt={doc.name}
                         className="h-full object-contain object-bottom group-hover:scale-105 transition-transform"
                       />
                     </div>
-                    <div className="p-6 space-y-2">
+                    <div className="p-4 sm:p-6 space-y-1 sm:space-y-2">
                       <span
                         className={`inline-flex items-center gap-2 text-xs font-medium ${
                           doc.available ? 'text-emerald-400' : 'text-rose-400'
@@ -231,8 +245,8 @@ const Doctors = () => {
                         />
                         {doc.available ? 'Available' : 'Not Available'}
                       </span>
-                      <h3 className="font-semibold text-lg text-white">{doc.name}</h3>
-                      <p className="text-sm text-slate-400">{doc.speciality}</p>
+                      <h3 className="font-semibold text-base sm:text-lg text-white">{doc.name}</h3>
+                      <p className="text-xs sm:text-sm text-slate-400">{doc.speciality}</p>
                       <StarRating rating={doc.averageRating} />
                     </div>
                   </div>
@@ -240,15 +254,19 @@ const Doctors = () => {
               </div>
 
               {totalPages > 1 && (
-                <Pagination
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  onPageChange={setCurrentPage}
-                />
+                <div className="pt-6">
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={setCurrentPage}
+                  />
+                </div>
               )}
             </>
           ) : (
-            <div className="text-slate-400 mt-10 text-center w-full">No doctors found.</div>
+            <div className="text-slate-400 mt-10 text-center w-full text-sm sm:text-base">
+              No doctors found.
+            </div>
           )}
         </section>
       </div>

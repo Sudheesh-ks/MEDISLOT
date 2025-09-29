@@ -96,9 +96,9 @@ const DoctorWallet = () => {
   ];
 
   return (
-    <div className="m-5 space-y-10 text-slate-100">
+    <div className="m-3 sm:m-5 space-y-10 text-slate-100">
       {/* Balance Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {balanceCards.map((c, i) => (
           <motion.div
             key={i}
@@ -106,9 +106,9 @@ const DoctorWallet = () => {
             transition={{ type: 'spring', stiffness: 300 }}
             className={`${cardBase} bg-gradient-to-r ${c.gradient}`}
           >
-            <c.icon className="w-12 h-12" />
+            <c.icon className="w-10 h-10 sm:w-12 sm:h-12" />
             <div>
-              <p className="text-2xl font-bold">
+              <p className="text-xl sm:text-2xl font-bold">
                 {showBalance ? `${currencySymbol}${c.amount}` : '••••••'}
               </p>
               <p className="text-sm opacity-80">{c.title}</p>
@@ -125,25 +125,31 @@ const DoctorWallet = () => {
 
       {/* Transactions Table */}
       <div className={`${glass} rounded-xl`}>
-        <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
+        {/* Header + Filters */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 px-4 sm:px-6 py-4 border-b border-white/10">
           <h2 className="font-semibold text-lg flex items-center gap-2">
             <CreditCard className="w-5" /> Wallet Transactions
           </h2>
-          <div className="flex gap-3">
-            <div className="relative">
+
+          {/* Filters */}
+          <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
+            {/* Search */}
+            <div className="relative w-full sm:w-48">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
               <input
                 type="text"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 placeholder="Search..."
-                className="pl-9 pr-4 py-1.5 text-sm rounded-lg bg-white/10 border border-white/20 text-white placeholder:text-slate-400 focus:outline-none"
+                className="w-full pl-9 pr-4 py-1.5 text-sm rounded-lg bg-white/10 border border-white/20 text-white placeholder:text-slate-400 focus:outline-none"
               />
             </div>
+
+            {/* Period */}
             <select
               value={selectedPeriod}
               onChange={(e) => setSelectedPeriod(e.target.value)}
-              className="text-sm bg-slate-800 text-slate-200 border border-white/20 rounded-lg px-3 py-1.5 text-white"
+              className="text-sm bg-slate-800 text-slate-200 border border-white/20 rounded-lg px-3 py-1.5 w-full sm:w-auto"
             >
               <option value="all">All</option>
               <option value="today">Today</option>
@@ -151,10 +157,11 @@ const DoctorWallet = () => {
               <option value="month">Last Month</option>
             </select>
 
+            {/* Type */}
             <select
               value={transactionType}
               onChange={(e) => setTransactionType(e.target.value)}
-              className="text-sm bg-slate-800 text-slate-200 border border-white/20 rounded-lg px-3 py-1.5 text-white"
+              className="text-sm bg-slate-800 text-slate-200 border border-white/20 rounded-lg px-3 py-1.5 w-full sm:w-auto"
             >
               <option value="all">Type</option>
               <option value="credit">Credit</option>
@@ -163,8 +170,10 @@ const DoctorWallet = () => {
           </div>
         </div>
 
+        {/* Table Wrapper */}
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          {/* Desktop Table */}
+          <table className="hidden sm:table w-full text-sm">
             <thead className="bg-white/5 border-b border-white/10 text-left text-slate-300">
               <tr>
                 <th className="px-6 py-3">Reason</th>
@@ -204,16 +213,59 @@ const DoctorWallet = () => {
             </tbody>
           </table>
 
+          {/* Mobile Card View */}
+          <div className="sm:hidden divide-y divide-white/10">
+            {filteredTransactions.map((tx, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.05 }}
+                className="p-4 hover:bg-white/5 space-y-2"
+              >
+                <div className="flex justify-between">
+                  <p className="text-slate-400 text-xs">Reason</p>
+                  <p className="text-white font-medium">{tx.reason || '—'}</p>
+                </div>
+                <div className="flex justify-between">
+                  <p className="text-slate-400 text-xs">Type</p>
+                  <span
+                    className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                      tx.type === 'credit'
+                        ? 'text-green-400 bg-green-500/20'
+                        : 'text-red-400 bg-red-500/20'
+                    }`}
+                  >
+                    {tx.type}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <p className="text-slate-400 text-xs">Amount</p>
+                  <p className="font-semibold">
+                    {tx.type === 'credit' ? '+' : '-'}
+                    {`${currencySymbol}${tx.amount}`}
+                  </p>
+                </div>
+                <div className="flex justify-between">
+                  <p className="text-slate-400 text-xs">Date</p>
+                  <p className="text-slate-300">{formatDate(tx.date)}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+
           {filteredTransactions.length === 0 && (
             <div className="py-10 text-center text-slate-400">No transactions found</div>
           )}
 
           {/* Pagination */}
-          <Pagination
-            currentPage={currentPage}
-            totalPages={Math.ceil((walletData?.total || 0) / 10)}
-            onPageChange={(page) => setCurrentPage(page)}
-          />
+          <div className="px-4 sm:px-6">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={Math.ceil((walletData?.total || 0) / 10)}
+              onPageChange={(page) => setCurrentPage(page)}
+            />
+          </div>
         </div>
       </div>
     </div>

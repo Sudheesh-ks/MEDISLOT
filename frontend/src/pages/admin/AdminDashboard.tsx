@@ -260,63 +260,68 @@ export default function AdminDashboard() {
   };
 
   return (
-    <div className="m-5 space-y-10 text-slate-100">
+    <div className="m-3 sm:m-5 space-y-8 sm:space-y-10 text-slate-100">
       {!dashData || loadingStats ? (
         <div className="flex items-center justify-center min-h-screen">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500"></div>
+          <div className="animate-spin rounded-full h-10 w-10 sm:h-12 sm:w-12 border-b-2 border-cyan-500"></div>
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {/* Stats Cards */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {stats.map((c, i) => (
               <motion.div
                 key={i}
                 whileHover={{ scale: 1.05 }}
                 transition={{ type: 'spring', stiffness: 300 }}
                 onClick={() => navigate(c.path)}
-                className={`${cardBase} bg-gradient-to-r ${c.grad}`}
+                className={`${cardBase} bg-gradient-to-r ${c.grad} flex items-center gap-3 sm:gap-4 p-4 sm:p-6`}
               >
-                <img src={c.icon} className="w-12 h-12" />
+                <img src={c.icon} className="w-10 h-10 sm:w-12 sm:h-12" />
                 <div>
-                  <p className="text-2xl font-bold">{c.count}</p>
-                  <p className="text-sm opacity-80">{c.label}</p>
+                  <p className="text-xl sm:text-2xl font-bold">{c.count}</p>
+                  <p className="text-xs sm:text-sm opacity-80">{c.label}</p>
                 </div>
               </motion.div>
             ))}
           </div>
 
-          <div className={`${glass} rounded-xl overflow-hidden p-6`}>
-            <div className="flex items-center justify-between">
+          {/* Charts + Latest Bookings */}
+          <div className={`${glass} rounded-xl overflow-hidden p-4 sm:p-6`}>
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div className="flex items-center gap-2.5">
-                <img src={assets.list_icon} className="w-6" />
-                <p className="font-semibold text-lg">Latest Bookings</p>
+                <img src={assets.list_icon} className="w-5 sm:w-6" />
+                <p className="font-semibold text-base sm:text-lg">Latest Bookings</p>
               </div>
               <DateFilter value={dateRange} onChange={setDateRange} />
             </div>
 
-            <div className="mt-4 grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="col-span-1 bg-slate-800 p-4 rounded">
-                <p className="text-sm font-semibold mb-2">Appointments Trend</p>
+            {/* Charts Grid */}
+            <div className="mt-4 grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+              <div className="col-span-1 bg-slate-800 p-3 sm:p-4 rounded">
+                <p className="text-xs sm:text-sm font-semibold mb-2">Appointments Trend</p>
                 <div style={{ height: 200 }}>
                   <Line data={lineData} options={chartOptions} />
                 </div>
               </div>
 
-              <div className="col-span-1 bg-slate-800 p-4 rounded">
-                <p className="text-sm font-semibold mb-2">Top Doctors</p>
+              <div className="col-span-1 bg-slate-800 p-3 sm:p-4 rounded">
+                <p className="text-xs sm:text-sm font-semibold mb-2">Top Doctors</p>
                 <div style={{ height: 200 }}>
                   <Bar data={topDoctorsBarData as any} options={barOptions} />
                 </div>
               </div>
 
-              <div className="col-span-1 bg-slate-800 p-4 rounded">
-                <p className="text-sm font-semibold mb-2">Revenue</p>
+              <div className="col-span-1 bg-slate-800 p-3 sm:p-4 rounded">
+                <p className="text-xs sm:text-sm font-semibold mb-2">Revenue</p>
                 <div style={{ height: 200 }}>
                   <Line data={revenueLineData} options={chartOptions} />
                 </div>
               </div>
             </div>
 
+            {/* Latest Appointments List */}
             <div className="mt-6 divide-y divide-white/10 rounded overflow-hidden">
               {latestAppointments.map((it: any, idx: number) => (
                 <motion.div
@@ -324,23 +329,28 @@ export default function AdminDashboard() {
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: idx * 0.03 }}
-                  className="flex items-center gap-4 px-4 py-3 hover:bg-white/5"
+                  className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 px-3 sm:px-4 py-3 hover:bg-white/5"
                 >
-                  <img
-                    src={it.docData?.image}
-                    className="w-10 h-10 rounded-full object-cover ring-1 ring-white/10"
-                  />
-                  <div className="flex-1 text-sm">
-                    <p className="font-semibold">{it.docData?.name}</p>
-                    <p className="text-slate-400 text-xs">{slotDateFormat(it.slotDate)}</p>
+                  <div className="flex items-center gap-3 flex-1">
+                    <img
+                      src={it.docData?.image}
+                      className="w-9 h-9 sm:w-10 sm:h-10 rounded-full object-cover ring-1 ring-white/10"
+                    />
+                    <div className="flex-1 text-xs sm:text-sm">
+                      <p className="font-semibold">{it.docData?.name}</p>
+                      <p className="text-slate-400 text-[11px] sm:text-xs">
+                        {slotDateFormat(it.slotDate)}
+                      </p>
+                    </div>
                   </div>
+
                   {it.cancelled ? (
-                    <span className="text-sm font-semibold text-red-400">Cancelled</span>
+                    <span className="text-xs sm:text-sm font-semibold text-red-400">Cancelled</span>
                   ) : (
                     <motion.img
                       whileTap={{ scale: 0.9 }}
                       src={assets.cancel_icon}
-                      className="w-6 cursor-pointer hover:opacity-80"
+                      className="w-5 sm:w-6 cursor-pointer hover:opacity-80 self-end sm:self-center"
                       onClick={async () => {
                         await cancelAppointment(it._id!);
                         setLatestAppointments((prev) =>

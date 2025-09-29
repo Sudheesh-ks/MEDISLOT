@@ -36,18 +36,13 @@ const VideoCallCard = ({ appointmentId }: VideoCallCardProps) => {
   return (
     <div
       className={`flex flex-col bg-white/5 backdrop-blur
-        ${
-          isActive
-            ? 'ring-2 ring-green-500 shadow-[0_0_20px_2px_rgba(34,197,94,0.5)]'
-            : 'ring-1 ring-white/10'
-        }
-        rounded-3xl overflow-hidden h-full transition-all duration-500`}
+    ring-1 ring-white/10 rounded-3xl overflow-hidden transition-all duration-500 h-full`}
     >
-      <div className="h-72 overflow-hidden">
+      <div className="h-64 md:h-72 overflow-hidden">
         <img src={assets.about_image} alt="Video cover" className="w-full h-full object-cover" />
       </div>
 
-      <div className="p-6 flex-1 flex flex-col justify-between">
+      <div className="p-4 md:p-6 flex-1 flex flex-col justify-between">
         <div>
           <h3 className="text-lg font-semibold text-slate-100 mb-2 flex items-center gap-2">
             Start Consultation
@@ -63,7 +58,7 @@ const VideoCallCard = ({ appointmentId }: VideoCallCardProps) => {
         </div>
 
         <button
-          className={`mt-6 w-full ${
+          className={`mt-4 md:mt-6 w-full ${
             isActive ? 'bg-green-500 animate-bounce' : 'bg-gray-600 cursor-not-allowed opacity-60'
           } text-white py-3 rounded-full transition-transform`}
           disabled={!isActive}

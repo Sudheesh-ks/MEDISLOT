@@ -65,16 +65,20 @@ const Consultation = () => {
   };
 
   return (
-    <div className="flex flex-col items-center mt-26 mb-8 gap-6 p-8">
+    <div className="flex flex-col items-center mt-26 mb-8 gap-6 p-4 md:p-8">
       {showTimer && (
-        <div className="text-lg font-semibold text-yellow-400">
+        <div className="text-lg font-semibold text-yellow-400 text-center">
           Your consultation period will end in: ⏰ {formatTime(timeLeft)}
         </div>
       )}
 
-      <div className="flex gap-6">
-        <VideoCallCard appointmentId={appointmentId} />
-        <ChatCard doctorId={doctorId} />
+      <div className="flex flex-col md:flex-row gap-6 w-full max-w-6xl">
+        <div className="flex-1">
+          <VideoCallCard appointmentId={appointmentId} />
+        </div>
+        <div className="flex-1">
+          <ChatCard doctorId={doctorId} />
+        </div>
       </div>
     </div>
   );

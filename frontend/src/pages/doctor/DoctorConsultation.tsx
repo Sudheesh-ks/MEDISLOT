@@ -38,19 +38,28 @@ const DoctorConsultation = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex items-center justify-center gap-8 p-8 relative">
+    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col lg:flex-row items-center justify-center gap-6 lg:gap-8 p-4 sm:p-6 lg:p-8 relative">
       {/* Info Icon */}
       <button
         onClick={openSummary}
-        className="absolute top-6 right-6 text-blue-400 hover:text-blue-300"
+        className="absolute top-4 right-4 sm:top-6 sm:right-6 text-blue-400 hover:text-blue-300 z-50"
         title="View Patient Concerns"
       >
-        <Info size={28} />
+        <Info size={24} className="sm:w-7 sm:h-7" />
       </button>
 
-      <DocVideoCallCard appointmentId={appointmentId} />
-      <DocChatCard userId={userId} />
-      <PatientHistoryCard userId={userId} appointmentId={appointmentId} />
+      {/* Cards Section */}
+      <div className="flex flex-col sm:flex-row flex-wrap lg:flex-nowrap gap-6 lg:gap-8 w-full max-w-7xl mt-12 sm:mt-14 lg:mt-0">
+        <div className="flex-1 min-w-[280px]">
+          <DocVideoCallCard appointmentId={appointmentId} />
+        </div>
+        <div className="flex-1 min-w-[280px]">
+          <DocChatCard userId={userId} />
+        </div>
+        <div className="flex-1 min-w-[280px]">
+          <PatientHistoryCard userId={userId} appointmentId={appointmentId} />
+        </div>
+      </div>
 
       {/* Modal */}
       <ChatBotSummaryModal

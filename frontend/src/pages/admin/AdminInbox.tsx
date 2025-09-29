@@ -112,17 +112,19 @@ const AdminInbox = () => {
   };
 
   return (
-    <div className="m-5 text-slate-100 max-h-[90vh] overflow-y-auto">
-      <h1 className="text-lg font-medium mb-4">Inbox</h1>
-      <div className="flex items-center gap-4 mb-6">
-        <div className="mb-6 max-w-sm">
+    <div className="m-3 sm:m-5 text-slate-100 max-h-[90vh] overflow-y-auto">
+      <h1 className="text-base sm:text-lg font-medium mb-4">Inbox</h1>
+
+      {/* Search + Filter */}
+      <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 mb-6">
+        <div className="w-full sm:max-w-sm">
           <SearchBar placeholder="Search by name, email or subject" onSearch={setQuery} />
         </div>
 
         <select
           value={status}
           onChange={(e) => setStatus(e.target.value as any)}
-          className="bg-slate-800 text-slate-200 text-sm rounded-md px-3 py-1"
+          className="bg-slate-800 text-slate-200 text-sm rounded-md px-3 py-1 w-full sm:w-auto"
         >
           <option value="all">All</option>
           <option value="pending">Pending</option>
@@ -132,17 +134,19 @@ const AdminInbox = () => {
         </select>
       </div>
 
+      {/* Loader */}
       {loading ? (
         <div className="flex justify-center items-center h-64">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500"></div>
         </div>
       ) : filtered.length ? (
         <>
-          <div className="w-full flex flex-wrap gap-6">
+          {/* Complaint Cards */}
+          <div className="w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {filtered.map((message: ComplaintTypes) => (
               <div
                 key={message._id}
-                className={`${glass} max-w-80 rounded-2xl overflow-hidden transition-transform duration-300 hover:-translate-y-1 cursor-pointer`}
+                className={`${glass} rounded-2xl overflow-hidden transition-transform duration-300 hover:-translate-y-1 cursor-pointer`}
                 onClick={() => openMessage(message)}
               >
                 <div className="p-4 space-y-3">
@@ -151,7 +155,7 @@ const AdminInbox = () => {
                       <div className="bg-white/10 p-2 rounded-full">
                         <User className="w-4 h-4 text-slate-400" />
                       </div>
-                      <div>
+                      <div className="min-w-0">
                         <h3 className="text-sm font-semibold text-slate-100 truncate">
                           {getComplaintName(message)}
                         </h3>
@@ -169,18 +173,18 @@ const AdminInbox = () => {
                   </div>
 
                   {/* Subject */}
-                  <h4 className="text-sm font-medium text-blue-400">
+                  <h4 className="text-sm font-medium text-blue-400 truncate">
                     {message.subject || 'No Subject'}
                   </h4>
 
+                  {/* Description */}
                   <div className="min-h-[60px]">
-                    <p className="text-sm text-slate-200 leading-relaxed">
-                      {message.description.length > 120
-                        ? `${message.description.substring(0, 120)}...`
-                        : message.description}
+                    <p className="text-sm text-slate-200 leading-relaxed line-clamp-3">
+                      {message.description}
                     </p>
                   </div>
 
+                  {/* Footer */}
                   <div className="flex justify-between items-center pt-2 border-t border-white/10">
                     <div className="flex items-center gap-1 text-xs text-slate-400">
                       <Clock className="w-3 h-3" />
@@ -205,8 +209,9 @@ const AdminInbox = () => {
             ))}
           </div>
 
+          {/* Pagination */}
           {totalPages > 1 && (
-            <div className="flex justify-center items-center gap-2 mt-8">
+            <div className="flex flex-wrap justify-center items-center gap-2 mt-8">
               <button
                 onClick={() => setPage(Math.max(1, page - 1))}
                 disabled={page === 1}
@@ -214,7 +219,7 @@ const AdminInbox = () => {
               >
                 <ChevronLeft className="w-4 h-4" />
               </button>
-              <span className="text-slate-400 text-sm mx-4">
+              <span className="text-slate-400 text-sm mx-2 sm:mx-4">
                 Page {page} of {totalPages}
               </span>
               <button
@@ -231,24 +236,27 @@ const AdminInbox = () => {
         <div className="text-center py-10 text-slate-400 text-sm">No complaints found.</div>
       )}
 
+      {/* Modal */}
       {selectedMessage && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm px-3">
           <div
-            className={`${glass} w-full max-w-2xl rounded-xl p-6 shadow-2xl max-h-[80vh] overflow-y-auto mx-4 border border-white/10`}
+            className={`${glass} w-full max-w-2xl rounded-xl p-4 sm:p-6 shadow-2xl max-h-[80vh] overflow-y-auto border border-white/10`}
           >
-            <div className="flex justify-between items-start mb-4">
+            <div className="flex flex-col sm:flex-row justify-between sm:items-start gap-3 mb-4">
               <div className="flex items-center gap-3">
                 <div className="bg-white/10 p-2 rounded-full">
                   <User className="w-5 h-5 text-slate-400" />
                 </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-slate-100">
+                <div className="min-w-0">
+                  <h3 className="text-base sm:text-lg font-semibold text-slate-100 truncate">
                     {getComplaintName(selectedMessage)}
                   </h3>
-                  <p className="text-sm text-slate-400">{getComplaintEmail(selectedMessage)}</p>
+                  <p className="text-xs sm:text-sm text-slate-400 truncate">
+                    {getComplaintEmail(selectedMessage)}
+                  </p>
                 </div>
               </div>
-              <div className="bg-white/10 px-3 py-1 rounded-full">
+              <div className="bg-white/10 px-3 py-1 rounded-full self-start sm:self-center">
                 <span className="text-slate-100 text-xs font-medium flex items-center gap-1">
                   <MessageSquare className="w-3 h-3" />
                   Complaint
@@ -257,75 +265,70 @@ const AdminInbox = () => {
             </div>
 
             {/* Subject + Body */}
-            <h2 className="text-blue-400 text-lg font-semibold mb-2">
+            <h2 className="text-blue-400 text-base sm:text-lg font-semibold mb-2 break-words">
               {selectedMessage.subject || 'No Subject'}
             </h2>
             <div className="mb-4">
-              <p className="text-slate-200 leading-relaxed">{selectedMessage.description}</p>
+              <p className="text-sm sm:text-base text-slate-200 leading-relaxed whitespace-pre-wrap">
+                {selectedMessage.description}
+              </p>
             </div>
 
-            {/* Current Status Badge */}
+            {/* Current Status */}
             <div className="mb-4">
               <span
                 className={`inline-block px-3 py-1 rounded-full text-xs font-medium
-                  ${
-                    selectedMessage.status === 'resolved'
-                      ? 'bg-green-600/30 text-green-300'
-                      : selectedMessage.status === 'in-progress'
-                        ? 'bg-yellow-600/30 text-yellow-300'
-                        : selectedMessage.status === 'rejected'
-                          ? 'bg-red-600/30 text-red-300'
-                          : 'bg-slate-600/30 text-slate-300'
-                  }`}
+              ${
+                selectedMessage.status === 'resolved'
+                  ? 'bg-green-600/30 text-green-300'
+                  : selectedMessage.status === 'in-progress'
+                    ? 'bg-yellow-600/30 text-yellow-300'
+                    : selectedMessage.status === 'rejected'
+                      ? 'bg-red-600/30 text-red-300'
+                      : 'bg-slate-600/30 text-slate-300'
+              }`}
               >
                 Current Status: {selectedMessage.status || 'pending'}
               </span>
             </div>
 
-            {/* Status Selection + Update */}
-            <div className="flex items-center gap-3 border-t border-white/10 pt-4">
+            {/* Status Selection */}
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3 border-t border-white/10 pt-4">
               <select
                 value={newStatus}
                 onChange={(e) => setNewStatus(e.target.value)}
-                className={`appearance-none bg-slate-800 text-slate-200 text-sm rounded-md px-3 py-1 
-    focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer
-    border border-slate-700
-    ${
-      newStatus === 'resolved'
-        ? 'bg-green-900 text-green-300 focus:ring-green-400'
-        : newStatus === 'in-progress'
-          ? 'bg-yellow-900 text-yellow-300 focus:ring-yellow-400'
-          : newStatus === 'rejected'
-            ? 'bg-red-900 text-red-300 focus:ring-red-400'
-            : 'bg-slate-800 text-slate-300 focus:ring-slate-400'
-    }`}
+                className={`appearance-none bg-slate-800 text-slate-200 text-sm rounded-md px-3 py-1 w-full sm:w-auto
+              focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-pointer
+              border border-slate-700
+              ${
+                newStatus === 'resolved'
+                  ? 'bg-green-900 text-green-300 focus:ring-green-400'
+                  : newStatus === 'in-progress'
+                    ? 'bg-yellow-900 text-yellow-300 focus:ring-yellow-400'
+                    : newStatus === 'rejected'
+                      ? 'bg-red-900 text-red-300 focus:ring-red-400'
+                      : 'bg-slate-800 text-slate-300 focus:ring-slate-400'
+              }`}
               >
-                <option className="bg-slate-800 text-slate-200" value="pending">
-                  Pending
-                </option>
-                <option className="bg-slate-800 text-slate-200" value="in-progress">
-                  In Progress
-                </option>
-                <option className="bg-slate-800 text-slate-200" value="resolved">
-                  Resolved
-                </option>
-                <option className="bg-slate-800 text-slate-200" value="rejected">
-                  Rejected
-                </option>
+                <option value="pending">Pending</option>
+                <option value="in-progress">In Progress</option>
+                <option value="resolved">Resolved</option>
+                <option value="rejected">Rejected</option>
               </select>
 
               <button
                 onClick={() => updateStatus(selectedMessage._id, newStatus)}
-                className="px-4 py-1.5 rounded-md bg-blue-600 hover:bg-blue-700 text-white text-sm"
+                className="px-4 py-1.5 rounded-md bg-blue-600 hover:bg-blue-700 text-white text-sm w-full sm:w-auto"
               >
                 Update
               </button>
             </div>
 
+            {/* Close Button */}
             <div className="flex justify-end mt-4">
               <button
                 onClick={closeMessage}
-                className="px-4 py-2 text-sm rounded-md bg-white/10 hover:bg-white/20 text-slate-100"
+                className="px-4 py-2 text-sm rounded-md bg-white/10 hover:bg-white/20 text-slate-100 w-full sm:w-auto"
               >
                 Close
               </button>

@@ -109,53 +109,60 @@ const MyAppointments = () => {
   const btn = 'text-sm sm:min-w-48 py-2 border rounded transition-transform hover:-translate-y-0.5';
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 px-4 md:px-10 py-24">
-      <h1 className="pb-4 mb-8 text-2xl font-bold border-b border-white/10">My Appointments</h1>
+    <div className="min-h-screen bg-slate-950 text-slate-100 px-4 md:px-10 py-12 md:py-24">
+      <h1 className="pb-4 mb-8 text-2xl md:text-3xl font-bold border-b border-white/10">
+        My Appointments
+      </h1>
 
       {appointments.map((a) => (
         <div
           key={a._id}
-          className={'grid grid-cols-[auto_1fr_auto] gap-4 md:gap-6 py-6 border-b border-white/5'}
+          className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6 sm:gap-4 py-6 border-b border-white/5"
         >
+          {/* Doctor Image */}
           <img
             src={a.docData.image}
-            className="w-28 h-28 object-cover ring-1 ring-white/10 rounded-xl"
+            className="w-28 h-28 sm:w-24 sm:h-24 md:w-28 md:h-28 object-cover ring-1 ring-white/10 rounded-xl mx-auto sm:mx-0"
           />
 
-          <div className="text-sm text-slate-300 space-y-1">
-            <p className="text-slate-100 font-semibold">{a.docData.name}</p>
-            <p>{a.docData.speciality}</p>
+          {/* Doctor Details */}
+          <div className="flex-1 text-center sm:text-left text-sm sm:text-base space-y-1">
+            <p className="text-slate-100 font-semibold text-lg sm:text-base md:text-lg">
+              {a.docData.name}
+            </p>
+            <p className="text-slate-300">{a.docData.speciality}</p>
 
-            <p className="text-xs">
+            <p className="text-xs sm:text-sm">
               <span className="font-medium">Address:</span> {a.docData.address.line1},{' '}
               {a.docData.address.line2}
             </p>
 
-            <p className="text-xs">
+            <p className="text-xs sm:text-sm">
               <span className="font-medium">Date & Time:</span> {slotDateFormat(a.slotDate)} |{' '}
               {to12h(a.slotStartTime)}
             </p>
           </div>
 
-          <div className="flex flex-col gap-2 items-end">
+          {/* Actions */}
+          <div className="flex flex-col sm:items-end gap-2 w-full sm:w-auto">
             {!a.cancelled &&
               a.payment &&
               a.isConfirmed &&
               (isSessionEnded(a.slotDate, a.slotEndTime) ? (
-                <button disabled className={`${btn} bg-gray-600 text-white cursor-not-allowed`}>
+                <button
+                  disabled
+                  className={`${btn} bg-gray-600 text-white cursor-not-allowed w-full sm:w-auto`}
+                >
                   Session Ended
                 </button>
               ) : (
                 <button
                   onClick={() =>
                     navigate(`/consultation/${a.docData._id}/${a._id}`, {
-                      state: {
-                        slotDate: a.slotDate,
-                        slotEndTime: a.slotEndTime,
-                      },
+                      state: { slotDate: a.slotDate, slotEndTime: a.slotEndTime },
                     })
                   }
-                  className={`${btn} bg-gradient-to-r from-cyan-500 to-blue-600 text-white relative`}
+                  className={`${btn} bg-gradient-to-r from-cyan-500 to-blue-600 text-white relative w-full sm:w-auto`}
                 >
                   Go to Consultation
                   {notificationContext?.unread?.[`${userData!._id}_${a.docData._id}`] > 0 && (
@@ -167,71 +174,49 @@ const MyAppointments = () => {
               ))}
 
             {!a.cancelled && a.payment && !a.isConfirmed && (
-              <div className="bg-yellow-400/10 text-yellow-400 text-xs font-semibold px-3 py-1 rounded-full border border-yellow-400/40 animate-pulse text-center">
+              <div className="bg-yellow-400/10 text-yellow-400 text-xs font-semibold px-3 py-1 rounded-full border border-yellow-400/40 animate-pulse text-center w-full sm:w-auto">
                 ⏳ Payment received – awaiting doctor
               </div>
             )}
 
-            {/* {!a.cancelled ? (
-              hasAppointmentStarted(a.slotDate, a.slotEndTime) ? (
-                <button
-                  onClick={() => {
-                    fetchPrescription(a._id);
-                  }}
-                  className={`${btn} border-green-500 text-green-400 hover:bg-green-500 hover:text-white`}
-                >
-                  Download Prescription
-                </button>
-              ) : (
-                <button
-                  onClick={() => cancelAppointment(a._id)}
-                  className={`${btn} border-red-500 text-red-400 hover:bg-red-500 hover:text-white`}
-                >
-                  Cancel appointment
-                </button>
-              )
-            ) : (
-              <span className="border border-red-500 text-red-400 text-xs py-1 px-3 rounded">
-                Appointment Cancelled
-              </span>
-            )} */}
-
-            {/* Cancel button → only before session starts */}
+            {/* Cancel Appointment */}
             {!a.cancelled && !hasAppointmentStarted(a.slotDate, a.slotStartTime) && (
               <button
                 onClick={() => cancelAppointment(a._id)}
-                className={`${btn} border-red-500 text-red-400 hover:bg-red-500 hover:text-white`}
+                className={`${btn} border-red-500 text-red-400 hover:bg-red-500 hover:text-white w-full sm:w-auto`}
               >
                 Cancel Appointment
               </button>
             )}
 
-            {/* After session → prescription handling */}
+            {/* Download Prescription */}
             {!a.cancelled && isSessionEnded(a.slotDate, a.slotEndTime) && (
               <button
                 onClick={() => fetchPrescription(a._id)}
-                className={`${btn} border-green-500 text-green-400 hover:bg-green-500 hover:text-white`}
+                className={`${btn} border-green-500 text-green-400 hover:bg-green-500 hover:text-white w-full sm:w-auto`}
               >
                 Download Prescription
               </button>
             )}
 
-            {/* Appointment cancelled */}
+            {/* Appointment Cancelled */}
             {a.cancelled && (
-              <span className="border border-red-500 text-red-400 text-xs py-1 px-3 rounded">
+              <span className="border border-red-500 text-red-400 text-xs py-1 px-3 rounded w-full sm:w-auto text-center sm:text-left">
                 Appointment Cancelled
               </span>
             )}
 
+            {/* View Details */}
             <button
               onClick={() => navigate(`/appointment-details/${a._id}`)}
-              className={`${btn} border-blue-800 text-slate-300 hover:bg-slate-700`}
+              className={`${btn} border-blue-800 text-slate-300 hover:bg-slate-700 w-full sm:w-auto`}
             >
               View Details
             </button>
           </div>
         </div>
       ))}
+
       {totalPages > 1 && (
         <Pagination currentPage={page} totalPages={totalPages} onPageChange={handlePageChange} />
       )}
