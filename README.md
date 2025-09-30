@@ -58,13 +58,13 @@ It provides features like **appointment booking, online video consultation, pati
 
 ## 🚀 **Installation & Setup**
 
-### 🔹 Backend
 ```bash
+# Backend
 cd backend
 npm install
 npm run dev
 
-🔹 Frontend
+# Frontend
 cd frontend
 npm install
 npm start
