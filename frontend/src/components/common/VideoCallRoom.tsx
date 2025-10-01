@@ -215,8 +215,8 @@ const VideoCallRoom: React.FC<VideoCallRoomProps> = ({ role, backUrl }) => {
 
       {/* Overlay with participant info */}
       {callStarted && (
-        <div className="absolute top-4 left-4 bg-slate-900/60 backdrop-blur-md px-4 py-2 rounded-lg shadow-md flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-cyan-500">
+        <div className="absolute top-3 left-3 sm:top-4 sm:left-4 bg-slate-900/60 backdrop-blur-md px-3 sm:px-4 py-2 rounded-lg shadow-md flex items-center gap-2 sm:gap-3 text-sm sm:text-base">
+          <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full overflow-hidden border-2 border-cyan-500">
             {role === 'doctor' ? (
               <img
                 src={appointmentData?.userData?.image}
@@ -232,19 +232,21 @@ const VideoCallRoom: React.FC<VideoCallRoomProps> = ({ role, backUrl }) => {
             )}
           </div>
           <div>
-            <p className="font-semibold">
+            <p className="font-semibold text-xs sm:text-sm md:text-base truncate max-w-[120px] sm:max-w-[200px]">
               {role === 'doctor' ? appointmentData?.userData.name : appointmentData?.docData.name}
             </p>
-            <p className="text-xs text-gray-300">Duration: {formatDuration(callDuration)}</p>
+            <p className="text-[10px] sm:text-xs text-gray-300">
+              Duration: {formatDuration(callDuration)}
+            </p>
           </div>
         </div>
       )}
 
       {/* Network Indicator */}
       {callStarted && (
-        <div className="absolute top-4 right-4 bg-slate-900/60 backdrop-blur-md px-3 py-2 rounded-lg shadow-md flex items-center gap-2">
-          <MdSignalCellularAlt className="text-green-400" />
-          <span className="text-sm text-gray-200">Good</span>
+        <div className="absolute top-3 right-3 sm:top-4 sm:right-4 bg-slate-900/60 backdrop-blur-md px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg shadow-md flex items-center gap-1 sm:gap-2 text-xs sm:text-sm">
+          <MdSignalCellularAlt className="text-green-400 text-base sm:text-lg" />
+          <span className="text-gray-200">Good</span>
         </div>
       )}
 
@@ -254,35 +256,35 @@ const VideoCallRoom: React.FC<VideoCallRoomProps> = ({ role, backUrl }) => {
         autoPlay
         muted
         playsInline
-        className="absolute bottom-4 right-4 w-40 h-28 rounded-lg border-2 border-white object-cover shadow-xl z-20"
+        className="absolute bottom-3 right-3 sm:bottom-4 sm:right-4 w-28 h-20 sm:w-40 sm:h-28 rounded-lg border-2 border-white object-cover shadow-xl z-20"
       />
 
       {/* Controls */}
       {callStarted && (
-        <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-5 bg-slate-900/70 backdrop-blur-xl px-6 py-3 rounded-full shadow-lg z-20">
+        <div className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 flex gap-3 sm:gap-5 bg-slate-900/70 backdrop-blur-xl px-4 sm:px-6 py-2 sm:py-3 rounded-full shadow-lg z-20">
           {/* Mic */}
           <button
             onClick={toggleMic}
-            className="p-3 rounded-full hover:bg-slate-700 transition"
+            className="p-2 sm:p-3 rounded-full hover:bg-slate-700 transition"
             title={isMuted ? 'Unmute' : 'Mute'}
           >
             {isMuted ? (
-              <MdMicOff className="text-red-400 text-2xl" />
+              <MdMicOff className="text-red-400 text-xl sm:text-2xl" />
             ) : (
-              <MdMic className="text-green-400 text-2xl" />
+              <MdMic className="text-green-400 text-xl sm:text-2xl" />
             )}
           </button>
 
           {/* Video */}
           <button
             onClick={toggleVideo}
-            className="p-3 rounded-full hover:bg-slate-700 transition"
+            className="p-2 sm:p-3 rounded-full hover:bg-slate-700 transition"
             title={isHidden ? 'Show Video' : 'Hide Video'}
           >
             {isHidden ? (
-              <MdVideocamOff className="text-red-400 text-2xl" />
+              <MdVideocamOff className="text-red-400 text-xl sm:text-2xl" />
             ) : (
-              <MdVideocam className="text-blue-400 text-2xl" />
+              <MdVideocam className="text-blue-400 text-xl sm:text-2xl" />
             )}
           </button>
 
@@ -290,37 +292,37 @@ const VideoCallRoom: React.FC<VideoCallRoomProps> = ({ role, backUrl }) => {
           {role === 'doctor' && (
             <button
               onClick={() => setShowHistoryForm(true)}
-              className="p-3 rounded-full hover:bg-slate-700 transition"
+              className="p-2 sm:p-3 rounded-full hover:bg-slate-700 transition"
               title="Add Patient History"
             >
-              <MdEdit className="text-yellow-400 text-2xl" />
+              <MdEdit className="text-yellow-400 text-xl sm:text-2xl" />
             </button>
           )}
 
           {/* End Call */}
           <button
             onClick={endCall}
-            className="p-3 rounded-full bg-red-600 hover:bg-red-500 transition"
+            className="p-2 sm:p-3 rounded-full bg-red-600 hover:bg-red-500 transition"
             title="Hang Up"
           >
-            <MdCallEnd className="text-white text-2xl" />
+            <MdCallEnd className="text-white text-xl sm:text-2xl" />
           </button>
         </div>
       )}
 
       {/* Patient History Modal */}
       {showHistoryForm && role === 'doctor' && patientId && (
-        <div className="absolute top-20 right-6 w-[450px] max-h-[80%] bg-slate-900/95 text-white rounded-xl shadow-xl z-30 overflow-y-auto backdrop-blur-lg border border-slate-700">
-          <div className="flex justify-between items-center px-4 py-3 border-b border-slate-700">
-            <h2 className="text-lg font-semibold text-cyan-400">Patient History</h2>
+        <div className="absolute top-16 sm:top-20 right-3 sm:right-6 w-[90%] sm:w-[450px] max-h-[75%] sm:max-h-[80%] bg-slate-900/95 text-white rounded-xl shadow-xl z-30 overflow-y-auto backdrop-blur-lg border border-slate-700">
+          <div className="flex justify-between items-center px-3 sm:px-4 py-2 sm:py-3 border-b border-slate-700">
+            <h2 className="text-base sm:text-lg font-semibold text-cyan-400">Patient History</h2>
             <button
               onClick={() => setShowHistoryForm(false)}
-              className="text-gray-400 hover:text-white text-xl"
+              className="text-gray-400 hover:text-white text-lg sm:text-xl"
             >
               ✕
             </button>
           </div>
-          <div className="p-4">
+          <div className="p-3 sm:p-4">
             <PatientHistoryForm
               patientId={patientId}
               appointmentId={appointmentId!}

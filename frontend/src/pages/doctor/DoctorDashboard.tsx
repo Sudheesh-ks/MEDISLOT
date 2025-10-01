@@ -34,7 +34,7 @@ export default function DoctorDashboard() {
   const [totalRevenue, setTotalRevenue] = useState(0);
 
   if (!context) throw new Error('DoctorContext missing');
-  const { dToken } = context;
+  const { dToken, profileData } = context;
 
   const computeRange = (range: DateRange) => {
     const today = new Date();
@@ -157,6 +157,25 @@ export default function DoctorDashboard() {
       navigate('/doctor/login');
     }
   }, [dToken]);
+
+  if (profileData?.status === 'pending')
+    return (
+      <div className="m-5 text-center bg-yellow-900/30 border border-yellow-600 rounded-xl p-6 text-yellow-200 shadow-md">
+        <h2 className="text-xl font-semibold mb-2">⏳ Awaiting Approval</h2>
+        <p>Your registration is under review. The admin has not approved your account yet.</p>
+      </div>
+    );
+  if (profileData?.status === 'rejected')
+    return (
+      <div className="m-5 text-center bg-red-900/30 border border-red-600 rounded-xl p-6 text-red-300 shadow-md">
+        <h2 className="text-xl font-semibold mb-2">❌ Registration Rejected</h2>
+        <p>Your registration has been rejected by the admin.</p>
+        <p className="mt-2 text-sm">
+          Please contact support or try registering again with updated details.
+        </p>
+      </div>
+    );
+  if (profileData?.status !== 'approved') return null;
 
   return (
     <div className="m-4 sm:m-5 space-y-8 sm:space-y-10 text-slate-100">

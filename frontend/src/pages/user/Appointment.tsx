@@ -298,8 +298,8 @@ const Appointment = () => {
                           : dayjs(nextAvailableDate).format('MMM D')}
                       </span>
                     ) : (
-                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-green-700 text-green-100">
-                        Not Available
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-red-700 text-green-100">
+                        No Slots Available
                       </span>
                     )}
                     <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-blue-700 text-blue-100">

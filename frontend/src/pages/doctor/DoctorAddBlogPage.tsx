@@ -30,7 +30,7 @@ const DoctorAddBlogPage = () => {
   const editorRef = useRef<any>(null);
   const [content, setContent] = useState('');
 
-  const { dToken } = useContext(DoctorContext);
+  const { dToken, profileData } = useContext(DoctorContext);
 
   useEffect(() => {
     if (!dToken) navigate('/doctor/login');
@@ -112,6 +112,25 @@ const DoctorAddBlogPage = () => {
       setLoading(false);
     }
   };
+
+  if (profileData?.status === 'pending')
+    return (
+      <div className="m-5 text-center bg-yellow-900/30 border border-yellow-600 rounded-xl p-6 text-yellow-200 shadow-md">
+        <h2 className="text-xl font-semibold mb-2">⏳ Awaiting Approval</h2>
+        <p>Your registration is under review. The admin has not approved your account yet.</p>
+      </div>
+    );
+  if (profileData?.status === 'rejected')
+    return (
+      <div className="m-5 text-center bg-red-900/30 border border-red-600 rounded-xl p-6 text-red-300 shadow-md">
+        <h2 className="text-xl font-semibold mb-2">❌ Registration Rejected</h2>
+        <p>Your registration has been rejected by the admin.</p>
+        <p className="mt-2 text-sm">
+          Please contact support or try registering again with updated details.
+        </p>
+      </div>
+    );
+  if (profileData?.status !== 'approved') return null;
 
   return (
     <main className="min-h-screen bg-slate-950 text-slate-100">

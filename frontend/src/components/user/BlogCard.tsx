@@ -50,7 +50,7 @@ const BlogCard: React.FC<BlogCardProps> = ({
       <div className="p-6">
         <div className="flex items-center justify-between mb-3 text-sm text-slate-400">
           <span>{publishDate}</span>
-          <span>{readTime}</span>
+          <span>{readTime} mins</span>
         </div>
 
         <h3 className="text-xl font-semibold text-slate-100 mb-3 line-clamp-2 group-hover:text-blue-400 transition-colors duration-300">

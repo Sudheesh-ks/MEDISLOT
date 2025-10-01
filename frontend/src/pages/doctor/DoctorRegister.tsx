@@ -18,11 +18,11 @@ const validationSchema = Yup.object({
   name: Yup.string().min(4, 'Name must be at least 4 characters').required('Full name is required'),
   email: Yup.string().email('Enter a valid email').required('Email is required'),
   password: Yup.string()
-    .min(8, 'Password must be at least 8 characters')
     .matches(/^(?=.*[a-z])/, 'At least one lowercase letter')
     .matches(/^(?=.*[A-Z])/, 'At least one uppercase letter')
     .matches(/^(?=.*\d)/, 'At least one number')
     .matches(/^(?=.*[@$!%*?&])/, 'At least one special character (@$!%*?&)')
+    .min(8, 'Password must be at least 8 characters')
     .required('Password is required'),
   experience: Yup.string().required('Experience is required'),
   fees: Yup.number()
@@ -63,7 +63,8 @@ const DoctorRegister: React.FC = () => {
         if (key === 'address1' || key === 'address2') return;
         fd.append(key, value as string);
       });
-      fd.append('address', JSON.stringify({ line1: values.address1, line2: values.address2 }));
+      fd.append('address[line1]', values.address1);
+      fd.append('address[line2]', values.address2);
 
       const { data } = await registerDoctorAPI(fd);
       if (data.success) {
@@ -159,9 +160,16 @@ const DoctorRegister: React.FC = () => {
 
                 <div>
                   <label className={labelCls}>Experience</label>
-                  <Field as="select" name="experience" className={inputCls}>
+                  <Field
+                    as="select"
+                    name="experience"
+                    className={`${inputCls}  bg-slate-800 text-slate-200 border-none`}
+                  >
                     {Array.from({ length: 15 }, (_, i) => (
-                      <option key={i}>{`${i + 1} Year${i ? 's' : ''}`}</option>
+                      <option
+                        key={i}
+                        className="bg-slate-900 text-slate-200"
+                      >{`${i + 1} Year${i ? 's' : ''}`}</option>
                     ))}
                   </Field>
                   <ErrorMessage
@@ -173,7 +181,11 @@ const DoctorRegister: React.FC = () => {
 
                 <div>
                   <label className={labelCls}>Speciality</label>
-                  <Field as="select" name="speciality" className={inputCls}>
+                  <Field
+                    as="select"
+                    name="speciality"
+                    className={`${inputCls}  bg-slate-800 text-slate-200 border-none`}
+                  >
                     {[
                       'General physician',
                       'Gynecologist',
@@ -182,7 +194,9 @@ const DoctorRegister: React.FC = () => {
                       'Neurologist',
                       'Gastroenterologist',
                     ].map((s) => (
-                      <option key={s}>{s}</option>
+                      <option key={s} className="bg-slate-900 text-slate-200">
+                        {s}
+                      </option>
                     ))}
                   </Field>
                   <ErrorMessage

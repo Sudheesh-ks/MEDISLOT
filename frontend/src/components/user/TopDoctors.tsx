@@ -14,7 +14,7 @@ const TopDoctors = () => {
     let mounted = true;
     (async () => {
       try {
-        const res = await getDoctorsPaginated(1, 10);
+        const res = await getDoctorsPaginated(1, 20);
         if (mounted) setDoctors(res.data);
       } catch (error) {
         console.log(error);
@@ -33,7 +33,7 @@ const TopDoctors = () => {
         {doctors
           .filter((d) => d.status === 'approved')
           .sort((a, b) => b.averageRating! - a.averageRating!)
-          .slice(0, 9)
+          .slice(0, 3)
           .map((doc: DoctorProfileType) => (
             <div
               key={doc._id}
