@@ -12,7 +12,7 @@ export interface DoctorDTO {
     line1: string;
     line2: string;
   };
-  status?: 'pending' | 'approved' | 'rejected';
+  status?: 'pending' | 'approved' | 'rejected' | 'blocked';
   image?: string;
   certificate?: string;
   averageRating?: number;

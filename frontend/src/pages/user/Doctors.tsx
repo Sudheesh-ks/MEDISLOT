@@ -219,38 +219,42 @@ const Doctors = () => {
           ) : doctors.length ? (
             <>
               <div className="grid gap-6 sm:gap-8 grid-cols-1 sm:grid-cols-2 md:grid-cols-[repeat(auto-fill,minmax(260px,1fr))]">
-                {doctors.map((doc) => (
-                  <div
-                    key={doc._id}
-                    onClick={() => navigate(`/appointment/${doc._id}`)}
-                    className="group cursor-pointer bg-white/5 backdrop-blur rounded-2xl sm:rounded-3xl ring-1 ring-white/10 overflow-hidden hover:-translate-y-1 transition-transform"
-                  >
-                    <div className="h-60 sm:h-72 flex items-end justify-center bg-white/5 overflow-hidden">
-                      <img
-                        src={doc.image}
-                        alt={doc.name}
-                        className="h-full object-contain object-bottom group-hover:scale-105 transition-transform"
-                      />
-                    </div>
-                    <div className="p-4 sm:p-6 space-y-1 sm:space-y-2">
-                      <span
-                        className={`inline-flex items-center gap-2 text-xs font-medium ${
-                          doc.available ? 'text-emerald-400' : 'text-rose-400'
-                        }`}
-                      >
-                        <span
-                          className={`inline-block w-2 h-2 rounded-full ${
-                            doc.available ? 'bg-emerald-400' : 'bg-rose-400'
-                          }`}
+                {doctors
+                  .filter((doc) => doc.status === 'approved')
+                  .map((doc) => (
+                    <div
+                      key={doc._id}
+                      onClick={() => navigate(`/appointment/${doc._id}`)}
+                      className="group cursor-pointer bg-white/5 backdrop-blur rounded-2xl sm:rounded-3xl ring-1 ring-white/10 overflow-hidden hover:-translate-y-1 transition-transform"
+                    >
+                      <div className="h-60 sm:h-72 flex items-end justify-center bg-white/5 overflow-hidden">
+                        <img
+                          src={doc.image}
+                          alt={doc.name}
+                          className="h-full object-contain object-bottom group-hover:scale-105 transition-transform"
                         />
-                        {doc.available ? 'Available' : 'Not Available'}
-                      </span>
-                      <h3 className="font-semibold text-base sm:text-lg text-white">{doc.name}</h3>
-                      <p className="text-xs sm:text-sm text-slate-400">{doc.speciality}</p>
-                      <StarRating rating={doc.averageRating} />
+                      </div>
+                      <div className="p-4 sm:p-6 space-y-1 sm:space-y-2">
+                        <span
+                          className={`inline-flex items-center gap-2 text-xs font-medium ${
+                            doc.available ? 'text-emerald-400' : 'text-rose-400'
+                          }`}
+                        >
+                          <span
+                            className={`inline-block w-2 h-2 rounded-full ${
+                              doc.available ? 'bg-emerald-400' : 'bg-rose-400'
+                            }`}
+                          />
+                          {doc.available ? 'Available' : 'Not Available'}
+                        </span>
+                        <h3 className="font-semibold text-base sm:text-lg text-white">
+                          {doc.name}
+                        </h3>
+                        <p className="text-xs sm:text-sm text-slate-400">{doc.speciality}</p>
+                        <StarRating rating={doc.averageRating} />
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
               </div>
 
               {totalPages > 1 && (

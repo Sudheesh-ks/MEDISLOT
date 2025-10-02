@@ -2,7 +2,7 @@ import { useContext, useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { AdminContext } from '../../context/AdminContext';
 
-const AdminDoctorDetail = () => {
+const AdminRequestedDoctorDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const adminContext = useContext(AdminContext);
@@ -49,60 +49,76 @@ const AdminDoctorDetail = () => {
     'text-xs font-medium px-4 py-1.5 rounded-md shadow-lg hover:-translate-y-0.5 hover:scale-105 transition-all duration-300';
 
   return (
-    <div className="p-6 text-slate-100 max-w-3xl mx-auto">
-      <h1 className="text-2xl font-semibold mb-4">{doctor.name}</h1>
-      <img src={doctor.image} className="w-48 h-48 rounded-lg object-cover mb-6" />
+    <div className="min-h-screen bg-slate-950 text-slate-100 px-4 md:px-12 py-24">
+      <h1 className="text-3xl font-bold mb-10 text-center">Doctor Details</h1>
 
-      <div className="space-y-2 text-sm">
-        <p>
-          <b>Email:</b> {doctor.email}
-        </p>
-        <p>
-          <b>Speciality:</b> {doctor.speciality}
-        </p>
-        <p>
-          <b>Experience:</b> {doctor.experience}
-        </p>
-        <p>
-          <b>Degree:</b> {doctor.degree}
-        </p>
-        <p>
-          <b>Fees:</b> ₹{doctor.fees}
-        </p>
-        <p>
-          <b>About:</b> {doctor.about}
-        </p>
-        <p>
-          <b>Address:</b> {doctor.address?.line1}, {doctor.address?.line2}
-        </p>
-      </div>
+      <div className="bg-slate-900 p-8 rounded-2xl border border-slate-700 shadow-xl space-y-6 max-w-3xl mx-auto">
+        {/* Doctor Info */}
+        <div className="flex items-center gap-6 pb-6 border-b border-slate-700">
+          <img
+            src={doctor.image}
+            alt={doctor.name}
+            className="w-28 h-28 object-cover rounded-xl ring-1 ring-white/10"
+          />
+          <div>
+            <p className="text-2xl font-semibold">{doctor.name}</p>
+            <p className="text-slate-400">{doctor.speciality}</p>
+            <p className="text-sm mt-1">{doctor.degree}</p>
+            <p className="text-xs mt-2">
+              {doctor.address?.line1}, {doctor.address?.line2}
+            </p>
+          </div>
+        </div>
 
-      {/* Certificate download */}
-      <div className="mt-4">
-        <a
-          href={doctor.certificate}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="px-4 py-2 rounded-lg bg-sky-600 hover:bg-sky-700 text-white cursor-pointer"
-        >
-          View Certificate
-        </a>
-      </div>
+        {/* Doctor Details */}
+        <div className="grid sm:grid-cols-2 gap-4 text-sm">
+          <p>
+            <span className="font-medium">Email:</span> {doctor.email}
+          </p>
+          <p>
+            <span className="font-medium">Experience:</span> {doctor.experience} years
+          </p>
+          <p>
+            <span className="font-medium">Fees:</span> ₹{doctor.fees}
+          </p>
+          <p>
+            <span className="font-medium">About:</span> {doctor.about}
+          </p>
+        </div>
 
-      {/* Approve/Reject actions */}
-      <div className="mt-6 flex gap-3">
-        <button
-          onClick={doctorApprove}
-          className={`${pill} bg-gradient-to-r from-emerald-500 to-emerald-600 text-white`}
-        >
-          Approve
-        </button>
-        <button
-          onClick={() => setShowModal(true)}
-          className={`${pill} bg-gradient-to-r from-red-500 to-red-600 text-white`}
-        >
-          Reject
-        </button>
+        {/* Certificate */}
+        <div className="pt-4 border-t border-slate-700">
+          <a
+            href={doctor.certificate}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="px-4 py-2 rounded-lg bg-sky-600 hover:bg-sky-700 text-white cursor-pointer"
+          >
+            View Certificate
+          </a>
+        </div>
+
+        {/* Actions */}
+        <div className="flex gap-3 pt-6 border-t border-slate-700">
+          <button
+            onClick={() => navigate(-1)}
+            className="px-4 py-2 border rounded-lg border-slate-500 hover:bg-slate-700"
+          >
+            Back
+          </button>
+          <button
+            onClick={doctorApprove}
+            className={`${pill} bg-gradient-to-r from-emerald-500 to-emerald-600 text-white`}
+          >
+            Approve
+          </button>
+          <button
+            onClick={() => setShowModal(true)}
+            className={`${pill} bg-gradient-to-r from-red-500 to-red-600 text-white`}
+          >
+            Reject
+          </button>
+        </div>
       </div>
 
       {/* Rejection Modal */}
@@ -148,4 +164,4 @@ const AdminDoctorDetail = () => {
   );
 };
 
-export default AdminDoctorDetail;
+export default AdminRequestedDoctorDetail;

@@ -48,6 +48,8 @@ export interface IAdminService {
   cancelAppointment(appointmentId: string): Promise<void>;
   approveDoctor(doctorId: string): Promise<string>;
   rejectDoctor(doctorId: string, reason?: string): Promise<string>;
+  blockDoctor(doctorId: string, reason?: string): Promise<string>;
+  unBlockDoctor(doctorId: string): Promise<string>;
   getAdminWalletPaginated(
     page: number,
     limit: number,

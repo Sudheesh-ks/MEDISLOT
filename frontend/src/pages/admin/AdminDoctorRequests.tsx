@@ -114,7 +114,7 @@ const AdminDoctorRequests = () => {
                       Reject
                     </button> */}
                     <button
-                      onClick={() => navigate(`/admin/doctors/${doc._id}`)}
+                      onClick={() => navigate(`/admin/doctors/requests/${doc._id}`)}
                       className={`${pill} bg-sky-500 text-white`}
                     >
                       View Details

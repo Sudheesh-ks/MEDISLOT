@@ -59,7 +59,7 @@ export interface Doctor {
   address: Address;
   averageRating?: number;
   ratingCount?: number;
-  status?: 'pending' | 'approved' | 'rejected';
+  status?: 'pending' | 'approved' | 'rejected' | 'blocked';
   slots_booked?: {
     [date: string]: string[];
   };

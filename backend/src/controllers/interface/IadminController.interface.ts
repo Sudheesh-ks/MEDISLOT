@@ -11,5 +11,7 @@ export interface IAdminController {
   adminCancelAppointment(req: Request, res: Response): Promise<void>;
   approveDoctor(req: Request, res: Response): Promise<void>;
   rejectDoctor(req: Request, res: Response): Promise<void>;
+  blockDoctor(req: Request, res: Response): Promise<void>;
+  unBlockDoctor(req: Request, res: Response): Promise<void>;
   adminDashboard(req: Request, res: Response): Promise<void>;
 }

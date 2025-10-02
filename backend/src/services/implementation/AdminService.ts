@@ -27,6 +27,7 @@ import { IComplaintRepository } from '../../repositories/interface/IComplaintRep
 import { tocomplaintDTO } from '../../mappers/complaint.mapper';
 import { toDoctorDTO } from '../../mappers/doctor.mapper';
 import { generateShortAppointmentId } from '../../utils/generateApptId.utils';
+import appointmentModel from '../../models/appointmentModel';
 dotenv.config();
 
 export class AdminService implements IAdminService {
@@ -124,6 +125,45 @@ export class AdminService implements IAdminService {
     );
 
     return 'Doctor rejected and notified by email';
+  }
+
+  async blockDoctor(doctorId: string, reason?: string): Promise<string> {
+    const doctor = await this._doctorRepository.findById(doctorId);
+    if (!doctor) throw new Error('Doctor not found');
+    if (doctor.status === 'blocked') throw new Error('Doctor already blocked');
+
+    doctor.status = 'blocked';
+    if (reason) doctor.rejectionReason = reason;
+    await this._doctorRepository.save(doctor);
+
+    sendDoctorRejectionEmail(doctor.email, doctor.name, reason).catch((err) =>
+      console.error('Doctor blocking email failed:', err)
+    );
+
+    const today = new Date().toISOString().split('T')[0];
+
+    const appointments = await appointmentModel.find({
+      docId: doctorId,
+      slotDate: { $gte: today }, 
+      cancelled: false,
+    });
+
+    for (const appt of appointments) {
+      await this.cancelAppointment(appt._id.toString());
+    }
+
+    return 'Doctor rejected and notified by email';
+  }
+
+  async unBlockDoctor(doctorId: string): Promise<string> {
+    const doctor = await this._doctorRepository.findById(doctorId);
+    if (!doctor) throw new Error('Doctor not found');
+    if (doctor.status === 'approved') throw new Error('Doctor already approved');
+
+    doctor.status = 'approved';
+    await this._doctorRepository.save(doctor);
+
+    return 'Doctor unblocked';
   }
 
   async getDoctors(): Promise<any[]> {

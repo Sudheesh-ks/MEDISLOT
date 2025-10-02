@@ -43,7 +43,7 @@ const AdminDoctorList = () => {
   };
 
   const filtered = rows
-    .filter((d) => d.status === 'approved')
+    .filter((d) => d.status === 'approved' || d.status === 'blocked')
     .filter(
       (d) =>
         d.name?.toLowerCase().includes(search.toLowerCase()) ||
@@ -53,6 +53,8 @@ const AdminDoctorList = () => {
   const glass = 'bg-white/5 backdrop-blur ring-1 ring-white/10';
   const card =
     'max-w-56 overflow-hidden cursor-pointer group transition-transform hover:-translate-y-1';
+  const pill =
+    'text-xs font-medium px-4 py-1.5 rounded-md shadow-lg hover:-translate-y-0.5 hover:scale-105 transition-all duration-300';
 
   return (
     <div className="m-5 text-slate-100 max-h-[90vh] overflow-y-auto">
@@ -87,7 +89,12 @@ const AdminDoctorList = () => {
                   <p className="text-base font-semibold truncate">{doc.name}</p>
                   <p className="text-sm text-slate-400 truncate">{doc.speciality}</p>
 
-                  {doc.available ? (
+                  {doc.status === 'blocked' ? (
+                    <span className="inline-flex items-center gap-1 text-xs text-red-400">
+                      <span className="w-2 h-2 bg-red-400 rounded-full animate-pulse" />
+                      Blocked
+                    </span>
+                  ) : doc.available ? (
                     <span className="inline-flex items-center gap-1 text-xs text-emerald-400">
                       <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
                       Available
@@ -99,6 +106,12 @@ const AdminDoctorList = () => {
                     </span>
                   )}
                 </div>
+                <button
+                  onClick={() => navigate(`/admin/doctors/${doc._id}`)}
+                  className={`${pill} bg-sky-500 text-white mb-3 ml-14`}
+                >
+                  View Details
+                </button>
               </motion.div>
             ))}
           </div>

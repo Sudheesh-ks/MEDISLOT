@@ -188,6 +188,43 @@ export class AdminController implements IAdminController {
     }
   }
 
+  async blockDoctor(req: Request, res: Response): Promise<void> {
+    try {
+      const doctorId = req.params.id;
+      const { reason } = req.body;
+
+      logger.info(`Doctor blocked: ${doctorId}`);
+
+      const message = await this._adminService.blockDoctor(doctorId, reason);
+      res.status(HttpStatus.OK).json({ success: true, message });
+    } catch (error) {
+      logger.error(`Doctor block failed: ${(error as Error).message}`, {
+        stack: (error as Error).stack,
+      });
+      res
+        .status(HttpStatus.BAD_REQUEST)
+        .json({ success: false, message: (error as Error).message });
+    }
+  }
+
+  async unBlockDoctor(req: Request, res: Response): Promise<void> {
+    try {
+      const doctorId = req.params.id;
+
+      logger.info(`Doctor unblocked: ${doctorId}`);
+
+      const message = await this._adminService.unBlockDoctor(doctorId);
+      res.status(HttpStatus.OK).json({ success: true, message });
+    } catch (error) {
+      logger.error(`Doctor unblock failed: ${(error as Error).message}`, {
+        stack: (error as Error).stack,
+      });
+      res
+        .status(HttpStatus.BAD_REQUEST)
+        .json({ success: false, message: (error as Error).message });
+    }
+  }
+
   // For getting paginated appointments
   async appointmentsListPaginated(req: Request, res: Response): Promise<void> {
     try {

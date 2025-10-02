@@ -7,6 +7,8 @@ export const ADMIN_API = {
   DOCTORS_PAGINATED: '/api/admin/doctors/paginated',
   APPROVE_DOCTOR: (doctorId: string) => `/api/admin/doctors/${doctorId}/approve`,
   REJECT_DOCTOR: (doctorId: string) => `/api/admin/doctors/${doctorId}/reject`,
+  BLOCK_DOCTOR: (doctorId: string) => `/api/admin/doctors/${doctorId}/block`,
+  UNBLOCK_DOCTOR: (doctorId: string) => `/api/admin/doctors/${doctorId}/unblock`,
   CHANGE_AVAILABILITY: (doctorId: string) => `/api/admin/doctors/${doctorId}/availability`,
   USERS: '/api/admin/users',
   USERS_PAGINATED: '/api/admin/users/paginated',

@@ -41,6 +41,16 @@ adminRouter.patch(
   authRole(['admin']),
   adminController.rejectDoctor.bind(adminController)
 );
+adminRouter.patch(
+  '/doctors/:id/block',
+  authRole(['admin']),
+  adminController.blockDoctor.bind(adminController)
+);
+adminRouter.patch(
+  '/doctors/:id/unblock',
+  authRole(['admin']),
+  adminController.unBlockDoctor.bind(adminController)
+);
 
 adminRouter.get(
   '/appointments/paginated',

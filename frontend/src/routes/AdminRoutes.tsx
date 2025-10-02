@@ -13,7 +13,8 @@ import AdminInbox from '../pages/admin/AdminInbox';
 import AdminDoctorRequests from '../pages/admin/AdminDoctorRequests';
 import AdminWallet from '../pages/admin/AdminWallet';
 import AdminNotificationsPage from '../pages/admin/AdminNotificationPage';
-import AdminDoctorDetail from '../pages/admin/AdminDoctorDetails';
+import AdminRequestedDoctorDetail from '../pages/admin/AdminRequestedDoctorDetails';
+import AdminDoctorDetailsPage from '../pages/admin/AdminDoctorDetailPage';
 
 const AdminRoutes = () => {
   return (
@@ -56,7 +57,15 @@ const AdminRoutes = () => {
         path="/admin/doctors/:id"
         element={
           <AdminLayout>
-            <AdminDoctorDetail />
+            <AdminDoctorDetailsPage />
+          </AdminLayout>
+        }
+      />
+      <Route
+        path="/admin/doctors/requests/:id"
+        element={
+          <AdminLayout>
+            <AdminRequestedDoctorDetail />
           </AdminLayout>
         }
       />

@@ -21,6 +21,14 @@ export const rejectDoctorAPI = async (doctorId: string, reason: string) => {
   return await adminApi.patch(ADMIN_API.REJECT_DOCTOR(doctorId), { reason });
 };
 
+export const blockDoctorAPI = async (doctorId: string, reason: string) => {
+  return await adminApi.patch(ADMIN_API.BLOCK_DOCTOR(doctorId), { reason });
+};
+
+export const unBlockDoctorAPI = async (doctorId: string) => {
+  return await adminApi.patch(ADMIN_API.UNBLOCK_DOCTOR(doctorId));
+};
+
 export const adminAddDoctorAPI = async (formData: FormData) => {
   return await adminApi.post(ADMIN_API.DOCTORS, formData, {
     headers: { 'Content-Type': 'multipart/form-data' },
