@@ -5,8 +5,11 @@ import {
   addBlogCommentAPI,
   getBlogByIdAPI,
   getBlogCommentsAPI,
+  getBlogsLikeAPI,
   getBlogsPaginatedAPI,
+  likeBlogAPI,
 } from '../../services/blogService';
+import { Heart } from 'lucide-react';
 
 interface Blog {
   id: string;
@@ -56,6 +59,9 @@ const BlogDetailPage: React.FC = () => {
   const [cText, setCText] = useState('');
   const [posting, setPosting] = useState(false);
   const [visibleComments, setVisibleComments] = useState(3);
+
+  const [likes, setLikes] = useState(0);
+  const [likedByUser, setLikedByUser] = useState(false);
 
   const page = 1;
   const limit = 20;
@@ -109,6 +115,31 @@ const BlogDetailPage: React.FC = () => {
     };
     run();
   }, [articleId, token]);
+
+  useEffect(() => {
+    const fetchLikes = async () => {
+      if (!articleId) return;
+      try {
+        const res = await getBlogsLikeAPI(articleId);
+        setLikes(res.data.data.count);
+        setLikedByUser(res.data.data.likedByUser);
+      } catch (e) {
+        console.error('Error loading likes:', e);
+      }
+    };
+    fetchLikes();
+  }, [articleId]);
+
+  const handleLike = async () => {
+    if (!articleId) return;
+    try {
+      const res = await likeBlogAPI(articleId);
+      setLikes(res.data.data.count);
+      setLikedByUser(res.data.data.likedByUser);
+    } catch (e) {
+      console.error('Like toggle failed:', e);
+    }
+  };
 
   const handlePostComment = async () => {
     if (!articleId || !token || !cText.trim()) return;
@@ -210,6 +241,16 @@ const BlogDetailPage: React.FC = () => {
               </div>
             </div>
           )}
+
+          <div className="flex items-center gap-3 mt-4">
+            <button
+              onClick={handleLike}
+              className="flex items-center gap-1 text-slate-300 hover:text-red-500 transition"
+            >
+              <Heart size={24} className={likedByUser ? 'fill-red-500 text-red-500' : ''} />
+              <span>{likes}</span>
+            </button>
+          </div>
         </article>
 
         {related.length > 0 && (

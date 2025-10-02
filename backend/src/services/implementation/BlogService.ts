@@ -114,8 +114,13 @@ export class BlogService implements IBlogService {
     return true;
   }
 
-  async getBlogsPaginated(page: number, limit: number) {
-    const { blogs, total } = await this._blogRepository.getBlogsPaginated(page, limit);
+  async getBlogsPaginated(page: number, limit: number, sortBy: string, sortOrder: 'asc' | 'desc') {
+    const { blogs, total } = await this._blogRepository.getBlogsPaginated(
+      page,
+      limit,
+      sortBy,
+      sortOrder
+    );
     return {
       blogs: blogs.map(toBlogDTO),
       total,
@@ -134,5 +139,19 @@ export class BlogService implements IBlogService {
 
   async addBlogComment(blogId: string, userId: string, content: string) {
     return this._blogRepository.addBlogComment(blogId, userId, content);
+  }
+
+  async toggleLike(
+    blogId: string,
+    userId: string
+  ): Promise<{ count: number; likedByUser: boolean }> {
+    return this._blogRepository.toggleLike(blogId, userId);
+  }
+
+  async getBlogLikes(
+    blogId: string,
+    userId: string
+  ): Promise<{ count: number; likedByUser: boolean }> {
+    return this._blogRepository.getLikes(blogId, userId);
   }
 }

@@ -124,4 +124,6 @@ export const BLOG_API = {
   GET_BLOGS: (page: number, limit: number) => `/api/user/blogs?page=${page}&limit=${limit}`,
   GET_BLOGS_BYID: (id: string) => `/api/user/blogs/${id}`,
   BLOG_COMMENTS: (id: string) => `/api/user/blogs/${id}/comments`,
+  LIKE_BLOG: (id: string) => `api/user/blogs/${id}/like`,
+  BLOG_LIKES: (id: string) => `api/user/blogs/${id}/likes`,
 };

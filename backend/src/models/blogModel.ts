@@ -46,6 +46,12 @@ const blogSchema: Schema<BlogDocument> = new mongoose.Schema(
     publishDate: {
       type: Date,
     },
+    likes: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'User',
+      },
+    ],
     comments: [
       {
         userId: { type: String, required: true },

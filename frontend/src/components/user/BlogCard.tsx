@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { getBlogsLikeAPI, likeBlogAPI } from '../../services/blogService';
+import { Heart } from 'lucide-react';
 
 interface BlogCardProps {
   id: string;
@@ -21,10 +23,36 @@ const BlogCard: React.FC<BlogCardProps> = ({
   readTime,
   category,
   image,
-  author,
   categoryColor,
   onClick,
 }) => {
+  const [likes, setLikes] = useState(0);
+  const [likedByUser, setLikedByUser] = useState(false);
+
+  useEffect(() => {
+    const fetchLikes = async () => {
+      try {
+        const res = await getBlogsLikeAPI(id);
+        setLikes(res.data.data.count);
+        setLikedByUser(res.data.data.likedByUser);
+      } catch (err) {
+        console.error('Error fetching likes:', err);
+      }
+    };
+    fetchLikes();
+  }, [id]);
+
+  const handleLike = async (e: React.MouseEvent) => {
+    e.stopPropagation(); // prevent card click from firing
+    try {
+      const res = await likeBlogAPI(id);
+      setLikes(res.data.data.count);
+      setLikedByUser(res.data.data.likedByUser);
+    } catch (err) {
+      console.error('Error liking blog:', err);
+    }
+  };
+
   return (
     <article
       onClick={() => onClick(id)}
@@ -60,7 +88,16 @@ const BlogCard: React.FC<BlogCardProps> = ({
         <p className="text-slate-400 text-sm leading-relaxed mb-4 line-clamp-3">{summary}</p>
 
         <div className="flex items-center justify-between">
-          <span className="text-sm font-medium text-slate-300">{author}</span>
+          {/* Like Button */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleLike}
+              className="flex items-center gap-1 text-slate-300 hover:text-red-500 transition"
+            >
+              <Heart size={20} className={likedByUser ? 'fill-red-500 text-red-500' : ''} />
+              <span>{likes}</span>
+            </button>
+          </div>
           <button
             className="text-blue-400 hover:text-blue-300 font-medium text-sm transition-colors duration-300 flex items-center gap-1"
             onClick={(e) => {

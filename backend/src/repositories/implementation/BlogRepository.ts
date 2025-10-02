@@ -34,11 +34,28 @@ export class BlogRepository extends BaseRepository<BlogDocument> implements IBlo
     }
   }
 
-  async getBlogsPaginated(page: number, limit: number) {
+  async getBlogsPaginated(page: number, limit: number, sortBy: string, sortOrder: 'asc' | 'desc') {
     const skip = (page - 1) * limit;
 
+    if (sortBy === 'likes') {
+      const blogs = await this.model.aggregate([
+        { $addFields: { likesCount: { $size: '$likes' } } },
+        { $sort: { likesCount: sortOrder === 'asc' ? 1 : -1, createdAt: -1 } },
+        { $skip: skip },
+        { $limit: limit },
+      ]);
+
+      const total = await this.model.countDocuments();
+      return { blogs, total, page, limit };
+    }
+
     const [blogs, total] = await Promise.all([
-      this.model.find().skip(skip).limit(limit).sort({ createdAt: -1 }).exec(),
+      this.model
+        .find()
+        .skip(skip)
+        .limit(limit)
+        .sort({ [sortBy]: sortOrder === 'asc' ? 1 : -1 })
+        .exec(),
       this.model.countDocuments(),
     ]);
 
@@ -85,5 +102,40 @@ export class BlogRepository extends BaseRepository<BlogDocument> implements IBlo
     }
 
     return updated;
+  }
+
+  async toggleLike(
+    blogId: string,
+    userId: string
+  ): Promise<{ count: number; likedByUser: boolean }> {
+    const blog = await this.model.findById(blogId);
+    if (!blog) throw new Error('Blog not found');
+
+    const alreadyLiked = blog.likes.some((id: any) => id.toString() === userId.toString());
+
+    if (alreadyLiked) {
+      blog.likes = blog.likes.filter((id: any) => id.toString() !== userId.toString());
+    } else {
+      blog.likes.push(userId);
+    }
+
+    await blog.save();
+
+    return {
+      count: blog.likes!.length,
+      likedByUser: !alreadyLiked,
+    };
+  }
+
+  async getLikes(blogId: string, userId: string): Promise<{ count: number; likedByUser: boolean }> {
+    const blog = await this.model.findById(blogId).select('likes');
+    if (!blog) throw new Error('Blog not found');
+
+    const likedByUser = blog.likes.some((id: any) => id.toString() === userId.toString());
+
+    return {
+      count: blog.likes!.length,
+      likedByUser,
+    };
   }
 }

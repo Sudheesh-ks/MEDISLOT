@@ -14,6 +14,8 @@ const BlogPage: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const [sortBy, setSortBy] = useState<string>('createdAt');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
 
   const limit = 2;
   const context = useContext(UserContext);
@@ -29,7 +31,7 @@ const BlogPage: React.FC = () => {
   useEffect(() => {
     const fetchBlogs = async () => {
       try {
-        const res = await getBlogsPaginatedAPI(currentPage, limit);
+        const res = await getBlogsPaginatedAPI(currentPage, limit, sortBy, sortOrder);
         setArticles(res.data.data.blogs);
         setTotalPages(Math.ceil(res.data.data.total / limit));
       } catch (err) {
@@ -37,7 +39,7 @@ const BlogPage: React.FC = () => {
       }
     };
     fetchBlogs();
-  }, [token, currentPage]);
+  }, [token, currentPage, sortBy, sortOrder]);
 
   const handleArticleClick = (id: string) => navigate(`/blogs/${id}`);
 
@@ -60,6 +62,29 @@ const BlogPage: React.FC = () => {
 
         {/* Articles Grid */}
         <section className="max-w-7xl mx-auto px-4 md:px-10 pb-20">
+          {/* Sorting Controls */}
+          <div className="flex items-center justify-end gap-4 mb-8 px-4 md:px-0">
+            <label className="text-slate-300 font-medium">Sort By:</label>
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="bg-slate-800 text-slate-200 border border-slate-700 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="createdAt">Newest</option>
+              <option value="likes">Most Liked</option>
+            </select>
+
+            <label className="text-slate-300 font-medium">Order:</label>
+            <select
+              value={sortOrder}
+              onChange={(e) => setSortOrder(e.target.value as 'asc' | 'desc')}
+              className="bg-slate-800 text-slate-200 border border-slate-700 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            >
+              <option value="desc">Descending</option>
+              <option value="asc">Ascending</option>
+            </select>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8 mb-12">
             {articles.map((article) => (
               <BlogCard

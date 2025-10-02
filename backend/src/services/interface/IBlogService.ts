@@ -6,7 +6,9 @@ export interface IBlogService {
   getBlogById(id: string): Promise<BlogDTO | null>;
   getBlogsPaginated(
     page: number,
-    limit: number
+    limit: number,
+    sortBy: string,
+    sortOrder: 'asc' | 'desc'
   ): Promise<{ blogs: BlogDTO[]; total: number; page: number; limit: number }>;
   getAllBlogs(): Promise<any>;
   getBlogsByDoctor(doctorId: string): Promise<BlogDTO[]>;
@@ -14,4 +16,6 @@ export interface IBlogService {
   deleteBlog(blogId: string, doctorId: string): Promise<boolean>;
   getBlogComments(blogId: string): Promise<any>;
   addBlogComment(blogId: string, userId: string, content: string): Promise<any>;
+  toggleLike(blogId: string, userId: string): Promise<{ count: number; likedByUser: boolean }>;
+  getBlogLikes(blogId: string, userId: string): Promise<{ count: number; likedByUser: boolean }>;
 }

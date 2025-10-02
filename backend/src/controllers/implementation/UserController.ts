@@ -649,9 +649,14 @@ export class UserController implements IUserController {
 
   async getAllBlogs(req: Request, res: Response): Promise<void> {
     try {
-      const page = Number(req.query.page) as number;
-      const limit = Number(req.query.limit) as number;
-      const blogs = await this._blogService.getBlogsPaginated(page, limit);
+      const page = Number(req.query.page) || 1;
+      const limit = Number(req.query.limit) || 10;
+
+      const sortBy = (req.query.sortBy as string) || 'createdAt';
+      const sortOrder = (req.query.sortOrder as 'asc' | 'desc') || 'desc';
+
+      const blogs = await this._blogService.getBlogsPaginated(page, limit, sortBy, sortOrder);
+
       res.status(HttpStatus.OK).json({
         success: true,
         data: blogs,
@@ -725,6 +730,44 @@ export class UserController implements IUserController {
       res.status(HttpStatus.CREATED).json({
         success: true,
         data: newComment,
+      });
+    } catch (error: any) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: error.message,
+      });
+    }
+  }
+
+  async toggleLike(req: Request, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+      const userId = (req as any).userId;
+
+      const result = await this._blogService.toggleLike(id, userId);
+
+      res.status(HttpStatus.OK).json({
+        success: true,
+        data: result,
+      });
+    } catch (error: any) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: error.message,
+      });
+    }
+  }
+
+  async getBlogLikes(req: Request, res: Response): Promise<void> {
+    try {
+      const { id } = req.params;
+      const userId = (req as any).userId;
+
+      const result = await this._blogService.getBlogLikes(id, userId);
+
+      res.status(HttpStatus.OK).json({
+        success: true,
+        data: result,
       });
     } catch (error: any) {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({

@@ -144,7 +144,7 @@ export class AdminService implements IAdminService {
 
     const appointments = await appointmentModel.find({
       docId: doctorId,
-      slotDate: { $gte: today }, 
+      slotDate: { $gte: today },
       cancelled: false,
     });
 

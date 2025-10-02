@@ -126,6 +126,16 @@ userRouter.post(
   authRole(['user']),
   userController.addBlogComment.bind(userController)
 );
+userRouter.post(
+  '/blogs/:id/like',
+  authRole(['user']),
+  userController.toggleLike.bind(userController)
+);
+userRouter.get(
+  '/blogs/:id/likes',
+  authRole(['user']),
+  userController.getBlogLikes.bind(userController)
+);
 
 userRouter.get(
   '/feedbacks/:doctorId',

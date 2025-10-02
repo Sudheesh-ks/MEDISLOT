@@ -6,7 +6,9 @@ export interface IBlogRepository {
   getBlogById(id: string): Promise<BlogDocument | null>;
   getBlogsPaginated(
     page: number,
-    limit: number
+    limit: number,
+    sortBy: string,
+    sortOrder: 'asc' | 'desc'
   ): Promise<{
     blogs: BlogDocument[];
     total: number;
@@ -19,4 +21,6 @@ export interface IBlogRepository {
   findBlogsByDoctorId(doctorId: string): Promise<BlogDocument[]>;
   updateBlog(id: string, data: Partial<BlogTypes>): Promise<BlogDocument>;
   deleteBlog(id: string): Promise<void>;
+  toggleLike(blogId: string, userId: string): Promise<{ count: number; likedByUser: boolean }>;
+  getLikes(blogId: string, userId: string): Promise<{ count: number; likedByUser: boolean }>;
 }

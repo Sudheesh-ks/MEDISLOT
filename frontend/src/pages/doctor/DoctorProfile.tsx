@@ -181,15 +181,24 @@ const DoctorProfile = () => {
         </div>
 
         <div className="flex items-center gap-3">
-          <span className="font-medium text-slate-300">Fee:</span>
-          {isEdit ? (
-            <input name="fees" value={form.fees} onChange={onField} className={`${input} w-24`} />
-          ) : (
-            <span className="text-slate-100">
-              {currencySymbol}
-              {profileData.fees}
-            </span>
-          )}
+          <div>
+            <span className="font-medium text-slate-300">Fee: </span>
+            {isEdit ? (
+              <input name="fees" value={form.fees} onChange={onField} className={`${input} w-24`} />
+            ) : (
+              <span className="text-slate-100">
+                {currencySymbol}
+                {profileData.fees}
+              </span>
+            )}
+          </div>
+          <div>
+            {!isEdit && (
+              <span className="ml-3 px-3 py-1 text-xs font-semibold bg-yellow-400/20 text-yellow-300 ring-1 ring-yellow-400/40 rounded-full animate-pulse">
+                💰 20% of your appointment fee will be credited to admin.
+              </span>
+            )}
+          </div>
         </div>
 
         <div>

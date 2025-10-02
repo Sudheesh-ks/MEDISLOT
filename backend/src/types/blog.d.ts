@@ -20,6 +20,7 @@ export interface BlogTypes {
   tags: string[];
   visibility: 'public' | 'private' | 'members';
   publishDate?: Date;
+  likes?: Array;
   comments?: CommentType[];
   createdAt?: Date;
   updatedAt?: Date;

@@ -13,6 +13,7 @@ export interface BlogDTO {
   tags: string[];
   visibility: 'public' | 'private' | 'members';
   publishDate?: Date;
+  likes?: Array<any>;
   comments: {
     userData: UserDTO;
     text: string;
