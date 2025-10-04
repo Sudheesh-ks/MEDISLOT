@@ -1,4 +1,4 @@
-import mongoose, { Schema, Types } from 'mongoose';
+import mongoose, { Schema, Types, Document } from 'mongoose';
 import { slotTypes } from '../types/slots';
 
 export interface SlotDocument extends Omit<slotTypes, '_id'>, Document {

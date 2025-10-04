@@ -5,7 +5,7 @@ import { IChatService } from '../../services/interface/IChatService';
 import logger from '../../utils/logger';
 
 export class ChatController implements IChatController {
-  constructor(private readonly chatService: IChatService) {}
+  constructor(private readonly _chatService: IChatService) {}
 
   async getChatHistory(req: Request, res: Response): Promise<void> {
     try {
@@ -15,7 +15,7 @@ export class ChatController implements IChatController {
 
       logger.info(`Fetching chat history for chatId=${chatId}, limit=${limit}, before=${before}`);
 
-      const messages = await this.chatService.fetchChatHistory(chatId, limit, before);
+      const messages = await this._chatService.fetchChatHistory(chatId, limit, before);
       res.status(HttpStatus.OK).json({ success: true, messages });
     } catch (error) {
       logger.error(`Error fetching chat history: ${(error as Error).message}`);
@@ -32,7 +32,7 @@ export class ChatController implements IChatController {
       const { messageId } = req.params;
       logger.info(`Deleting message: ${messageId}`);
 
-      await this.chatService.delete(messageId);
+      await this._chatService.delete(messageId);
       res.status(HttpStatus.OK).json({ success: true });
     } catch (error) {
       logger.error(`Error deleting message: ${(error as Error).message}`);
@@ -50,7 +50,7 @@ export class ChatController implements IChatController {
       const { userId } = req.body;
       logger.info(`Marking chat ${chatId} as read for user ${userId}`);
 
-      await this.chatService.read(chatId, userId);
+      await this._chatService.read(chatId, userId);
       res.status(HttpStatus.OK).json({ success: true });
     } catch (error) {
       logger.error(`Error marking messages read: ${(error as Error).message}`);
@@ -64,7 +64,7 @@ export class ChatController implements IChatController {
 
   async uploadFile(req: Request, res: Response): Promise<void> {
     try {
-      const { result, mime } = await this.chatService.uploadFile(req.file);
+      const { result, mime } = await this._chatService.uploadFile(req.file);
       logger.info(`Uploaded file with MIME type: ${mime}`);
 
       res.status(HttpStatus.OK).json({

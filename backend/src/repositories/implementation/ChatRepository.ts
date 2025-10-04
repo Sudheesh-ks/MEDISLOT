@@ -1,8 +1,9 @@
 import MessageModel, { MessageDocument } from '../../models/messageModel';
 import ChatModel from '../../models/chatModel';
 import { IChatRepository } from '../interface/IChatRepository';
+import { BaseRepository } from '../BaseRepository';
 
-export class ChatRepository implements IChatRepository {
+export class ChatRepository extends BaseRepository<MessageDocument> implements IChatRepository {
   async getMessagesByChatId(
     chatId: string,
     limit: number = 1000,

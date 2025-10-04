@@ -1,6 +1,8 @@
-import slotModel from '../../models/slotModel';
+import slotModel, { SlotDocument } from '../../models/slotModel';
+import { BaseRepository } from '../BaseRepository';
+import { ISlotRepository } from '../interface/ISlotRepository';
 
-export class SlotRepository {
+export class SlotRepository extends BaseRepository<SlotDocument> implements ISlotRepository {
   async getSlotsByDoctor(doctorId: string): Promise<any> {
     return slotModel.find({ doctorId }).sort({ date: 1 }).exec();
   }
