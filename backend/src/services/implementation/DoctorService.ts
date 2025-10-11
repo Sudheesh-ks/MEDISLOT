@@ -79,14 +79,19 @@ export class DoctorService implements IDoctorService {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     let imageUrl = '';
-    const uploadResult = await cloudinary.uploader.upload(image, {
-      resource_type: 'image',
-    });
+    // const uploadResult = await cloudinary.uploader.upload(image, {
+    //   resource_type: 'image',
+    // });
+    const [uploadResult, certificateUpload] = await Promise.all([
+      cloudinary.uploader.upload(image, { resource_type: 'image' }),
+      cloudinary.uploader.upload(certificate, { resource_type: 'auto' }),
+    ]);
+
     imageUrl = uploadResult.secure_url;
 
-    const certificateUpload = await cloudinary.uploader.upload(certificate, {
-      resource_type: 'auto',
-    });
+    // const certificateUpload = await cloudinary.uploader.upload(certificate, {
+    //   resource_type: 'auto',
+    // });
 
     const doctorData: DoctorTypes = {
       name,
@@ -274,32 +279,58 @@ export class DoctorService implements IDoctorService {
     const adminId = process.env.ADMIN_ID;
     const userId = appointment.userData._id.toString();
 
-    await this._notificationService.sendNotification({
-      recipientId: userId,
-      recipientRole: 'user',
-      type: 'appointment',
-      title: 'Appointment Confirmed',
-      message: `${appointment.docData.name} has confirmed your appointment.`,
-      link: '/appointments',
-    });
+    // await this._notificationService.sendNotification({
+    //   recipientId: userId,
+    //   recipientRole: 'user',
+    //   type: 'appointment',
+    //   title: 'Appointment Confirmed',
+    //   message: `${appointment.docData.name} has confirmed your appointment.`,
+    //   link: '/appointments',
+    // });
 
+    // if (ioInstance) {
+    //   ioInstance.to(userId).emit('notification', {
+    //     title: `Appointment Confirmed by ${appointment.docData.name}`,
+    //     link: '/appointments',
+    //   });
+    // }
+
+    // await this._notificationService.sendNotification({
+    //   recipientId: adminId,
+    //   recipientRole: 'admin',
+    //   type: 'appointment',
+    //   title: 'Appointment Confirmed by Doctor',
+    //   message: `${appointment.docData.name} confirmed appointment with ${appointment.userData.name}.`,
+    //   link: '/admin/appointments',
+    // });
+
+    // await this._doctorRepository.markAppointmentAsConfirmed(appointmentId);
+
+    await Promise.all([
+      this._notificationService.sendNotification({
+        recipientId: userId,
+        recipientRole: 'user',
+        type: 'appointment',
+        title: 'Appointment Confirmed',
+        message: `${appointment.docData.name} has confirmed your appointment.`,
+        link: '/appointments',
+      }),
+      this._notificationService.sendNotification({
+        recipientId: adminId,
+        recipientRole: 'admin',
+        type: 'appointment',
+        title: 'Appointment Confirmed by Doctor',
+        message: `${appointment.docData.name} confirmed appointment with ${appointment.userData.name}.`,
+        link: '/admin/appointments',
+      }),
+      this._doctorRepository.markAppointmentAsConfirmed(appointmentId),
+    ]);
     if (ioInstance) {
       ioInstance.to(userId).emit('notification', {
         title: `Appointment Confirmed by ${appointment.docData.name}`,
         link: '/appointments',
       });
     }
-
-    await this._notificationService.sendNotification({
-      recipientId: adminId,
-      recipientRole: 'admin',
-      type: 'appointment',
-      title: 'Appointment Confirmed by Doctor',
-      message: `${appointment.docData.name} confirmed appointment with ${appointment.userData.name}.`,
-      link: '/admin/appointments',
-    });
-
-    await this._doctorRepository.markAppointmentAsConfirmed(appointmentId);
   }
 
   async cancelAppointment(docId: string, appointmentId: string): Promise<void> {
@@ -318,22 +349,66 @@ export class DoctorService implements IDoctorService {
     const doctorId = appointment.docData._id.toString();
     const reason = `Refund for Cancelled Appointment ${generateShortAppointmentId(appointment._id.toString())} of ${appointment.docData.name}`;
 
-    await this._walletRepository.creditWallet(userId, 'user', amount, reason);
+    // await this._walletRepository.creditWallet(userId, 'user', amount, reason);
 
     const doctorShare = amount * 0.8;
-    await this._walletRepository.debitWallet(doctorId, 'doctor', doctorShare, reason);
+    // await this._walletRepository.debitWallet(doctorId, 'doctor', doctorShare, reason);
 
     const adminShare = amount * 0.2;
-    await this._walletRepository.debitWallet(adminId!, 'admin', adminShare, reason);
+    // await this._walletRepository.debitWallet(adminId!, 'admin', adminShare, reason);
 
-    await this._notificationService.sendNotification({
-      recipientId: userId,
-      recipientRole: 'user',
-      type: 'appointment',
-      title: 'Appointment Canceled by Doctor',
-      message: `${appointment.docData.name} canceled your appointment. ₹${amount} refunded.`,
-      link: '/appointments',
-    });
+    // await this._notificationService.sendNotification({
+    //   recipientId: userId,
+    //   recipientRole: 'user',
+    //   type: 'appointment',
+    //   title: 'Appointment Canceled by Doctor',
+    //   message: `${appointment.docData.name} canceled your appointment. ₹${amount} refunded.`,
+    //   link: '/appointments',
+    // });
+
+    // if (ioInstance) {
+    //   ioInstance.to(userId).emit('notification', {
+    //     title: `Appointment Cancelled by ${appointment.docData.name}`,
+    //     link: '/appointments',
+    //   });
+    // }
+
+    // await this._notificationService.sendNotification({
+    //   recipientId: adminId,
+    //   recipientRole: 'admin',
+    //   type: 'appointment',
+    //   title: 'Doctor Canceled Appointment',
+    //   message: `${appointment.docData.name} canceled the appointment with ${appointment.userData.name}. ₹${adminShare} refunded to user from your wallet.`,
+    //   link: '/admin/appointments',
+    // });
+
+    // await this._doctorRepository.cancelAppointment(appointmentId);
+
+    await Promise.all([
+      this._walletRepository.creditWallet(userId, 'user', amount, reason),
+      this._walletRepository.debitWallet(doctorId, 'doctor', doctorShare, reason),
+      this._walletRepository.debitWallet(adminId!, 'admin', adminShare, reason),
+    ]);
+
+    await Promise.all([
+      this._notificationService.sendNotification({
+        recipientId: userId,
+        recipientRole: 'user',
+        type: 'appointment',
+        title: 'Appointment Canceled by Doctor',
+        message: `${appointment.docData.name} canceled your appointment. ₹${amount} refunded.`,
+        link: '/appointments',
+      }),
+      this._notificationService.sendNotification({
+        recipientId: adminId,
+        recipientRole: 'admin',
+        type: 'appointment',
+        title: 'Doctor Canceled Appointment',
+        message: `${appointment.docData.name} canceled the appointment with ${appointment.userData.name}. ₹${adminShare} refunded to user from your wallet.`,
+        link: '/admin/appointments',
+      }),
+      this._doctorRepository.cancelAppointment(appointmentId),
+    ]);
 
     if (ioInstance) {
       ioInstance.to(userId).emit('notification', {
@@ -341,17 +416,6 @@ export class DoctorService implements IDoctorService {
         link: '/appointments',
       });
     }
-
-    await this._notificationService.sendNotification({
-      recipientId: adminId,
-      recipientRole: 'admin',
-      type: 'appointment',
-      title: 'Doctor Canceled Appointment',
-      message: `${appointment.docData.name} canceled the appointment with ${appointment.userData.name}. ₹${adminShare} refunded to user from your wallet.`,
-      link: '/admin/appointments',
-    });
-
-    await this._doctorRepository.cancelAppointment(appointmentId);
   }
 
   async getActiveAppointment(docId: string): Promise<AppointmentDTO | null> {
@@ -484,16 +548,10 @@ export class DoctorService implements IDoctorService {
   }
 
   async getDashboardData(doctorId: string, startDate: string, endDate: string) {
-    const revenueData = await this._doctorRepository.getRevenueOverTime(
-      doctorId,
-      startDate,
-      endDate
-    );
-    const appointmentData = await this._doctorRepository.getAppointmentsOverTime(
-      doctorId,
-      startDate,
-      endDate
-    );
+    const [revenueData, appointmentData] = await Promise.all([
+      this._doctorRepository.getRevenueOverTime(doctorId, startDate, endDate),
+      this._doctorRepository.getAppointmentsOverTime(doctorId, startDate, endDate),
+    ]);
 
     return {
       revenueData,

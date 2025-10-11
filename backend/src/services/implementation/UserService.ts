@@ -378,10 +378,15 @@ export class UserService implements IUserService {
       throw new Error('All fields are required');
     }
 
-    const user = await this._userRepository.findUserById(userId);
+    const [user, doctor] = await Promise.all([
+      this._userRepository.findUserById(userId),
+      this._userRepository.findDoctorById(docId),
+    ]);
+
+    // const user = await this._userRepository.findUserById(userId);
     if (!user) throw new Error('User not found');
 
-    const doctor = await this._userRepository.findDoctorById(docId);
+    // const doctor = await this._userRepository.findDoctorById(docId);
     if (!doctor) throw new Error('Doctor not found');
 
     const appointmentData: AppointmentTypes = {
@@ -445,24 +450,55 @@ export class UserService implements IUserService {
     const doctorId = appointment.docData._id.toString();
     const reason = `Refund for Cancelled Appointment ${generateShortAppointmentId(appointment._id.toString())} of ${appointment.docData.name}`;
 
-    await this._walletRepository.creditWallet(userId.toString(), 'user', amount, reason);
+    // await this._walletRepository.creditWallet(userId.toString(), 'user', amount, reason);
 
     const doctorShare = amount * 0.8;
-    await this._walletRepository.debitWallet(doctorId, 'doctor', doctorShare, reason);
+    // await this._walletRepository.debitWallet(doctorId, 'doctor', doctorShare, reason);
 
     const adminShare = amount * 0.2;
-    await this._walletRepository.debitWallet(adminId!, 'admin', adminShare, reason);
+    // await this._walletRepository.debitWallet(adminId!, 'admin', adminShare, reason);
 
-    await this._userRepository.cancelAppointment(userId, appointmentId);
+    // await this._userRepository.cancelAppointment(userId, appointmentId);
 
-    await this._notificationService.sendNotification({
-      recipientId: doctorId,
-      recipientRole: 'doctor',
-      type: 'appointment',
-      title: 'Appointment Canceled',
-      message: `User ${appointment.userData.name} canceled the appointment. ₹${doctorShare} refunded to user from your wallet.`,
-      link: '/doctor/appointments',
-    });
+    // await this._notificationService.sendNotification({
+    //   recipientId: doctorId,
+    //   recipientRole: 'doctor',
+    //   type: 'appointment',
+    //   title: 'Appointment Canceled',
+    //   message: `User ${appointment.userData.name} canceled the appointment. ₹${doctorShare} refunded to user from your wallet.`,
+    //   link: '/doctor/appointments',
+    // });
+
+    // await this._notificationService.sendNotification({
+    //   recipientId: adminId,
+    //   recipientRole: 'admin',
+    //   type: 'appointment',
+    //   title: 'Appointment Canceled by User',
+    //   message: `Appointment between ${appointment.userData.name} and ${appointment.docData.name} was canceled. ₹${adminShare} refunded to user from your wallet.`,
+    //   link: '/admin/appointments',
+    // });
+    await Promise.all([
+      this._walletRepository.creditWallet(userId.toString(), 'user', amount, reason),
+      this._walletRepository.debitWallet(doctorId, 'doctor', doctorShare, reason),
+      this._walletRepository.debitWallet(adminId!, 'admin', adminShare, reason),
+      this._userRepository.cancelAppointment(userId, appointmentId),
+      this._notificationService.sendNotification({
+        recipientId: doctorId,
+        recipientRole: 'doctor',
+        type: 'appointment',
+        title: 'Appointment Canceled',
+        message: `User ${appointment.userData.name} canceled the appointment. ₹${doctorShare} refunded to user from your wallet.`,
+        link: '/doctor/appointments',
+      }),
+      this._notificationService.sendNotification({
+        recipientId: adminId,
+        recipientRole: 'admin',
+        type: 'appointment',
+        title: 'Appointment Canceled by User',
+        message: `Appointment between ${appointment.userData.name} and ${appointment.docData.name} was canceled. ₹${adminShare} refunded to user from your wallet.`,
+        link: '/admin/appointments',
+      }),
+    ]);
 
     if (ioInstance) {
       ioInstance.to(doctorId).emit('notification', {
@@ -470,15 +506,6 @@ export class UserService implements IUserService {
         link: '/doctor/appointments',
       });
     }
-
-    await this._notificationService.sendNotification({
-      recipientId: adminId,
-      recipientRole: 'admin',
-      type: 'appointment',
-      title: 'Appointment Canceled by User',
-      message: `Appointment between ${appointment.userData.name} and ${appointment.docData.name} was canceled. ₹${adminShare} refunded to user from your wallet.`,
-      link: '/admin/appointments',
-    });
   }
 
   async startPayment(userId: string, appointmentId: string): Promise<{ order: any }> {
@@ -532,19 +559,35 @@ export class UserService implements IUserService {
       throw new Error('Admin wallet ID not configured');
     }
 
-    await this._walletRepository.creditWallet(
-      adminId,
-      'admin',
-      adminShare,
-      `Admin share for appointment ${generateShortAppointmentId(appointmentId)} from ${appointment.userData.name} to ${appointment.docData.name}`
-    );
+    // await this._walletRepository.creditWallet(
+    //   adminId,
+    //   'admin',
+    //   adminShare,
+    //   `Admin share for appointment ${generateShortAppointmentId(appointmentId)} from ${appointment.userData.name} to ${appointment.docData.name}`
+    // );
 
-    await this._walletRepository.creditWallet(
-      appointment.docId.toString(),
-      'doctor',
-      doctorShare,
-      `Doctor share for appointment ${generateShortAppointmentId(appointmentId)} from ${appointment.userData.name}`
-    );
+    // await this._walletRepository.creditWallet(
+    //   appointment.docId.toString(),
+    //   'doctor',
+    //   doctorShare,
+    //   `Doctor share for appointment ${generateShortAppointmentId(appointmentId)} from ${appointment.userData.name}`
+    // );
+
+    await Promise.all([
+      this._walletRepository.creditWallet(
+        adminId,
+        'admin',
+        adminShare,
+        `Admin share for appointment ${generateShortAppointmentId(appointmentId)} from ${appointment.userData.name} to ${appointment.docData.name}`
+      ),
+
+      this._walletRepository.creditWallet(
+        appointment.docId.toString(),
+        'doctor',
+        doctorShare,
+        `Doctor share for appointment ${generateShortAppointmentId(appointmentId)} from ${appointment.userData.name}`
+      ),
+    ]);
   }
 
   async getAvailableSlotsByDate(doctorId: string, date: string): Promise<SlotRange[]> {

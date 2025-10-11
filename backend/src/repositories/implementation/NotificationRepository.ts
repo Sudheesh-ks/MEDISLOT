@@ -3,7 +3,10 @@ import { NotificationTypes } from '../../types/notificationTypes';
 import { BaseRepository } from '../BaseRepository';
 import { INotificationRepository } from '../interface/INotificationRepository';
 
-export class NotificationRepository extends BaseRepository<NotificationDocument> implements INotificationRepository {
+export class NotificationRepository
+  extends BaseRepository<NotificationDocument>
+  implements INotificationRepository
+{
   async createNotification(data: Partial<NotificationTypes>): Promise<NotificationDocument> {
     return NotificationModel.create(data);
   }

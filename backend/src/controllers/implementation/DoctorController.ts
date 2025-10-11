@@ -140,7 +140,7 @@ export class DoctorController implements IDoctorController {
         path: '/api/doctor/refresh-token',
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
-        maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+        maxAge: Number(process.env.REFRESH_TOKEN_MAX_AGE), // 7 days
       });
       logger.info(`Doctor login: ${req.body.email}`);
 
@@ -170,7 +170,7 @@ export class DoctorController implements IDoctorController {
         path: '/api/doctor/refresh-token',
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
-        maxAge: 7 * 24 * 60 * 60 * 1000,
+        maxAge: Number(process.env.REFRESH_TOKEN_MAX_AGE),
       });
       logger.info('Doctor token refreshed');
 

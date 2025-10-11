@@ -26,7 +26,7 @@ export class AdminController implements IAdminController {
           secure: process.env.NODE_ENV === 'production',
           sameSite: 'strict',
           path: '/api/admin/refresh-token',
-          maxAge: 7 * 24 * 60 * 60 * 1000,
+          maxAge: Number(process.env.REFRESH_TOKEN_MAX_AGE),
         })
         .status(HttpStatus.OK)
         .json({
@@ -56,7 +56,7 @@ export class AdminController implements IAdminController {
         path: '/api/admin/refresh-token',
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
-        maxAge: 7 * 24 * 60 * 60 * 1000,
+        maxAge: Number(process.env.REFRESH_TOKEN_MAX_AGE),
       });
 
       res.status(HttpStatus.OK).json({
