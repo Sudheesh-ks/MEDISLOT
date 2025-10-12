@@ -3,13 +3,14 @@ import customParse from 'dayjs/plugin/customParseFormat';
 import { ISlotService } from '../interface/ISlotService';
 import { SlotRange } from '../../types/slots';
 import { ISlotRepository } from '../../repositories/interface/ISlotRepository';
+import { slotDTO } from '../../dtos/slot.dto';
 
 dayjs.extend(customParse);
 
 export class DoctorSlotService implements ISlotService {
   constructor(private readonly _slotRepository: ISlotRepository) {}
 
-  async getMonthlySlots(doctorId: string, year: number, month: number) {
+  async getMonthlySlots(doctorId: string, year: number, month: number): Promise<slotDTO[]> {
     return this._slotRepository.getSlotsByMonth(doctorId, year, month);
   }
 
@@ -28,16 +29,21 @@ export class DoctorSlotService implements ISlotService {
     }
   }
 
-  async updateDaySlot(doctorId: string, date: string, slots: SlotRange[], isCancelled: boolean) {
+  async updateDaySlot(
+    doctorId: string,
+    date: string,
+    slots: SlotRange[],
+    isCancelled: boolean
+  ): Promise<slotDTO> {
     this.validateRanges(slots);
     return this._slotRepository.upsertSlot(doctorId, date, slots, isCancelled);
   }
 
-  async deleteDaySlot(doctorId: string, date: string) {
+  async deleteDaySlot(doctorId: string, date: string): Promise<slotDTO> {
     return this._slotRepository.deleteSlot(doctorId, date);
   }
 
-  async getDayAvailability(doctorId: string, date: string) {
+  async getDayAvailability(doctorId: string, date: string): Promise<slotDTO> {
     const override = await this._slotRepository.getSlotByDate(doctorId, date);
     if (override) return override.slots;
 
@@ -51,12 +57,12 @@ export class DoctorSlotService implements ISlotService {
     weekday: number,
     slots: SlotRange[],
     isCancelled: boolean
-  ): Promise<any> {
+  ): Promise<slotDTO> {
     this.validateRanges(slots);
     return this._slotRepository.upsertSlot(doctorId, null, slots, isCancelled, weekday, true);
   }
 
-  async getDefaultSlot(doctorId: string, weekday: number): Promise<any> {
+  async getDefaultSlot(doctorId: string, weekday: number): Promise<slotDTO> {
     return this._slotRepository.getDefaultSlot(doctorId, weekday);
   }
 }

@@ -3,7 +3,7 @@ import adminModel, { AdminDocument } from '../../models/adminModel';
 import doctorModel, { DoctorDocument } from '../../models/doctorModel';
 import userModel, { userDocument } from '../../models/userModel';
 import appointmentModel, { AppointmentDocument } from '../../models/appointmentModel';
-import { PipelineStage } from 'mongoose';
+import { FilterQuery, PipelineStage } from 'mongoose';
 import { PaginationResult } from '../../types/pagination';
 import { IAdminRepository } from '../interface/IAdminRepository';
 import slotModel from '../../models/slotModel';
@@ -33,7 +33,7 @@ export class AdminRepository extends BaseRepository<AdminDocument> implements IA
   ): Promise<PaginationResult<DoctorDocument>> {
     const skip = (page - 1) * limit;
 
-    const query: any = {};
+    const query: FilterQuery<DoctorDocument> = {};
     if (search) {
       query.$or = [
         { name: { $regex: search, $options: 'i' } },
@@ -67,7 +67,7 @@ export class AdminRepository extends BaseRepository<AdminDocument> implements IA
   ): Promise<PaginationResult<userDocument>> {
     const skip = (page - 1) * limit;
 
-    const query: any = {};
+    const query: FilterQuery<userDocument> = {};
     if (search) {
       query.$or = [
         { name: { $regex: search, $options: 'i' } },
@@ -114,7 +114,7 @@ export class AdminRepository extends BaseRepository<AdminDocument> implements IA
     dateRange?: string
   ): Promise<PaginationResult<AppointmentDocument>> {
     const skip = (page - 1) * limit;
-    const andConditions: any[] = [];
+    const andConditions: Record<string, unknown>[] = [];
 
     console.log(dateRange);
 
@@ -292,12 +292,12 @@ export class AdminRepository extends BaseRepository<AdminDocument> implements IA
   ): Promise<{ date: string; count: number }[]> {
     const { startDate, endDate } = this._parseRange(start, end);
 
-    const match: any = { payment: true, cancelled: false };
+    const match: Record<string, unknown> = { payment: true, cancelled: false };
     if (startDate || endDate) match.createdAt = {};
-    if (startDate) match.createdAt.$gte = startDate;
-    if (endDate) match.createdAt.$lte = endDate;
+    if (startDate) (match.createdAt as Record<string, Date>).$gte = startDate;
+    if (endDate) (match.createdAt as Record<string, Date>).$lte = endDate;
 
-    const pipeline: any[] = [
+    const pipeline: PipelineStage[] = [
       { $match: match },
       {
         $group: {
@@ -311,7 +311,7 @@ export class AdminRepository extends BaseRepository<AdminDocument> implements IA
     ];
 
     const res = await appointmentModel.aggregate(pipeline).exec();
-    return res.map((r: any) => ({ date: r._id, count: r.count }));
+    return res.map((r) => ({ date: r._id, count: r.count }));
   }
 
   async getTopDoctors(
@@ -376,6 +376,6 @@ export class AdminRepository extends BaseRepository<AdminDocument> implements IA
     ];
 
     const res = await appointmentModel.aggregate(pipeline).exec();
-    return res.map((r: any) => ({ date: r._id, revenue: r.revenue }));
+    return res.map((r) => ({ date: r._id, revenue: r.revenue }));
   }
 }

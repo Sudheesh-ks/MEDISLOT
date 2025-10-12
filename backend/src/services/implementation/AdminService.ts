@@ -28,6 +28,7 @@ import { tocomplaintDTO } from '../../mappers/complaint.mapper';
 import { toDoctorDTO } from '../../mappers/doctor.mapper';
 import { generateShortAppointmentId } from '../../utils/generateApptId.utils';
 import appointmentModel from '../../models/appointmentModel';
+import { WalletTypes } from '../../types/wallet';
 dotenv.config();
 
 export class AdminService implements IAdminService {
@@ -163,7 +164,7 @@ export class AdminService implements IAdminService {
     return 'Doctor unblocked';
   }
 
-  async getDoctors(): Promise<any[]> {
+  async getDoctors(): Promise<DoctorDTO[]> {
     return await this._adminRepository.getAllDoctors();
   }
 
@@ -389,7 +390,7 @@ export class AdminService implements IAdminService {
     search: string,
     period: string,
     txnType?: 'credit' | 'debit' | 'all'
-  ): Promise<{ history: any[]; total: number; balance: number }> {
+  ): Promise<{ history: WalletTypes[]; total: number; balance: number }> {
     const adminId = process.env.ADMIN_ID;
     if (!adminId) throw new Error('ADMIN_ID is not set in environment');
 

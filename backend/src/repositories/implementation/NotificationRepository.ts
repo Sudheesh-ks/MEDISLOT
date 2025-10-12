@@ -1,3 +1,4 @@
+import { FilterQuery } from 'mongoose';
 import NotificationModel, { NotificationDocument } from '../../models/notificationModel';
 import { NotificationTypes } from '../../types/notificationTypes';
 import { BaseRepository } from '../BaseRepository';
@@ -18,14 +19,22 @@ export class NotificationRepository
     skip: number,
     type?: string
   ): Promise<NotificationDocument[]> {
-    const query: any = { recipientId, recipientRole, isDeleted: false };
+    const query: FilterQuery<NotificationDocument> = {
+      recipientId,
+      recipientRole,
+      isDeleted: false,
+    };
     if (type) query.type = type;
 
     return NotificationModel.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit).exec();
   }
 
   async countAll(recipientId: string, recipientRole: string, type?: string): Promise<number> {
-    const query: any = { recipientId, recipientRole, isDeleted: false };
+    const query: FilterQuery<NotificationDocument> = {
+      recipientId,
+      recipientRole,
+      isDeleted: false,
+    };
     if (type) query.type = type;
 
     return NotificationModel.countDocuments(query);
@@ -55,7 +64,11 @@ export class NotificationRepository
   }
 
   async deleteAll(recipientId: string, recipientRole: string, type?: string): Promise<void> {
-    const query: any = { recipientId, recipientRole, isDeleted: false };
+    const query: FilterQuery<NotificationDocument> = {
+      recipientId,
+      recipientRole,
+      isDeleted: false,
+    };
     if (type) query.type = type;
 
     await NotificationModel.updateMany(query, { $set: { isDeleted: true } });

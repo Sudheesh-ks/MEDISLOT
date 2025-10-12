@@ -1,6 +1,7 @@
 import { IWalletRepository } from '../interface/IWalletRepository';
 import walletModel, { WalletDocument } from '../../models/walletModel';
 import { BaseRepository } from '../BaseRepository';
+import { WalletHistory } from '../../types/wallet';
 
 export class WalletRepository extends BaseRepository<WalletDocument> implements IWalletRepository {
   constructor() {
@@ -27,7 +28,7 @@ export class WalletRepository extends BaseRepository<WalletDocument> implements 
     search?: string,
     period?: string,
     txnType?: 'credit' | 'debit' | 'all'
-  ): Promise<{ history: any[]; total: number; balance: number }> {
+  ): Promise<{ history: WalletHistory[]; total: number; balance: number }> {
     const wallet = await this.getOrCreateWallet(ownerId, ownerType);
 
     let history = [...wallet.history];

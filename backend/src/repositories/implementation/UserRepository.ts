@@ -1,7 +1,7 @@
 import { IUserRepository } from '../../repositories/interface/IUserRepository';
 import userModel, { userDocument } from '../../models/userModel';
 import doctorModel, { DoctorDocument } from '../../models/doctorModel';
-import slotModel from '../../models/slotModel';
+import slotModel, { SlotDocument } from '../../models/slotModel';
 import { AppointmentTypes } from '../../types/appointment';
 import appointmentModel, { AppointmentDocument } from '../../models/appointmentModel';
 import { BaseRepository } from '../BaseRepository';
@@ -243,7 +243,7 @@ export class UserRepository extends BaseRepository<userDocument> implements IUse
     doctorId: string,
     year: number,
     month: number
-  ): Promise<any[]> {
+  ): Promise<SlotDocument[]> {
     const regexMonth = String(month).padStart(2, '0');
     const regex = new RegExp(`^${year}-${regexMonth}`);
 

@@ -26,6 +26,11 @@ import { IUserRepository } from '../../repositories/interface/IUserRepository';
 import { IComplaintRepository } from '../../repositories/interface/IComplaintRepository';
 import { isValidPassword } from '../../utils/validator';
 import { generateShortAppointmentId } from '../../utils/generateApptId.utils';
+import { WalletHistory } from '../../types/wallet';
+import { ComplaintDTO } from '../../dtos/complaint.dto';
+import { tocomplaintDTO } from '../../mappers/complaint.mapper';
+import { PrescriptionDTO } from '../../dtos/prescription.dto';
+import { toPrescriptionDTO } from '../../mappers/prescription.mapper';
 
 export interface DoctorDocument extends DoctorTypes {
   _id: string;
@@ -532,7 +537,7 @@ export class DoctorService implements IDoctorService {
     search: string,
     period: string,
     txnType?: 'credit' | 'debit' | 'all'
-  ): Promise<{ history: any[]; total: number; balance: number }> {
+  ): Promise<{ history: WalletHistory[]; total: number; balance: number }> {
     const doctor = await this._doctorRepository.findById(doctorId);
     if (!doctor) throw new Error('Doctor not found');
 
@@ -563,7 +568,7 @@ export class DoctorService implements IDoctorService {
     doctorId: string,
     appointmentId: string,
     prescription: string
-  ): Promise<any> {
+  ): Promise<PrescriptionDTO> {
     const appointment = await this._doctorRepository.findAppointmentById(appointmentId);
     if (!appointment) {
       throw new Error('Appointment not found');
@@ -587,12 +592,14 @@ export class DoctorService implements IDoctorService {
       });
     }
 
-    return await this._prescriptionRepository.createPrescription({
+    const createdPrescription = await this._prescriptionRepository.createPrescription({
       appointmentId: appointment._id,
       doctorId: new Types.ObjectId(doctorId),
       patientId: appointment.userData._id,
       prescription,
     });
+
+    return toPrescriptionDTO(createdPrescription);
   }
 
   async createPatientHistory(data: patientHistoryTypes): Promise<void> {
@@ -656,7 +663,7 @@ export class DoctorService implements IDoctorService {
     return await this._userRepository.findUserById(patientId);
   }
 
-  async reportIssue(doctorId: string, subject: string, description: string): Promise<any> {
+  async reportIssue(doctorId: string, subject: string, description: string): Promise<ComplaintDTO> {
     if (!doctorId) {
       throw new Error('Unauthorized doctor');
     }
@@ -665,6 +672,11 @@ export class DoctorService implements IDoctorService {
       throw new Error('Please provide the detailed issue');
     }
 
-    return this._complaintRepository.reportDoctorIssue(doctorId, subject, description);
+    const complaint = await this._complaintRepository.reportDoctorIssue(
+      doctorId,
+      subject,
+      description
+    );
+    return tocomplaintDTO(complaint);
   }
 }

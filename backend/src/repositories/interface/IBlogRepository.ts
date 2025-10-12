@@ -1,5 +1,5 @@
 import { BlogDocument } from '../../models/blogModel';
-import { BlogTypes } from '../../types/blog';
+import { BlogTypes, CommentType } from '../../types/blog';
 
 export interface IBlogRepository {
   createBlog(data: Partial<BlogDocument>): Promise<BlogDocument>;
@@ -15,8 +15,8 @@ export interface IBlogRepository {
     page: number;
     limit: number;
   }>;
-  findAllPublicBlogs(): Promise<any>;
-  getBlogComments(blogId: string): Promise<any>;
+  findAllPublicBlogs(): Promise<BlogDocument[]>;
+  getBlogComments(blogId: string): Promise<CommentType[] | undefined>;
   addBlogComment(blogId: string, userId: string, content: string): Promise<any>;
   findBlogsByDoctorId(doctorId: string): Promise<BlogDocument[]>;
   updateBlog(id: string, data: Partial<BlogTypes>): Promise<BlogDocument>;

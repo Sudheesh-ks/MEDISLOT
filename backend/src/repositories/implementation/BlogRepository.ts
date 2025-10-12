@@ -1,7 +1,8 @@
+import { Types } from 'mongoose';
 import BlogModel, { BlogDocument } from '../../models/blogModel';
 import doctorModel from '../../models/doctorModel';
 import userModel from '../../models/userModel';
-import { BlogTypes } from '../../types/blog';
+import { BlogTypes, CommentType } from '../../types/blog';
 import { BaseRepository } from '../BaseRepository';
 import { IBlogRepository } from '../interface/IBlogRepository';
 
@@ -34,7 +35,17 @@ export class BlogRepository extends BaseRepository<BlogDocument> implements IBlo
     }
   }
 
-  async getBlogsPaginated(page: number, limit: number, sortBy: string, sortOrder: 'asc' | 'desc') {
+  async getBlogsPaginated(
+    page: number,
+    limit: number,
+    sortBy: string,
+    sortOrder: 'asc' | 'desc'
+  ): Promise<{
+    blogs: BlogDocument[];
+    total: number;
+    page: number;
+    limit: number;
+  }> {
     const skip = (page - 1) * limit;
 
     if (sortBy === 'likes') {
@@ -62,11 +73,11 @@ export class BlogRepository extends BaseRepository<BlogDocument> implements IBlo
     return { blogs, total, page, limit };
   }
 
-  async findAllPublicBlogs(): Promise<any> {
+  async findAllPublicBlogs(): Promise<BlogDocument[]> {
     return BlogModel.find({ visibility: 'public' }).sort({ createdAt: -1 });
   }
 
-  async getBlogComments(blogId: string): Promise<any> {
+  async getBlogComments(blogId: string): Promise<CommentType[] | undefined> {
     const blog = await this.model.findById(blogId).select('comments').sort({ createdAt: 1 }).lean();
     return blog?.comments?.sort(
       (a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
@@ -111,10 +122,14 @@ export class BlogRepository extends BaseRepository<BlogDocument> implements IBlo
     const blog = await this.model.findById(blogId);
     if (!blog) throw new Error('Blog not found');
 
-    const alreadyLiked = blog.likes.some((id: any) => id.toString() === userId.toString());
+    const alreadyLiked = blog.likes.some(
+      (id: Types.ObjectId | string) => id.toString() === userId.toString()
+    );
 
     if (alreadyLiked) {
-      blog.likes = blog.likes.filter((id: any) => id.toString() !== userId.toString());
+      blog.likes = blog.likes.filter(
+        (id: Types.ObjectId | string) => id.toString() !== userId.toString()
+      );
     } else {
       blog.likes.push(userId);
     }
@@ -131,7 +146,9 @@ export class BlogRepository extends BaseRepository<BlogDocument> implements IBlo
     const blog = await this.model.findById(blogId).select('likes');
     if (!blog) throw new Error('Blog not found');
 
-    const likedByUser = blog.likes.some((id: any) => id.toString() === userId.toString());
+    const likedByUser = blog.likes.some(
+      (id: Types.ObjectId | string) => id.toString() === userId.toString()
+    );
 
     return {
       count: blog.likes!.length,

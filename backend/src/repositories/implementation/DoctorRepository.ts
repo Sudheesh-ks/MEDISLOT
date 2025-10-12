@@ -4,7 +4,7 @@ import doctorModel, { DoctorDocument } from '../../models/doctorModel';
 import { DoctorTypes } from '../../types/doctor';
 import { IDoctorRepository } from '../interface/IDoctorRepository';
 import { PaginationResult } from '../../types/pagination';
-import { PipelineStage } from 'mongoose';
+import { FilterQuery, PipelineStage, SortOrder } from 'mongoose';
 import slotModel from '../../models/slotModel';
 import dayjs from 'dayjs';
 
@@ -82,9 +82,9 @@ export class DoctorRepository extends BaseRepository<DoctorDocument> implements 
   ): Promise<PaginationResult<DoctorDocument>> {
     const skip = (page - 1) * limit;
 
-    const query: any = { status: 'approved' };
+    const query: FilterQuery<DoctorDocument> = { status: 'approved' };
 
-    const sort: any = {};
+    const sort: Record<string, SortOrder> = {};
 
     if (search) {
       query.name = { $regex: search, $options: 'i' };
@@ -133,7 +133,7 @@ export class DoctorRepository extends BaseRepository<DoctorDocument> implements 
   ): Promise<PaginationResult<AppointmentDocument>> {
     const skip = (page - 1) * limit;
 
-    const query: any = { docId };
+    const query: FilterQuery<AppointmentDocument> = { docId };
 
     if (search) {
       query.$or = [
@@ -298,7 +298,7 @@ export class DoctorRepository extends BaseRepository<DoctorDocument> implements 
 
     const res = await appointmentModel.aggregate(pipeline).exec();
     console.log(res);
-    return res.map((r: any) => ({ date: r._id, revenue: r.revenue }));
+    return res.map((r) => ({ date: r._id, revenue: r.revenue }));
   }
 
   async getAppointmentsOverTime(
@@ -325,6 +325,6 @@ export class DoctorRepository extends BaseRepository<DoctorDocument> implements 
     ];
 
     const res = await appointmentModel.aggregate(pipeline).exec();
-    return res.map((r: any) => ({ date: r._id, count: r.count }));
+    return res.map((r) => ({ date: r._id, count: r.count }));
   }
 }

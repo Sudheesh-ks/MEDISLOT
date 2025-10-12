@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document, Model, Types } from 'mongoose';
-import { chatBotTypes } from '../types/aiChatHistory';
+import { chatBotTypes } from '../types/chatBot';
 
 export interface chatBotDocument extends Omit<chatBotTypes, '_id'>, Document {
   _id: Types.ObjectId;

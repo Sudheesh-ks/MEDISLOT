@@ -1,21 +1,21 @@
-import { SlotDocument } from '../../models/slotModel';
+import { slotDTO } from '../../dtos/slot.dto';
 import { SlotRange } from '../../types/slots';
 
 export interface ISlotService {
-  getMonthlySlots(doctorId: string, year: number, month: number): Promise<any>;
+  getMonthlySlots(doctorId: string, year: number, month: number): Promise<slotDTO[]>;
   updateDaySlot(
     doctorId: string,
     date: string,
     slots: { start: string; end: string; isAvailable?: boolean }[],
     isCancelled: boolean
   ): Promise<any>;
-  deleteDaySlot(doctorId: string, date: string): Promise<SlotDocument | null>;
-  getDayAvailability(doctorId: string, date: string): Promise<any>;
+  deleteDaySlot(doctorId: string, date: string): Promise<slotDTO>;
+  getDayAvailability(doctorId: string, date: string): Promise<slotDTO>;
   updateDefaultSlot(
     doctorId: string,
     weekday: number,
     slots: SlotRange[],
     isCancelled: boolean
-  ): Promise<any>;
-  getDefaultSlot(doctorId: string, weekday: number): Promise<any>;
+  ): Promise<slotDTO>;
+  getDefaultSlot(doctorId: string, weekday: number): Promise<slotDTO>;
 }

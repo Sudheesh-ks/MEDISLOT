@@ -45,6 +45,8 @@ import { IComplaintRepository } from '../../repositories/interface/IComplaintRep
 import { IPatientHistoryRepository } from '../../repositories/interface/IPatientHistoryRepository';
 import { DoctorDTO } from '../../dtos/doctor.dto';
 import { generateShortAppointmentId } from '../../utils/generateApptId.utils';
+import { RazorpayOrderDTO } from '../../types/payment';
+import { slotDTO } from '../../dtos/slot.dto';
 
 export interface UserDocument extends userTypes {
   _id: string;
@@ -508,7 +510,7 @@ export class UserService implements IUserService {
     }
   }
 
-  async startPayment(userId: string, appointmentId: string): Promise<{ order: any }> {
+  async startPayment(userId: string, appointmentId: string): Promise<{ order: RazorpayOrderDTO }> {
     if (!userId || !appointmentId) {
       throw new Error('User ID and Appointment ID are required');
     }
@@ -606,7 +608,11 @@ export class UserService implements IUserService {
     return (defaultDoc?.slots as SlotRange[])?.filter((r) => r.isAvailable && !r.booked) ?? [];
   }
 
-  async getAvailableSlotsForDoctor(doctorId: string, year: number, month: number): Promise<any[]> {
+  async getAvailableSlotsForDoctor(
+    doctorId: string,
+    year: number,
+    month: number
+  ): Promise<slotDTO[]> {
     if (!doctorId || !year || !month) {
       throw new Error('doctorId, year, and month are required');
     }
@@ -619,11 +625,17 @@ export class UserService implements IUserService {
     apptId: string,
     message: string,
     rating: number
-  ): Promise<any> {
+  ): Promise<FeedbackDTO> {
     if (!message) throw new Error('Feedback message is required');
     if (!apptId) throw new Error('Appointment ID is required');
     if (!rating || rating < 1 || rating > 5) throw new Error('Rating must be 1–5');
-    return this._feedbackRepository.submitFeedback(userId, apptId, message, rating);
+    const feedbackDoc = await this._feedbackRepository.submitFeedback(
+      userId,
+      apptId,
+      message,
+      rating
+    );
+    return toFeedbackDTO(feedbackDoc);
   }
 
   async getPrescriptionByAppointmentId(appointmentId: string): Promise<PrescriptionDTO | null> {

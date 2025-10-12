@@ -2,6 +2,8 @@ import { IChatBotService } from '../interface/IChatBotService';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { HttpResponse } from '../../constants/responseMessage.constants';
 import { IChatBotRepository } from '../../repositories/interface/IChatBotRepository';
+import { chatBotDTO } from '../../dtos/chatBot.dto';
+import { toChatBotDTO } from '../../mappers/chatBot.mapper';
 
 export class ChatBotService implements IChatBotService {
   private readonly _model;
@@ -64,11 +66,13 @@ If asked non-medical topics, say:
     }
   }
 
-  async getHistory(userId: string): Promise<any> {
+  async getHistory(userId: string): Promise<chatBotDTO[]> {
     if (!userId) {
       throw new Error(HttpResponse.FIELDS_REQUIRED);
     }
-    return this._chatBotRepository.getHistory(userId);
+    const history = await this._chatBotRepository.getHistory(userId);
+
+    return history.map(toChatBotDTO);
   }
 
   async getLatestChatSummary(userId: string): Promise<string> {
