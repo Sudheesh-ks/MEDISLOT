@@ -13,7 +13,7 @@ export class ChatBotService implements IChatBotService {
     if (!apiKey) throw new Error('GEMINI_API_KEY not configured');
 
     this._model = new GoogleGenerativeAI(apiKey).getGenerativeModel({
-      model: process.env.GEMINI_MODEL || 'gemini-1.5-flash',
+      model: process.env.GEMINI_MODEL || 'gemini-2.5-flash',
     });
   }
 
