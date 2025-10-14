@@ -15,6 +15,7 @@ const AdminDoctorDetailsPage = () => {
   const [showModal, setShowModal] = useState(false);
   const [reason, setReason] = useState('');
   const [loading, setLoading] = useState(false);
+  const [showCertificate, setShowCertificate] = useState(false);
 
   useEffect(() => {
     if (id) fetchDoctor();
@@ -97,14 +98,15 @@ const AdminDoctorDetailsPage = () => {
 
         {/* Certificate */}
         <div className="pt-4 border-t border-slate-700">
-          <a
-            href={doctor.certificate}
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
+            // href={doctor.certificate}
+            // target="_blank"
+            // rel="noopener noreferrer"
+            onClick={() => setShowCertificate(true)}
             className="px-4 py-2 rounded-lg bg-sky-600 hover:bg-sky-700 text-white cursor-pointer"
           >
             View Certificate
-          </a>
+          </button>
         </div>
 
         {/* Actions */}
@@ -133,6 +135,24 @@ const AdminDoctorDetailsPage = () => {
           )}
         </div>
       </div>
+
+      {showCertificate && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="bg-slate-800 w-full max-w-3xl rounded-xl p-6 shadow-2xl relative">
+            <button
+              onClick={() => setShowCertificate(false)}
+              className="absolute top-3 right-3 text-white text-xl"
+            >
+              &times;
+            </button>
+            <iframe
+              src={doctor.certificate}
+              className="w-full h-[600px]"
+              title="Certificate"
+            ></iframe>
+          </div>
+        </div>
+      )}
 
       {/* Block Modal */}
       {showModal && (

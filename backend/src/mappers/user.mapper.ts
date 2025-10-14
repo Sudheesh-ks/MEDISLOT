@@ -3,14 +3,14 @@ import { userDocument } from '../models/userModel';
 import { v2 as cloudinary } from 'cloudinary';
 
 export const toUserDTO = (user: userDocument): UserDTO => {
-    let signedImageUrl: string | undefined;
+  let signedImageUrl: string | undefined;
 
   if (user.image) {
-    signedImageUrl =  cloudinary.url(user.image, {
-      type: 'authenticated', 
+    signedImageUrl = cloudinary.url(user.image, {
+      type: 'authenticated',
       secure: true,
       sign_url: true,
-      expires_at: Math.floor(Date.now() / 1000) + 3600, 
+      expires_at: Math.floor(Date.now() / 1000) + 3600,
     });
   }
   return {

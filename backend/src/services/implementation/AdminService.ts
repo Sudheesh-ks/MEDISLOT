@@ -184,7 +184,16 @@ export class AdminService implements IAdminService {
     const pageNumber = parseInt(page) || 1;
     const limitNumber = parseInt(limit) || 8;
 
-    return await this._adminRepository.getDoctorsPaginated(pageNumber, limitNumber, search);
+    const result = await this._adminRepository.getDoctorsPaginated(pageNumber, limitNumber, search);
+
+    return {
+      data: result.data.map(toDoctorDTO),
+      totalCount: result.totalCount,
+      currentPage: result.currentPage,
+      totalPages: result.totalPages,
+      hasNextPage: result.hasNextPage,
+      hasPrevPage: result.hasPrevPage,
+    };
   }
 
   async getUsersPaginated(

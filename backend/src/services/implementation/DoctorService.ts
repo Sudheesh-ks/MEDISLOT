@@ -89,7 +89,7 @@ export class DoctorService implements IDoctorService {
     // });
     const [uploadResult, certificateUpload] = await Promise.all([
       cloudinary.uploader.upload(image, { resource_type: 'image', type: 'authenticated' }),
-      cloudinary.uploader.upload(certificate, { resource_type: 'auto', type: 'authenticated'  }),
+      cloudinary.uploader.upload(certificate, { resource_type: 'auto', type: 'authenticated' }),
     ]);
 
     imageUrl = uploadResult.public_id;
@@ -118,13 +118,13 @@ export class DoctorService implements IDoctorService {
   }
 
   async getPublicDoctorById(id: string): Promise<DoctorDTO> {
-     if (!id) throw new Error('Doctor ID is required');
+    if (!id) throw new Error('Doctor ID is required');
 
-  const doctor = await this._doctorRepository.getDoctorProfileById(id);
-  if (!doctor) throw new Error('Doctor not found');
+    const doctor = await this._doctorRepository.getDoctorProfileById(id);
+    if (!doctor) throw new Error('Doctor not found');
 
-  // ✅ Use the mapper that includes the Cloudinary signed URL logic
-  return toDoctorDTO(doctor);
+    // ✅ Use the mapper that includes the Cloudinary signed URL logic
+    return toDoctorDTO(doctor);
   }
 
   async toggleAvailability(docId: string): Promise<void> {

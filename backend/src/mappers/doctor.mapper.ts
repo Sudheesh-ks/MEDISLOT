@@ -2,9 +2,8 @@ import { DoctorDTO } from '../dtos/doctor.dto';
 import { DoctorDocument } from '../models/doctorModel';
 import { v2 as cloudinary } from 'cloudinary';
 
-
 export const toDoctorDTO = (doc: DoctorDocument): DoctorDTO => {
-   let imageUrl = doc.image;
+  let imageUrl = doc.image;
   let certificateUrl = doc.certificate;
 
   if (imageUrl && !imageUrl.includes('res.cloudinary.com')) {
