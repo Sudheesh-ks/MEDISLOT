@@ -88,11 +88,11 @@ export class DoctorService implements IDoctorService {
     //   resource_type: 'image',
     // });
     const [uploadResult, certificateUpload] = await Promise.all([
-      cloudinary.uploader.upload(image, { resource_type: 'image' }),
-      cloudinary.uploader.upload(certificate, { resource_type: 'auto' }),
+      cloudinary.uploader.upload(image, { resource_type: 'image', type: 'authenticated' }),
+      cloudinary.uploader.upload(certificate, { resource_type: 'auto', type: 'authenticated'  }),
     ]);
 
-    imageUrl = uploadResult.secure_url;
+    imageUrl = uploadResult.public_id;
 
     // const certificateUpload = await cloudinary.uploader.upload(certificate, {
     //   resource_type: 'auto',
@@ -118,38 +118,13 @@ export class DoctorService implements IDoctorService {
   }
 
   async getPublicDoctorById(id: string): Promise<DoctorDTO> {
-    if (!id) throw new Error('Doctor ID is required');
+     if (!id) throw new Error('Doctor ID is required');
 
-    const doctor = await this._doctorRepository.getDoctorProfileById(id);
-    if (!doctor) throw new Error('Doctor not found');
+  const doctor = await this._doctorRepository.getDoctorProfileById(id);
+  if (!doctor) throw new Error('Doctor not found');
 
-    const {
-      _id,
-      name,
-      email,
-      address,
-      speciality,
-      degree,
-      experience,
-      about,
-      image,
-      fees,
-      available,
-    } = doctor;
-
-    return {
-      _id,
-      name,
-      email,
-      address,
-      speciality,
-      degree,
-      experience,
-      about,
-      image,
-      fees,
-      available,
-    };
+  // ✅ Use the mapper that includes the Cloudinary signed URL logic
+  return toDoctorDTO(doctor);
   }
 
   async toggleAvailability(docId: string): Promise<void> {
@@ -488,8 +463,9 @@ export class DoctorService implements IDoctorService {
       try {
         const uploadResult = await cloudinary.uploader.upload(imageFile.path, {
           resource_type: 'image',
+          type: 'authenticated',
         });
-        imageUrl = uploadResult.secure_url;
+        imageUrl = uploadResult.public_id;
         fs.unlink(imageFile.path, (err) => {
           if (err) console.error('Failed to delete local file:', err);
         });

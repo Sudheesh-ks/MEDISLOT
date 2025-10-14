@@ -48,6 +48,7 @@ import { RazorpayOrderDTO } from '../../types/payment';
 import { slotDTO } from '../../dtos/slot.dto';
 import { ISlotService } from '../interface/ISlotService';
 import { ITempAppointmentRepository } from '../../repositories/interface/ITempAppointmentRepository';
+import { toDoctorDTO } from '../../mappers/doctor.mapper';
 
 export interface UserDocument extends userTypes {
   _id: string;
@@ -301,8 +302,9 @@ export class UserService implements IUserService {
     if (imageFile) {
       const imageUpload = await cloudinary.uploader.upload(imageFile.path, {
         resource_type: 'image',
+        type: 'authenticated',
       });
-      data.image = imageUpload.secure_url;
+      data.image = imageUpload.public_id;
     }
 
     await this._userRepository.updateUserById(userId, data);
@@ -338,7 +340,7 @@ export class UserService implements IUserService {
   async getDoctorById(id: string): Promise<DoctorDTO> {
     const doctor = await this._userRepository.findDoctorById(id);
     if (!doctor) throw new Error('Doctor not found');
-    return doctor;
+    return toDoctorDTO(doctor);
   }
 
   async getUserWalletPaginated(
