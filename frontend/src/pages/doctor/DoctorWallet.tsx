@@ -1,11 +1,12 @@
 import { useContext, useEffect, useState } from 'react';
-import { CreditCard, Eye, EyeOff, Search, TrendingUp, Wallet } from 'lucide-react';
+import { CreditCard, Eye, EyeOff, TrendingUp, Wallet } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { getDoctorWalletAPI } from '../../services/doctorServices';
 import { currencySymbol } from '../../utils/commonUtils';
 import Pagination from '../../components/common/Pagination';
 import { DoctorContext } from '../../context/DoctorContext';
 import { useNavigate } from 'react-router-dom';
+import SearchBar from '../../components/common/SearchBar';
 
 const glass = 'bg-white/5 backdrop-blur ring-1 ring-white/10';
 const cardBase = 'text-white p-6 rounded-xl shadow-md flex items-center gap-4';
@@ -153,14 +154,13 @@ const DoctorWallet = () => {
           {/* Filters */}
           <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
             {/* Search */}
-            <div className="relative w-full sm:w-48">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search..."
-                className="w-full pl-9 pr-4 py-1.5 text-sm rounded-lg bg-white/10 border border-white/20 text-white placeholder:text-slate-400 focus:outline-none"
+            <div className="flex-1 sm:flex-initial">
+              <SearchBar
+                placeholder="Search transactions..."
+                onSearch={(value) => {
+                  setSearchTerm(value);
+                  setCurrentPage(1);
+                }}
               />
             </div>
 
