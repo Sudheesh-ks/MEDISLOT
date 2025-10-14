@@ -221,9 +221,13 @@ const DoctorAddBlogPage = () => {
                   Estimated Read Time
                 </label>
                 <input
-                  type="text"
+                  type="number"
                   value={readTime}
-                  onChange={(e) => setReadTime(e.target.value)}
+                  onChange={(e) => {
+                    const value = Math.max(0, Number(e.target.value)).toString();
+                    setReadTime(value);
+                  }}
+                  min={0}
                   placeholder="e.g., 8 min read"
                   className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent placeholder-slate-500"
                 />
