@@ -13,6 +13,8 @@ import { WalletRepository } from '../repositories/implementation/WalletRepositor
 import { FeedbackRepository } from '../repositories/implementation/FeedbackRepository';
 import { ComplaintRepository } from '../repositories/implementation/ComplaintRepository';
 import { PatientHistoryRepository } from '../repositories/implementation/PatientHistoryRepository';
+import { SlotService } from '../services/implementation/SlotService';
+import { TempAppointmentRepository } from '../repositories/implementation/TempAppointmentRepository';
 
 // Repositories
 const userRepository = new UserRepository();
@@ -24,22 +26,26 @@ const walletRepository = new WalletRepository();
 const feedbackRepository = new FeedbackRepository();
 const complaintRepository = new ComplaintRepository();
 const patientHistoryRepository = new PatientHistoryRepository();
+const tempAppointmentRepository = new TempAppointmentRepository();
 
 // Services
 const paymentService = new PaymentService();
 const notificationService = new NotificationService(notificationRepository);
 const blogService = new BlogService(blogRepository, userRepository);
 const chatBotService = new ChatBotService(chatBotRepository);
+const slotService = new SlotService(slotRepository);
 
 const userService = new UserService(
   userRepository,
   paymentService,
+  slotService,
   slotRepository,
   walletRepository,
   notificationService,
   feedbackRepository,
   complaintRepository,
-  patientHistoryRepository
+  patientHistoryRepository,
+  tempAppointmentRepository
 );
 
 // Controller
@@ -50,3 +56,5 @@ export const userController = new UserController(
   blogService,
   chatBotService
 );
+
+export { userService };

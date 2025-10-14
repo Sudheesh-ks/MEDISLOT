@@ -1,4 +1,4 @@
-import { RazorpayOrderDTO } from '../implementation/PaymentService';
+import { RazorpayOrderDTO } from '../../types/payment';
 
 export interface IPaymentService {
   createOrder(amountPaise: number, receipt: string): Promise<RazorpayOrderDTO>;

@@ -63,6 +63,12 @@ userRouter.post(
   userController.verifyRazorpay.bind(userController)
 );
 
+userRouter.post(
+  '/appointments/cancel-temp',
+  authRole(['user']),
+  userController.cancelTempBookingHandler.bind(userController)
+);
+
 userRouter.get(
   '/available-slots',
   authRole(['user']),
@@ -160,6 +166,17 @@ userRouter.get(
   authRole(['user']),
   userController.getChatHistory.bind(userController)
 );
+
+userRouter.post(
+  '/cleanup-expired-locks',
+  authRole(['admin']),
+  userController.cleanupExpiredLocks.bind(userController)
+);
+
+// userRouter.get(
+//   '/test-redis',
+//   userController.testRedisConnection.bind(userController)
+// );
 
 userRouter.get('/:id', userController.getUserById.bind(userController));
 

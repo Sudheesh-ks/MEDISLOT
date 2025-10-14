@@ -10,7 +10,7 @@ export interface ISlotService {
     isCancelled: boolean
   ): Promise<any>;
   deleteDaySlot(doctorId: string, date: string): Promise<slotDTO>;
-  getDayAvailability(doctorId: string, date: string): Promise<slotDTO>;
+  getDayAvailability(doctorId: string, date: string, userId: string): Promise<SlotRange[]>;
   updateDefaultSlot(
     doctorId: string,
     weekday: number,
@@ -18,4 +18,19 @@ export interface ISlotService {
     isCancelled: boolean
   ): Promise<slotDTO>;
   getDefaultSlot(doctorId: string, weekday: number): Promise<slotDTO>;
+  lockSlot(
+    doctorId: string,
+    date: string,
+    start: string,
+    end: string,
+    userId: string
+  ): Promise<{ success: boolean; expiresAt: Date }>;
+
+  releaseSlotLock(
+    doctorId: string,
+    date: string,
+    start: string,
+    end: string,
+    userId: string
+  ): Promise<void>;
 }

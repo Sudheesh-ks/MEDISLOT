@@ -10,13 +10,12 @@ import RelatedDoctors from '../../components/user/RelatedDoctors';
 import { toast } from 'react-toastify';
 import {
   appointmentBookingAPI,
-  cancelAppointmentAPI,
   getAvailableSlotsAPI,
   getDoctorReviewsAPI,
 } from '../../services/appointmentServices';
 import { showErrorToast } from '../../utils/errorHandler';
 import type { RazorpayOptions, RazorpayPaymentResponse } from '../../types/razorpay';
-import { PaymentRazorpayAPI, VerifyRazorpayAPI } from '../../services/paymentServices';
+import { cancelTempBookingAPI, VerifyRazorpayAPI } from '../../services/paymentServices';
 import { getDoctorsByIDAPI } from '../../services/doctorServices';
 import type { DoctorProfileType } from '../../types/doctor';
 import { currencySymbol } from '../../utils/commonUtils';
@@ -128,8 +127,9 @@ const Appointment = () => {
 
   const initPay = (
     order: { id: string; amount: number; currency: string; receipt?: string },
-    appointmentId: string
+    tempBookingId: string
   ) => {
+    console.log(order.amount);
     const opts: RazorpayOptions = {
       key: import.meta.env.VITE_RAZORPAY_KEY_ID,
       amount: order.amount,
@@ -138,23 +138,49 @@ const Appointment = () => {
       description: 'Appointment Payment',
       order_id: order.id,
       receipt: order.receipt,
+
       handler: async (res: RazorpayPaymentResponse) => {
         try {
-          const { data } = await VerifyRazorpayAPI(appointmentId, res);
-          if (data.success) toast.success('Payment successful');
+          const { data } = await VerifyRazorpayAPI(tempBookingId, res);
+
+          if (data.success) {
+            toast.success('Payment successful');
+            navigate('/my-appointments');
+          } else {
+            throw new Error(data.message || 'Payment verification failed');
+          }
         } catch (err) {
-          showErrorToast(err);
-        } finally {
-          navigate('/my-appointments');
+          console.error('Payment verification failed:', err);
+          toast.error('Payment failed. Releasing slot lock...');
+
+          try {
+            console.log('Releasing lock for tempBookingId:', tempBookingId);
+            const { data } = await cancelTempBookingAPI(tempBookingId);
+            if (data.success) {
+              toast.info('Slot lock released due to payment failure');
+            } else {
+              console.error('Failed to release slot lock:', data.message);
+            }
+          } catch (cleanupErr) {
+            console.error('Error releasing slot lock:', cleanupErr);
+          }
         }
       },
+
       modal: {
         ondismiss: async () => {
-          toast.warn('Payment failed');
+          toast.warn('Payment cancelled');
           try {
-            await cancelAppointmentAPI(appointmentId);
+            console.log('Modal dismissed. Releasing lock for tempBookingId:', tempBookingId);
+            const { data } = await cancelTempBookingAPI(tempBookingId);
+            console.log('Cancel temp booking response (modal dismiss):', data);
+            if (data.success) {
+              toast.info('Temporary booking released');
+            } else {
+              console.error('Failed to release slot lock:', data.message);
+            }
           } catch (err) {
-            console.error('Failed to cancel appointment:', err);
+            console.error('Failed to cancel temporary booking:', err);
           }
         },
       },
@@ -177,16 +203,9 @@ const Appointment = () => {
 
       if (!res.data.success) return toast.error(res.data.message);
 
-      const apptId = res.data?.appointmentId ?? res.data?.appointment?._id;
-      if (!apptId) return toast.error('Failed to retrieve appointment ID');
-
-      const paymentRes = await PaymentRazorpayAPI(apptId);
-      if (paymentRes.data.success) {
-        initPay(paymentRes.data.order, apptId);
-      } else {
-        toast.error('Unable to initiate payment');
-        navigate('/my-appointments');
-      }
+      const { tempBookingId, order } = res.data;
+      console.log('Order amount:', order.amount);
+      initPay(order, tempBookingId);
     } catch (err) {
       showErrorToast(err);
     }

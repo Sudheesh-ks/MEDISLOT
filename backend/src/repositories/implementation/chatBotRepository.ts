@@ -6,6 +6,9 @@ export class ChatBotRepository
   extends BaseRepository<chatBotDocument>
   implements IChatBotRepository
 {
+  constructor() {
+    super(chatBotModel);
+  }
   async saveMessage(userId: string, role: 'user' | 'bot', text: string): Promise<chatBotDocument> {
     return await chatBotModel.create({ userId, role, text });
   }

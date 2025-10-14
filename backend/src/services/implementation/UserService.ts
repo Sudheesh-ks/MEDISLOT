@@ -35,7 +35,6 @@ import { ioInstance } from '../../sockets/ChatSocket';
 import { FeedbackDTO } from '../../dtos/feedback.dto';
 import { toFeedbackDTO } from '../../mappers/feedback.mapper';
 import { ComplaintTypes } from '../../types/complaint';
-import dayjs from 'dayjs';
 import { IPaymentService } from '../interface/IPaymentService';
 import { ISlotRepository } from '../../repositories/interface/ISlotRepository';
 import { IWalletRepository } from '../../repositories/interface/IWalletRepository';
@@ -47,6 +46,8 @@ import { DoctorDTO } from '../../dtos/doctor.dto';
 import { generateShortAppointmentId } from '../../utils/generateApptId.utils';
 import { RazorpayOrderDTO } from '../../types/payment';
 import { slotDTO } from '../../dtos/slot.dto';
+import { ISlotService } from '../interface/ISlotService';
+import { ITempAppointmentRepository } from '../../repositories/interface/ITempAppointmentRepository';
 
 export interface UserDocument extends userTypes {
   _id: string;
@@ -58,12 +59,14 @@ export class UserService implements IUserService {
   constructor(
     private readonly _userRepository: IUserRepository,
     private readonly _paymentService: IPaymentService,
+    private readonly _slotService: ISlotService,
     private readonly _slotRepository: ISlotRepository,
     private readonly _walletRepository: IWalletRepository,
     private readonly _notificationService: INotificationService,
     private readonly _feedbackRepository: IFeedbackRepository,
     private readonly _complaintRepository: IComplaintRepository,
-    private readonly _patientHistoryRepository: IPatientHistoryRepository
+    private readonly _patientHistoryRepository: IPatientHistoryRepository,
+    private readonly _tempAppointmentRepository: ITempAppointmentRepository
   ) {}
 
   async register(name: string, email: string, password: string): Promise<void> {
@@ -363,7 +366,55 @@ export class UserService implements IUserService {
     };
   }
 
-  async bookAppointment({
+  //   async bookAppointment({
+  //   userId,
+  //   docId,
+  //   slotDate,
+  //   slotStartTime,
+  //   slotEndTime,
+  // }: {
+  //   userId: string;
+  //   docId: string;
+  //   slotDate: string;
+  //   slotStartTime: string;
+  //   slotEndTime: string;
+  // }): Promise<AppointmentDTO> {
+  //   if (!userId || !docId || !slotDate || !slotStartTime || !slotEndTime) {
+  //     throw new Error('All fields are required');
+  //   }
+
+  //   // 1️⃣ Lock the slot first
+  //   await this._slotService.lockSlot(docId, isoDate(slotDate), slotStartTime, slotEndTime, userId);
+
+  //   // 2️⃣ Fetch user and doctor
+  //   const [user, doctor] = await Promise.all([
+  //     this._userRepository.findUserById(userId),
+  //     this._userRepository.findDoctorById(docId),
+  //   ]);
+
+  //   if (!user) throw new Error('User not found');
+  //   if (!doctor) throw new Error('Doctor not found');
+
+  //   // 3️⃣ Prepare appointment
+  //   const appointmentData: AppointmentTypes = {
+  //     userId,
+  //     docId,
+  //     slotDate,
+  //     slotStartTime,
+  //     slotEndTime,
+  //     userData: user,
+  //     docData: doctor,
+  //     amount: doctor.fees,
+  //     date: Date.now(),
+  //   };
+
+  //   // 4️⃣ Save appointment
+  //   const booked = await this._userRepository.bookAppointment(appointmentData);
+
+  //   return toAppointmentDTO(booked);
+  // }
+
+  async initiateBooking({
     userId,
     docId,
     slotDate,
@@ -375,9 +426,20 @@ export class UserService implements IUserService {
     slotDate: string;
     slotStartTime: string;
     slotEndTime: string;
-  }): Promise<AppointmentDTO> {
+  }): Promise<{ lockExpiresAt: Date; order: RazorpayOrderDTO; tempBookingId: string }> {
     if (!userId || !docId || !slotDate || !slotStartTime || !slotEndTime) {
       throw new Error('All fields are required');
+    }
+
+    const existingTempAppointment = await this._tempAppointmentRepository.findActiveTempAppointment(
+      docId,
+      slotDate,
+      slotStartTime,
+      slotEndTime
+    );
+
+    if (existingTempAppointment) {
+      throw new Error('Slot temporarily unavailable - another user is booking this slot');
     }
 
     const [user, doctor] = await Promise.all([
@@ -385,13 +447,19 @@ export class UserService implements IUserService {
       this._userRepository.findDoctorById(docId),
     ]);
 
-    // const user = await this._userRepository.findUserById(userId);
     if (!user) throw new Error('User not found');
-
-    // const doctor = await this._userRepository.findDoctorById(docId);
     if (!doctor) throw new Error('Doctor not found');
 
-    const appointmentData: AppointmentTypes = {
+    const amountInPaise = doctor.fees * 100;
+    if (!amountInPaise || amountInPaise <= 0) {
+      throw new Error('Invalid appointment amount');
+    }
+
+    const order = await this._paymentService.createOrder(amountInPaise, `temp_${Date.now()}`);
+
+    const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
+
+    const tempAppointmentData = {
       userId,
       docId,
       slotDate,
@@ -400,11 +468,22 @@ export class UserService implements IUserService {
       userData: user,
       docData: doctor,
       amount: doctor.fees,
-      date: Date.now(),
+      razorpayOrderId: order.id,
+      status: 'pending_payment' as const,
+      expiresAt,
     };
 
-    const booked = await this._userRepository.bookAppointment(appointmentData);
-    return toAppointmentDTO(booked);
+    const tempAppointment =
+      await this._tempAppointmentRepository.createTempAppointment(tempAppointmentData);
+
+    console.log(`Temporary appointment created: ${tempAppointment._id}`);
+    console.log(`Expires at: ${expiresAt}`);
+
+    return {
+      lockExpiresAt: expiresAt,
+      order,
+      tempBookingId: tempAppointment._id.toString(),
+    };
   }
 
   async listUserAppointmentsPaginated(
@@ -484,6 +563,13 @@ export class UserService implements IUserService {
       this._walletRepository.debitWallet(doctorId, 'doctor', doctorShare, reason),
       this._walletRepository.debitWallet(adminId!, 'admin', adminShare, reason),
       this._userRepository.cancelAppointment(userId, appointmentId),
+      this._slotService.releaseSlotLock(
+        doctorId,
+        appointment.slotDate,
+        appointment.slotStartTime,
+        appointment.slotEndTime,
+        userId
+      ),
       this._notificationService.sendNotification({
         recipientId: doctorId,
         recipientRole: 'doctor',
@@ -527,85 +613,176 @@ export class UserService implements IUserService {
     return { order };
   }
 
-  async verifyPayment(
-    userId: string,
-    appointmentId: string,
-    razorpay_order_id: string
-  ): Promise<void> {
-    if (!userId || !appointmentId || !razorpay_order_id) {
-      throw new Error('Missing required payment verification details');
+  // async verifyPayment(
+  //   userId: string,
+  //   appointmentId: string,
+  //   razorpay_order_id: string
+  // ): Promise<void> {
+  //   if (!userId || !appointmentId || !razorpay_order_id) {
+  //     throw new Error('Missing required payment verification details');
+  //   }
+
+  //   const appointment = await this._userRepository.findPayableAppointment(userId, appointmentId);
+  //   if (!appointment) {
+  //     throw new Error('No payable appointment found');
+  //   }
+
+  //   const orderInfo = await this._paymentService.fetchOrder(razorpay_order_id);
+
+  //   if (orderInfo.status !== 'paid') {
+  //     throw new Error('Payment not completed');
+  //   }
+
+  //   if (orderInfo.receipt !== appointmentId) {
+  //     throw new Error('Receipt mismatch with appointment');
+  //   }
+
+  //   await this._userRepository.markAppointmentPaid(appointmentId);
+
+  //   const amount = appointment.amount;
+  //   const adminShare = Math.round(amount * 0.2);
+  //   const doctorShare = amount - adminShare;
+
+  //   if (!adminId) {
+  //     throw new Error('Admin wallet ID not configured');
+  //   }
+
+  //   // await this._walletRepository.creditWallet(
+  //   //   adminId,
+  //   //   'admin',
+  //   //   adminShare,
+  //   //   `Admin share for appointment ${generateShortAppointmentId(appointmentId)} from ${appointment.userData.name} to ${appointment.docData.name}`
+  //   // );
+
+  //   // await this._walletRepository.creditWallet(
+  //   //   appointment.docId.toString(),
+  //   //   'doctor',
+  //   //   doctorShare,
+  //   //   `Doctor share for appointment ${generateShortAppointmentId(appointmentId)} from ${appointment.userData.name}`
+  //   // );
+
+  //   await Promise.all([
+  //     this._walletRepository.creditWallet(
+  //       adminId,
+  //       'admin',
+  //       adminShare,
+  //       `Admin share for appointment ${generateShortAppointmentId(appointmentId)} from ${appointment.userData.name} to ${appointment.docData.name}`
+  //     ),
+
+  //     this._walletRepository.creditWallet(
+  //       appointment.docId.toString(),
+  //       'doctor',
+  //       doctorShare,
+  //       `Doctor share for appointment ${generateShortAppointmentId(appointmentId)} from ${appointment.userData.name}`
+  //     ),
+  //   ]);
+  // }
+
+  async verifyPayment(userId: string, tempBookingId: string, razorpay_order_id: string) {
+    const tempAppointment =
+      await this._tempAppointmentRepository.findTempAppointmentById(tempBookingId);
+    if (!tempAppointment) {
+      throw new Error('Temporary appointment not found or expired');
     }
 
-    const appointment = await this._userRepository.findPayableAppointment(userId, appointmentId);
-    if (!appointment) {
-      throw new Error('No payable appointment found');
+    if (tempAppointment.expiresAt < new Date()) {
+      throw new Error('Temporary appointment has expired');
+    }
+
+    if (tempAppointment.userId.toString() !== userId.toString()) {
+      throw new Error('Unauthorized access to temporary appointment');
     }
 
     const orderInfo = await this._paymentService.fetchOrder(razorpay_order_id);
-
     if (orderInfo.status !== 'paid') {
       throw new Error('Payment not completed');
     }
 
-    if (orderInfo.receipt !== appointmentId) {
-      throw new Error('Receipt mismatch with appointment');
+    if (orderInfo.id !== tempAppointment.razorpayOrderId) {
+      throw new Error('Order ID mismatch');
     }
 
-    await this._userRepository.markAppointmentPaid(appointmentId);
+    const appointmentData: AppointmentTypes = {
+      userId: tempAppointment.userId,
+      docId: tempAppointment.docId,
+      slotDate: tempAppointment.slotDate,
+      slotStartTime: tempAppointment.slotStartTime,
+      slotEndTime: tempAppointment.slotEndTime,
+      userData: tempAppointment.userData,
+      docData: tempAppointment.docData,
+      amount: tempAppointment.amount,
+      date: Date.now(),
+      payment: true,
+    };
 
-    const amount = appointment.amount;
-    const adminShare = Math.round(amount * 0.2);
-    const doctorShare = amount - adminShare;
-
-    if (!adminId) {
-      throw new Error('Admin wallet ID not configured');
-    }
-
-    // await this._walletRepository.creditWallet(
-    //   adminId,
-    //   'admin',
-    //   adminShare,
-    //   `Admin share for appointment ${generateShortAppointmentId(appointmentId)} from ${appointment.userData.name} to ${appointment.docData.name}`
-    // );
-
-    // await this._walletRepository.creditWallet(
-    //   appointment.docId.toString(),
-    //   'doctor',
-    //   doctorShare,
-    //   `Doctor share for appointment ${generateShortAppointmentId(appointmentId)} from ${appointment.userData.name}`
-    // );
+    const booked = await this._userRepository.bookAppointment(appointmentData);
+    await this._userRepository.markAppointmentPaid(booked._id.toString());
 
     await Promise.all([
-      this._walletRepository.creditWallet(
-        adminId,
-        'admin',
-        adminShare,
-        `Admin share for appointment ${generateShortAppointmentId(appointmentId)} from ${appointment.userData.name} to ${appointment.docData.name}`
+      this._slotRepository.markSlotBooked(
+        tempAppointment.docId,
+        tempAppointment.slotDate,
+        tempAppointment.slotStartTime,
+        tempAppointment.slotEndTime
       ),
-
-      this._walletRepository.creditWallet(
-        appointment.docId.toString(),
-        'doctor',
-        doctorShare,
-        `Doctor share for appointment ${generateShortAppointmentId(appointmentId)} from ${appointment.userData.name}`
-      ),
+      this._tempAppointmentRepository.deleteTempAppointment(tempBookingId),
     ]);
+
+    console.log(`Appointment created successfully: ${booked._id}`);
+    console.log(`Temporary appointment cleaned up: ${tempBookingId}`);
+
+    return toAppointmentDTO(booked);
   }
 
-  async getAvailableSlotsByDate(doctorId: string, date: string): Promise<SlotRange[]> {
+  async cancelTempBooking(tempBookingId: string): Promise<any> {
+    console.log(`Attempting to cancel temp booking: ${tempBookingId}`);
+
+    const tempAppointment =
+      await this._tempAppointmentRepository.findTempAppointmentById(tempBookingId);
+
+    if (!tempAppointment) {
+      console.log('No temp appointment found');
+      return;
+    }
+
+    console.log('Temp appointment data:', {
+      id: tempAppointment._id,
+      userId: tempAppointment.userId,
+      docId: tempAppointment.docId,
+      slotDate: tempAppointment.slotDate,
+      slotStartTime: tempAppointment.slotStartTime,
+      slotEndTime: tempAppointment.slotEndTime,
+      status: tempAppointment.status,
+      expiresAt: tempAppointment.expiresAt,
+    });
+
+    // Update status to cancelled and delete the temp appointment
+    await this._tempAppointmentRepository.updateTempAppointmentStatus(tempBookingId, 'cancelled');
+    await this._tempAppointmentRepository.deleteTempAppointment(tempBookingId);
+
+    console.log('Temp appointment cancelled and deleted successfully');
+  }
+
+  async cleanupExpiredLocks(): Promise<void> {
+    try {
+      const deletedCount = await this._tempAppointmentRepository.cleanupExpiredTempAppointments();
+      console.log(`Cleaned up ${deletedCount} expired temp appointments`);
+    } catch (error) {
+      console.error('Error cleaning up expired temp appointments:', error);
+    }
+  }
+
+  async getAvailableSlotsByDate(
+    doctorId: string,
+    date: string,
+    userId: string
+  ): Promise<SlotRange[]> {
     if (!doctorId || !date) {
       throw new Error('doctorId and date are required');
     }
 
-    const overrideDoc = await this._slotRepository.getSlotByDate(doctorId, isoDate(date));
-    if (overrideDoc) {
-      return (overrideDoc.slots as SlotRange[])?.filter((r) => r.isAvailable && !r.booked) ?? [];
-    }
-
-    const weekday = dayjs(date).day();
-    const defaultDoc = await this._slotRepository.getDefaultSlotByWeekday(doctorId, weekday);
-
-    return (defaultDoc?.slots as SlotRange[])?.filter((r) => r.isAvailable && !r.booked) ?? [];
+    const slots = await this._slotService.getDayAvailability(doctorId, isoDate(date), userId);
+    return slots.filter((r) => r.isAvailable && !r.booked);
   }
 
   async getAvailableSlotsForDoctor(

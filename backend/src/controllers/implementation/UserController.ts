@@ -326,18 +326,20 @@ export class UserController implements IUserController {
       const userId = (req as any).userId;
       const { docId, slotDate, slotStartTime, slotEndTime } = req.body;
 
-      const appointment = await this._userService.bookAppointment({
+      const { tempBookingId, order, lockExpiresAt } = await this._userService.initiateBooking({
         userId,
         docId,
         slotDate,
         slotStartTime,
         slotEndTime,
       });
-      logger.info(`Appointment booked for user ${userId}`);
+      logger.info(`Appointment booking initiated for user ${userId}`);
       res.status(HttpStatus.OK).json({
         success: true,
         message: HttpResponse.APPOINTMENT_BOOKED,
-        appointment,
+        tempBookingId,
+        order,
+        lockExpiresAt,
       });
     } catch (error) {
       logger.error(`Book appointment error: ${error}`);
@@ -438,13 +440,19 @@ export class UserController implements IUserController {
   async verifyRazorpay(req: Request, res: Response): Promise<void> {
     try {
       const userId = (req as any).userId;
+      console.log(userId);
       const { appointmentId, razorpay_order_id } = req.body;
 
-      await this._userService.verifyPayment(userId, appointmentId, razorpay_order_id);
-      logger.info(`Payment verified for appointment ${appointmentId}`);
+      const result = await this._userService.verifyPayment(
+        userId,
+        appointmentId,
+        razorpay_order_id
+      );
+      logger.info(`Payment verified for temp booking ${appointmentId}`);
       res.status(HttpStatus.OK).json({
         success: true,
         message: HttpResponse.PAYMENT_SUCCESS,
+        data: result,
       });
     } catch (error) {
       logger.error(`Payment verify error: ${error}`);
@@ -452,6 +460,20 @@ export class UserController implements IUserController {
         success: false,
         message: (error as Error).message,
       });
+    }
+  }
+
+  async cancelTempBookingHandler(req: Request, res: Response): Promise<void> {
+    try {
+      const { tempBookingId } = req.body;
+      if (!tempBookingId) {
+        res.status(400).json({ success: false, message: 'tempBookingId required' });
+        return;
+      }
+      await this._userService.cancelTempBooking(tempBookingId);
+      res.json({ success: true });
+    } catch (err) {
+      res.status(500).json({ success: false, message: (err as Error).message });
     }
   }
 
@@ -486,13 +508,18 @@ export class UserController implements IUserController {
 
   async getAvailableSlotsByDate(req: Request, res: Response): Promise<void> {
     try {
+      const userId = (req as any).userId;
       const { doctorId, date } = req.query;
       if (!doctorId || !date) {
         res.status(400).json({ success: false, message: 'doctorId & date required' });
         return;
       }
 
-      const data = await this._userService.getAvailableSlotsByDate(String(doctorId), String(date));
+      const data = await this._userService.getAvailableSlotsByDate(
+        String(doctorId),
+        String(date),
+        userId
+      );
       logger.info(`Available slots by date fetched for doctor ${doctorId} on ${date}`);
       res.json({ success: true, data });
     } catch (err) {
@@ -839,4 +866,55 @@ export class UserController implements IUserController {
       });
     }
   }
+
+  async cleanupExpiredLocks(req: Request, res: Response): Promise<void> {
+    try {
+      await this._userService.cleanupExpiredLocks();
+      logger.info('Expired locks cleaned up successfully');
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: 'Expired locks cleaned up successfully',
+      });
+    } catch (error) {
+      logger.error(`Error cleaning up expired locks: ${(error as Error).message}`);
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: (error as Error).message,
+      });
+    }
+  }
+
+  // async testRedisConnection(req: Request, res: Response): Promise<void> {
+  //   try {
+  //     const { userService } = await import('../../dependencyHandlers/user.dependencies');
+  //     const { redis } = await import('../../config/redis');
+
+  //     // Test Redis connection
+  //     await redis.ping();
+
+  //     // Get all keys
+  //     const allKeys = await redis.keys('*');
+  //     const tempBookingKeys = await redis.keys('tempBooking:*');
+  //     const slotKeys = await redis.keys('slot:*');
+
+  //     res.status(HttpStatus.OK).json({
+  //       success: true,
+  //       message: 'Redis connection successful',
+  //       data: {
+  //         allKeys,
+  //         tempBookingKeys,
+  //         slotKeys,
+  //         totalKeys: allKeys.length,
+  //         tempBookingCount: tempBookingKeys.length,
+  //         slotLockCount: slotKeys.length,
+  //       },
+  //     });
+  //   } catch (error) {
+  //     logger.error(`Redis test error: ${(error as Error).message}`);
+  //     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+  //       success: false,
+  //       message: (error as Error).message,
+  //     });
+  //   }
+  // }
 }

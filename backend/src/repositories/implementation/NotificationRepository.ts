@@ -8,6 +8,10 @@ export class NotificationRepository
   extends BaseRepository<NotificationDocument>
   implements INotificationRepository
 {
+  constructor() {
+    super(NotificationModel);
+  }
+
   async createNotification(data: Partial<NotificationTypes>): Promise<NotificationDocument> {
     return NotificationModel.create(data);
   }

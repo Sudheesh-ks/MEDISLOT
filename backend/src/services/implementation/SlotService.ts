@@ -4,10 +4,12 @@ import { ISlotService } from '../interface/ISlotService';
 import { SlotRange } from '../../types/slots';
 import { ISlotRepository } from '../../repositories/interface/ISlotRepository';
 import { slotDTO } from '../../dtos/slot.dto';
+import slotModel from '../../models/slotModel';
+import mongoose from 'mongoose';
 
 dayjs.extend(customParse);
 
-export class DoctorSlotService implements ISlotService {
+export class SlotService implements ISlotService {
   constructor(private readonly _slotRepository: ISlotRepository) {}
 
   async getMonthlySlots(doctorId: string, year: number, month: number): Promise<slotDTO[]> {
@@ -43,13 +45,26 @@ export class DoctorSlotService implements ISlotService {
     return this._slotRepository.deleteSlot(doctorId, date);
   }
 
-  async getDayAvailability(doctorId: string, date: string): Promise<slotDTO> {
+  async getDayAvailability(doctorId: string, date: string, userId?: string): Promise<SlotRange[]> {
     const override = await this._slotRepository.getSlotByDate(doctorId, date);
-    if (override) return override.slots;
+
+    const isExpired = (slot: any) =>
+      !slot.locked || !slot.lockExpiresAt || new Date(slot.lockExpiresAt) < new Date();
+
+    const isAllowed = (slot: any) => isExpired(slot) || slot.lockedBy === userId;
+
+    if (override?.slots?.length) {
+      return override.slots.filter((slot: any) => !slot.booked && isAllowed(slot));
+    }
 
     const weekday = dayjs(date).day();
     const defaults = await this._slotRepository.getDefaultSlotByWeekday(doctorId, weekday);
-    return defaults?.slots ?? [];
+
+    if (defaults?.slots?.length) {
+      return defaults.slots.filter((slot: any) => !slot.booked && isAllowed(slot));
+    }
+
+    return [];
   }
 
   async updateDefaultSlot(
@@ -64,5 +79,60 @@ export class DoctorSlotService implements ISlotService {
 
   async getDefaultSlot(doctorId: string, weekday: number): Promise<slotDTO> {
     return this._slotRepository.getDefaultSlot(doctorId, weekday);
+  }
+
+  async lockSlot(
+    doctorId: string,
+    date: string,
+    start: string,
+    end: string,
+    userId: string
+  ): Promise<{ success: boolean; expiresAt: Date }> {
+    const slotDoc = await this._slotRepository.getSlotByDate(doctorId, date);
+    if (!slotDoc) throw new Error('No slots found');
+
+    const slot = slotDoc.slots.find((s: any) => s.start === start && s.end === end);
+    if (!slot) throw new Error('Slot not found');
+    if (slot.booked) throw new Error('Slot already booked');
+    if (
+      slot.locked &&
+      slot.lockExpiresAt &&
+      new Date(slot.lockExpiresAt) > new Date() &&
+      slot.lockedBy.toString() !== userId.toString()
+    ) {
+      throw new Error('Slot temporarily locked by another user');
+    }
+
+    const lockDuration = 5 * 60 * 1000;
+    const expiresAt = new Date(Date.now() + lockDuration);
+
+    await this._slotRepository.lockSlotRecord(doctorId, date, start, end, userId, expiresAt);
+
+    return { success: true, expiresAt };
+  }
+
+  async releaseSlotLock(
+    doctorId: string,
+    date: string,
+    start: string,
+    end: string,
+    userId: string
+  ): Promise<void> {
+    await slotModel.updateOne(
+      {
+        doctorId,
+        date,
+        'slots.start': start,
+        'slots.end': end,
+        'slots.lockedBy': new mongoose.Types.ObjectId(userId),
+      },
+      {
+        $set: {
+          'slots.$.locked': false,
+          'slots.$.lockedBy': null,
+          'slots.$.lockExpiresAt': null,
+        },
+      }
+    );
   }
 }

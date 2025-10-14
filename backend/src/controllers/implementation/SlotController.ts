@@ -28,9 +28,10 @@ export class SlotController implements ISlotController {
   async getDaySlot(req: Request, res: Response): Promise<void> {
     try {
       const doctorId = (req as any).docId;
+      const userId = (req as any).userId;
       const { date } = req.query;
 
-      const data = await this._slotService.getDayAvailability(doctorId, date as string);
+      const data = await this._slotService.getDayAvailability(doctorId, date as string, userId);
       logger.info(`Fetched day slot for ${doctorId} on ${date}`);
 
       res.status(HttpStatus.OK).json({ success: true, data });

@@ -5,6 +5,10 @@ import { ISlotRepository } from '../interface/ISlotRepository';
 import { SlotRange } from '../../types/slots';
 
 export class SlotRepository extends BaseRepository<SlotDocument> implements ISlotRepository {
+  constructor() {
+    super(slotModel);
+  }
+
   async getSlotsByDoctor(doctorId: string): Promise<SlotDocument[]> {
     return slotModel.find({ doctorId }).sort({ date: 1 }).exec();
   }
@@ -57,5 +61,39 @@ export class SlotRepository extends BaseRepository<SlotDocument> implements ISlo
   async getDefaultSlot(doctorId: string, weekday: number): Promise<SlotRange[]> {
     const doc = await slotModel.findOne({ doctorId, weekday }).exec();
     return doc ? doc.slots : [];
+  }
+
+  async lockSlotRecord(
+    doctorId: string,
+    date: string,
+    start: string,
+    end: string,
+    userId: string,
+    lockExpiresAt: Date
+  ): Promise<void> {
+    await slotModel.updateOne(
+      { doctorId, date, 'slots.start': start, 'slots.end': end },
+      {
+        $set: {
+          'slots.$.locked': true,
+          'slots.$.lockedBy': userId,
+          'slots.$.lockExpiresAt': lockExpiresAt,
+        },
+      }
+    );
+  }
+
+  async markSlotBooked(doctorId: string, date: string, start: string, end: string): Promise<void> {
+    await slotModel.updateOne(
+      { doctorId, date, 'slots.start': start, 'slots.end': end },
+      {
+        $set: {
+          'slots.$.booked': true,
+          'slots.$.locked': false,
+          'slots.$.lockedBy': null,
+          'slots.$.lockExpiresAt': null,
+        },
+      }
+    );
   }
 }

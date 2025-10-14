@@ -14,7 +14,6 @@ const SlotSchema: Schema<SlotDocument> = new mongoose.Schema({
 
   date: {
     type: String,
-    // required: true,
   },
 
   weekday: { type: Number },
@@ -25,6 +24,9 @@ const SlotSchema: Schema<SlotDocument> = new mongoose.Schema({
       end: { type: String, required: true },
       isAvailable: { type: Boolean, default: true },
       booked: { type: Boolean, default: false },
+      locked: { type: Boolean, default: false },
+      lockedBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User', default: null },
+      lockExpiresAt: { type: Date, default: null },
     },
   ],
   isCancelled: { type: Boolean, default: false },

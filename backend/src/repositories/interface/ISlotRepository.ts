@@ -13,4 +13,14 @@ export interface ISlotRepository {
   getSlotByDate(doctorId: string, date: string): Promise<any>;
   getDefaultSlotByWeekday(doctorId: string, weekday: number): Promise<any>;
   getDefaultSlot(doctorId: string, weekday: number): Promise<any>;
+  lockSlotRecord(
+    doctorId: string,
+    date: string,
+    start: string,
+    end: string,
+    userId: string,
+    lockExpiresAt: Date
+  ): Promise<void>;
+
+  markSlotBooked(doctorId: string, date: string, start: string, end: string): Promise<void>;
 }

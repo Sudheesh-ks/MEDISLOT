@@ -23,6 +23,7 @@ import { ChatService } from './services/implementation/ChatService';
 import { registerChatSocket } from './sockets/ChatSocket';
 import slotRouter from './routes/slotRoute';
 import aiChatRouter from './routes/aiChatBotRoutes';
+import { userService } from './dependencyHandlers/user.dependencies';
 
 // app config
 const app = express();
@@ -68,6 +69,20 @@ const io = new SocketIOServer(server, {
 
 registerChatSocket(io, chatService);
 
+// Periodic cleanup of expired locks (every 5 minutes)
+setInterval(
+  async () => {
+    try {
+      await userService.cleanupExpiredLocks();
+      console.log('Periodic cleanup of expired locks completed');
+    } catch (error) {
+      console.error('Error during periodic cleanup:', error);
+    }
+  },
+  5 * 60 * 1000
+); // 5 minutes
+
 server.listen(PORT, () => {
   console.log('Server Started', PORT);
+  console.log('Periodic cleanup of expired locks scheduled every 5 minutes');
 });

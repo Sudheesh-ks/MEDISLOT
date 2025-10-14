@@ -9,11 +9,17 @@ export const PaymentRazorpayAPI = async (appointmentId: string) => {
 
 // Verify Razorpay payment signature
 export const VerifyRazorpayAPI = async (
-  appointmentId: string,
+  tempBookingId: string,
   response: RazorpayPaymentResponse
 ) => {
   return userApi.post(PAYMENT_API.RAZORPAY_VERIFY, {
-    appointmentId,
+    appointmentId: tempBookingId,
     razorpay_order_id: response.razorpay_order_id,
+    razorpay_payment_id: response.razorpay_payment_id,
+    razorpay_signature: response.razorpay_signature,
   });
+};
+
+export const cancelTempBookingAPI = async (tempBookingId: string) => {
+  return userApi.post('/api/user/appointments/cancel-temp', { tempBookingId });
 };
