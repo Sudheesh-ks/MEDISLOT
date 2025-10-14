@@ -21,8 +21,16 @@ export const getActiveAppointmentAPI = async () => {
   return res.data;
 };
 
-export const getAppointmentsPaginatedAPI = async (page = 1, limit = 5) => {
-  return userApi.get(`${APPOINTMENT_API.BASE}?page=${page}&limit=${limit}`);
+export const getAppointmentsPaginatedAPI = async (
+  page = 1,
+  limit = 5,
+  startDate?: string,
+  endDate?: string
+) => {
+  let url = `${APPOINTMENT_API.BASE}?page=${page}&limit=${limit}`;
+  if (startDate) url += `&startDate=${startDate}`;
+  if (endDate) url += `&endDate=${endDate}`;
+  return userApi.get(url);
 };
 
 // Cancel an appointment

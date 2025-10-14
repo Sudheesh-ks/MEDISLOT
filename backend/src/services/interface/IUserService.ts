@@ -79,7 +79,9 @@ export interface IUserService {
   listUserAppointmentsPaginated(
     userId: string,
     page: number,
-    limit: number
+    limit: number,
+    startDate?: Date,
+    endDate?: Date
   ): Promise<PaginationResult<AppointmentDTO>>;
   getActiveAppointment(userId: string): Promise<AppointmentDTO | null>;
   cancelAppointment(userId: string, appointmentId: string): Promise<void>;

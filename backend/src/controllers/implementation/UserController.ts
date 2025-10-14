@@ -355,8 +355,16 @@ export class UserController implements IUserController {
       const userId = (req as any).userId;
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 5;
+      const startDate = req.query.startDate ? new Date(req.query.startDate as string) : undefined;
+      const endDate = req.query.endDate ? new Date(req.query.endDate as string) : undefined;
 
-      const result = await this._userService.listUserAppointmentsPaginated(userId, page, limit);
+      const result = await this._userService.listUserAppointmentsPaginated(
+        userId,
+        page,
+        limit,
+        startDate,
+        endDate
+      );
       logger.info(`Appointments listed for user ${userId}`);
       res.status(HttpStatus.OK).json({
         success: true,

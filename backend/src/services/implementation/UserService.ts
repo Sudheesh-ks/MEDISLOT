@@ -491,12 +491,16 @@ export class UserService implements IUserService {
   async listUserAppointmentsPaginated(
     userId: string,
     page: number,
-    limit: number
+    limit: number,
+    startDate?: Date,
+    endDate?: Date
   ): Promise<PaginationResult<AppointmentDTO>> {
     const paginatedData = await this._userRepository.getAppointmentsByUserIdPaginated(
       userId,
       page,
-      limit
+      limit,
+      startDate,
+      endDate
     );
 
     return {

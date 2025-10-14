@@ -15,6 +15,9 @@ import { updateItemInList } from '../../utils/stateHelper.util';
 import Pagination from '../../components/common/Pagination';
 import { slotDateFormat } from '../../utils/commonUtils';
 import { downloadPrescriptionPDF } from '../../utils/downloadPrescription';
+import { computeRange } from '../../utils/computeDateRangeFilter.util';
+import type { DateRange } from '../../components/common/DateFilter';
+import DateFilter from '../../components/common/DateFilter';
 dayjs.extend(customParseFormat);
 
 const to12h = (t: string) => dayjs(t, 'HH:mm').format('hh:mm A').toLowerCase();
@@ -28,6 +31,7 @@ const MyAppointments = () => {
   const [appointments, setAppointments] = useState<any[]>([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [dateRange, setDateRange] = useState<DateRange>({ type: 'today' });
 
   const navigate = useNavigate();
 
@@ -41,7 +45,8 @@ const MyAppointments = () => {
 
   const fetchAppointments = async (pageToFetch = 1) => {
     try {
-      const { data } = await getAppointmentsPaginatedAPI(pageToFetch);
+      const { start, end } = computeRange(dateRange);
+      const { data } = await getAppointmentsPaginatedAPI(pageToFetch, 5, start, end);
       if (data.success) {
         setAppointments(data.data);
         setTotalPages(data.totalPages);
@@ -88,7 +93,7 @@ const MyAppointments = () => {
 
   useEffect(() => {
     fetchAppointments(page);
-  }, [token]);
+  }, [dateRange, token]);
 
   const handlePageChange = (newPage: number) => {
     fetchAppointments(newPage);
@@ -111,6 +116,11 @@ const MyAppointments = () => {
       <h1 className="pb-4 mb-8 text-2xl md:text-3xl font-bold border-b border-white/10">
         My Appointments
       </h1>
+
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold">My Appointments</h1>
+        <DateFilter value={dateRange} onChange={setDateRange} />
+      </div>
 
       {appointments.map((a) => (
         <div

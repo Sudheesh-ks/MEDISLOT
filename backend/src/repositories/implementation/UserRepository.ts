@@ -131,13 +131,21 @@ export class UserRepository extends BaseRepository<userDocument> implements IUse
   async getAppointmentsByUserIdPaginated(
     userId: string,
     page: number,
-    limit: number
+    limit: number,
+    startDate?: Date,
+    endDate?: Date
   ): Promise<PaginationResult<AppointmentDocument>> {
     const skip = (page - 1) * limit;
-    const totalCount = await appointmentModel.countDocuments({ userId });
+
+    const filter: any = { userId };
+
+    if (startDate || endDate) filter.slotDate = {};
+    if (startDate) filter.slotDate.$gte = startDate.toISOString().slice(0, 10);
+    if (endDate) filter.slotDate.$lte = endDate.toISOString().slice(0, 10);
+    const totalCount = await appointmentModel.countDocuments(filter);
 
     const data = await appointmentModel
-      .find({ userId })
+      .find(filter)
       .populate('userId', 'name email image dob')
       .populate('docId', 'name image speciality')
       .skip(skip)
