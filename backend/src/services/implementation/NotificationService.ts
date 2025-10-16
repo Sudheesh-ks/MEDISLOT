@@ -77,7 +77,7 @@ export class NotificationService implements INotificationService {
   async markAllAsRead(recipientId: string, recipientRole: string): Promise<void> {
     await this._notificationRepository.markAllAsRead(recipientId, recipientRole);
 
-        if (ioInstance) {
+    if (ioInstance) {
       ioInstance.to(recipientId.toString()).emit('notificationCountUpdate', { unreadCount: 0 });
     }
   }

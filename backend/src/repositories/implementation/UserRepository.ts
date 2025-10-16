@@ -132,25 +132,47 @@ export class UserRepository extends BaseRepository<userDocument> implements IUse
     userId: string,
     page: number,
     limit: number,
-    startDate?: Date,
-    endDate?: Date
+    filterType?: 'all' | 'upcoming' | 'ended'
   ): Promise<PaginationResult<AppointmentDocument>> {
     const skip = (page - 1) * limit;
 
     const filter: any = { userId };
 
-    if (startDate || endDate) filter.slotDate = {};
-    if (startDate) filter.slotDate.$gte = startDate.toISOString().slice(0, 10);
-    if (endDate) filter.slotDate.$lte = endDate.toISOString().slice(0, 10);
+    if (filterType === 'upcoming' || filterType === 'ended') {
+      filter.cancelled = { $ne: true };
+    }
+
+    const now = dayjs();
+
+    if (filterType === 'upcoming') {
+      filter.$or = [
+        { slotDate: { $gt: now.format('YYYY-MM-DD') } }, // future dates
+        {
+          slotDate: now.format('YYYY-MM-DD'),
+          slotStartTime: { $gt: now.format('HH:mm') }, // later today
+        },
+      ];
+    }
+
+    if (filterType === 'ended') {
+      filter.$or = [
+        { slotDate: { $lt: now.format('YYYY-MM-DD') } }, // past dates
+        {
+          slotDate: now.format('YYYY-MM-DD'),
+          slotEndTime: { $lt: now.format('HH:mm') }, // ended today
+        },
+      ];
+    }
+
     const totalCount = await appointmentModel.countDocuments(filter);
 
     const data = await appointmentModel
       .find(filter)
       .populate('userId', 'name email image dob')
       .populate('docId', 'name image speciality')
+      .sort({ createdAt: -1 })
       .skip(skip)
-      .limit(limit)
-      .sort({ createdAt: -1 });
+      .limit(limit);
 
     const totalPages = Math.ceil(totalCount / limit);
 

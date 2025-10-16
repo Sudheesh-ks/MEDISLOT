@@ -493,15 +493,13 @@ export class UserService implements IUserService {
     userId: string,
     page: number,
     limit: number,
-    startDate?: Date,
-    endDate?: Date
+    filterType?: 'all' | 'upcoming' | 'ended'
   ): Promise<PaginationResult<AppointmentDTO>> {
     const paginatedData = await this._userRepository.getAppointmentsByUserIdPaginated(
       userId,
       page,
       limit,
-      startDate,
-      endDate
+      filterType
     );
 
     return {
@@ -516,11 +514,11 @@ export class UserService implements IUserService {
     const appointment = await this._userRepository.findActiveAppointment(userId);
     const active = appointment ? toAppointmentDTO(appointment) : null;
 
-      if (active) {
-    await notifyActiveAppointment(appointment);
-  }
+    if (active) {
+      await notifyActiveAppointment(appointment);
+    }
 
-  return active;
+    return active;
   }
 
   async cancelAppointment(userId: string, appointmentId: string): Promise<void> {

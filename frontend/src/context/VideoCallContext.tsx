@@ -34,12 +34,12 @@ export const VideoCallProvider = ({ children }: { children: React.ReactNode }) =
   useEffect(() => {
     // Replace with your actual backend URL
     const socket: Socket = io(BACKEND_URL, {
-  withCredentials: true,
-  transports: ['websocket'],
-  auth: {
-    userId: localStorage.getItem('userId') || '',
-    role: isDoctor ? 'doctor' : 'user',
-  },
+      withCredentials: true,
+      transports: ['websocket'],
+      auth: {
+        userId: localStorage.getItem('userId') || '',
+        role: isDoctor ? 'doctor' : 'user',
+      },
     });
 
     // Listen for new active appointments

@@ -405,9 +405,9 @@ export class DoctorService implements IDoctorService {
     const appointment = await this._doctorRepository.findActiveAppointment(docId);
     const active = appointment ? toAppointmentDTO(appointment) : null;
 
-          if (active) {
-        await notifyActiveAppointment(appointment);
-      }
+    if (active) {
+      await notifyActiveAppointment(appointment);
+    }
     return active;
   }
 

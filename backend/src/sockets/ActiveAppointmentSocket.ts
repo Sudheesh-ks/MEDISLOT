@@ -1,4 +1,4 @@
-import { ioInstance } from "./ChatSocket";
+import { ioInstance } from './ChatSocket';
 
 export async function notifyActiveAppointment(appointment: any) {
   const { userId, docId, _id } = appointment;

@@ -15,9 +15,7 @@ import { updateItemInList } from '../../utils/stateHelper.util';
 import Pagination from '../../components/common/Pagination';
 import { slotDateFormat } from '../../utils/commonUtils';
 import { downloadPrescriptionPDF } from '../../utils/downloadPrescription';
-import { computeRange } from '../../utils/computeDateRangeFilter.util';
-import type { DateRange } from '../../components/common/DateFilter';
-import DateFilter from '../../components/common/DateFilter';
+// import type { DateRange } from '../../components/common/DateFilter';
 dayjs.extend(customParseFormat);
 
 const to12h = (t: string) => dayjs(t, 'HH:mm').format('hh:mm A').toLowerCase();
@@ -31,7 +29,8 @@ const MyAppointments = () => {
   const [appointments, setAppointments] = useState<any[]>([]);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [dateRange, setDateRange] = useState<DateRange>({ type: 'today' });
+  const [filterType, setFilterType] = useState<'all' | 'upcoming' | 'ended'>('all');
+  // const [dateRange, setDateRange] = useState<DateRange>({ type: 'today' });
 
   const navigate = useNavigate();
 
@@ -43,14 +42,30 @@ const MyAppointments = () => {
     return null;
   }
 
-  const fetchAppointments = async (pageToFetch = 1) => {
+  const fetchAppointments = async (pageToFetch = 1, filter?: 'all' | 'upcoming' | 'ended') => {
+    const currentFilter = filter || filterType;
     try {
-      const { start, end } = computeRange(dateRange);
-      const { data } = await getAppointmentsPaginatedAPI(pageToFetch, 5, start, end);
+      const { data } = await getAppointmentsPaginatedAPI(pageToFetch, 5, currentFilter);
+
       if (data.success) {
-        setAppointments(data.data);
+        let appts = data.data;
+        const now = dayjs();
+
+        // Move active appointment on top
+        const activeApptIndex = appts.findIndex((a: any) => {
+          const startDateTime = dayjs(`${a.slotDate} ${a.slotStartTime}`, 'YYYY-MM-DD HH:mm');
+          const endDateTime = dayjs(`${a.slotDate} ${a.slotEndTime}`, 'YYYY-MM-DD HH:mm');
+          return now.isAfter(startDateTime) && now.isBefore(endDateTime);
+        });
+        if (activeApptIndex > -1) {
+          const [active] = appts.splice(activeApptIndex, 1);
+          appts = [active, ...appts];
+        }
+
+        setAppointments(appts);
         setTotalPages(data.totalPages);
         setPage(data.currentPage);
+        setFilterType(currentFilter);
       }
     } catch (err) {
       showErrorToast(err);
@@ -93,10 +108,10 @@ const MyAppointments = () => {
 
   useEffect(() => {
     fetchAppointments(page);
-  }, [dateRange, token]);
+  }, [token]);
 
   const handlePageChange = (newPage: number) => {
-    fetchAppointments(newPage);
+    fetchAppointments(newPage, filterType);
   };
 
   const hasAppointmentStarted = (slotDate: string, slotStartTime: string) => {
@@ -117,10 +132,23 @@ const MyAppointments = () => {
         My Appointments
       </h1>
 
-      <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-bold">My Appointments</h1>
-        <DateFilter value={dateRange} onChange={setDateRange} />
+      <div className="flex gap-2 mb-4">
+        {['all', 'upcoming', 'ended'].map((type) => (
+          <button
+            key={type}
+            onClick={() => fetchAppointments(1, type as 'all' | 'upcoming' | 'ended')}
+            className={`px-3 py-1 rounded ${
+              filterType === type ? 'bg-blue-500 text-white' : 'bg-gray-700 text-gray-200'
+            }`}
+          >
+            {type.charAt(0).toUpperCase() + type.slice(1)}
+          </button>
+        ))}
       </div>
+
+      {/* <div className="flex items-center justify-between mb-6">
+        <DateFilter value={dateRange} onChange={setDateRange} />
+      </div> */}
 
       {appointments.map((a) => (
         <div

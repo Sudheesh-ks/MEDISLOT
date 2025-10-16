@@ -24,12 +24,9 @@ export const getActiveAppointmentAPI = async () => {
 export const getAppointmentsPaginatedAPI = async (
   page = 1,
   limit = 5,
-  startDate?: string,
-  endDate?: string
+  filterType: 'all' | 'upcoming' | 'ended' = 'all'
 ) => {
-  let url = `${APPOINTMENT_API.BASE}?page=${page}&limit=${limit}`;
-  if (startDate) url += `&startDate=${startDate}`;
-  if (endDate) url += `&endDate=${endDate}`;
+  const url = `${APPOINTMENT_API.BASE}?page=${page}&limit=${limit}&filterType=${filterType}`;
   return userApi.get(url);
 };
 

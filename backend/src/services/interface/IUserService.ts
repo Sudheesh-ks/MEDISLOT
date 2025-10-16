@@ -80,8 +80,7 @@ export interface IUserService {
     userId: string,
     page: number,
     limit: number,
-    startDate?: Date,
-    endDate?: Date
+    filterType?: 'all' | 'upcoming' | 'ended'
   ): Promise<PaginationResult<AppointmentDTO>>;
   getActiveAppointment(userId: string): Promise<AppointmentDTO | null>;
   cancelAppointment(userId: string, appointmentId: string): Promise<void>;

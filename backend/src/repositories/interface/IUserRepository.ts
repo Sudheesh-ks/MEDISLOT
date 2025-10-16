@@ -22,8 +22,7 @@ export interface IUserRepository {
     userId: string,
     page: number,
     limit: number,
-    startDate?: Date,
-    endDate?: Date
+    filterType?: 'all' | 'upcoming' | 'ended'
   ): Promise<PaginationResult<AppointmentDocument>>;
   findActiveAppointment(userId: string): Promise<AppointmentDocument | null>;
   cancelAppointment(userId: string, appointmentId: string): Promise<void>;

@@ -429,7 +429,7 @@ export class AdminController implements IAdminController {
   async markAllAsRead(req: Request, res: Response): Promise<void> {
     try {
       const userId = (req as any).adminId;
-      const role = 'admin'
+      const role = 'admin';
       logger.info(`Marking all notifications as read for user ${userId}`);
       await this._notificationService.markAllAsRead(userId, role);
       res.status(HttpStatus.OK).json({ success: true });

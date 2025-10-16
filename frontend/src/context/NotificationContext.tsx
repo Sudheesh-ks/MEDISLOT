@@ -1,7 +1,7 @@
 import React, { createContext, useState, useEffect, useCallback, useMemo } from 'react';
 import { matchPath, useLocation } from 'react-router-dom';
-import { io } from 'socket.io-client'; 
-import type { Socket } from 'socket.io-client'; 
+import { io } from 'socket.io-client';
+import type { Socket } from 'socket.io-client';
 import { toast } from 'react-toastify';
 import { getUserUnreadCountAPI } from '../services/userProfileServices';
 import { getDoctorUnreadCountAPI } from '../services/doctorServices';
@@ -95,33 +95,31 @@ export const NotifProvider: React.FC<NotifProviderProps> = ({ children, currentU
     []
   );
 
-
   // Notification API's
-useEffect(() => {
-  if (!myId) return;
+  useEffect(() => {
+    if (!myId) return;
 
-  const fetchInitialUnread = async () => {
-    try {
-      let count = 0;
-      if (myRole === 'user') {
-        const res = await getUserUnreadCountAPI();
-        count = res.unreadCount;
-      } else if (myRole === 'doctor') {
-        const res = await getDoctorUnreadCountAPI();
-        count = res.unreadCount;
-      } else if (myRole === 'admin') {
-        const res = await getAdminUnreadCountAPI();
-        count = res.unreadCount;
+    const fetchInitialUnread = async () => {
+      try {
+        let count = 0;
+        if (myRole === 'user') {
+          const res = await getUserUnreadCountAPI();
+          count = res.unreadCount;
+        } else if (myRole === 'doctor') {
+          const res = await getDoctorUnreadCountAPI();
+          count = res.unreadCount;
+        } else if (myRole === 'admin') {
+          const res = await getAdminUnreadCountAPI();
+          count = res.unreadCount;
+        }
+        setNotifUnreadCount(count);
+      } catch (err) {
+        console.error('Failed to fetch initial unread notifications', err);
       }
-      setNotifUnreadCount(count);
-    } catch (err) {
-      console.error('Failed to fetch initial unread notifications', err);
-    }
-  };
+    };
 
-  fetchInitialUnread();
-}, [myId, myRole]);
-
+    fetchInitialUnread();
+  }, [myId, myRole]);
 
   // Socket connection
   useEffect(() => {
@@ -172,7 +170,9 @@ useEffect(() => {
   }, [myId, myRole, pathname, inc]);
 
   return (
-    <NotifContext.Provider value={{ unread, inc, markRead, notifUnreadCount, setNotifUnreadCount, socket, myRole }}>
+    <NotifContext.Provider
+      value={{ unread, inc, markRead, notifUnreadCount, setNotifUnreadCount, socket, myRole }}
+    >
       {children}
     </NotifContext.Provider>
   );
