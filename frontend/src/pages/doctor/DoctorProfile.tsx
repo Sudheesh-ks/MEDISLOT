@@ -9,6 +9,14 @@ import { updateDoctorProfileAPI } from '../../services/doctorServices';
 import { currencySymbol } from '../../utils/commonUtils';
 import ReportBugModal from '../../components/user/BugReportModal';
 import DoctorChangePasswordModal from '../../components/doctor/DoctorChangePasswordModal';
+import {
+  isValidAbout,
+  isValidAddress,
+  isValidDoctorName,
+  isValidExperience,
+  isValidFees,
+  isValidShortText,
+} from '../../utils/validator';
 
 const DoctorProfile = () => {
   const context = useContext(DoctorContext);
@@ -49,6 +57,20 @@ const DoctorProfile = () => {
   const save = async () => {
     try {
       if (!dToken) return toast.error('Login to continue');
+
+      if (!form) return toast.error('Form data not found');
+
+      if (!isValidDoctorName(form.name)) return toast.error('Name must be 4–50 characters');
+      if (!isValidShortText(form.degree)) return toast.error('Degree must be 2–50 characters');
+      if (!isValidShortText(form.speciality))
+        return toast.error('Speciality must be 2–50 characters');
+      if (!isValidExperience(form.experience)) return toast.error('Experience must need a number');
+      if (!isValidFees(form.fees)) return toast.error('Fees must be a positive number');
+      if (!isValidAbout(form.about)) return toast.error('About must be 10–500 characters');
+      if (!isValidAddress(form.address.line1))
+        return toast.error('Address Line 1 must be 4–50 characters');
+      if (!isValidAddress(form.address.line2))
+        return toast.error('Address Line 2 must be 4–50 characters');
       const { data } = await updateDoctorProfileAPI({ ...form, available: avail }, image);
       toast.success(data.message);
       await getProfileData();

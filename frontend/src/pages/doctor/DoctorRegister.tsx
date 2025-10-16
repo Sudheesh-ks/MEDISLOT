@@ -15,7 +15,13 @@ const inputCls =
 const labelCls = 'block mb-1 font-medium text-slate-300';
 
 const validationSchema = Yup.object({
-  name: Yup.string().min(4, 'Name must be at least 4 characters').required('Full name is required'),
+  name: Yup.string()
+    .min(4, 'Full name must be at least 4 characters')
+    .max(50, 'Full name must be less than 50 characters')
+    .when('isSignup', {
+      is: true,
+      then: (schema) => schema.required('Full name is required'),
+    }),
   email: Yup.string().email('Enter a valid email').required('Email is required'),
   password: Yup.string()
     .matches(/^(?=.*[a-z])/, 'At least one lowercase letter')
@@ -24,16 +30,42 @@ const validationSchema = Yup.object({
     .matches(/^(?=.*[@$!%*?&])/, 'At least one special character (@$!%*?&)')
     .min(8, 'Password must be at least 8 characters')
     .required('Password is required'),
-  experience: Yup.string().required('Experience is required'),
+  experience: Yup.string()
+    .max(50, 'Experience must be less than 50 characters')
+    .when('isSignup', {
+      is: true,
+      then: (schema) => schema.required('Experience is required'),
+    }),
   fees: Yup.number()
     .typeError('Must be a number')
     .positive('Must be positive')
     .required('Fees required'),
-  speciality: Yup.string().required('Speciality is required'),
-  degree: Yup.string().required('Degree is required'),
-  address1: Yup.string().required('Address Line 1 is required'),
-  address2: Yup.string(),
-  about: Yup.string().required('About section is required'),
+  speciality: Yup.string()
+    .max(50, 'Speciality must be less than 50 characters')
+    .when('isSignup', {
+      is: true,
+      then: (schema) => schema.required('Speciality is required'),
+    }),
+  degree: Yup.string()
+    .max(50, 'Degree must be less than 50 characters')
+    .when('isSignup', {
+      is: true,
+      then: (schema) => schema.required('Experience is required'),
+    }),
+  address1: Yup.string()
+    .max(50, 'Address must be less than 50 characters')
+    .when('isSignup', {
+      is: true,
+      then: (schema) => schema.required('Address is required'),
+    }),
+  address2: Yup.string().max(50, 'Address must be less than 50 characters'),
+  about: Yup.string()
+    .min(10, 'About must be atleast 10 characters')
+    .max(500, 'About must be less than 500 characters')
+    .when('isSignup', {
+      is: true,
+      then: (schema) => schema.required('About is required'),
+    }),
 });
 
 const DoctorRegister: React.FC = () => {

@@ -12,7 +12,7 @@ import { assets } from '../../assets/user/assets';
 const validationSchema = Yup.object({
   name: Yup.string()
     .min(4, 'Full name must be at least 4 characters')
-    .max(50, 'Full name must be less than 50 characters')
+    .max(20, 'Full name must be less than 20 characters')
     .when('isSignup', {
       is: true,
       then: (schema) => schema.required('Full name is required'),

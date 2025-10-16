@@ -13,6 +13,14 @@ import Toolbar from '../../components/common/Toolbar';
 import { LexicalErrorBoundary } from '@lexical/react/LexicalErrorBoundary';
 import { useNavigate } from 'react-router-dom';
 import { DoctorContext } from '../../context/DoctorContext';
+import {
+  isValidBlogTitle,
+  isValidBlogSummary,
+  isValidCategory,
+  isValidReadTime,
+  isValidTags,
+  isValidBlogContent,
+} from '../../utils/validator';
 
 const DoctorAddBlogPage = () => {
   const navigate = useNavigate();
@@ -31,6 +39,34 @@ const DoctorAddBlogPage = () => {
   const [content, setContent] = useState('');
 
   const { dToken, profileData } = useContext(DoctorContext);
+
+  const validateBlogInputs = (): boolean => {
+    if (!isValidBlogTitle(title)) {
+      toast.error('Title must be 5–100 characters and contain only valid text.');
+      return false;
+    }
+    if (!isValidBlogSummary(summary)) {
+      toast.error('Summary must be 20–300 characters long.');
+      return false;
+    }
+    if (!isValidCategory(category)) {
+      toast.error('Please select a valid category.');
+      return false;
+    }
+    if (!isValidReadTime(readTime)) {
+      toast.error('Read time must be between 1 and 60 minutes.');
+      return false;
+    }
+    if (!isValidTags(tags)) {
+      toast.error('Each tag must be 2–20 characters (letters, numbers, or hyphens).');
+      return false;
+    }
+    if (!isValidBlogContent(content)) {
+      toast.error('Content must be at least 50 characters long.');
+      return false;
+    }
+    return true;
+  };
 
   useEffect(() => {
     if (!dToken) navigate('/doctor/login');
@@ -73,10 +109,7 @@ const DoctorAddBlogPage = () => {
   };
 
   const handlePublish = async () => {
-    if (!title || !summary || !category || !content) {
-      toast.error('Please fill all required fields');
-      return;
-    }
+    if (!validateBlogInputs()) return;
 
     try {
       setLoading(true);

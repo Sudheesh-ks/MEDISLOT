@@ -593,11 +593,11 @@ export class DoctorService implements IDoctorService {
 
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const inputDate = new Date(data.date);
+    // const inputDate = new Date(data.date);
 
-    if (isNaN(inputDate.getTime()) || inputDate < today) {
-      throw new Error('Invalid date: date cannot be in the past.');
-    }
+    // if (isNaN(inputDate.getTime()) || inputDate < today) {
+    //   throw new Error('Invalid date: date cannot be in the past.');
+    // }
 
     if (
       !data.date?.toString().trim() ||
@@ -621,6 +621,13 @@ export class DoctorService implements IDoctorService {
       )
     ) {
       throw new Error('All required fields must be filled.');
+    }
+
+    const existingHistory = await this._patientHistoryRepository.findPrescriptionByAppointmentId(
+      data.appointmentId.toString()
+    );
+    if (existingHistory) {
+      throw new Error('History for this appointment already exists.');
     }
 
     await this._patientHistoryRepository.createHistory(patientHistory);

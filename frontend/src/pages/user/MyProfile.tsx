@@ -4,7 +4,12 @@ import { assets } from '../../assets/user/assets';
 import { toast } from 'react-toastify';
 import { getUserWallet, updateUserProfileAPI } from '../../services/userProfileServices';
 import { useNavigate } from 'react-router-dom';
-import { isValidDateOfBirth, isValidPhone } from '../../utils/validator';
+import {
+  isValidAddress,
+  isValidDateOfBirth,
+  isValidName,
+  isValidPhone,
+} from '../../utils/validator';
 import { showErrorToast } from '../../utils/errorHandler';
 import { currencySymbol } from '../../utils/commonUtils';
 import ReportBugModal from '../../components/user/BugReportModal';
@@ -46,8 +51,13 @@ const MyProfile = () => {
   const save = async () => {
     try {
       if (!token) return toast.error('Login to continue');
+      if (!isValidName(userData.name)) return toast.error('Name should contain 4 - 50 characters');
       if (!isValidPhone(userData.phone)) return toast.error('Phone must be 10 digits');
       if (!isValidDateOfBirth(userData.dob)) return toast.error('Enter a valid birth date');
+      if (!isValidAddress(userData.address.line1))
+        return toast.error('Address should contain 4 - 50 characters');
+      if (!isValidAddress(userData.address.line2))
+        return toast.error('Address should contain 4 - 50 characters');
 
       const { message } = await updateUserProfileAPI(
         {

@@ -11,6 +11,16 @@ import {
 } from '../../services/doctorServices';
 import type { PatientHistoryTypes } from '../../types/patientHistoryTypes';
 import { DoctorContext } from '../../context/DoctorContext';
+import {
+  isValidChiefComplaint,
+  isValidDate,
+  isValidDiagnosis,
+  isValidDoctorNotes,
+  isValidPrescriptionField,
+  isValidSymptom,
+  isValidTime,
+  isValidVitalField,
+} from '../../utils/validator';
 
 const PatientHistoryPage = () => {
   const navigate = useNavigate();
@@ -53,6 +63,50 @@ const PatientHistoryPage = () => {
     if (!dToken) navigate('/doctor/login');
   }, [dToken]);
 
+  const validatePatientHistory = (data: any): boolean => {
+    if (!isValidDate(data.date)) {
+      toast.error('Please provide a valid session date.');
+      return false;
+    }
+    if (!isValidTime(data.time)) {
+      toast.error('Please provide a valid session time.');
+      return false;
+    }
+    if (!isValidChiefComplaint(data.chiefComplaint)) {
+      toast.error('Chief complaint must be between 5–200 characters.');
+      return false;
+    }
+    if (!isValidDiagnosis(data.diagnosis)) {
+      toast.error('Diagnosis must be between 5–500 characters.');
+      return false;
+    }
+    if (!isValidDoctorNotes(data.doctorNotes)) {
+      toast.error('Doctor notes must be between 5–800 characters.');
+      return false;
+    }
+    if (data.symptoms?.some((s: string) => !isValidSymptom(s))) {
+      toast.error('Each symptom must be under 50 characters.');
+      return false;
+    }
+    for (const med of data.prescription || []) {
+      if (!isValidPrescriptionField(med.medication)) {
+        toast.error('Medication name is too long (max 100 characters).');
+        return false;
+      }
+      if (med.instructions && med.instructions.length > 200) {
+        toast.error('Instructions are too long (max 200 characters).');
+        return false;
+      }
+    }
+    for (const [key, value] of Object.entries(data.vitals || {})) {
+      if (value && !isValidVitalField(String(value))) {
+        toast.error(`${key} value is too long (max 20 characters).`);
+        return false;
+      }
+    }
+    return true;
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -65,7 +119,7 @@ const PatientHistoryPage = () => {
       }
     };
     fetchData();
-  }, [userId, sessions]);
+  }, [userId]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -113,6 +167,7 @@ const PatientHistoryPage = () => {
   };
 
   const handleSubmit = async () => {
+    if (!validatePatientHistory(historyData)) return;
     try {
       const res = await createPatientHistoryAPI(userId!, appointmentId!, historyData);
       toast.success('Patient history added successfully');
@@ -145,6 +200,7 @@ const PatientHistoryPage = () => {
   };
 
   const handleUpdate = async () => {
+    if (!validatePatientHistory(historyData)) return;
     try {
       if (!historyData._id) {
         toast.error('No session selected to update');
