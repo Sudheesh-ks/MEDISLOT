@@ -69,6 +69,8 @@ const io = new SocketIOServer(server, {
 
 registerChatSocket(io, chatService);
 
+import './utils/activeAppointmentChecker';
+
 // Periodic cleanup of expired locks (every 5 minutes)
 setInterval(
   async () => {

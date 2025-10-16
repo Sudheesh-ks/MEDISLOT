@@ -3,21 +3,30 @@ import { ChatService } from '../services/implementation/ChatService';
 
 const onlineUsers = new Map<string, Set<string>>();
 
-export let ioInstance: Server;
+// 👇 Make this nullable until initialized
+export let ioInstance: Server | null = null;
 
 export function registerChatSocket(io: Server, chatService: ChatService) {
-  ioInstance = io;
+  ioInstance = io; // ✅ store global reference for cron jobs, etc.
 
-  // For connection
   io.on('connection', (socket: Socket) => {
+    // ---- AUTH & JOIN ----
     const { userId, role } = socket.handshake.auth as {
       userId?: string;
       role?: 'user' | 'doctor';
     };
-    if (!userId || !role) return socket.disconnect();
-    // For joining
-    socket.join(userId);
 
+    // ✅ Defensive check: disconnect if missing auth
+    if (!userId || !role) {
+      console.warn('Socket missing auth — disconnecting');
+      return socket.disconnect(true);
+    }
+
+    // ✅ Join user-specific room
+    socket.join(userId.toString());
+    console.log(`✅ ${role} connected: ${userId} (socket ${socket.id})`);
+
+    // ---- PRESENCE TRACKING ----
     let set = onlineUsers.get(userId);
     if (!set) {
       set = new Set<string>();
@@ -29,9 +38,9 @@ export function registerChatSocket(io: Server, chatService: ChatService) {
       io.emit('presence', { userId, online: true });
     }
 
+    // ---- CHAT EVENTS ----
     socket.on('join', (chatId: string) => socket.join(chatId));
 
-    // For sending messages
     socket.on(
       'sendMessage',
       async (msg: {
@@ -48,7 +57,6 @@ export function registerChatSocket(io: Server, chatService: ChatService) {
             ...msg,
             senderId: userId,
             senderRole: role,
-            replyTo: msg.replyTo,
           });
 
           io.to(saved.chatId).emit('receiveMessage', saved);
@@ -63,7 +71,7 @@ export function registerChatSocket(io: Server, chatService: ChatService) {
             at: new Date(),
           });
 
-          // For notifications
+          // ✅ Notification for receiver
           io.to(msg.receiverId).emit('dmNotice', {
             chatId: saved.chatId,
             from: { id: userId, role },
@@ -75,50 +83,28 @@ export function registerChatSocket(io: Server, chatService: ChatService) {
       }
     );
 
-    // For typing indicator
     socket.on('typing', ({ chatId }) => socket.to(chatId).emit('typing', { userId }));
-
-    // For stopping type indicator
     socket.on('stopTyping', ({ chatId }) => socket.to(chatId).emit('stopTyping', { userId }));
 
-    // For marking as read
     socket.on('read', async ({ chatId }) => {
       await chatService.read(chatId, userId);
       socket.to(chatId).emit('readBy', { chatId, userId, at: new Date() });
     });
 
-    // For deleting message
     socket.on('deleteMessage', async ({ messageId, chatId }) => {
       await chatService.delete(messageId);
       io.to(chatId).emit('messageDeleted', { messageId });
     });
 
-    // For stating offline
-    socket.on('disconnect', () => {
-      const set = onlineUsers.get(userId);
-      if (set) {
-        set.delete(socket.id);
-        if (set.size === 0) {
-          onlineUsers.delete(userId);
-          io.emit('presence', { userId, online: false });
-        }
-      }
-    });
-
-    // For joining video call room
+    // ---- VIDEO CALL EVENTS ----
     socket.on('join-video-room', (appointmentId: string) => {
       socket.join(appointmentId);
+
       const clientsInRoom = Array.from(io.sockets.adapter.rooms.get(appointmentId) || []);
+      console.log(`🎥 ${userId} joined video room ${appointmentId}, clients:`, clientsInRoom);
 
-      console.log(`User ${socket.id} joined video room ${appointmentId}`);
-      console.log('Clients in room:', clientsInRoom);
-
-      if (clientsInRoom.length === 1) {
-        socket.emit('joined-room');
-      } else {
-        socket.emit('joined-room');
-        socket.to(appointmentId).emit('other-user-joined');
-      }
+      socket.emit('joined-room');
+      socket.to(appointmentId).emit('other-user-joined');
     });
 
     socket.on('webrtc-offer', ({ appointmentId, offer, senderId }) => {
@@ -130,14 +116,24 @@ export function registerChatSocket(io: Server, chatService: ChatService) {
     });
 
     socket.on('ice-candidate', ({ appointmentId, candidate, senderId }) => {
-      socket.to(appointmentId).emit('ice-candidate', {
-        candidate,
-        senderId,
-      });
+      socket.to(appointmentId).emit('ice-candidate', { candidate, senderId });
     });
 
     socket.on('end-call', ({ appointmentId }) => {
       socket.to(appointmentId).emit('end-call');
+    });
+
+    // ---- DISCONNECT ----
+    socket.on('disconnect', () => {
+      const set = onlineUsers.get(userId);
+      if (set) {
+        set.delete(socket.id);
+        if (set.size === 0) {
+          onlineUsers.delete(userId);
+          io.emit('presence', { userId, online: false });
+        }
+      }
+      console.log(`❌ ${role} disconnected: ${userId} (socket ${socket.id})`);
     });
   });
 }

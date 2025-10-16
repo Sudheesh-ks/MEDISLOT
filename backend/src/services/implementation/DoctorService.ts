@@ -31,6 +31,7 @@ import { ComplaintDTO } from '../../dtos/complaint.dto';
 import { tocomplaintDTO } from '../../mappers/complaint.mapper';
 import { PrescriptionDTO } from '../../dtos/prescription.dto';
 import { toPrescriptionDTO } from '../../mappers/prescription.mapper';
+import { notifyActiveAppointment } from '../../sockets/ActiveAppointmentSocket';
 
 export interface DoctorDocument extends DoctorTypes {
   _id: string;
@@ -402,7 +403,12 @@ export class DoctorService implements IDoctorService {
     if (!docId) throw new Error('User not found');
 
     const appointment = await this._doctorRepository.findActiveAppointment(docId);
-    return appointment ? toAppointmentDTO(appointment) : null;
+    const active = appointment ? toAppointmentDTO(appointment) : null;
+
+          if (active) {
+        await notifyActiveAppointment(appointment);
+      }
+    return active;
   }
 
   async getAppointmentById(appointmentId: string): Promise<AppointmentDTO> {

@@ -7,7 +7,7 @@ import { getUserUnreadCountAPI } from '../services/userProfileServices';
 import { getDoctorUnreadCountAPI } from '../services/doctorServices';
 import { getAdminUnreadCountAPI } from '../services/adminServices';
 
-const SOCKET_URL = import.meta.env.VITE_SOCKET_URL ?? 'http://localhost:4000';
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL ?? 'http://localhost:4000';
 
 type UnreadMap = Record<string, number>;
 
@@ -127,7 +127,7 @@ useEffect(() => {
   useEffect(() => {
     if (!myId) return;
 
-    const s = io(SOCKET_URL, {
+    const s = io(BACKEND_URL, {
       withCredentials: true,
       auth: { userId: myId, role: myRole },
       transports: ['websocket'],

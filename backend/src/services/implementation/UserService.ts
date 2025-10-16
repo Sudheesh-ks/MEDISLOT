@@ -49,6 +49,7 @@ import { slotDTO } from '../../dtos/slot.dto';
 import { ISlotService } from '../interface/ISlotService';
 import { ITempAppointmentRepository } from '../../repositories/interface/ITempAppointmentRepository';
 import { toDoctorDTO } from '../../mappers/doctor.mapper';
+import { notifyActiveAppointment } from '../../sockets/ActiveAppointmentSocket';
 
 export interface UserDocument extends userTypes {
   _id: string;
@@ -513,7 +514,13 @@ export class UserService implements IUserService {
     if (!userId) throw new Error('User not found');
 
     const appointment = await this._userRepository.findActiveAppointment(userId);
-    return appointment ? toAppointmentDTO(appointment) : null;
+    const active = appointment ? toAppointmentDTO(appointment) : null;
+
+      if (active) {
+    await notifyActiveAppointment(appointment);
+  }
+
+  return active;
   }
 
   async cancelAppointment(userId: string, appointmentId: string): Promise<void> {

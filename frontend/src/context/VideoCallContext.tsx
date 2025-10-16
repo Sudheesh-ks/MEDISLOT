@@ -1,5 +1,6 @@
 import React, { createContext, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { io, Socket } from 'socket.io-client';
 import { getActiveAppointmentAPI } from '../services/appointmentServices';
 import { getActiveDoctorAppointmentAPI } from '../services/doctorServices';
 
@@ -7,6 +8,8 @@ interface VideoCallCtx {
   active: boolean;
   appointmentId: string | null;
 }
+
+const BACKEND_URL = import.meta.env.VITE_BACKEND_URL ?? 'http://localhost:4000';
 
 export const VideoCallContext = createContext<VideoCallCtx>({
   active: false,
@@ -29,7 +32,34 @@ export const VideoCallProvider = ({ children }: { children: React.ReactNode }) =
   const [appointmentId, setAppointmentId] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchActiveAppointment = async () => {
+    // Replace with your actual backend URL
+    const socket: Socket = io(BACKEND_URL, {
+  withCredentials: true,
+  transports: ['websocket'],
+  auth: {
+    userId: localStorage.getItem('userId') || '',
+    role: isDoctor ? 'doctor' : 'user',
+  },
+    });
+
+    // Listen for new active appointments
+    socket.on('active-appointment', (data: { appointmentId: string }) => {
+      if (data.appointmentId) {
+        setActive(true);
+        setAppointmentId(data.appointmentId);
+        setDismissed(false);
+      }
+    });
+
+    // Cleanup
+    return () => {
+      socket.disconnect();
+    };
+  }, [isDoctor]);
+
+  // One-time fetch on page load in case appointment was active before socket connected
+  useEffect(() => {
+    const checkActiveAppointment = async () => {
       try {
         let res;
         if (isDoctor) {
@@ -41,16 +71,13 @@ export const VideoCallProvider = ({ children }: { children: React.ReactNode }) =
         if (res?.active && res?.appointmentId) {
           setActive(true);
           setAppointmentId(res.appointmentId);
-          setDismissed(false);
         }
-      } catch {
-        setActive(false);
+      } catch (err) {
+        console.error('Error fetching active appointment:', err);
       }
     };
 
-    fetchActiveAppointment();
-    const interval = setInterval(fetchActiveAppointment, 15_000);
-    return () => clearInterval(interval);
+    checkActiveAppointment();
   }, [isDoctor, isUser]);
 
   return (
@@ -63,7 +90,6 @@ export const VideoCallProvider = ({ children }: { children: React.ReactNode }) =
               <h3 className="font-semibold text-lg">📞 Appointment Active</h3>
               <p className="text-gray-700 mt-1">Your consultation is live. Join now.</p>
             </div>
-            {/* Close button */}
             <button
               className="ml-3 text-gray-500 hover:text-gray-700"
               onClick={() => setDismissed(true)}
