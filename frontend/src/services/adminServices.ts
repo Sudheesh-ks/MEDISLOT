@@ -125,7 +125,6 @@ export const getAdminNotificationsAPI = async (params: {
   type?: string;
 }) => {
   const searchParams = new URLSearchParams();
-  searchParams.append('role', 'admin');
   if (params.page) searchParams.append('page', String(params.page));
   if (params.limit) searchParams.append('limit', String(params.limit));
   if (params.type) searchParams.append('type', params.type);
@@ -135,21 +134,20 @@ export const getAdminNotificationsAPI = async (params: {
 };
 
 export const markAdminNotificationAsReadAPI = async (id: string) => {
-  return adminApi.patch(`${ADMIN_API.NOTIFICATION_MARK_READ(id)}?role=admin`, {});
+  return adminApi.patch(`${ADMIN_API.NOTIFICATION_MARK_READ(id)}`, {});
 };
 
 export const markAllAdminNotificationsAsReadAPI = async () => {
-  return adminApi.patch(`${ADMIN_API.NOTIFICATION_MARK_ALL_READ}?role=admin`, {});
+  return adminApi.patch(`${ADMIN_API.NOTIFICATION_MARK_ALL_READ}`, {});
 };
 
 export const getAdminUnreadCountAPI = async () => {
-  const res = await adminApi.get(`${ADMIN_API.NOTIFICATIONS_UNREAD_COUNT}?role=admin`);
+  const res = await adminApi.get(`${ADMIN_API.NOTIFICATIONS_UNREAD_COUNT}`);
   return res.data;
 };
 
 export const clearAllAdminNotificationsAPI = async (type?: string) => {
   const searchParams = new URLSearchParams();
-  searchParams.append('role', 'admin');
   if (type) searchParams.append('type', type);
 
   return adminApi.post(`${ADMIN_API.NOTIFICATION_CLEAR_ALL}?${searchParams.toString()}`);

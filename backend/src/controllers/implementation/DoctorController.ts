@@ -417,7 +417,7 @@ export class DoctorController implements IDoctorController {
 
   async getNotificationHistory(req: Request, res: Response): Promise<void> {
     try {
-      const role = req.query.role as 'user' | 'doctor' | 'admin';
+      const role = 'doctor';
       const doctorId = (req as any).docId;
 
       const page = req.query.page ? Number(req.query.page) : 1;
@@ -470,7 +470,7 @@ export class DoctorController implements IDoctorController {
 
   async markAllAsRead(req: Request, res: Response): Promise<void> {
     try {
-      const role = req.query.role as 'user' | 'doctor' | 'admin';
+      const role = 'doctor';
       const userId = (req as any).docId;
       logger.info(`Marking all notifications as read for user ${userId}`);
       await this._notificationService.markAllAsRead(userId, role);
@@ -486,7 +486,7 @@ export class DoctorController implements IDoctorController {
 
   async getUnreadCount(req: Request, res: Response): Promise<void> {
     try {
-      const role = req.query.role as 'user' | 'doctor' | 'admin';
+      const role = 'doctor';
       const userId = (req as any).docId;
       const count = await this._notificationService.getUnreadCount(userId, role);
       res.status(HttpStatus.OK).json({ success: true, unreadCount: count });
@@ -501,7 +501,7 @@ export class DoctorController implements IDoctorController {
 
   async clearAll(req: Request, res: Response): Promise<void> {
     try {
-      const role = req.query.role as 'user' | 'doctor' | 'admin';
+      const role = 'doctor';
       const type = req.query.type ? String(req.query.type) : undefined;
       const doctorId = (req as any).docId;
 

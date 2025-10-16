@@ -41,7 +41,6 @@ export const getUserNotificationsAPI = async (params: {
   type?: string;
 }) => {
   const searchParams = new URLSearchParams();
-  searchParams.append('role', 'user');
   if (params.page) searchParams.append('page', String(params.page));
   if (params.limit) searchParams.append('limit', String(params.limit));
   if (params.type) searchParams.append('type', params.type);
@@ -51,21 +50,20 @@ export const getUserNotificationsAPI = async (params: {
 };
 
 export const markUserNotificationAsReadAPI = async (id: string) => {
-  return userApi.patch(`${USER_PROFILE_API.NOTIFICATION_MARK_READ(id)}?role=user`, {});
+  return userApi.patch(`${USER_PROFILE_API.NOTIFICATION_MARK_READ(id)}`, {});
 };
 
 export const markAllUserNotificationsAsReadAPI = async () => {
-  return userApi.patch(`${USER_PROFILE_API.NOTIFICATION_MARK_ALL_READ}?role=user`, {});
+  return userApi.patch(`${USER_PROFILE_API.NOTIFICATION_MARK_ALL_READ}`, {});
 };
 
 export const getUserUnreadCountAPI = async () => {
-  const res = await userApi.get(`${USER_PROFILE_API.NOTIFICATIONS_UNREAD_COUNT}?role=user`);
+  const res = await userApi.get(`${USER_PROFILE_API.NOTIFICATIONS_UNREAD_COUNT}`);
   return res.data;
 };
 
 export const clearAllUserNotificationsAPI = async (type?: string) => {
   const searchParams = new URLSearchParams();
-  searchParams.append('role', 'user');
   if (type) searchParams.append('type', type);
 
   return userApi.post(`${USER_PROFILE_API.NOTIFICATION_CLEAR_ALL}?${searchParams.toString()}`);

@@ -175,7 +175,6 @@ export const getDoctorNotificationsAPI = async (params: {
   type?: string;
 }) => {
   const searchParams = new URLSearchParams();
-  searchParams.append('role', 'doctor');
   if (params.page) searchParams.append('page', String(params.page));
   if (params.limit) searchParams.append('limit', String(params.limit));
   if (params.type) searchParams.append('type', params.type);
@@ -185,25 +184,20 @@ export const getDoctorNotificationsAPI = async (params: {
 };
 
 export const markDoctorNotificationAsReadAPI = async (id: string) => {
-  return doctorApi.patch(DOCTOR_API.NOTIFICATION_MARK_READ(id), null, {
-    params: { role: 'doctor' },
-  });
+  return doctorApi.patch(DOCTOR_API.NOTIFICATION_MARK_READ(id), null);
 };
 
 export const markAllDoctorNotificationsAsReadAPI = async () => {
-  return doctorApi.patch(DOCTOR_API.NOTIFICATION_MARK_ALL_READ, null, {
-    params: { role: 'doctor' },
-  });
+  return doctorApi.patch(DOCTOR_API.NOTIFICATION_MARK_ALL_READ, null);
 };
 
 export const getDoctorUnreadCountAPI = async () => {
-  const res = await doctorApi.get(`${DOCTOR_API.NOTIFICATIONS_UNREAD_COUNT}?role=doctor`);
+  const res = await doctorApi.get(`${DOCTOR_API.NOTIFICATIONS_UNREAD_COUNT}`);
   return res.data;
 };
 
 export const clearAllDoctorNotificationsAPI = async (type?: string) => {
   const searchParams = new URLSearchParams();
-  searchParams.append('role', 'doctor');
   if (type) searchParams.append('type', type);
 
   return doctorApi.post(`${DOCTOR_API.NOTIFICATION_CLEAR_ALL}?${searchParams.toString()}`);

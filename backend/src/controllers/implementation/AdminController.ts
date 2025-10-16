@@ -375,8 +375,8 @@ export class AdminController implements IAdminController {
 
   async getNotificationHistory(req: Request, res: Response): Promise<void> {
     try {
-      const role = req.query.role as 'user' | 'doctor' | 'admin';
       const adminId = (req as any).adminId;
+      const role = 'admin';
 
       const page = req.query.page ? Number(req.query.page) : 1;
       const limit = req.query.limit ? Number(req.query.limit) : 10;
@@ -428,8 +428,8 @@ export class AdminController implements IAdminController {
 
   async markAllAsRead(req: Request, res: Response): Promise<void> {
     try {
-      const role = req.query.role as 'user' | 'doctor' | 'admin';
       const userId = (req as any).adminId;
+      const role = 'admin'
       logger.info(`Marking all notifications as read for user ${userId}`);
       await this._notificationService.markAllAsRead(userId, role);
       res.status(HttpStatus.OK).json({ success: true });
@@ -444,7 +444,7 @@ export class AdminController implements IAdminController {
 
   async getUnreadCount(req: Request, res: Response): Promise<void> {
     try {
-      const role = req.query.role as 'user' | 'doctor' | 'admin';
+      const role = 'admin';
       const userId = (req as any).adminId;
       // console.log(role, userId)
       const count = await this._notificationService.getUnreadCount(userId, role);
@@ -460,7 +460,7 @@ export class AdminController implements IAdminController {
 
   async clearAll(req: Request, res: Response): Promise<void> {
     try {
-      const role = req.query.role as 'user' | 'doctor' | 'admin';
+      const role = 'admin';
       const type = req.query.type ? String(req.query.type) : undefined;
       const adminId = (req as any).adminId;
 

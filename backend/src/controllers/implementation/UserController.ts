@@ -538,7 +538,7 @@ export class UserController implements IUserController {
 
   async getNotificationHistory(req: Request, res: Response): Promise<void> {
     try {
-      const role = req.query.role as 'user' | 'doctor' | 'admin';
+      const role = 'user';
       const userId = (req as any).userId;
 
       const page = req.query.page ? Number(req.query.page) : 1;
@@ -591,7 +591,7 @@ export class UserController implements IUserController {
 
   async markAllAsRead(req: Request, res: Response): Promise<void> {
     try {
-      const role = req.query.role as 'user' | 'doctor' | 'admin';
+      const role = 'user';
       const userId = (req as any).userId;
       logger.info(`Marking all notifications as read for user ${userId}`);
       await this._notificationService.markAllAsRead(userId, role);
@@ -607,7 +607,7 @@ export class UserController implements IUserController {
 
   async getUnreadCount(req: Request, res: Response): Promise<void> {
     try {
-      const role = req.query.role as 'user' | 'doctor' | 'admin';
+      const role = 'user';
       const userId = (req as any).userId;
       const count = await this._notificationService.getUnreadCount(userId, role);
       res.status(HttpStatus.OK).json({ success: true, unreadCount: count });
@@ -622,7 +622,7 @@ export class UserController implements IUserController {
 
   async clearAll(req: Request, res: Response): Promise<void> {
     try {
-      const role = req.query.role as 'user' | 'doctor' | 'admin';
+      const role = 'user';
       const type = req.query.type ? String(req.query.type) : undefined;
       const userId = (req as any).userId;
 
