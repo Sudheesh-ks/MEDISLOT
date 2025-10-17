@@ -99,9 +99,6 @@ const AdminDoctorDetailsPage = () => {
         {/* Certificate */}
         <div className="pt-4 border-t border-slate-700">
           <button
-            // href={doctor.certificate}
-            // target="_blank"
-            // rel="noopener noreferrer"
             onClick={() => setShowCertificate(true)}
             className="px-4 py-2 rounded-lg bg-sky-600 hover:bg-sky-700 text-white cursor-pointer"
           >

@@ -146,20 +146,20 @@ export class UserRepository extends BaseRepository<userDocument> implements IUse
 
     if (filterType === 'upcoming') {
       filter.$or = [
-        { slotDate: { $gt: now.format('YYYY-MM-DD') } }, // future dates
+        { slotDate: { $gt: now.format('YYYY-MM-DD') } },
         {
           slotDate: now.format('YYYY-MM-DD'),
-          slotStartTime: { $gt: now.format('HH:mm') }, // later today
+          slotStartTime: { $gt: now.format('HH:mm') },
         },
       ];
     }
 
     if (filterType === 'ended') {
       filter.$or = [
-        { slotDate: { $lt: now.format('YYYY-MM-DD') } }, // past dates
+        { slotDate: { $lt: now.format('YYYY-MM-DD') } },
         {
           slotDate: now.format('YYYY-MM-DD'),
-          slotEndTime: { $lt: now.format('HH:mm') }, // ended today
+          slotEndTime: { $lt: now.format('HH:mm') },
         },
       ];
     }

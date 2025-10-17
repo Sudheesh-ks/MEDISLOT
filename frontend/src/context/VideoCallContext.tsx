@@ -32,7 +32,6 @@ export const VideoCallProvider = ({ children }: { children: React.ReactNode }) =
   const [appointmentId, setAppointmentId] = useState<string | null>(null);
 
   useEffect(() => {
-    // Replace with your actual backend URL
     const socket: Socket = io(BACKEND_URL, {
       withCredentials: true,
       transports: ['websocket'],
@@ -42,7 +41,6 @@ export const VideoCallProvider = ({ children }: { children: React.ReactNode }) =
       },
     });
 
-    // Listen for new active appointments
     socket.on('active-appointment', (data: { appointmentId: string }) => {
       if (data.appointmentId) {
         setActive(true);
@@ -51,13 +49,11 @@ export const VideoCallProvider = ({ children }: { children: React.ReactNode }) =
       }
     });
 
-    // Cleanup
     return () => {
       socket.disconnect();
     };
   }, [isDoctor]);
 
-  // One-time fetch on page load in case appointment was active before socket connected
   useEffect(() => {
     const checkActiveAppointment = async () => {
       try {

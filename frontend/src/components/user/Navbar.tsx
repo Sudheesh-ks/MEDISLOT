@@ -66,7 +66,7 @@ const Navbar = () => {
         {/* Right side */}
         {token && userData ? (
           <div className="flex items-center gap-8">
-            <NotificationBell role="user" />
+            <NotificationBell />
             <div className="relative">
               <button
                 onClick={() => setProfileOpen((p) => !p)}
@@ -150,11 +150,7 @@ const Navbar = () => {
             <path
               strokeLinecap="round"
               strokeLinejoin="round"
-              d={
-                menuOpen
-                  ? 'M6 18L18 6M6 6l12 12' // X icon
-                  : 'M4 6h16M4 12h16M4 18h16' // Hamburger
-              }
+              d={menuOpen ? 'M6 18L18 6M6 6l12 12' : 'M4 6h16M4 12h16M4 18h16'}
             />
           </svg>
         </button>

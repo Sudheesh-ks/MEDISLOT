@@ -1,8 +1,6 @@
 import dayjs from 'dayjs';
 
-export const getDateRange = (
-  dateRange?: string
-): { start?: string; end?: string } => {
+export const getDateRange = (dateRange?: string): { start?: string; end?: string } => {
   if (!dateRange) return {};
 
   let start: string | undefined;

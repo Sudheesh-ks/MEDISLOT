@@ -1,12 +1,11 @@
 import cron from 'node-cron';
 import appointmentModel from '../models/appointmentModel';
-import { ioInstance } from '../sockets/ChatSocket'; // use your actual path
+import { ioInstance } from '../sockets/ChatSocket';
 
-// Optional optimization to avoid duplicate notifications
 const emitted = new Set<string>();
 
 cron.schedule('* * * * *', async () => {
-  if (!ioInstance) return; // Socket not ready yet
+  if (!ioInstance) return;
 
   const now = new Date();
 
@@ -23,7 +22,6 @@ cron.schedule('* * * * *', async () => {
 
       if (now >= start && now <= end) {
         if (!emitted.has(appt._id.toString())) {
-          // Emit to both user and doctor
           ioInstance.to(appt.userId.toString()).emit('active-appointment', {
             appointmentId: appt._id,
           });

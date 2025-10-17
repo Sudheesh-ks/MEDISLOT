@@ -28,7 +28,6 @@ export function createAxiosInstance({
     withCredentials: true,
   });
 
-  // Attaching token to every request
   api.interceptors.request.use((cfg) => {
     const token = tokenManager.getToken();
     if (token) cfg.headers.Authorization = `Bearer ${token}`;
@@ -50,7 +49,6 @@ export function createAxiosInstance({
     async (err) => {
       const original = err.config as AxiosRequestConfig & { _retry?: boolean };
 
-      // Allowing login request to fail normally
       if (original.url?.includes(`/${role}/login`)) {
         return Promise.reject(err);
       }

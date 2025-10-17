@@ -889,38 +889,4 @@ export class UserController implements IUserController {
       });
     }
   }
-
-  // async testRedisConnection(req: Request, res: Response): Promise<void> {
-  //   try {
-  //     const { userService } = await import('../../dependencyHandlers/user.dependencies');
-  //     const { redis } = await import('../../config/redis');
-
-  //     // Test Redis connection
-  //     await redis.ping();
-
-  //     // Get all keys
-  //     const allKeys = await redis.keys('*');
-  //     const tempBookingKeys = await redis.keys('tempBooking:*');
-  //     const slotKeys = await redis.keys('slot:*');
-
-  //     res.status(HttpStatus.OK).json({
-  //       success: true,
-  //       message: 'Redis connection successful',
-  //       data: {
-  //         allKeys,
-  //         tempBookingKeys,
-  //         slotKeys,
-  //         totalKeys: allKeys.length,
-  //         tempBookingCount: tempBookingKeys.length,
-  //         slotLockCount: slotKeys.length,
-  //       },
-  //     });
-  //   } catch (error) {
-  //     logger.error(`Redis test error: ${(error as Error).message}`);
-  //     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-  //       success: false,
-  //       message: (error as Error).message,
-  //     });
-  //   }
-  // }
 }

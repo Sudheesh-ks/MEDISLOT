@@ -8,6 +8,9 @@ export interface slotTypes {
     start: string;
     end: string;
     booked: boolean;
+    locked: boolean;
+    lockedBy: string | null;
+    lockExpiresAt: Date | null;
   }[];
   isCancelled: boolean;
   isDefault: boolean;
@@ -18,4 +21,7 @@ export interface SlotRange {
   end: string;
   isAvailable: boolean;
   booked: boolean;
+  locked: boolean;
+  lockedBy: string | null;
+  lockExpiresAt: Date | null;
 }

@@ -3,30 +3,25 @@ import { ChatService } from '../services/implementation/ChatService';
 
 const onlineUsers = new Map<string, Set<string>>();
 
-// 👇 Make this nullable until initialized
 export let ioInstance: Server | null = null;
 
 export function registerChatSocket(io: Server, chatService: ChatService) {
-  ioInstance = io; // ✅ store global reference for cron jobs, etc.
-
+  ioInstance = io;
+  // Connection building
   io.on('connection', (socket: Socket) => {
-    // ---- AUTH & JOIN ----
     const { userId, role } = socket.handshake.auth as {
       userId?: string;
       role?: 'user' | 'doctor';
     };
 
-    // ✅ Defensive check: disconnect if missing auth
     if (!userId || !role) {
       console.warn('Socket missing auth — disconnecting');
       return socket.disconnect(true);
     }
 
-    // ✅ Join user-specific room
     socket.join(userId.toString());
-    console.log(`✅ ${role} connected: ${userId} (socket ${socket.id})`);
+    console.log(`${role} connected: ${userId} (socket ${socket.id})`);
 
-    // ---- PRESENCE TRACKING ----
     let set = onlineUsers.get(userId);
     if (!set) {
       set = new Set<string>();
@@ -38,7 +33,6 @@ export function registerChatSocket(io: Server, chatService: ChatService) {
       io.emit('presence', { userId, online: true });
     }
 
-    // ---- CHAT EVENTS ----
     socket.on('join', (chatId: string) => socket.join(chatId));
 
     socket.on(
@@ -71,7 +65,6 @@ export function registerChatSocket(io: Server, chatService: ChatService) {
             at: new Date(),
           });
 
-          // ✅ Notification for receiver
           io.to(msg.receiverId).emit('dmNotice', {
             chatId: saved.chatId,
             from: { id: userId, role },
@@ -96,7 +89,7 @@ export function registerChatSocket(io: Server, chatService: ChatService) {
       io.to(chatId).emit('messageDeleted', { messageId });
     });
 
-    // ---- VIDEO CALL EVENTS ----
+    // Video call events
     socket.on('join-video-room', (appointmentId: string) => {
       socket.join(appointmentId);
 
@@ -123,7 +116,7 @@ export function registerChatSocket(io: Server, chatService: ChatService) {
       socket.to(appointmentId).emit('end-call');
     });
 
-    // ---- DISCONNECT ----
+    // disconnect
     socket.on('disconnect', () => {
       const set = onlineUsers.get(userId);
       if (set) {
@@ -133,7 +126,7 @@ export function registerChatSocket(io: Server, chatService: ChatService) {
           io.emit('presence', { userId, online: false });
         }
       }
-      console.log(`❌ ${role} disconnected: ${userId} (socket ${socket.id})`);
+      console.log(`${role} disconnected: ${userId} (socket ${socket.id})`);
     });
   });
 }

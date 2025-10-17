@@ -18,10 +18,6 @@ const AdminDoctorRequests = () => {
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState('');
 
-  // const [showModal, setShowModal] = useState(false);
-  // const [reason, setReason] = useState('');
-  // const [currentId, setCurrentId] = useState<string | null>(null);
-
   const perPage = 10;
 
   useEffect(() => {
@@ -46,24 +42,6 @@ const AdminDoctorRequests = () => {
       setLoading(false);
     }
   };
-
-  // const doApprove = async (id: string) => {
-  //   await approveDoctor(id);
-  //   setRows((prev) => updateItemInList(prev, id, { status: 'approved' }));
-  // };
-
-  // const openModal = (id: string) => {
-  //   setCurrentId(id);
-  //   setReason('');
-  //   setShowModal(true);
-  // };
-
-  // const submitReject = async () => {
-  //   if (!currentId) return;
-  //   await rejectDoctor(currentId, reason.trim());
-  //   setRows((prev) => updateItemInList(prev, currentId, { status: 'rejected' }));
-  //   setShowModal(false);
-  // };
 
   const pending = rows.filter((d) => d.status === 'pending');
 
@@ -101,18 +79,6 @@ const AdminDoctorRequests = () => {
                   <p className="text-sm text-slate-400 truncate">{doc.speciality}</p>
 
                   <div className="mt-4 flex justify-end gap-2">
-                    {/* <button
-                      onClick={() => doApprove(doc._id)}
-                      className={`${pill} bg-gradient-to-r from-emerald-500 to-emerald-600 text-white`}
-                    >
-                      Approve
-                    </button>
-                    <button
-                      onClick={() => openModal(doc._id)}
-                      className={`${pill} bg-gradient-to-r from-red-500 to-red-600 text-white`}
-                    >
-                      Reject
-                    </button> */}
                     <button
                       onClick={() => navigate(`/admin/doctors/requests/${doc._id}`)}
                       className={`${pill} bg-sky-500 text-white`}
@@ -132,45 +98,6 @@ const AdminDoctorRequests = () => {
           No matching doctor requests found.
         </div>
       )}
-
-      {/* {showModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-          <div className="bg-slate-800 w-full max-w-md rounded-xl p-6 shadow-2xl">
-            <h3 className="text-lg font-semibold mb-4 text-slate-100">Reject Doctor</h3>
-
-            <label className="block text-sm text-slate-300 mb-1">
-              Reason <span className="text-red-500">*</span>
-            </label>
-            <textarea
-              value={reason}
-              onChange={(e) => setReason(e.target.value)}
-              rows={4}
-              className="w-full rounded-lg bg-slate-700 p-3 text-sm text-slate-100 focus:ring-2 focus:ring-emerald-500 outline-none"
-              placeholder="E.g. Invalid documents, incomplete profile…"
-            />
-
-            <div className="mt-6 flex justify-end gap-3">
-              <button
-                onClick={() => setShowModal(false)}
-                className={`${pill} bg-slate-600 text-slate-100`}
-              >
-                Cancel
-              </button>
-              <button
-                onClick={submitReject}
-                disabled={!reason.trim()}
-                className={`${pill} ${
-                  reason.trim()
-                    ? 'bg-gradient-to-r from-red-500 to-red-600 text-white'
-                    : 'bg-slate-500 opacity-60 cursor-not-allowed'
-                }`}
-              >
-                Reject
-              </button>
-            </div>
-          </div>
-        </div>
-      )} */}
     </div>
   );
 };

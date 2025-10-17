@@ -18,7 +18,6 @@ import { downloadPrescriptionPDF } from '../../utils/downloadPrescription';
 import { to12h } from '../../utils/slotManagementHelper';
 dayjs.extend(customParseFormat);
 
-
 const MyAppointments = () => {
   const context = useContext(UserContext);
   if (!context) throw new Error('MyAppointments must be within UserContext');
@@ -49,7 +48,6 @@ const MyAppointments = () => {
         let appts = data.data;
         const now = dayjs();
 
-        // Move active appointment on top
         const activeApptIndex = appts.findIndex((a: any) => {
           const startDateTime = dayjs(`${a.slotDate} ${a.slotStartTime}`, 'YYYY-MM-DD HH:mm');
           const endDateTime = dayjs(`${a.slotDate} ${a.slotEndTime}`, 'YYYY-MM-DD HH:mm');

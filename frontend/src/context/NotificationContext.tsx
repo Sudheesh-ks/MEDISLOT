@@ -59,7 +59,6 @@ export const NotifProvider: React.FC<NotifProviderProps> = ({ children, currentU
 
   const storageKey = useMemo(() => storageKeyFor(myId), [myId]);
 
-  // Load chat unread from localStorage
   useEffect(() => {
     if (!storageKey) {
       setUnread({});
@@ -73,14 +72,12 @@ export const NotifProvider: React.FC<NotifProviderProps> = ({ children, currentU
     }
   }, [storageKey]);
 
-  // Save chat unread to localStorage
   useEffect(() => {
     if (storageKey) {
       localStorage.setItem(storageKey, JSON.stringify(unread));
     }
   }, [storageKey, unread]);
 
-  // Chat helpers
   const inc = useCallback(
     (chatId: string) => setUnread((u) => ({ ...u, [chatId]: (u[chatId] ?? 0) + 1 })),
     []
@@ -95,7 +92,6 @@ export const NotifProvider: React.FC<NotifProviderProps> = ({ children, currentU
     []
   );
 
-  // Notification API's
   useEffect(() => {
     if (!myId) return;
 
@@ -121,7 +117,6 @@ export const NotifProvider: React.FC<NotifProviderProps> = ({ children, currentU
     fetchInitialUnread();
   }, [myId, myRole]);
 
-  // Socket connection
   useEffect(() => {
     if (!myId) return;
 
@@ -132,7 +127,6 @@ export const NotifProvider: React.FC<NotifProviderProps> = ({ children, currentU
     });
     setSocket(s);
 
-    // Chat events
     const onDm = (p: { chatId: string; from: { id: string; role: string }; preview: string }) => {
       if (myRole === 'admin') return;
       if (p.from.id === myId) return;

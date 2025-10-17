@@ -5,4 +5,3 @@ export function cn(...classes: Array<string | undefined | false | null>) {
 }
 
 export const to12h = (t: string) => dayjs(`1970-01-01T${t}`).format('hh:mm A').toLowerCase();
-

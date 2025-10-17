@@ -52,7 +52,7 @@ const DoctorNavbar = () => {
       </div>
       {profileData && (
         <div className="flex items-center gap-4">
-          <NotificationBell role="doctor" />
+          <NotificationBell />
           <button
             onClick={logout}
             className="bg-gradient-to-r from-cyan-500 to-blue-600 text-white text-sm px-8 py-2 rounded-full shadow hover:-translate-y-0.5 transition-transform"

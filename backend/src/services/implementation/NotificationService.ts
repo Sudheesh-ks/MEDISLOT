@@ -9,18 +9,15 @@ export class NotificationService implements INotificationService {
   constructor(private readonly _notificationRepository: INotificationRepository) {}
 
   async sendNotification(payload: Partial<NotificationTypes>): Promise<NotificationDTO> {
-    // 1️⃣ Create notification in DB
     const doc = await this._notificationRepository.createNotification(payload);
     const dto = toNotificationDTO(doc);
 
     try {
-      // 2️⃣ Count unread notifications
       const unreadCount = await this._notificationRepository.countUnread(
         payload.recipientId!.toString(),
         payload.recipientRole!
       );
 
-      // 3️⃣ Emit events (only if socket server is running)
       if (ioInstance) {
         ioInstance.to(payload.recipientId!.toString()).emit('notificationCountUpdate', {
           unreadCount,

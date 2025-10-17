@@ -8,5 +8,3 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 
 export const isoDate = (d: Date | string) => dayjs(d).tz('Asia/Kolkata').format('YYYY-MM-DD');
-
-

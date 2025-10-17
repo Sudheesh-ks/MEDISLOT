@@ -50,19 +50,6 @@ export interface IUserService {
   finalizeRegister(userTypes: { name: string; email: string; password: string }): Promise<UserDTO>;
   getUserById(id: string): Promise<UserDTO | null>;
   getDoctorById(id: string): Promise<DoctorDTO>;
-  //   bookAppointment({
-  //   userId,
-  //   docId,
-  //   slotDate,
-  //   slotStartTime,
-  //   slotEndTime,
-  // }: {
-  //   userId: string;
-  //   docId: string;
-  //   slotDate: string;
-  //   slotStartTime: string;
-  //   slotEndTime: string;
-  // }): Promise<AppointmentDTO>;
   initiateBooking({
     userId,
     docId,
@@ -85,13 +72,8 @@ export interface IUserService {
   getActiveAppointment(userId: string): Promise<AppointmentDTO | null>;
   cancelAppointment(userId: string, appointmentId: string): Promise<void>;
   startPayment(userId: string, appointmentId: string): Promise<{ order: any }>;
-  // verifyPayment(userId: string, appointmentId: string, razorpay_order_id: string): Promise<void>;
   verifyPayment(
     userId: string,
-    // docId: string,
-    // slotDate: string,
-    // slotStartTime: string,
-    // slotEndTime: string,
     appointmentId: string,
     razorpay_order_id: string
   ): Promise<AppointmentDTO>;

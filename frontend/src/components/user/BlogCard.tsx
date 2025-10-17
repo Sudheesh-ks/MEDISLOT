@@ -43,7 +43,7 @@ const BlogCard: React.FC<BlogCardProps> = ({
   }, [id]);
 
   const handleLike = async (e: React.MouseEvent) => {
-    e.stopPropagation(); // prevent card click from firing
+    e.stopPropagation();
     try {
       const res = await likeBlogAPI(id);
       setLikes(res.data.data.count);

@@ -1,17 +1,19 @@
 import { ioInstance } from './ChatSocket';
 
 export async function notifyActiveAppointment(appointment: any) {
-  const { userId, docId, _id } = appointment;
+  const { userId, docId, _id, isConfirmed, cancelled, payment } = appointment;
+
+  if (!isConfirmed || cancelled || !payment) return;
 
   if (ioInstance) {
-    // Notify user
-    ioInstance.to(userId).emit('active-appointment', {
+    ioInstance.to(userId.toString()).emit('active-appointment', {
+      active: true,
       appointmentId: _id,
       role: 'user',
     });
 
-    // Notify doctor
-    ioInstance.to(docId).emit('active-appointment', {
+    ioInstance.to(docId.toString()).emit('active-appointment', {
+      active: true,
       appointmentId: _id,
       role: 'doctor',
     });

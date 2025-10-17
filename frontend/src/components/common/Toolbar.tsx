@@ -23,12 +23,6 @@ const Toolbar: React.FC = () => {
       >
         I
       </button>
-      {/* <button
-        onClick={() => applyFormat("underline")}
-        className="px-2 py-1 rounded bg-slate-700 hover:bg-slate-600 text-sm underline"
-      >
-        U
-      </button> */}
     </div>
   );
 };

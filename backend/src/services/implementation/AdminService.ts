@@ -226,21 +226,6 @@ export class AdminService implements IAdminService {
       throw new Error(HttpResponse.BLOCK_STATUS_INVALID);
     }
 
-    // await this._notificationService.sendNotification({
-    //   recipientId: userId,
-    //   recipientRole: 'user',
-    //   type: 'system',
-    //   title: 'You have been blocked',
-    //   message: 'Your account has been blocked by the Admin.',
-    // });
-
-    // if (ioInstance) {
-    //   ioInstance.to(userId).emit('notification', {
-    //     title: 'Accound blocked by admin',
-    //     link: '/system',
-    //   });
-    // }
-
     await Promise.all([
       this._notificationService.sendNotification({
         recipientId: userId,
@@ -307,51 +292,8 @@ export class AdminService implements IAdminService {
     const doctorId = appointment.docData._id.toString();
     const reason = `Refund for Cancelled Appointment ${generateShortAppointmentId(appointment._id.toString())} of ${appointment.docData.name}`;
 
-    // console.log(adminId);
-    // console.log(doctorId);
-    // console.log(uId)
-
-    // await this._walletRepository.creditWallet(userId, 'user', amount, reason);
-
     const doctorShare = amount * 0.8;
-    // await this._walletRepository.debitWallet(doctorId, 'doctor', doctorShare, reason);
-
     const adminShare = amount * 0.2;
-    // await this._walletRepository.debitWallet(adminId!, 'admin', adminShare, reason);
-
-    // await this._notificationService.sendNotification({
-    //   recipientId: doctorId,
-    //   recipientRole: 'doctor',
-    //   type: 'appointment',
-    //   title: 'Appointment Canceled by Admin',
-    //   message: `Admin canceled your appointment with ${appointment.userData.name}. ₹${doctorShare} refunded to user from your wallet.`,
-    //   link: '/doctor/appointments',
-    // });
-
-    // if (ioInstance) {
-    //   ioInstance.to(doctorId).emit('notification', {
-    //     title: 'Appointment cancelled by Admin',
-    //     link: '/doctor/appointments',
-    //   });
-    // }
-
-    // await this._notificationService.sendNotification({
-    //   recipientId: userId,
-    //   recipientRole: 'user',
-    //   type: 'appointment',
-    //   title: 'Appointment Canceled by Admin',
-    //   message: `Admin canceled your appointment with ${appointment.docData.name}. ₹${amount} refunded to your wallet.`,
-    //   link: '/appointments',
-    // });
-
-    // if (ioInstance) {
-    //   ioInstance.to(userId).emit('notification', {
-    //     title: 'Appointment cancelled by Admin',
-    //     link: '/appointments',
-    //   });
-    // }
-
-    // await this._adminRepository.cancelAppointment(appointmentId);
 
     await Promise.all([
       this._walletRepository.creditWallet(userId, 'user', amount, reason),
@@ -472,22 +414,6 @@ export class AdminService implements IAdminService {
 
     const recipientId = userId || doctorId;
     const recipientRole = userId ? 'user' : 'doctor';
-
-    // await this._notificationService.sendNotification({
-    //   recipientId,
-    //   recipientRole,
-    //   type: 'system',
-    //   title: 'Admin updation on your complaint',
-    //   message: `Admin switched your complaint status to ${status}`,
-    //   link: '/system',
-    // });
-
-    // if (ioInstance) {
-    //   ioInstance.to(userId!).emit('notification', {
-    //     title: 'Admin updation on your complaint',
-    //     link: '/system',
-    //   });
-    // }
 
     await Promise.all([
       this._notificationService.sendNotification({

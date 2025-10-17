@@ -369,54 +369,6 @@ export class UserService implements IUserService {
     };
   }
 
-  //   async bookAppointment({
-  //   userId,
-  //   docId,
-  //   slotDate,
-  //   slotStartTime,
-  //   slotEndTime,
-  // }: {
-  //   userId: string;
-  //   docId: string;
-  //   slotDate: string;
-  //   slotStartTime: string;
-  //   slotEndTime: string;
-  // }): Promise<AppointmentDTO> {
-  //   if (!userId || !docId || !slotDate || !slotStartTime || !slotEndTime) {
-  //     throw new Error('All fields are required');
-  //   }
-
-  //   // 1️⃣ Lock the slot first
-  //   await this._slotService.lockSlot(docId, isoDate(slotDate), slotStartTime, slotEndTime, userId);
-
-  //   // 2️⃣ Fetch user and doctor
-  //   const [user, doctor] = await Promise.all([
-  //     this._userRepository.findUserById(userId),
-  //     this._userRepository.findDoctorById(docId),
-  //   ]);
-
-  //   if (!user) throw new Error('User not found');
-  //   if (!doctor) throw new Error('Doctor not found');
-
-  //   // 3️⃣ Prepare appointment
-  //   const appointmentData: AppointmentTypes = {
-  //     userId,
-  //     docId,
-  //     slotDate,
-  //     slotStartTime,
-  //     slotEndTime,
-  //     userData: user,
-  //     docData: doctor,
-  //     amount: doctor.fees,
-  //     date: Date.now(),
-  //   };
-
-  //   // 4️⃣ Save appointment
-  //   const booked = await this._userRepository.bookAppointment(appointmentData);
-
-  //   return toAppointmentDTO(booked);
-  // }
-
   async initiateBooking({
     userId,
     docId,
@@ -512,13 +464,24 @@ export class UserService implements IUserService {
     if (!userId) throw new Error('User not found');
 
     const appointment = await this._userRepository.findActiveAppointment(userId);
-    const active = appointment ? toAppointmentDTO(appointment) : null;
 
-    if (active) {
-      await notifyActiveAppointment(appointment);
+    if (
+      appointment &&
+      appointment.isConfirmed === true &&
+      appointment.cancelled === false &&
+      appointment.payment === true
+    ) {
+      const now = new Date();
+      const start = new Date(`${appointment.slotDate}T${appointment.slotStartTime}:00`);
+      const end = new Date(`${appointment.slotDate}T${appointment.slotEndTime}:00`);
+
+      if (now >= start && now <= end) {
+        await notifyActiveAppointment(appointment);
+        return toAppointmentDTO(appointment);
+      }
     }
 
-    return active;
+    return null;
   }
 
   async cancelAppointment(userId: string, appointmentId: string): Promise<void> {
@@ -542,33 +505,9 @@ export class UserService implements IUserService {
     const doctorId = appointment.docData._id.toString();
     const reason = `Refund for Cancelled Appointment ${generateShortAppointmentId(appointment._id.toString())} of ${appointment.docData.name}`;
 
-    // await this._walletRepository.creditWallet(userId.toString(), 'user', amount, reason);
-
     const doctorShare = amount * 0.8;
-    // await this._walletRepository.debitWallet(doctorId, 'doctor', doctorShare, reason);
-
     const adminShare = amount * 0.2;
-    // await this._walletRepository.debitWallet(adminId!, 'admin', adminShare, reason);
 
-    // await this._userRepository.cancelAppointment(userId, appointmentId);
-
-    // await this._notificationService.sendNotification({
-    //   recipientId: doctorId,
-    //   recipientRole: 'doctor',
-    //   type: 'appointment',
-    //   title: 'Appointment Canceled',
-    //   message: `User ${appointment.userData.name} canceled the appointment. ₹${doctorShare} refunded to user from your wallet.`,
-    //   link: '/doctor/appointments',
-    // });
-
-    // await this._notificationService.sendNotification({
-    //   recipientId: adminId,
-    //   recipientRole: 'admin',
-    //   type: 'appointment',
-    //   title: 'Appointment Canceled by User',
-    //   message: `Appointment between ${appointment.userData.name} and ${appointment.docData.name} was canceled. ₹${adminShare} refunded to user from your wallet.`,
-    //   link: '/admin/appointments',
-    // });
     await Promise.all([
       this._walletRepository.creditWallet(userId.toString(), 'user', amount, reason),
       this._walletRepository.debitWallet(doctorId, 'doctor', doctorShare, reason),
@@ -624,71 +563,6 @@ export class UserService implements IUserService {
     return { order };
   }
 
-  // async verifyPayment(
-  //   userId: string,
-  //   appointmentId: string,
-  //   razorpay_order_id: string
-  // ): Promise<void> {
-  //   if (!userId || !appointmentId || !razorpay_order_id) {
-  //     throw new Error('Missing required payment verification details');
-  //   }
-
-  //   const appointment = await this._userRepository.findPayableAppointment(userId, appointmentId);
-  //   if (!appointment) {
-  //     throw new Error('No payable appointment found');
-  //   }
-
-  //   const orderInfo = await this._paymentService.fetchOrder(razorpay_order_id);
-
-  //   if (orderInfo.status !== 'paid') {
-  //     throw new Error('Payment not completed');
-  //   }
-
-  //   if (orderInfo.receipt !== appointmentId) {
-  //     throw new Error('Receipt mismatch with appointment');
-  //   }
-
-  //   await this._userRepository.markAppointmentPaid(appointmentId);
-
-  //   const amount = appointment.amount;
-  //   const adminShare = Math.round(amount * 0.2);
-  //   const doctorShare = amount - adminShare;
-
-  //   if (!adminId) {
-  //     throw new Error('Admin wallet ID not configured');
-  //   }
-
-  //   // await this._walletRepository.creditWallet(
-  //   //   adminId,
-  //   //   'admin',
-  //   //   adminShare,
-  //   //   `Admin share for appointment ${generateShortAppointmentId(appointmentId)} from ${appointment.userData.name} to ${appointment.docData.name}`
-  //   // );
-
-  //   // await this._walletRepository.creditWallet(
-  //   //   appointment.docId.toString(),
-  //   //   'doctor',
-  //   //   doctorShare,
-  //   //   `Doctor share for appointment ${generateShortAppointmentId(appointmentId)} from ${appointment.userData.name}`
-  //   // );
-
-  //   await Promise.all([
-  //     this._walletRepository.creditWallet(
-  //       adminId,
-  //       'admin',
-  //       adminShare,
-  //       `Admin share for appointment ${generateShortAppointmentId(appointmentId)} from ${appointment.userData.name} to ${appointment.docData.name}`
-  //     ),
-
-  //     this._walletRepository.creditWallet(
-  //       appointment.docId.toString(),
-  //       'doctor',
-  //       doctorShare,
-  //       `Doctor share for appointment ${generateShortAppointmentId(appointmentId)} from ${appointment.userData.name}`
-  //     ),
-  //   ]);
-  // }
-
   async verifyPayment(userId: string, tempBookingId: string, razorpay_order_id: string) {
     const tempAppointment =
       await this._tempAppointmentRepository.findTempAppointmentById(tempBookingId);
@@ -729,6 +603,26 @@ export class UserService implements IUserService {
     const booked = await this._userRepository.bookAppointment(appointmentData);
     await this._userRepository.markAppointmentPaid(booked._id.toString());
 
+    const amount = booked.amount;
+    const doctorId = booked.docData._id.toString();
+    const doctorShare = amount * 0.8;
+    const adminShare = amount * 0.2;
+
+    await Promise.all([
+      this._walletRepository.creditWallet(
+        doctorId,
+        'doctor',
+        doctorShare,
+        `Earnings for Appointment ${booked._id}`
+      ),
+      this._walletRepository.creditWallet(
+        adminId!,
+        'admin',
+        adminShare,
+        `Commission for Appointment ${booked._id}`
+      ),
+    ]);
+
     await Promise.all([
       this._slotRepository.markSlotBooked(
         tempAppointment.docId,
@@ -767,7 +661,6 @@ export class UserService implements IUserService {
       expiresAt: tempAppointment.expiresAt,
     });
 
-    // Update status to cancelled and delete the temp appointment
     await this._tempAppointmentRepository.updateTempAppointmentStatus(tempBookingId, 'cancelled');
     await this._tempAppointmentRepository.deleteTempAppointment(tempBookingId);
 

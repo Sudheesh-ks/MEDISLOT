@@ -173,11 +173,6 @@ userRouter.post(
   userController.cleanupExpiredLocks.bind(userController)
 );
 
-// userRouter.get(
-//   '/test-redis',
-//   userController.testRedisConnection.bind(userController)
-// );
-
 userRouter.get('/:id', userController.getUserById.bind(userController));
 
 export default userRouter;

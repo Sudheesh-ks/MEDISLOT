@@ -6,6 +6,7 @@ import { ISlotRepository } from '../../repositories/interface/ISlotRepository';
 import { slotDTO } from '../../dtos/slot.dto';
 import slotModel from '../../models/slotModel';
 import mongoose from 'mongoose';
+import { toSlotDTO } from '../../mappers/slot.mapper';
 
 dayjs.extend(customParse);
 
@@ -13,7 +14,8 @@ export class SlotService implements ISlotService {
   constructor(private readonly _slotRepository: ISlotRepository) {}
 
   async getMonthlySlots(doctorId: string, year: number, month: number): Promise<slotDTO[]> {
-    return this._slotRepository.getSlotsByMonth(doctorId, year, month);
+    const slots = await this._slotRepository.getSlotsByMonth(doctorId, year, month);
+    return slots.map(toSlotDTO);
   }
 
   private validateRanges(ranges: SlotRange[]) {
@@ -38,11 +40,15 @@ export class SlotService implements ISlotService {
     isCancelled: boolean
   ): Promise<slotDTO> {
     this.validateRanges(slots);
-    return this._slotRepository.upsertSlot(doctorId, date, slots, isCancelled);
+    const slot = await this._slotRepository.upsertSlot(doctorId, date, slots, isCancelled);
+    if (!slot) throw new Error('Slot not found or could not be created');
+    return toSlotDTO(slot);
   }
 
   async deleteDaySlot(doctorId: string, date: string): Promise<slotDTO> {
-    return this._slotRepository.deleteSlot(doctorId, date);
+    const slot = await this._slotRepository.deleteSlot(doctorId, date);
+    if (!slot) throw new Error('Slot not found or could not be created');
+    return toSlotDTO(slot);
   }
 
   async getDayAvailability(doctorId: string, date: string, userId?: string): Promise<SlotRange[]> {
@@ -74,11 +80,22 @@ export class SlotService implements ISlotService {
     isCancelled: boolean
   ): Promise<slotDTO> {
     this.validateRanges(slots);
-    return this._slotRepository.upsertSlot(doctorId, null, slots, isCancelled, weekday, true);
+    const slot = await this._slotRepository.upsertSlot(
+      doctorId,
+      null,
+      slots,
+      isCancelled,
+      weekday,
+      true
+    );
+    if (!slot) throw new Error('Slot not found or could not be created');
+    return toSlotDTO(slot);
   }
 
   async getDefaultSlot(doctorId: string, weekday: number): Promise<slotDTO> {
-    return this._slotRepository.getDefaultSlot(doctorId, weekday);
+    const slot = await this._slotRepository.getDefaultSlot(doctorId, weekday);
+    if (!slot) throw new Error('Slot not found or could not be created');
+    return toSlotDTO(slot);
   }
 
   async lockSlot(
@@ -98,7 +115,7 @@ export class SlotService implements ISlotService {
       slot.locked &&
       slot.lockExpiresAt &&
       new Date(slot.lockExpiresAt) > new Date() &&
-      slot.lockedBy.toString() !== userId.toString()
+      slot.lockedBy?.toString() !== userId.toString()
     ) {
       throw new Error('Slot temporarily locked by another user');
     }

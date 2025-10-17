@@ -2,7 +2,6 @@ import { FilterQuery } from 'mongoose';
 import slotModel, { SlotDocument } from '../../models/slotModel';
 import { BaseRepository } from '../BaseRepository';
 import { ISlotRepository } from '../interface/ISlotRepository';
-import { SlotRange } from '../../types/slots';
 
 export class SlotRepository extends BaseRepository<SlotDocument> implements ISlotRepository {
   constructor() {
@@ -58,9 +57,8 @@ export class SlotRepository extends BaseRepository<SlotDocument> implements ISlo
     return slotModel.findOne({ doctorId, weekday, isDefault: true }).exec();
   }
 
-  async getDefaultSlot(doctorId: string, weekday: number): Promise<SlotRange[]> {
-    const doc = await slotModel.findOne({ doctorId, weekday }).exec();
-    return doc ? doc.slots : [];
+  async getDefaultSlot(doctorId: string, weekday: number): Promise<SlotDocument | null> {
+    return slotModel.findOne({ doctorId, weekday }).exec();
   }
 
   async lockSlotRecord(

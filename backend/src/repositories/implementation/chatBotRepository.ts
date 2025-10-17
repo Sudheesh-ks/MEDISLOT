@@ -10,14 +10,14 @@ export class ChatBotRepository
     super(chatBotModel);
   }
   async saveMessage(userId: string, role: 'user' | 'bot', text: string): Promise<chatBotDocument> {
-    return await chatBotModel.create({ userId, role, text });
+    return await this.model.create({ userId, role, text });
   }
 
   async getHistory(userId: string): Promise<chatBotDocument[]> {
-    return await chatBotModel.find({ userId }).sort({ createdAt: 1 }).lean();
+    return await this.model.find({ userId }).sort({ createdAt: 1 }).lean();
   }
 
   async getRecentChatSummary(userId: string, limit: number = 3): Promise<chatBotDocument[]> {
-    return await chatBotModel.find({ userId }).sort({ createdAt: -1 }).limit(limit).lean();
+    return await this.model.find({ userId }).sort({ createdAt: -1 }).limit(limit).lean();
   }
 }

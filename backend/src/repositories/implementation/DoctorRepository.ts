@@ -262,8 +262,6 @@ export class DoctorRepository extends BaseRepository<DoctorDocument> implements 
       { $sort: { _id: 1 } },
     ];
 
-    // console.log(pipeline)
-
     const res = await appointmentModel.aggregate(pipeline).exec();
     console.log(res);
     return res.map((r) => ({ date: r._id, revenue: r.revenue }));

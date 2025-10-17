@@ -11,7 +11,7 @@ export const toDoctorDTO = (doc: DoctorDocument): DoctorDTO => {
       type: 'authenticated',
       secure: true,
       sign_url: true,
-      expires_at: Math.floor(Date.now() / 1000) + 3600, // expires in 1 hour
+      expires_at: Math.floor(Date.now() / 1000) + 3600,
     });
   }
 

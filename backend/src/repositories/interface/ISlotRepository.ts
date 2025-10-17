@@ -1,6 +1,8 @@
+import { SlotDocument } from '../../models/slotModel';
+
 export interface ISlotRepository {
-  getSlotsByDoctor(doctorId: string): Promise<any[]>;
-  getSlotsByMonth(doctorId: string, year: number, month: number): Promise<any[]>;
+  getSlotsByDoctor(doctorId: string): Promise<SlotDocument[]>;
+  getSlotsByMonth(doctorId: string, year: number, month: number): Promise<SlotDocument[]>;
   upsertSlot(
     doctorId: string,
     date: string | null,
@@ -8,11 +10,11 @@ export interface ISlotRepository {
     isCancelled: boolean,
     weekday?: number,
     isDefault?: boolean
-  ): Promise<any>;
-  deleteSlot(doctorId: string, date: string): Promise<any>;
-  getSlotByDate(doctorId: string, date: string): Promise<any>;
-  getDefaultSlotByWeekday(doctorId: string, weekday: number): Promise<any>;
-  getDefaultSlot(doctorId: string, weekday: number): Promise<any>;
+  ): Promise<SlotDocument | null>;
+  deleteSlot(doctorId: string, date: string): Promise<SlotDocument | null>;
+  getSlotByDate(doctorId: string, date: string): Promise<SlotDocument | null>;
+  getDefaultSlotByWeekday(doctorId: string, weekday: number): Promise<SlotDocument | null>;
+  getDefaultSlot(doctorId: string, weekday: number): Promise<SlotDocument | null>;
   lockSlotRecord(
     doctorId: string,
     date: string,
