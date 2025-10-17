@@ -7,7 +7,7 @@ import { FilterQuery, PipelineStage } from 'mongoose';
 import { PaginationResult } from '../../types/pagination';
 import { IAdminRepository } from '../interface/IAdminRepository';
 import slotModel from '../../models/slotModel';
-import dayjs from 'dayjs';
+import { getDateRange } from '../../utils/dateRange.util';
 
 export class AdminRepository extends BaseRepository<AdminDocument> implements IAdminRepository {
   constructor() {
@@ -128,35 +128,7 @@ export class AdminRepository extends BaseRepository<AdminDocument> implements IA
     }
 
     if (dateRange) {
-      let start: string | undefined;
-      let end: string | undefined;
-
-      switch (dateRange) {
-        case 'today':
-          start = dayjs().format('YYYY-MM-DD');
-          end = start;
-          break;
-        case 'yesterday':
-          start = dayjs().subtract(1, 'day').format('YYYY-MM-DD');
-          end = start;
-          break;
-        case 'last_week':
-          start = dayjs().subtract(7, 'day').format('YYYY-MM-DD');
-          end = dayjs().format('YYYY-MM-DD');
-          break;
-        case 'last_month':
-          start = dayjs().subtract(1, 'month').format('YYYY-MM-DD');
-          end = dayjs().format('YYYY-MM-DD');
-          break;
-        default: {
-          const [from, to] = dateRange.split('_');
-          if (from && to) {
-            start = dayjs(from).format('YYYY-MM-DD');
-            end = dayjs(to).format('YYYY-MM-DD');
-          }
-          break;
-        }
-      }
+      const { start, end } = getDateRange(dateRange);
 
       if (start && end) {
         andConditions.push({

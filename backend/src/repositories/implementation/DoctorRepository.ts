@@ -7,6 +7,7 @@ import { PaginationResult } from '../../types/pagination';
 import { FilterQuery, PipelineStage, SortOrder } from 'mongoose';
 import slotModel from '../../models/slotModel';
 import dayjs from 'dayjs';
+import { getDateRange } from '../../utils/dateRange.util';
 
 export class DoctorRepository extends BaseRepository<DoctorDocument> implements IDoctorRepository {
   constructor() {
@@ -143,40 +144,7 @@ export class DoctorRepository extends BaseRepository<DoctorDocument> implements 
     }
 
     if (dateRange) {
-      const now = new Date();
-      let start: Date | undefined;
-      let end: Date | undefined;
-
-      switch (dateRange) {
-        case 'today': {
-          start = dayjs().startOf('day').toDate();
-          end = dayjs().endOf('day').toDate();
-          break;
-        }
-        case 'yesterday': {
-          start = dayjs().subtract(1, 'day').startOf('day').toDate();
-          end = dayjs().subtract(1, 'day').endOf('day').toDate();
-          break;
-        }
-        case 'last_week': {
-          start = dayjs().subtract(7, 'day').startOf('day').toDate();
-          end = now;
-          break;
-        }
-        case 'last_month': {
-          start = dayjs().subtract(1, 'month').startOf('day').toDate();
-          end = now;
-          break;
-        }
-        default: {
-          const [from, to] = dateRange.split('_');
-          if (from && to) {
-            start = dayjs(from).startOf('day').toDate();
-            end = dayjs(to).endOf('day').toDate();
-          }
-          break;
-        }
-      }
+      const { start, end } = getDateRange(dateRange);
 
       if (start && end) {
         query.slotDate = {

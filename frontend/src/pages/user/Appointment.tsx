@@ -21,13 +21,12 @@ import type { DoctorProfileType } from '../../types/doctor';
 import { currencySymbol } from '../../utils/commonUtils';
 import type { feedbackTypes } from '../../types/feedback';
 import StarRating from '../../components/common/StarRating';
+import { to12h } from '../../utils/slotManagementHelper';
 
 dayjs.extend(relativeTime);
 
 const ymd = (d: Date) =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-
-const to12h = (t: string) => dayjs(`1970-01-01T${t}`).format('hh:mm A').toLowerCase();
 
 const Appointment = () => {
   type TimeSlot = { datetime: Date; slotStartTime: string; slotEndTime: string };

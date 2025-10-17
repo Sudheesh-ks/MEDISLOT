@@ -15,10 +15,9 @@ import { updateItemInList } from '../../utils/stateHelper.util';
 import Pagination from '../../components/common/Pagination';
 import { slotDateFormat } from '../../utils/commonUtils';
 import { downloadPrescriptionPDF } from '../../utils/downloadPrescription';
-// import type { DateRange } from '../../components/common/DateFilter';
+import { to12h } from '../../utils/slotManagementHelper';
 dayjs.extend(customParseFormat);
 
-const to12h = (t: string) => dayjs(t, 'HH:mm').format('hh:mm A').toLowerCase();
 
 const MyAppointments = () => {
   const context = useContext(UserContext);
@@ -30,7 +29,6 @@ const MyAppointments = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [filterType, setFilterType] = useState<'all' | 'upcoming' | 'ended'>('all');
-  // const [dateRange, setDateRange] = useState<DateRange>({ type: 'today' });
 
   const navigate = useNavigate();
 

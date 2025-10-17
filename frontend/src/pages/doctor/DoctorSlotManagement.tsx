@@ -24,8 +24,7 @@ import {
 import { toast } from 'react-toastify';
 import { DoctorContext } from '../../context/DoctorContext';
 import { useNavigate } from 'react-router-dom';
-
-const to12h = (t: string) => dayjs(t, 'HH:mm').format('hh:mm A').toLowerCase();
+import { to12h } from '../../utils/slotManagementHelper';
 
 interface Range {
   start: string;
