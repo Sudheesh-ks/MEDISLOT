@@ -40,6 +40,7 @@ import General_physician from './General_physician.svg';
 import Gynecologist from './Gynecologist.svg';
 import Neurologist from './Neurologist.svg';
 import Pediatricians from './Pediatricians.svg';
+import hero_image from './hero_image.png';
 
 export interface Address {
   line1: string;
@@ -92,6 +93,7 @@ export const assets: Record<string, string> = {
   message_icon,
   chatbot_logo,
   patient_history,
+  hero_image,
 };
 
 export const specialityData: Speciality[] = [

@@ -108,7 +108,7 @@ export class UserController implements IUserController {
       logger.info(`Forgot password OTP sent to ${email}`);
       res.status(HttpStatus.OK).json({
         success: true,
-        message: HttpResponse.RESET_EMAIL_SENT,
+        message: HttpResponse.OTP_SENT,
       });
     } catch (error) {
       logger.error(`Forgot Password Request Error: ${error}`);

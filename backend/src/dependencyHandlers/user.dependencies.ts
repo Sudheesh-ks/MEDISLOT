@@ -15,6 +15,7 @@ import { ComplaintRepository } from '../repositories/implementation/ComplaintRep
 import { PatientHistoryRepository } from '../repositories/implementation/PatientHistoryRepository';
 import { SlotService } from '../services/implementation/SlotService';
 import { TempAppointmentRepository } from '../repositories/implementation/TempAppointmentRepository';
+import { OtpRedisService } from '../services/implementation/otpRedisService';
 
 // Repositories
 const userRepository = new UserRepository();
@@ -30,6 +31,7 @@ const tempAppointmentRepository = new TempAppointmentRepository();
 
 // Services
 const paymentService = new PaymentService();
+const otpRedisService = new OtpRedisService();
 const notificationService = new NotificationService(notificationRepository);
 const blogService = new BlogService(blogRepository, userRepository);
 const chatBotService = new ChatBotService(chatBotRepository);
@@ -37,6 +39,7 @@ const slotService = new SlotService(slotRepository);
 
 const userService = new UserService(
   userRepository,
+  otpRedisService,
   paymentService,
   slotService,
   slotRepository,

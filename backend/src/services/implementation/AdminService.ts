@@ -49,7 +49,7 @@ export class AdminService implements IAdminService {
     refreshToken: string;
   }> {
     if (!email || !password) {
-      throw new Error(HttpResponse.ADMIN_FIELDS_REQUIRED);
+      throw new Error(HttpResponse.FIELDS_REQUIRED);
     }
 
     const admin = await this._adminRepository.findByEmail(email);

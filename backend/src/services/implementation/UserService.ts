@@ -23,7 +23,7 @@ import { toUserDTO } from '../../mappers/user.mapper';
 import { userDocument } from '../../models/userModel';
 import { HttpResponse } from '../../constants/responseMessage.constants';
 import { generateOTP } from '../../utils/otp.util';
-import { otpStore } from '../../utils/otpStore';
+// import { this._OtpRedisService } from '../../utils/this._OtpRedisService';
 import { sendOTP } from '../../utils/mail.util';
 import { AppointmentDTO } from '../../dtos/appointment.dto';
 import { toAppointmentDTO } from '../../mappers/appointment.mapper';
@@ -50,6 +50,7 @@ import { ISlotService } from '../interface/ISlotService';
 import { ITempAppointmentRepository } from '../../repositories/interface/ITempAppointmentRepository';
 import { toDoctorDTO } from '../../mappers/doctor.mapper';
 import { notifyActiveAppointment } from '../../sockets/ActiveAppointmentSocket';
+import { IOtpRedisService } from '../interface/IOtpRedisService';
 
 export interface UserDocument extends userTypes {
   _id: string;
@@ -60,6 +61,7 @@ const adminId = process.env.ADMIN_ID;
 export class UserService implements IUserService {
   constructor(
     private readonly _userRepository: IUserRepository,
+    private readonly _OtpRedisService: IOtpRedisService,
     private readonly _paymentService: IPaymentService,
     private readonly _slotService: ISlotService,
     private readonly _slotRepository: ISlotRepository,
@@ -97,7 +99,7 @@ export class UserService implements IUserService {
     const otp = generateOTP();
     console.log('Generated OTP:', otp);
 
-    otpStore.set(email, {
+    await this._OtpRedisService.storeOtp(email, {
       otp,
       purpose: 'register',
       userData: { name, email, password: hashed },
@@ -119,7 +121,7 @@ export class UserService implements IUserService {
     user?: UserDTO;
     refreshToken?: string;
   }> {
-    const record = otpStore.get(email);
+    const record = await this._OtpRedisService.getOtp(email);
 
     if (!record || record.otp !== otp) {
       throw new Error(HttpResponse.OTP_INVALID);
@@ -130,14 +132,14 @@ export class UserService implements IUserService {
     if (purpose === 'register') {
       const newUser = await this.finalizeRegister(record.userData);
 
-      otpStore.delete(email);
+      this._OtpRedisService.deleteOtp(email);
 
       const refreshToken = generateRefreshToken(newUser._id!);
       return { purpose, user: newUser, refreshToken };
     }
 
     if (purpose === 'reset-password') {
-      otpStore.set(email, { ...record, otp: 'VERIFIED' });
+      await this._OtpRedisService.storeOtp(email, { ...record, otp: 'VERIFIED' });
       return { purpose };
     }
 
@@ -165,17 +167,18 @@ export class UserService implements IUserService {
   }
 
   async resendOtp(email: string): Promise<void> {
-    const record = otpStore.get(email);
+    const oldRecord = await this._OtpRedisService.getOtp(email);
 
-    if (!record) {
-      throw new Error(HttpResponse.OTP_NOT_FOUND);
+    if (!oldRecord) {
+      throw new Error('No pending OTP found. Please register again.');
     }
 
     const newOtp = generateOTP();
-    console.log('New OTP:', newOtp);
+    console.log('Generated new OTP:', newOtp);
 
-    otpStore.set(email, { ...record, otp: newOtp });
+    const updatedRecord = { ...oldRecord, otp: newOtp };
 
+    await this._OtpRedisService.storeOtp(email, updatedRecord);
     await sendOTP(email, newOtp);
   }
 
@@ -188,7 +191,7 @@ export class UserService implements IUserService {
     const otp = generateOTP();
     console.log('Generated OTP:', otp);
 
-    otpStore.set(email, { otp, purpose: 'reset-password', email });
+    await this._OtpRedisService.storeOtp(email, { otp, purpose: 'reset-password', email });
 
     await sendOTP(email, otp);
   }
@@ -198,7 +201,7 @@ export class UserService implements IUserService {
       throw new Error(HttpResponse.INVALID_PASSWORD);
     }
 
-    const record = otpStore.get(email);
+    const record = await this._OtpRedisService.getOtp(email);
 
     if (!record || record.purpose !== 'reset-password' || record.otp !== 'VERIFIED') {
       throw new Error(HttpResponse.OTP_EXPIRED_OR_INVALID);
@@ -211,7 +214,7 @@ export class UserService implements IUserService {
       throw new Error(HttpResponse.USER_NOT_FOUND);
     }
 
-    otpStore.delete(email);
+    this._OtpRedisService.deleteOtp(email);
   }
 
   async login(

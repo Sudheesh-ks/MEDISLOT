@@ -51,7 +51,7 @@ export class DoctorController implements IDoctorController {
 
       res.status(HttpStatus.CREATED).json({
         success: true,
-        message: HttpResponse.DOCTOR_REGISTER_SUCCESS,
+        message: HttpResponse.REGISTER_SUCCESS,
       });
     } catch (error) {
       logger.error(`Doctor registration failed: ${(error as Error).message}`);
@@ -87,7 +87,7 @@ export class DoctorController implements IDoctorController {
 
       res.status(HttpStatus.OK).json({
         success: true,
-        message: HttpResponse.DOCTOR_AVAILABILITY_CHANGE,
+        message: HttpResponse.PROFILE_UPDATED,
       });
     } catch (error) {
       logger.error(`Error changing availability: ${(error as Error).message}`);

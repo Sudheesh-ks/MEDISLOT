@@ -18,4 +18,4 @@ export interface ForgotPasswordOtpData {
 
 export type OtpStoreData = RegistrationOtpData | ForgotPasswordOtpData;
 
-export const otpStore = new Map<string, OtpStoreData>();
+// export const otpStore = new Map<string, OtpStoreData>();

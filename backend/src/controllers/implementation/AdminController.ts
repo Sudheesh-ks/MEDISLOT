@@ -12,7 +12,6 @@ export class AdminController implements IAdminController {
     private readonly _notificationService: INotificationService
   ) {}
 
-  // For Admin login
   async loginAdmin(req: Request, res: Response): Promise<void> {
     try {
       const { accessToken, refreshToken } = await this._adminService.login(
@@ -72,7 +71,6 @@ export class AdminController implements IAdminController {
     }
   }
 
-  // For Admin Logout
   async logoutAdmin(req: Request, res: Response): Promise<void> {
     res.clearCookie('refreshToken_admin', {
       httpOnly: true,
@@ -88,7 +86,6 @@ export class AdminController implements IAdminController {
     });
   }
 
-  // For getting doctors
   async getDoctorsPaginated(req: Request, res: Response): Promise<void> {
     try {
       const result = await this._adminService.getDoctorsPaginated(
