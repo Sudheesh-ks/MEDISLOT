@@ -16,6 +16,7 @@ const OtpVerificationPage = () => {
   const [error, setError] = useState('');
   const [timer, setTimer] = useState(60);
   const [canResend, setCanResend] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
 
   useEffect(() => {
     const temp = JSON.parse(localStorage.getItem('tempUserData') || '{}');
@@ -43,6 +44,8 @@ const OtpVerificationPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (isVerifying) return;
+    setIsVerifying(true);
     const code = otp.join('');
     if (code.length !== 6) return setError('Enter the 6‑digit code');
 
@@ -62,6 +65,8 @@ const OtpVerificationPage = () => {
       }
     } catch {
       toast.error('Failed to verify OTP');
+    } finally {
+      setIsVerifying(false);
     }
   };
 
@@ -116,8 +121,8 @@ const OtpVerificationPage = () => {
           {error && <p className="text-red-500 text-sm mt-2 text-center">{error}</p>}
         </div>
 
-        <button type="submit" className={primaryBtn}>
-          Verify Code
+        <button type="submit" className={primaryBtn} disabled={isVerifying}>
+          {isVerifying ? 'Verifying...' : 'Verify Code'}
         </button>
 
         <p className="text-center text-sm">

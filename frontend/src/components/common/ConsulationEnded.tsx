@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { submitFeedbackAPI } from '../../services/appointmentServices';
 import { toast } from 'react-toastify';
 import { FaStar } from 'react-icons/fa';
+import { isValidFeedback } from '../../utils/validator';
 
 interface ConsultationEndedCardProps {
   role: 'user' | 'doctor';
@@ -18,6 +19,11 @@ const ConsultationEndedCard = ({ role, appointmentId }: ConsultationEndedCardPro
   const handleSubmit = async () => {
     if (role === 'user') {
       if (!feedback.trim()) return;
+      if (!isValidFeedback(feedback)) {
+        toast.error('Feedback must be between 5 and 100 words');
+        return;
+      }
+      if (!rating) toast.error('Please provide star rating');
       try {
         console.log(appointmentId);
         const { data } = await submitFeedbackAPI(appointmentId, feedback, rating);

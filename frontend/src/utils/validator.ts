@@ -119,3 +119,8 @@ export const isValidDate = (date: string): boolean => {
 export const isValidTime = (time: string): boolean => {
   return /^([0-1]\d|2[0-3]):([0-5]\d)$/.test(time.trim());
 };
+
+// Feedback validation
+export const isValidFeedback = (text: string): boolean => {
+  return text.trim().length >= 5 && text.trim().length <= 100;
+};

@@ -7,6 +7,7 @@ import { showErrorToast } from '../../utils/errorHandler';
 
 const EmailVerificationPage = () => {
   const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const context = useContext(UserContext);
   if (!context) throw new Error('EmailVerificationPage must be used within UserContextProvider');
@@ -14,6 +15,8 @@ const EmailVerificationPage = () => {
 
   const send = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (loading) return;
+    setLoading(true);
     try {
       const { data } = await verifyEmailAPI(email);
       if (data.success) {
@@ -23,6 +26,8 @@ const EmailVerificationPage = () => {
       } else toast.error(data.message);
     } catch (err) {
       showErrorToast(err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -58,9 +63,10 @@ const EmailVerificationPage = () => {
 
         <button
           type="submit"
+          disabled={loading}
           className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white py-3 rounded-full hover:-translate-y-0.5 transition-transform"
         >
-          Send Verification Code
+          {loading ? 'Sending...' : 'Send Verification Code'}
         </button>
       </form>
     </main>
