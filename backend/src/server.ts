@@ -38,7 +38,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(
   cors({
-    origin: 'https://medislot-eight.vercel.app/',
+    origin: 'https://medislot-eight.vercel.app',
     credentials: true,
   })
 );
