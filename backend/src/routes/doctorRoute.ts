@@ -120,13 +120,6 @@ doctorRouter.get(
   authRole(['doctor']),
   doctorController.getDashboardData.bind(doctorController)
 );
-
-doctorRouter.post(
-  '/appointments/:appointmentId/prescription',
-  authRole(['doctor']),
-  doctorController.submitPrescription.bind(doctorController)
-);
-
 doctorRouter.post(
   '/add-blog',
   upload.single('image'),

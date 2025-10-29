@@ -18,7 +18,6 @@ import { HttpResponse } from '../../constants/responseMessage.constants';
 import { IWalletRepository } from '../../repositories/interface/IWalletRepository';
 import { INotificationService } from '../interface/INotificationService';
 import { Types } from 'mongoose';
-import { IPrescriptionRepository } from '../../repositories/interface/IPrescriptionRepository';
 import { ioInstance } from '../../sockets/ChatSocket';
 import { IPatientHistoryRepository } from '../../repositories/interface/IPatientHistoryRepository';
 import { patientHistoryTypes } from '../../types/patientHistoryTypes';
@@ -29,8 +28,6 @@ import { generateShortAppointmentId } from '../../utils/generateApptId.utils';
 import { WalletHistory } from '../../types/wallet';
 import { ComplaintDTO } from '../../dtos/complaint.dto';
 import { tocomplaintDTO } from '../../mappers/complaint.mapper';
-import { PrescriptionDTO } from '../../dtos/prescription.dto';
-import { toPrescriptionDTO } from '../../mappers/prescription.mapper';
 import { notifyActiveAppointment } from '../../sockets/ActiveAppointmentSocket';
 
 export interface DoctorDocument extends DoctorTypes {
@@ -43,7 +40,7 @@ export class DoctorService implements IDoctorService {
     private readonly _userRepository: IUserRepository,
     private readonly _walletRepository: IWalletRepository,
     private readonly _notificationService: INotificationService,
-    private readonly _prescriptionRepository: IPrescriptionRepository,
+    // private readonly _prescriptionRepository: IPrescriptionRepository,
     private readonly _patientHistoryRepository: IPatientHistoryRepository,
     private readonly _complaintRepository: IComplaintRepository
   ) {}
@@ -477,44 +474,6 @@ export class DoctorService implements IDoctorService {
       revenueData,
       appointmentData,
     };
-  }
-
-  async submitPrescription(
-    doctorId: string,
-    appointmentId: string,
-    prescription: string
-  ): Promise<PrescriptionDTO> {
-    const appointment = await this._doctorRepository.findAppointmentById(appointmentId);
-    if (!appointment) {
-      throw new Error('Appointment not found');
-    }
-
-    const userId = appointment.userData._id.toString();
-
-    await this._notificationService.sendNotification({
-      recipientId: userId,
-      recipientRole: 'user',
-      type: 'appointment',
-      title: 'Doctor added prescription',
-      message: `${appointment.docData.name} has added prescription for your appointment(${appointment._id}).`,
-      link: '/prescription',
-    });
-
-    if (ioInstance) {
-      ioInstance.to(userId).emit('notification', {
-        title: `Prescription added by ${appointment.docData.name}`,
-        link: '/prescription',
-      });
-    }
-
-    const createdPrescription = await this._prescriptionRepository.createPrescription({
-      appointmentId: appointment._id,
-      doctorId: new Types.ObjectId(doctorId),
-      patientId: appointment.userData._id,
-      prescription,
-    });
-
-    return toPrescriptionDTO(createdPrescription);
   }
 
   async createPatientHistory(data: patientHistoryTypes): Promise<void> {

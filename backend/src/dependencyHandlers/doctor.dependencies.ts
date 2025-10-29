@@ -3,7 +3,6 @@ import { DoctorService } from '../services/implementation/DoctorService';
 import { DoctorRepository } from '../repositories/implementation/DoctorRepository';
 import { WalletRepository } from '../repositories/implementation/WalletRepository';
 import { NotificationService } from '../services/implementation/NotificationService';
-import { PrescriptionRepository } from '../repositories/implementation/PrescriptionRepository';
 import { BlogService } from '../services/implementation/BlogService';
 import { PatientHistoryRepository } from '../repositories/implementation/PatientHistoryRepository';
 import { UserRepository } from '../repositories/implementation/UserRepository';
@@ -17,7 +16,6 @@ const userRepository = new UserRepository();
 const walletRepository = new WalletRepository();
 const notificationRepository = new NotificationRepository();
 const blogRepository = new BlogRepository();
-const prescriptionRepository = new PrescriptionRepository();
 const patientHistoryRepository = new PatientHistoryRepository();
 const complaintRepository = new ComplaintRepository();
 
@@ -30,7 +28,6 @@ const doctorService = new DoctorService(
   userRepository,
   walletRepository,
   notificationService,
-  prescriptionRepository,
   patientHistoryRepository,
   complaintRepository
 );

@@ -1,15 +1,13 @@
-import React, { createContext, useEffect, useState } from 'react';
+import React, { createContext, useEffect, useState, useContext } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { io, Socket } from 'socket.io-client';
 import { getActiveAppointmentAPI } from '../services/appointmentServices';
 import { getActiveDoctorAppointmentAPI } from '../services/doctorServices';
+import { NotifContext } from './NotificationContext';
 
 interface VideoCallCtx {
   active: boolean;
   appointmentId: string | null;
 }
-
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL ?? 'http://localhost:4000';
 
 export const VideoCallContext = createContext<VideoCallCtx>({
   active: false,
@@ -19,9 +17,10 @@ export const VideoCallContext = createContext<VideoCallCtx>({
 export const VideoCallProvider = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
   const navigate = useNavigate();
+  const { socket, myRole } = useContext(NotifContext);
 
-  const isDoctor = location.pathname.startsWith('/doctor');
-  const isUser = !isDoctor && !location.pathname.startsWith('/admin');
+  const isDoctor = myRole === 'doctor';
+  const isUser = myRole === 'user';
   const notInRoom =
     !location.pathname.startsWith('/video-room') &&
     !location.pathname.startsWith('/doctor/video-room');
@@ -32,27 +31,22 @@ export const VideoCallProvider = ({ children }: { children: React.ReactNode }) =
   const [appointmentId, setAppointmentId] = useState<string | null>(null);
 
   useEffect(() => {
-    const socket: Socket = io(BACKEND_URL, {
-      withCredentials: true,
-      transports: ['websocket'],
-      auth: {
-        userId: localStorage.getItem('userId') || '',
-        role: isDoctor ? 'doctor' : 'user',
-      },
-    });
+    if (!socket) return;
 
-    socket.on('active-appointment', (data: { appointmentId: string }) => {
+    const handleActiveAppointment = (data: { appointmentId: string }) => {
       if (data.appointmentId) {
         setActive(true);
         setAppointmentId(data.appointmentId);
         setDismissed(false);
       }
-    });
+    };
+
+    socket.on('active-appointment', handleActiveAppointment);
 
     return () => {
-      socket.disconnect();
+      socket.off('active-appointment', handleActiveAppointment);
     };
-  }, [isDoctor]);
+  }, [socket]);
 
   useEffect(() => {
     const checkActiveAppointment = async () => {

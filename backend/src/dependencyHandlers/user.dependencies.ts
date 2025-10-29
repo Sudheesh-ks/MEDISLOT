@@ -15,7 +15,7 @@ import { ComplaintRepository } from '../repositories/implementation/ComplaintRep
 import { PatientHistoryRepository } from '../repositories/implementation/PatientHistoryRepository';
 import { SlotService } from '../services/implementation/SlotService';
 import { TempAppointmentRepository } from '../repositories/implementation/TempAppointmentRepository';
-import { OtpRedisService } from '../services/implementation/otpRedisService';
+import { OtpRedisService } from '../services/implementation/OtpRedisService';
 
 // Repositories
 const userRepository = new UserRepository();

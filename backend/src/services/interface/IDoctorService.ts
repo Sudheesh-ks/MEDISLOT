@@ -39,7 +39,6 @@ export interface IDoctorService {
     txnType?: 'credit' | 'debit' | 'all'
   ): Promise<{ history: any[]; total: number; balance: number }>;
   getDashboardData(doctorId: string, startDate: string, endDate: string): Promise<any>;
-  submitPrescription(doctorId: string, appointmentId: string, prescription: string): Promise<any>;
   createPatientHistory(data: patientHistoryTypes): Promise<void>;
   updatePatientHistory(
     historyId: string,

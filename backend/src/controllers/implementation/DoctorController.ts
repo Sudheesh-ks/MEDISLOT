@@ -536,32 +536,6 @@ export class DoctorController implements IDoctorController {
     }
   }
 
-  async submitPrescription(req: Request, res: Response): Promise<void> {
-    try {
-      const doctorId = (req as any).docId;
-      console.log(doctorId);
-      const { appointmentId } = req.params;
-      const { prescription } = req.body;
-
-      if (!prescription) {
-        res
-          .status(HttpStatus.BAD_REQUEST)
-          .json({ success: false, message: 'Prescription text is required' });
-        return;
-      }
-
-      const saved = await this._doctorService.submitPrescription(
-        doctorId,
-        appointmentId,
-        prescription
-      );
-
-      res.status(HttpStatus.OK).json({ success: true, data: saved });
-    } catch (err: any) {
-      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({ success: false, message: err.message });
-    }
-  }
-
   async createBlog(req: Request, res: Response): Promise<void> {
     try {
       const doctorId = (req as any).docId;
