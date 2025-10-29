@@ -38,7 +38,7 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(
   cors({
-    origin: 'http://localhost:5173',
+    origin: 'https://medislot-eight.vercel.app/',
     credentials: true,
   })
 );
@@ -65,7 +65,7 @@ const chatService = new ChatService(new ChatRepository());
 // socket.io
 const server = http.createServer(app);
 const io = new SocketIOServer(server, {
-  cors: { origin: 'http://localhost:5173', credentials: true },
+  cors: { origin: 'https://medislot-eight.vercel.app/', credentials: true },
 });
 
 registerChatSocket(io, chatService);
