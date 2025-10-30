@@ -13,6 +13,9 @@ import passport from 'passport';
 import http from 'http';
 import { Server as SocketIOServer } from 'socket.io';
 import chatRouter from './routes/chatRoute';
+
+process.env.TZ = 'Asia/Kolkata';
+
 dotenv.config();
 
 // chat layer
