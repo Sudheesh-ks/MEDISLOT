@@ -49,6 +49,8 @@ export class UserController implements IUserController {
           // path: '/api/user/refresh-token',
           secure: true,
           sameSite: 'none',
+          domain: '13-236-136-196.sslip.io',
+          path: '/',
           maxAge: Number(process.env.REFRESH_TOKEN_MAX_AGE),
         });
         logger.info(`User ${email} verified & registered.`);
@@ -149,6 +151,8 @@ export class UserController implements IUserController {
         // path: '/api/user/refresh-token',
         secure: true,
         sameSite: 'none',
+        domain: '13-236-136-196.sslip.io',
+        path: '/',
         maxAge: Number(process.env.REFRESH_TOKEN_MAX_AGE), // 7 days
       });
       logger.info(`User ${email} logged in`);
@@ -178,6 +182,8 @@ export class UserController implements IUserController {
         // path: '/api/user/refresh-token',
         secure: true,
         sameSite: 'none',
+        domain: '13-236-136-196.sslip.io',
+        path: '/',
         maxAge: Number(process.env.REFRESH_TOKEN_MAX_AGE), // 7 days
       });
       logger.info(`Refresh token issued`);
@@ -196,8 +202,9 @@ export class UserController implements IUserController {
       res.clearCookie('refreshToken_user', {
         httpOnly: true,
         secure: true,
-        path: '/api/user/refresh-token',
-        sameSite: 'strict',
+        sameSite: 'none',
+        domain: '13-236-136-196.sslip.io',
+        path: '/',
       });
       logger.info('User logged out');
       res.status(HttpStatus.OK).json({ success: true, message: 'Logged out successfully' });

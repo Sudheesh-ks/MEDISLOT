@@ -140,6 +140,8 @@ export class DoctorController implements IDoctorController {
         // path: '/api/doctor/refresh-token',
         secure: true,
         sameSite: 'none',
+        domain: '13-236-136-196.sslip.io',
+        path: '/',
         maxAge: Number(process.env.REFRESH_TOKEN_MAX_AGE), // 7 days
       });
       logger.info(`Doctor login: ${req.body.email}`);
@@ -170,6 +172,8 @@ export class DoctorController implements IDoctorController {
         // path: '/api/doctor/refresh-token',
         secure: true,
         sameSite: 'none',
+        domain: '13-236-136-196.sslip.io',
+        path: '/',
         maxAge: Number(process.env.REFRESH_TOKEN_MAX_AGE),
       });
       logger.info('Doctor token refreshed');
@@ -191,9 +195,10 @@ export class DoctorController implements IDoctorController {
   async logoutDoctor(req: Request, res: Response): Promise<void> {
     res.clearCookie('refreshToken_doctor', {
       httpOnly: true,
-      path: '/api/doctor/refresh-token',
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      secure: true,
+      sameSite: 'none',
+      domain: '13-236-136-196.sslip.io',
+      path: '/',
     });
     logger.info('Doctor logged out');
 

@@ -32,7 +32,7 @@ import { startLockCleanupJob } from './jobs/cleanupLock';
 const allowedOrigins = [
   'https://medislot-eight.vercel.app',
   'https://13-236-136-196.sslip.io',
-  'http://localhost:5173'
+  'http://localhost:5173',
 ];
 
 // app config
