@@ -52,7 +52,7 @@ export class AdminController implements IAdminController {
 
       res.cookie('refreshToken_admin', refreshToken, {
         httpOnly: true,
-        path: '/api/admin/refresh-token',
+        // path: '/api/admin/refresh-token',
         secure: process.env.NODE_ENV === 'production',
         sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         maxAge: Number(process.env.REFRESH_TOKEN_MAX_AGE),

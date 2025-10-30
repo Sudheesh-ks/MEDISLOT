@@ -46,7 +46,7 @@ export class UserController implements IUserController {
       if (purpose === 'register' && user && user._id && refreshToken) {
         res.cookie('refreshToken_user', refreshToken, {
           httpOnly: true,
-          path: '/api/user/refresh-token',
+          // path: '/api/user/refresh-token',
           secure: process.env.NODE_ENV === 'production',
           sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
           maxAge: Number(process.env.REFRESH_TOKEN_MAX_AGE),
@@ -146,7 +146,7 @@ export class UserController implements IUserController {
 
       res.cookie('refreshToken_user', refreshToken, {
         httpOnly: true,
-        path: '/api/user/refresh-token',
+        // path: '/api/user/refresh-token',
         secure: process.env.NODE_ENV === 'production',
         sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         maxAge: Number(process.env.REFRESH_TOKEN_MAX_AGE), // 7 days
@@ -175,7 +175,7 @@ export class UserController implements IUserController {
 
       res.cookie('refreshToken_user', newRefreshToken, {
         httpOnly: true,
-        path: '/api/user/refresh-token',
+        // path: '/api/user/refresh-token',
         secure: process.env.NODE_ENV === 'production',
         sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         maxAge: Number(process.env.REFRESH_TOKEN_MAX_AGE), // 7 days
