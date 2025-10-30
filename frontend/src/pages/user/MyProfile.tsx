@@ -116,7 +116,7 @@ const MyProfile = () => {
                   </label>
                 ) : (
                   <img
-                    src={userData.image}
+                    src={userData.image || assets.default_profile}
                     className="w-24 h-24 object-cover rounded-lg border-2 border-gray-600"
                   />
                 )}

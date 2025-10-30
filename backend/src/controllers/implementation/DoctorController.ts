@@ -138,8 +138,8 @@ export class DoctorController implements IDoctorController {
       res.cookie('refreshToken_doctor', refreshToken, {
         httpOnly: true,
         // path: '/api/doctor/refresh-token',
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+        secure: true,
+        sameSite: 'none',
         maxAge: Number(process.env.REFRESH_TOKEN_MAX_AGE), // 7 days
       });
       logger.info(`Doctor login: ${req.body.email}`);
@@ -168,8 +168,8 @@ export class DoctorController implements IDoctorController {
       res.cookie('refreshToken_doctor', refreshToken, {
         httpOnly: true,
         // path: '/api/doctor/refresh-token',
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+        secure: true,
+        sameSite: 'none',
         maxAge: Number(process.env.REFRESH_TOKEN_MAX_AGE),
       });
       logger.info('Doctor token refreshed');

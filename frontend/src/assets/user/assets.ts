@@ -19,6 +19,7 @@ import videocall_icon from './video-call-icon.png';
 import message_icon from './messages-icon.png';
 import chatbot_logo from './AI chatbot logo.png';
 import patient_history from './PatientHistory.jpg';
+import default_profile from './upload_area.png';
 import doc1 from './doc1.png';
 import doc2 from './doc2.png';
 import doc3 from './doc3.png';
@@ -94,6 +95,7 @@ export const assets: Record<string, string> = {
   chatbot_logo,
   patient_history,
   hero_image,
+  default_profile,
 };
 
 export const specialityData: Speciality[] = [
