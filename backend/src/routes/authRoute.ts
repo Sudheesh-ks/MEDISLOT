@@ -36,7 +36,7 @@ authRouter.get(
     });
 
     // Redirect to the frontend with token
-    res.redirect(`${process.env.GOOGLE_REDIRECT_URL}?token=${accessToken}`);
+    res.redirect(`${process.env.FRONTEND_REDIRECT_URL}?token=${accessToken}`);
   }
 );
 
