@@ -48,7 +48,7 @@ export class UserController implements IUserController {
           httpOnly: true,
           path: '/api/user/refresh-token',
           secure: process.env.NODE_ENV === 'production',
-          sameSite: 'strict',
+          sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
           maxAge: Number(process.env.REFRESH_TOKEN_MAX_AGE),
         });
         logger.info(`User ${email} verified & registered.`);
@@ -148,7 +148,7 @@ export class UserController implements IUserController {
         httpOnly: true,
         path: '/api/user/refresh-token',
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         maxAge: Number(process.env.REFRESH_TOKEN_MAX_AGE), // 7 days
       });
       logger.info(`User ${email} logged in`);
@@ -177,7 +177,7 @@ export class UserController implements IUserController {
         httpOnly: true,
         path: '/api/user/refresh-token',
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         maxAge: Number(process.env.REFRESH_TOKEN_MAX_AGE), // 7 days
       });
       logger.info(`Refresh token issued`);

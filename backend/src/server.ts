@@ -29,7 +29,7 @@ import { startLockCleanupJob } from './jobs/cleanupLock';
 const allowedOrigins = [
   'https://medislot-eight.vercel.app',
   'https://13-236-136-196.sslip.io',
-  'http://localhost:5173',
+  'http://localhost:5173'
 ];
 
 // app config
@@ -44,14 +44,10 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(
   cors({
-    origin: (origin, callback) => {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
-      }
-    },
+    origin: allowedOrigins,
     credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
   })
 );
 

@@ -31,7 +31,7 @@ authRouter.get(
       httpOnly: true,
       path: '/api/user/refresh-token',
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
       maxAge: Number(process.env.REFRESH_TOKEN_MAX_AGE), // 7 days
     });
 
