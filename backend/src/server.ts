@@ -26,6 +26,12 @@ import aiChatRouter from './routes/aiChatBotRoutes';
 import './utils/activeAppointmentChecker';
 import { startLockCleanupJob } from './jobs/cleanupLock';
 
+const allowedOrigins = [
+  'https://medislot-eight.vercel.app',
+  'https://13-236-136-196.sslip.io',
+  'http://localhost:5173'
+];
+
 // app config
 const app = express();
 const PORT = process.env.PORT || 4000;
@@ -38,7 +44,13 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(
   cors({
-    origin: 'https://medislot-eight.vercel.app',
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
     credentials: true,
   })
 );
@@ -65,7 +77,7 @@ const chatService = new ChatService(new ChatRepository());
 // socket.io
 const server = http.createServer(app);
 const io = new SocketIOServer(server, {
-  cors: { origin: 'https://medislot-eight.vercel.app/', credentials: true },
+  cors: { origin: allowedOrigins, credentials: true },
 });
 
 registerChatSocket(io, chatService);
