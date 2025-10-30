@@ -13,7 +13,7 @@ export class ChatRepository extends BaseRepository<MessageDocument> implements I
     limit: number = 1000,
     before?: Date
   ): Promise<MessageDocument[]> {
-    const query: any = { chatId };
+    const query: any = { chatId, deleted: { $ne: true } };
     if (before) query.createdAt = { $lt: before };
 
     return MessageModel.find(query)
