@@ -21,11 +21,13 @@ export class AdminController implements IAdminController {
       logger.info(`Admin login success: ${req.body.email}`);
       res
         .cookie('refreshToken_admin', refreshToken, {
-          httpOnly: true,
-          secure: process.env.NODE_ENV === 'production',
-          sameSite: 'strict',
-          path: '/api/admin/refresh-token',
-          maxAge: Number(process.env.REFRESH_TOKEN_MAX_AGE),
+        httpOnly: true,
+        // path: '/api/admin/refresh-token',
+        secure: true,
+        sameSite: 'none',
+        domain: '.sslip.io',
+        path: '/',
+        maxAge: Number(process.env.REFRESH_TOKEN_MAX_AGE),
         })
         .status(HttpStatus.OK)
         .json({
