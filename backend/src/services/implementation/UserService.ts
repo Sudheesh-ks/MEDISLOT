@@ -616,13 +616,13 @@ export class UserService implements IUserService {
         doctorId,
         'doctor',
         doctorShare,
-        `Earnings for Appointment ${booked._id}`
+        `Earnings for Appointment ${generateShortAppointmentId(booked._id.toString())}`
       ),
       this._walletRepository.creditWallet(
         adminId!,
         'admin',
         adminShare,
-        `Commission for Appointment ${booked._id}`
+        `Commission for Appointment ${generateShortAppointmentId(booked._id.toString())}`
       ),
     ]);
 

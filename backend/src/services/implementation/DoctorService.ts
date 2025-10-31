@@ -290,7 +290,7 @@ export class DoctorService implements IDoctorService {
     const adminId = process.env.ADMIN_ID;
     const userId = appointment.userData._id.toString();
     const doctorId = appointment.docData._id.toString();
-    const reason = `Refund for Cancelled Appointment ${generateShortAppointmentId(appointment._id.toString())} of ${appointment.docData.name}`;
+    const reason = `Refund for Cancelled Appointment ${generateShortAppointmentId(appointment._id.toString())} of ${appointment.userData.name}`;
 
     const doctorShare = amount * 0.8;
     const adminShare = amount * 0.2;

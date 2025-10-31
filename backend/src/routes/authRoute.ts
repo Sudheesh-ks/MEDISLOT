@@ -29,9 +29,10 @@ authRouter.get(
 
     res.cookie('refreshToken_user', refreshToken, {
       httpOnly: true,
-      // path: '/api/user/refresh-token',
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+      secure: true,
+      sameSite: 'none',
+      domain: '13-236-136-196.sslip.io',
+      path: '/api/user',
       maxAge: Number(process.env.REFRESH_TOKEN_MAX_AGE), // 7 days
     });
 
