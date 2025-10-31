@@ -55,8 +55,8 @@ export class AdminController implements IAdminController {
         // path: '/api/admin/refresh-token',
         secure: true,
         sameSite: 'none',
-        domain: '13-236-136-196.sslip.io',
-        path: '/api/admin',
+        domain: '.sslip.io',
+        path: '/',
         maxAge: Number(process.env.REFRESH_TOKEN_MAX_AGE),
       });
 
@@ -78,8 +78,8 @@ export class AdminController implements IAdminController {
       httpOnly: true,
       secure: true,
       sameSite: 'none',
-      domain: '13-236-136-196.sslip.io',
-      path: '/api/admin',
+      domain: '.sslip.io',
+      path: '/',
     });
 
     logger.info('Admin logout successful');

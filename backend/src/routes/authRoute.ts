@@ -31,8 +31,8 @@ authRouter.get(
       httpOnly: true,
       secure: true,
       sameSite: 'none',
-      domain: '13-236-136-196.sslip.io',
-      path: '/api/user',
+      domain: '.sslip.io',
+      path: '/',
       maxAge: Number(process.env.REFRESH_TOKEN_MAX_AGE), // 7 days
     });
 
