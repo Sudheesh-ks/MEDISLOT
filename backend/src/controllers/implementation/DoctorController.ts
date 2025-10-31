@@ -140,7 +140,7 @@ export class DoctorController implements IDoctorController {
         // path: '/api/doctor/refresh-token',
         secure: true,
         sameSite: 'none',
-        domain: '13-236-136-196.sslip.io',
+        domain: 'medislot.ddns.net',
         path: '/',
         maxAge: Number(process.env.REFRESH_TOKEN_MAX_AGE), // 7 days
       });
@@ -172,7 +172,7 @@ export class DoctorController implements IDoctorController {
         // path: '/api/doctor/refresh-token',
         secure: true,
         sameSite: 'none',
-        domain: '13-236-136-196.sslip.io',
+        domain: 'medislot.ddns.net',
         path: '/',
         maxAge: Number(process.env.REFRESH_TOKEN_MAX_AGE),
       });
@@ -197,7 +197,7 @@ export class DoctorController implements IDoctorController {
       httpOnly: true,
       secure: true,
       sameSite: 'none',
-      domain: '13-236-136-196.sslip.io',
+      domain: 'medislot.ddns.net',
       path: '/',
     });
     logger.info('Doctor logged out');

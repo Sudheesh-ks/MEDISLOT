@@ -21,13 +21,13 @@ export class AdminController implements IAdminController {
       logger.info(`Admin login success: ${req.body.email}`);
       res
         .cookie('refreshToken_admin', refreshToken, {
-        httpOnly: true,
-        // path: '/api/admin/refresh-token',
-        secure: true,
-        sameSite: 'none',
-        domain: '13-236-136-196.sslip.io',
-        path: '/',
-        maxAge: Number(process.env.REFRESH_TOKEN_MAX_AGE),
+          httpOnly: true,
+          // path: '/api/admin/refresh-token',
+          secure: true,
+          sameSite: 'none',
+          domain: 'medislot.ddns.net',
+          path: '/',
+          maxAge: Number(process.env.REFRESH_TOKEN_MAX_AGE),
         })
         .status(HttpStatus.OK)
         .json({
@@ -57,7 +57,7 @@ export class AdminController implements IAdminController {
         // path: '/api/admin/refresh-token',
         secure: true,
         sameSite: 'none',
-        domain: '13-236-136-196.sslip.io',
+        domain: 'medislot.ddns.net',
         path: '/',
         maxAge: Number(process.env.REFRESH_TOKEN_MAX_AGE),
       });
@@ -80,7 +80,7 @@ export class AdminController implements IAdminController {
       httpOnly: true,
       secure: true,
       sameSite: 'none',
-      domain: '13-236-136-196.sslip.io',
+      domain: 'medislot.ddns.net',
       path: '/',
     });
 
