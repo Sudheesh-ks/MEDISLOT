@@ -13,6 +13,7 @@ import { NotifContext } from '../../context/NotificationContext';
 import { getUserByIDAPI } from '../../services/userProfileServices';
 import { doctorChat, getPresence, uploadChatFile } from '../../services/chatService';
 import type { Message } from '../../types/message';
+import { assets } from '../../assets/user/assets';
 
 const timeOf = (iso?: string) =>
   iso
@@ -81,7 +82,7 @@ const DocChatPage: React.FC = () => {
       if (data.success) {
         setUserProfile({
           name: data.user.name,
-          avatar: data.user.image || '/placeholder-avatar.png',
+          avatar: data.user.image || assets.default_profile || '/placeholder-avatar.png',
           email: data.user.email,
         });
       }

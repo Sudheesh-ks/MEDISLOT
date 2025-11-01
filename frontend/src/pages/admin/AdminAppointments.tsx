@@ -62,7 +62,7 @@ const AdminAppointments = () => {
         <div className="flex items-center gap-2">
           <img
             className="w-10 h-10 rounded-full object-cover ring-1 ring-white/10"
-            src={it.userData?.image || '/default-avatar.png'}
+            src={it.userData?.image || assets.default_profile}
           />
           <p className="truncate">{it.userData?.name}</p>
         </div>
@@ -93,7 +93,7 @@ const AdminAppointments = () => {
         <div className="flex items-center gap-2">
           <img
             className="w-9 h-9 rounded-full object-cover ring-1 ring-white/10"
-            src={it.docData?.image || '/default-avatar.png'}
+            src={it.docData?.image || assets.default_profile}
           />
           <p className="truncate">{it.docData?.name}</p>
         </div>

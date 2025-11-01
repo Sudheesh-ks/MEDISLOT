@@ -14,6 +14,7 @@ import { doctorChat } from '../../services/chatService';
 import { DoctorContext } from '../../context/DoctorContext';
 import { NotifContext } from '../../context/NotificationContext';
 import type { AppointmentTypes } from '../../types/appointment';
+import { assets } from '../../assets/user/assets';
 
 interface Chat {
   id: string;
@@ -123,7 +124,7 @@ const DoctorChatList: React.FC = () => {
             return {
               id: userId,
               name: appt.userData?.name ?? 'Unknown',
-              avatar: appt.userData?.image,
+              avatar: appt.userData?.image || assets.default_profile,
               lastMessage: msgText,
               time,
               unreadCount: unread?.[chatId] ?? 0,

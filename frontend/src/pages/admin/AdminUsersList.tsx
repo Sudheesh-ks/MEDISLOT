@@ -6,6 +6,7 @@ import SearchBar from '../../components/common/SearchBar';
 import Pagination from '../../components/common/Pagination';
 import DataTable from '../../components/common/DataTable';
 import { updateItemInList } from '../../utils/stateHelper.util';
+import { assets } from '../../assets/user/assets';
 
 const AdminUsersList = () => {
   const navigate = useNavigate();
@@ -65,7 +66,7 @@ const AdminUsersList = () => {
       width: '2fr',
       render: (it: any) => (
         <img
-          src={it.image || '/default-avatar.png'}
+          src={it.image || assets.default_profile}
           className="w-10 h-10 rounded-full object-cover ring-1 ring-white/10"
         />
       ),

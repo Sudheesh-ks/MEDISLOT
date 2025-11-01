@@ -72,7 +72,7 @@ const Navbar = () => {
                 onClick={() => setProfileOpen((p) => !p)}
                 className="flex items-center gap-2 text-slate-200"
               >
-                <img src={userData.image} alt="avatar" className="w-8 h-8 rounded-full" />
+                <img src={userData.image || assets.default_profile} alt="avatar" className="w-8 h-8 rounded-full" />
                 {notif && Object.values(notif.unread).some((v) => v > 0) && (
                   <span className="absolute -top-2 -right-2 h-4 min-w-[16px] px-1 bg-red-500 text-xs rounded-full flex items-center justify-center">
                     !

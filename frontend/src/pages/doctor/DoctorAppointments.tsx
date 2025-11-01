@@ -88,7 +88,7 @@ const DoctorAppointments = () => {
       width: '2fr',
       render: (it: any) => (
         <div className="flex items-center gap-2">
-          <img className="w-12 h-12 rounded-full object-cover" src={it.userData.image} />
+          <img className="w-12 h-12 rounded-full object-cover" src={it.userData.image || assets.default_profile} />
           <p>{it.userData.name}</p>
         </div>
       ),

@@ -13,6 +13,7 @@ import { NotifContext } from '../../context/NotificationContext';
 import PatientHistoryForm from '../../components/doctor/PatientHistoryForm';
 import { getAppointmentByIdAPI } from '../../services/appointmentServices';
 import type { AppointmentTypes } from '../../types/appointment';
+import { assets } from '../../assets/user/assets';
 
 interface VideoCallRoomProps {
   role: 'user' | 'doctor';
@@ -219,7 +220,7 @@ const VideoCallRoom: React.FC<VideoCallRoomProps> = ({ role, backUrl }) => {
           <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full overflow-hidden border-2 border-cyan-500">
             {role === 'doctor' ? (
               <img
-                src={appointmentData?.userData?.image}
+                src={appointmentData?.userData?.image || assets.default_profile}
                 alt="Patient"
                 className="w-full h-full object-cover"
               />

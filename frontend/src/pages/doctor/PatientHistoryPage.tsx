@@ -21,6 +21,7 @@ import {
   isValidTime,
   isValidVitalField,
 } from '../../utils/validator';
+import { assets } from '../../assets/user/assets';
 
 const PatientHistoryPage = () => {
   const navigate = useNavigate();
@@ -276,7 +277,7 @@ const PatientHistoryPage = () => {
                 <div className="text-center mb-6">
                   <div className="w-20 h-20 rounded-full overflow-hidden mx-auto mb-4">
                     <img
-                      src={patientData.image}
+                      src={patientData.image || assets.default_profile}
                       alt={patientData.name}
                       className="w-full h-full object-cover"
                     />
