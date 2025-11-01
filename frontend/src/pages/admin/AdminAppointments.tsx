@@ -1,13 +1,14 @@
 import { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AdminContext } from '../../context/AdminContext';
-import { assets } from '../../assets/admin/assets';
+import { assets as Aassets } from '../../assets/admin/assets';
 import { motion } from 'framer-motion';
 import SearchBar from '../../components/common/SearchBar';
 import Pagination from '../../components/common/Pagination';
 import DataTable from '../../components/common/DataTable';
 import { updateItemInList } from '../../utils/stateHelper.util';
 import { calculateAge, currencySymbol, slotDateFormat } from '../../utils/commonUtils';
+import { assets } from '../../assets/user/assets';
 
 const glass = 'bg-white/5 backdrop-blur ring-1 ring-white/10';
 
@@ -122,7 +123,7 @@ const AdminAppointments = () => {
         ) : (
           <motion.img
             whileTap={{ scale: 0.9 }}
-            src={assets.cancel_icon}
+            src={Aassets.cancel_icon}
             className="w-7 cursor-pointer hover:opacity-80"
             onClick={(e) => {
               e.stopPropagation();
