@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState } from 'react';
 import { DoctorContext } from '../../context/DoctorContext';
-import { assets } from '../../assets/admin/assets';
+import { assets as Aassets } from '../../assets/admin/assets';
 import { useNavigate } from 'react-router-dom';
 import SearchBar from '../../components/common/SearchBar';
 import DataTable from '../../components/common/DataTable';
@@ -11,6 +11,7 @@ import { to12h } from '../../utils/slotManagementHelper';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import { NotifContext } from '../../context/NotificationContext';
+import { assets } from '../../assets/user/assets';
 
 dayjs.extend(customParseFormat);
 
@@ -169,7 +170,7 @@ const DoctorAppointments = () => {
                 e.stopPropagation();
                 doCancel(it._id);
               }}
-              src={assets.cancel_icon}
+              src={Aassets.cancel_icon}
               className="w-7 cursor-pointer opacity-80 hover:opacity-100"
             />
             <img
@@ -177,7 +178,7 @@ const DoctorAppointments = () => {
                 e.stopPropagation();
                 doConfirm(it._id);
               }}
-              src={assets.tick_icon}
+              src={Aassets.tick_icon}
               className="w-7 cursor-pointer opacity-80 hover:opacity-100"
             />
           </div>
