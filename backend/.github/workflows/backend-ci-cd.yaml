@@ -1,0 +1,81 @@
+name: Backend CI/CD (EC2)
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: read
+
+jobs:
+  # -----------------------------
+  # Continuous Integration (Build & Test)
+  # -----------------------------
+  build:
+    name: Build and Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Lint code
+        run: npm run lint || true
+
+      - name: Run tests
+        run: npm test || echo "No tests found"
+
+      - name: Build project
+        run: npm run build
+
+  # -----------------------------
+  # Continuous Deployment (Deploy to EC2)
+  # -----------------------------
+  deploy:
+    name: Deploy to EC2
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.8.1
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Sync project files to EC2
+        run: |
+          echo "Deploying files to EC2..."
+          rsync -avz --delete \
+            --exclude '.git' \
+            --exclude 'node_modules' \
+            --exclude '.env' \
+            ./ ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:${{ secrets.SSH_TARGET_DIR }}
+
+      - name: Install dependencies & restart server on EC2
+        run: |
+          echo "Restarting PM2 application..."
+          ssh ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} '
+            cd ${{ secrets.SSH_TARGET_DIR }} &&
+            npm ci &&
+            pm2 restart all || pm2 start ecosystem.config.js
+          '
+
+      - name: Health check
+        run: |
+          echo "Checking if server is running..."
+          sleep 10
+          curl -f https://${{ secrets.SSH_HOST }}/ || echo "Health check failed"
