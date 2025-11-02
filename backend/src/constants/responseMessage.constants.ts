@@ -10,7 +10,7 @@ export const HttpResponse = {
 
   // Auth related
   FIELDS_REQUIRED: 'All fields are required',
-  INVALID_NAME: 'Name must contain 4 - 20 characters',
+  INVALID_NAME: 'Name should contain 4 - 20 characters',
   INVALID_EMAIL: 'Invalid email format',
   INVALID_PASSWORD:
     'Password must be at least 8 characters long, contain at least 1 letter, 1 number, and 1 special character',
