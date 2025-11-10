@@ -198,7 +198,7 @@ export const getDoctorDashboardDataAPI = (start?: string, end?: string) => {
 };
 
 export const getBlogCategoriesAPI = () => {
-  return doctorApi.get("/api/blog/categories");
+  return doctorApi.get(BLOG_API.CATEGORIES);
 };
 
 export const createDoctorBlogAPI = (formData: FormData) => {

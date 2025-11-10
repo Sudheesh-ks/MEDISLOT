@@ -116,6 +116,7 @@ export const SLOT_API = {
 
 export const BLOG_API = {
   CREATE: '/api/doctor/add-blog',
+  CATEGORIES: '/api/doctor/categories',
   BY_ID: (id: string) => `/api/doctor/blogs/${id}`,
   DOCTOR_BLOGS: '/api/doctor/blogs',
   PAGINATED: (page: number, limit: number) => `/api/doctor/blogs?page=${page}&limit=${limit}`,
