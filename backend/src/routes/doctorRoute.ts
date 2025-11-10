@@ -120,6 +120,13 @@ doctorRouter.get(
   authRole(['doctor']),
   doctorController.getDashboardData.bind(doctorController)
 );
+
+doctorRouter.get(
+  '/categories',
+  authRole(['doctor']),
+  doctorController.getCategories.bind(doctorController)
+);
+
 doctorRouter.post(
   '/add-blog',
   upload.single('image'),

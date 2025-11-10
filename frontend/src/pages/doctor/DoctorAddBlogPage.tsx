@@ -1,5 +1,5 @@
 import React, { useState, useRef, useContext, useEffect } from 'react';
-import { createDoctorBlogAPI } from '../../services/doctorServices';
+import { createDoctorBlogAPI, getBlogCategoriesAPI } from '../../services/doctorServices';
 import { toast } from 'react-toastify';
 import { showErrorToast } from '../../utils/errorHandler';
 
@@ -34,6 +34,7 @@ const DoctorAddBlogPage = () => {
   const [preview, setPreview] = useState<string | undefined>();
   const [visibility, setVisibility] = useState('public');
   const [loading, setLoading] = useState(false);
+  const [categories, setCategories] = useState<string[]>([]);
 
   const editorRef = useRef<any>(null);
   const [content, setContent] = useState('');
@@ -82,6 +83,20 @@ const DoctorAddBlogPage = () => {
     },
     editorRef,
   };
+
+  useEffect(() => {
+  const fetchCategories = async () => {
+    try {
+      const res = await getBlogCategoriesAPI();
+      if (res.data.success) {
+        setCategories(res.data.categories);
+      }
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
+  };
+  fetchCategories();
+}, []);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -233,7 +248,7 @@ const DoctorAddBlogPage = () => {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium mb-3 text-slate-300">Category</label>
-                <select
+                {/* <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
                   className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -247,6 +262,18 @@ const DoctorAddBlogPage = () => {
                   <option value="pediatrics">Pediatrics</option>
                   <option value="surgery">Surgery</option>
                   <option value="research">Medical Research</option>
+                </select> */}
+                <select
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  className="w-full bg-slate-800 border border-slate-700 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                >
+                  <option value="">Select category</option>
+                  {categories.map((cat) => (
+                    <option key={cat} value={cat}>
+                      {cat.replace("-", " ").replace(/\b\w/g, (c) => c.toUpperCase())}
+                    </option>
+                  ))}
                 </select>
               </div>
               <div>

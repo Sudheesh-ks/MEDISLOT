@@ -3,6 +3,7 @@ import { BlogTypes } from '../../types/blog';
 
 export interface IBlogService {
   createBlog(data: BlogTypes): Promise<BlogDTO>;
+  getCategories(): Promise<string[]>;
   getBlogById(id: string): Promise<BlogDTO | null>;
   getBlogsPaginated(
     page: number,

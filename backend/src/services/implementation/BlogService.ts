@@ -66,6 +66,21 @@ export class BlogService implements IBlogService {
     return toBlogDTO(doc);
   }
 
+  async getCategories(): Promise<string[]> {
+    const predefined = [
+      'digital-health',
+      'ai-medicine',
+      'cardiology',
+      'neurology',
+      'oncology',
+      'pediatrics',
+      'surgery',
+      'medical-research',
+    ];
+
+    return predefined;
+  }
+
   async getBlogById(id: string): Promise<BlogDTO | null> {
     const doc = await this._blogRepository.getBlogById(id);
     return doc ? toBlogDTO(doc) : null;

@@ -197,6 +197,10 @@ export const getDoctorDashboardDataAPI = (start?: string, end?: string) => {
   });
 };
 
+export const getBlogCategoriesAPI = () => {
+  return doctorApi.get("/api/blog/categories");
+};
+
 export const createDoctorBlogAPI = (formData: FormData) => {
   return doctorApi.post(BLOG_API.CREATE, formData);
 };

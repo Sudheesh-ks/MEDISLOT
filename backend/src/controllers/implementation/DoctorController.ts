@@ -541,6 +541,22 @@ export class DoctorController implements IDoctorController {
     }
   }
 
+  async getCategories(req: Request, res: Response): Promise<void> {
+    try {
+      const categories = await this._blogService.getCategories();
+
+      res.status(200).json({
+        success: true,
+        categories,
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: (error as Error).message,
+      });
+    }
+  }
+
   async createBlog(req: Request, res: Response): Promise<void> {
     try {
       const doctorId = (req as any).docId;
