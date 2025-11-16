@@ -43,6 +43,6 @@ export const resetPasswordAPI = async (email: string, newPassword: string) => {
 
 // Change password
 export const changePasswordAPI = async (oldPassword: string, newPassword: string) => {
-  const res = await userApi.post('/api/user/change-password', { oldPassword, newPassword });
+  const res = await userApi.post(AUTH_API.CHANGE_PASSWORD, { oldPassword, newPassword });
   return res.data;
 };

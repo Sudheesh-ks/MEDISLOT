@@ -19,7 +19,3 @@ export const VerifyRazorpayAPI = async (
     razorpay_signature: response.razorpay_signature,
   });
 };
-
-export const cancelTempBookingAPI = async (tempBookingId: string) => {
-  return userApi.post('/api/user/appointments/cancel-temp', { tempBookingId });
-};

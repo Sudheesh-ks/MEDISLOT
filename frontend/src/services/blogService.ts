@@ -7,7 +7,7 @@ export const getBlogsPaginatedAPI = (
   sortBy?: string,
   sortOrder?: 'asc' | 'desc'
 ) => {
-  let url = `/api/user/blogs?page=${page}&limit=${limit}`;
+  let url = `${BLOG_API.GET_ALLBLOGS}?page=${page}&limit=${limit}`;
   if (sortBy) url += `&sortBy=${sortBy}`;
   if (sortOrder) url += `&sortOrder=${sortOrder}`;
   return userApi.get(url);

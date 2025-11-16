@@ -49,7 +49,7 @@ export class UserController implements IUserController {
           // path: '/api/user/refresh-token',
           secure: true,
           sameSite: 'none',
-          domain: 'medislot.ddns.net',
+          domain: process.env.COOKIE_DOMAIN,
           path: '/',
           maxAge: Number(process.env.REFRESH_TOKEN_MAX_AGE),
         });
@@ -151,7 +151,7 @@ export class UserController implements IUserController {
         // path: '/api/user/refresh-token',
         secure: true,
         sameSite: 'none',
-        domain: 'medislot.ddns.net',
+        domain: process.env.COOKIE_DOMAIN,
         path: '/',
         maxAge: Number(process.env.REFRESH_TOKEN_MAX_AGE), // 7 days
       });
@@ -182,7 +182,7 @@ export class UserController implements IUserController {
         // path: '/api/user/refresh-token',
         secure: true,
         sameSite: 'none',
-        domain: 'medislot.ddns.net',
+        domain: process.env.COOKIE_DOMAIN,
         path: '/',
         maxAge: Number(process.env.REFRESH_TOKEN_MAX_AGE), // 7 days
       });
@@ -203,7 +203,7 @@ export class UserController implements IUserController {
         httpOnly: true,
         secure: true,
         sameSite: 'none',
-        domain: 'medislot.ddns.net',
+        domain: process.env.COOKIE_DOMAIN,
         path: '/',
       });
       logger.info('User logged out');

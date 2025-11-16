@@ -25,7 +25,7 @@ export class AdminController implements IAdminController {
           // path: '/api/admin/refresh-token',
           secure: true,
           sameSite: 'none',
-          domain: 'medislot.ddns.net',
+          domain: process.env.COOKIE_DOMAIN,
           path: '/',
           maxAge: Number(process.env.REFRESH_TOKEN_MAX_AGE),
         })
@@ -57,7 +57,7 @@ export class AdminController implements IAdminController {
         // path: '/api/admin/refresh-token',
         secure: true,
         sameSite: 'none',
-        domain: 'medislot.ddns.net',
+        domain: process.env.COOKIE_DOMAIN,
         path: '/',
         maxAge: Number(process.env.REFRESH_TOKEN_MAX_AGE),
       });
@@ -80,7 +80,7 @@ export class AdminController implements IAdminController {
       httpOnly: true,
       secure: true,
       sameSite: 'none',
-      domain: 'medislot.ddns.net',
+      domain: process.env.COOKIE_DOMAIN,
       path: '/',
     });
 

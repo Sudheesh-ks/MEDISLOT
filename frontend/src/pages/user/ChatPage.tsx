@@ -66,6 +66,10 @@ const ChatPage: React.FC = () => {
           avatar: data.doctor.image || '/placeholder.png',
           speciality: data.doctor.speciality,
         });
+
+        if (data.doctor.status === 'blocked') {
+          navigate('/myappointments');
+        }
       }
     });
 

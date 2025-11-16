@@ -25,7 +25,7 @@ export const uploadChatFile = async (file: File) => {
   const fd = new FormData();
   fd.append('file', file);
 
-  const { data } = await userApi.post('/api/chat/upload', fd, {
+  const { data } = await userApi.post(CHAT_API.UPLOAD, fd, {
     headers: { 'Content-Type': 'multipart/form‑data' },
   });
 
@@ -33,4 +33,4 @@ export const uploadChatFile = async (file: File) => {
   return { url: data.url as string, mime: data.mime as string };
 };
 
-export const getPresence = (id: string) => userApi.get<{ online: boolean }>(`/api/presence/${id}`);
+export const getPresence = (id: string) => userApi.get<{ online: boolean }>(CHAT_API.PRESENCE(id));

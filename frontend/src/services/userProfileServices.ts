@@ -70,6 +70,6 @@ export const clearAllUserNotificationsAPI = async (type?: string) => {
 };
 
 export const reportBugAPI = async (data: { subject: string; description: string }) => {
-  const res = userApi.post('api/user/complaints/report', data);
+  const res = userApi.post(USER_PROFILE_API.REPORT_ISSUE, data);
   return (await res).data;
 };

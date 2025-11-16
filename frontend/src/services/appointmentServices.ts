@@ -43,11 +43,11 @@ export const getAvailableSlotsAPI = async (doctorId: string, date: string) => {
 };
 
 export const submitFeedbackAPI = async (appointmentId: string, message: string, rating: number) => {
-  return userApi.post(`/api/user/appointments/${appointmentId}/feedback`, { message, rating });
+  return userApi.post(APPOINTMENT_API.SUBMIT_FEEDBACK(appointmentId), { message, rating });
 };
 
 export const getPrescriptionAPI = async (appointmentId: string) => {
-  return userApi.get(`/api/user/appointments/${appointmentId}/prescription`);
+  return userApi.get(APPOINTMENT_API.PRESCRIPTION(appointmentId));
 };
 
 export const getDoctorReviewsAPI = async (doctorId: string) => {
@@ -55,6 +55,11 @@ export const getDoctorReviewsAPI = async (doctorId: string) => {
 };
 
 export const getAppointmentByIdAPI = async (appointmentId: string) => {
-  const res = await doctorApi.get(`/api/doctor/appointments/${appointmentId}`);
+  const res = await doctorApi.get(APPOINTMENT_API.GET_APPOINTMENT_BY_ID(appointmentId));
   return res.data.appointment;
 };
+
+export const cancelTempBookingAPI = async (tempBookingId: string) => {
+  return userApi.post(APPOINTMENT_API.CANCEL_TEMP, { tempBookingId });
+};
+

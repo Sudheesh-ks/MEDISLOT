@@ -10,12 +10,13 @@ import RelatedDoctors from '../../components/user/RelatedDoctors';
 import { toast } from 'react-toastify';
 import {
   appointmentBookingAPI,
+  cancelTempBookingAPI,
   getAvailableSlotsAPI,
   getDoctorReviewsAPI,
 } from '../../services/appointmentServices';
 import { showErrorToast } from '../../utils/errorHandler';
 import type { RazorpayOptions, RazorpayPaymentResponse } from '../../types/razorpay';
-import { cancelTempBookingAPI, VerifyRazorpayAPI } from '../../services/paymentServices';
+import { VerifyRazorpayAPI } from '../../services/paymentServices';
 import { getDoctorsByIDAPI } from '../../services/doctorServices';
 import type { DoctorProfileType } from '../../types/doctor';
 import { currencySymbol } from '../../utils/commonUtils';

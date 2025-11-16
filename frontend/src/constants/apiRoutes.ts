@@ -37,6 +37,10 @@ export const APPOINTMENT_API = {
   AVAILABLE_FOR_USER: '/api/user/available-slots',
   ACTIVE_APPOINTMENT: '/api/user/appointments/active',
   FEEDBACKS: '/api/user/feedbacks',
+  SUBMIT_FEEDBACK: (appointmentId: string) => `/api/user/appointments/${appointmentId}/feedback`,
+  PRESCRIPTION: (appointmentId: string) => `/api/user/appointments/${appointmentId}/prescription`,
+  GET_APPOINTMENT_BY_ID: (appointmentId: string) => `/api/doctor/appointments/${appointmentId}`,
+  CANCEL_TEMP: '/api/user/appointments/cancel-temp',
 };
 
 export const AUTH_API = {
@@ -50,6 +54,7 @@ export const AUTH_API = {
 
   FORGOT_PASSWORD: '/api/user/password/forgot',
   RESET_PASSWORD: '/api/user/password/reset',
+  CHANGE_PASSWORD: '/api/user/change-password'
 };
 
 export const DOCTOR_API = {
@@ -59,6 +64,7 @@ export const DOCTOR_API = {
   LOGIN: '/api/doctor/login',
   LOGOUT: '/api/doctor/logout',
   REFRESH: '/api/doctor/refresh-token',
+  CHANGE_PASSWORD: '/api/doctor/change-password',
   SLOTS: '/api/doctor/slots',
 
   DASHBOARD: '/api/doctor/dashboard',
@@ -80,6 +86,15 @@ export const DOCTOR_API = {
   NOTIFICATION_MARK_ALL_READ: '/api/doctor/notifications/read-all',
   NOTIFICATIONS_UNREAD_COUNT: '/api/doctor/notifications/unread-count',
   NOTIFICATION_CLEAR_ALL: '/api/doctor/notifications/clear-all',
+
+  PATIENT_HISTORY: (patientId: string, appointmentId?: string) =>
+    appointmentId
+      ? `/api/doctor/patient-history/${patientId}/${appointmentId}`
+      : `/api/doctor/patient-history/${patientId}`,
+  PATIENT_HISTORY_BY_ID: (historyId: string) => `/api/doctor/patient-history/${historyId}`,
+  PATIENT_DETAILS: (patientId: string) => `/api/doctor/patient/${patientId}`,
+
+  REPORT_ISSUE: '/api/doctor/complaints/report',
 };
 
 export const PAYMENT_API = {
@@ -93,9 +108,11 @@ export const CHAT_API = {
   DELETE_MESSAGE: (messageId: string) => `/api/chat/message/${messageId}`,
   MARK_READ: (chatId: string) => `/api/chat/${chatId}/read`,
   UPLOAD: '/api/chat/upload',
+  PRESENCE: (id: string) => `/api/presence/${id}`,
 
   SEND: '/api/chatbot/chat',
   CHATBOT_HISTORY: '/api/chatbot/history',
+  CHATBOT_LATEST_SUMMARY: (userId: string) => `/api/chatbot/latest-summary/${userId}`,
 };
 
 export const USER_PROFILE_API = {
@@ -108,6 +125,7 @@ export const USER_PROFILE_API = {
   NOTIFICATION_MARK_ALL_READ: '/api/user/notifications/read-all',
   NOTIFICATIONS_UNREAD_COUNT: '/api/user/notifications/unread-count',
   NOTIFICATION_CLEAR_ALL: '/api/user/notifications/clear-all',
+  REPORT_ISSUE: 'api/user/complaints/report',
 };
 
 export const SLOT_API = {
@@ -127,4 +145,5 @@ export const BLOG_API = {
   BLOG_COMMENTS: (id: string) => `/api/user/blogs/${id}/comments`,
   LIKE_BLOG: (id: string) => `api/user/blogs/${id}/like`,
   BLOG_LIKES: (id: string) => `api/user/blogs/${id}/likes`,
+
 };

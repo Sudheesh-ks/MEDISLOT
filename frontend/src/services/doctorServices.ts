@@ -107,7 +107,7 @@ export const updateDoctorProfileAPI = (formData: any, image: File | null) => {
 };
 
 export const changeDoctorPasswordAPI = async (oldPassword: string, newPassword: string) => {
-  const res = await doctorApi.post('/api/doctor/change-password', { oldPassword, newPassword });
+  const res = await doctorApi.post(DOCTOR_API.CHANGE_PASSWORD, { oldPassword, newPassword });
   return res.data;
 };
 
@@ -192,7 +192,7 @@ export const clearAllDoctorNotificationsAPI = async (type?: string) => {
 };
 
 export const getDoctorDashboardDataAPI = (start?: string, end?: string) => {
-  return doctorApi.get('/api/doctor/dashboard', {
+  return doctorApi.get(DOCTOR_API.DASHBOARD, {
     params: { start, end },
   });
 };
@@ -249,19 +249,19 @@ export const createPatientHistoryAPI = (
     }[];
   }
 ) => {
-  return doctorApi.post(`/api/doctor/patient-history/${patientId}/${appointmentId}`, data);
+  return doctorApi.post(DOCTOR_API.PATIENT_HISTORY(patientId, appointmentId), data);
 };
 
 export const getPatientHistoriesByPatientAPI = (patientId: string) => {
-  return doctorApi.get(`/api/doctor/patient-history/${patientId}`);
+  return doctorApi.get(DOCTOR_API.PATIENT_HISTORY(patientId));
 };
 
 export const getPatientHistoryByIdAPI = (historyId: string) => {
-  return doctorApi.get(`/api/doctor/patient-history/${historyId}`);
+  return doctorApi.get(DOCTOR_API.PATIENT_HISTORY_BY_ID(historyId));
 };
 
 export const getPatientDetailsAPI = (patientId: string) => {
-  return doctorApi.get(`/api/doctor/patient/${patientId}`);
+  return doctorApi.get(DOCTOR_API.PATIENT_DETAILS(patientId));
 };
 
 export const updatePatientHistoryAPI = (
@@ -291,10 +291,10 @@ export const updatePatientHistoryAPI = (
     }[];
   }
 ) => {
-  return doctorApi.put(`/api/doctor/patient-history/${historyId}`, data);
+  return doctorApi.put(DOCTOR_API.PATIENT_HISTORY_BY_ID(historyId), data);
 };
 
 export const reportDoctorIssueAPI = async (data: { subject: string; description: string }) => {
-  const res = await doctorApi.post('/api/doctor/complaints/report', data);
+  const res = await doctorApi.post(DOCTOR_API.REPORT_ISSUE, data);
   return res.data;
 };

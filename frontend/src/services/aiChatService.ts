@@ -12,6 +12,6 @@ export const getChatHistoryAPI = async () => {
 };
 
 export const getChatSummaryAPI = async (userId: string) => {
-  const res = await doctorApi.get(`/api/chatbot/latest-summary/${userId}`);
+  const res = await doctorApi.get(CHAT_API.CHATBOT_LATEST_SUMMARY(userId));
   return res.data;
 };
