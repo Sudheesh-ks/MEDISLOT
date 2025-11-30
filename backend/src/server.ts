@@ -31,7 +31,7 @@ import { startLockCleanupJob } from './jobs/cleanupLock';
 
 const allowedOrigins = [
   'https://medislot-eight.vercel.app',
-  'https://medislot.ddns.net',
+  'https://medislot-backend-xwph.onrender.com',
   'http://localhost:5173',
 ];
 

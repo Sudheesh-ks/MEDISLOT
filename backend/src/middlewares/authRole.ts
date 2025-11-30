@@ -61,6 +61,15 @@ const authRole = (allowedRoles: Array<'user' | 'doctor' | 'admin'>) => {
             });
             return;
           }
+
+          if (doctor.status === 'blocked') {
+            res.status(HttpStatus.FORBIDDEN).json({
+              success: false,
+              message: 'Your account has been blocked by the admin.',
+            });
+            return;
+          }
+
           (req as any).docId = doctor._id;
           break;
         }

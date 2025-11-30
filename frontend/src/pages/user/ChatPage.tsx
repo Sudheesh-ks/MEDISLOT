@@ -68,7 +68,7 @@ const ChatPage: React.FC = () => {
         });
 
         if (data.doctor.status === 'blocked') {
-          navigate('/myappointments');
+          navigate('/my-appointments');
         }
       }
     });

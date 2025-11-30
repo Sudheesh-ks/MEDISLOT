@@ -31,7 +31,7 @@ authRouter.get(
       httpOnly: true,
       secure: true,
       sameSite: 'none',
-      domain: 'medislot.ddns.net',
+      domain: 'https://medislot-backend-xwph.onrender.com',
       path: '/',
       maxAge: Number(process.env.REFRESH_TOKEN_MAX_AGE), // 7 days
     });

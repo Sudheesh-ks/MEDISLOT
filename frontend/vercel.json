@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/(.*)",
-      "destination": "https://medislot.ddns.net/api/$1"
+      "destination": "https://medislot-backend-xwph.onrender.com/api/$1"
     },
     {
       "source": "/(.*)",
