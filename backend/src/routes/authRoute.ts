@@ -31,7 +31,7 @@ authRouter.get(
       httpOnly: true,
       secure: true,
       sameSite: 'none',
-      domain: 'https://medislot-backend-xwph.onrender.com',
+      domain: process.env.COOKIE_DOMAIN,
       path: '/',
       maxAge: Number(process.env.REFRESH_TOKEN_MAX_AGE), // 7 days
     });
