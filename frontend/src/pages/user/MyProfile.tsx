@@ -129,7 +129,7 @@ const MyProfile = () => {
                     className={input + ' text-xl font-semibold mb-2'}
                     value={userData.name}
                     onChange={(e) => setUserData((p) => (p ? { ...p, name: e.target.value } : p))}
-                    placeholder="Your name"
+                    placeholder="Enter your name here..."
                   />
                 ) : (
                   <h2 className="text-xl font-semibold text-white mb-2">{userData.name}</h2>
@@ -160,7 +160,7 @@ const MyProfile = () => {
                   />
                 ) : (
                   <div className="p-3 bg-gray-700 rounded-lg">
-                    <span className="text-white">{userData.phone}</span>
+                    <span className={userData.phone ? "text-white" : "text-gray-400"}>{userData.phone || "enter your phone number"}</span>
                   </div>
                 )}
               </div>
@@ -179,7 +179,7 @@ const MyProfile = () => {
                   </select>
                 ) : (
                   <div className="p-3 bg-gray-700 rounded-lg">
-                    <span className="text-white">{userData.gender}</span>
+                    <span className={userData.gender ? "text-white" : "text-gray-400"}>{userData.gender || "select your gender"}</span>
                   </div>
                 )}
               </div>
@@ -198,7 +198,7 @@ const MyProfile = () => {
                   />
                 ) : (
                   <div className="p-3 bg-gray-700 rounded-lg">
-                    <span className="text-white">{userData.dob}</span>
+                    <span className={userData.dob ? "text-white" : "text-gray-400"}>{userData.dob || "select your birth date"}</span>
                   </div>
                 )}
               </div>
@@ -221,7 +221,7 @@ const MyProfile = () => {
                 {isEdit ? (
                   <input
                     className={input}
-                    value={userData.address.line1}
+                    value={userData?.address?.line1}
                     onChange={(e) =>
                       setUserData((p) =>
                         p
@@ -232,11 +232,11 @@ const MyProfile = () => {
                           : p
                       )
                     }
-                    placeholder="Address Line 1"
+                    placeholder="Home, city"
                   />
                 ) : (
                   <div className="p-3 bg-gray-700 rounded-lg">
-                    <span className="text-white">{userData.address.line1}</span>
+                    <span className={userData.address.line1 ? "text-white" : "text-gray-400"}>{userData.address.line1 || "Home, City"}</span>
                   </div>
                 )}
               </div>
@@ -249,7 +249,7 @@ const MyProfile = () => {
                 {isEdit ? (
                   <input
                     className={input}
-                    value={userData.address.line2}
+                    value={userData.address.line2} 
                     onChange={(e) =>
                       setUserData((p) =>
                         p
@@ -260,11 +260,11 @@ const MyProfile = () => {
                           : p
                       )
                     }
-                    placeholder="Address Line 2"
+                    placeholder="State, Country"
                   />
                 ) : (
                   <div className="p-3 bg-gray-700 rounded-lg">
-                    <span className="text-white">{userData.address.line2 || 'Not provided'}</span>
+                    <span className={userData.address.line2 ? "text-white" : "text-gray-400"}>{userData.address.line2 || 'State, Country'}</span>
                   </div>
                 )}
               </div>
