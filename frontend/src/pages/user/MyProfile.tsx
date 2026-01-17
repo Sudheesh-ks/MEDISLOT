@@ -78,6 +78,18 @@ const MyProfile = () => {
     }
   };
 
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 1 * 1024 * 1024) {
+      toast.error('Image size should be less than 1MB');
+      return;
+    }
+
+    setImage(file);
+  };
+
   const input =
     'bg-gray-800 border border-gray-600 rounded-lg px-4 py-2 text-sm text-white placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:bg-gray-700 transition-all duration-200';
 
@@ -111,7 +123,7 @@ const MyProfile = () => {
                       type="file"
                       accept="image/*"
                       hidden
-                      onChange={(e) => setImage(e.target.files?.[0] || null)}
+                      onChange={handleImageChange}
                     />
                   </label>
                 ) : (
@@ -160,7 +172,9 @@ const MyProfile = () => {
                   />
                 ) : (
                   <div className="p-3 bg-gray-700 rounded-lg">
-                    <span className={userData.phone ? "text-white" : "text-gray-400"}>{userData.phone || "enter your phone number"}</span>
+                    <span className={userData.phone ? 'text-white' : 'text-gray-400'}>
+                      {userData.phone || 'enter your phone number'}
+                    </span>
                   </div>
                 )}
               </div>
@@ -179,7 +193,9 @@ const MyProfile = () => {
                   </select>
                 ) : (
                   <div className="p-3 bg-gray-700 rounded-lg">
-                    <span className={userData.gender ? "text-white" : "text-gray-400"}>{userData.gender || "select your gender"}</span>
+                    <span className={userData.gender ? 'text-white' : 'text-gray-400'}>
+                      {userData.gender || 'select your gender'}
+                    </span>
                   </div>
                 )}
               </div>
@@ -198,7 +214,9 @@ const MyProfile = () => {
                   />
                 ) : (
                   <div className="p-3 bg-gray-700 rounded-lg">
-                    <span className={userData.dob ? "text-white" : "text-gray-400"}>{userData.dob || "select your birth date"}</span>
+                    <span className={userData.dob ? 'text-white' : 'text-gray-400'}>
+                      {userData.dob || 'select your birth date'}
+                    </span>
                   </div>
                 )}
               </div>
@@ -236,7 +254,9 @@ const MyProfile = () => {
                   />
                 ) : (
                   <div className="p-3 bg-gray-700 rounded-lg">
-                    <span className={userData.address.line1 ? "text-white" : "text-gray-400"}>{userData.address.line1 || "Home, City"}</span>
+                    <span className={userData.address.line1 ? 'text-white' : 'text-gray-400'}>
+                      {userData.address.line1 || 'Home, City'}
+                    </span>
                   </div>
                 )}
               </div>
@@ -249,7 +269,7 @@ const MyProfile = () => {
                 {isEdit ? (
                   <input
                     className={input}
-                    value={userData.address.line2} 
+                    value={userData.address.line2}
                     onChange={(e) =>
                       setUserData((p) =>
                         p
@@ -264,7 +284,9 @@ const MyProfile = () => {
                   />
                 ) : (
                   <div className="p-3 bg-gray-700 rounded-lg">
-                    <span className={userData.address.line2 ? "text-white" : "text-gray-400"}>{userData.address.line2 || 'State, Country'}</span>
+                    <span className={userData.address.line2 ? 'text-white' : 'text-gray-400'}>
+                      {userData.address.line2 || 'State, Country'}
+                    </span>
                   </div>
                 )}
               </div>

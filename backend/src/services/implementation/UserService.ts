@@ -304,6 +304,11 @@ export class UserService implements IUserService {
     }
 
     if (imageFile) {
+      const MAX_SIZE = 1 * 1024 * 1024;
+      if (imageFile.size > MAX_SIZE) {
+        throw new Error('Image size must be less than 1MB');
+      }
+
       const imageUpload = await cloudinary.uploader.upload(imageFile.path, {
         resource_type: 'image',
         type: 'authenticated',
