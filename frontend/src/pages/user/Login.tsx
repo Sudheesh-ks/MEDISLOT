@@ -10,21 +10,28 @@ import { showErrorToast } from '../../utils/errorHandler';
 import { assets } from '../../assets/user/assets';
 
 const validationSchema = Yup.object({
-  name: Yup.string()
-    .min(4, 'Full name must be at least 4 characters')
-    .max(20, 'Full name must be less than 20 characters')
-    .when('isSignup', {
-      is: true,
-      then: (schema) => schema.required('Full name is required'),
-    }),
-  email: Yup.string().email('Please enter a valid email address').required('Email is required'),
+  name: Yup.string().when('isSignup', {
+    is: true,
+    then: (schema) =>
+      schema
+        .required('Full name is required')
+        .matches(
+          /^(?=(?:.*[A-Za-z]){4,})[A-Za-z\s]+$/,
+          'Name must be at least 4 letters and contain only alphabets and spaces'
+        ),
+    otherwise: (schema) => schema.notRequired(),
+  }),
+
+  email: Yup.string()
+    .required('Email is required')
+    .matches(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, 'Please enter a valid email address'),
+
   password: Yup.string()
-    .matches(/^(?=.*[a-z])/, 'At least one lowercase letter')
-    .matches(/^(?=.*[A-Z])/, 'At least one uppercase letter')
-    .matches(/^(?=.*\d)/, 'At least one number')
-    .matches(/^(?=.*[@$!%*?&])/, 'At least one special character (@$!%*?&)')
-    .min(8, 'Password must be at least 8 characters')
-    .required('Password is required'),
+    .required('Password is required')
+    .matches(
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*#?&^_-])[A-Za-z\d@$!%*#?&^_-]{8,}$/,
+      'Password must contain uppercase, lowercase, number and special character (@$!%*#?&^_-) and be at least 8 characters'
+    ),
 });
 
 const Login: React.FC = () => {
