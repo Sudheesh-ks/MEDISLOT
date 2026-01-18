@@ -71,6 +71,11 @@ export const AppointmentCancelAPI = (appointmentId: string) => {
   return doctorApi.patch(DOCTOR_API.APPOINTMENT_CANCEL(appointmentId));
 };
 
+export const getDoctorAppointmentByIdAPI = async (appointmentId: string) => {
+  const res = await doctorApi.get(DOCTOR_API.APPOINTMENT_BY_ID(appointmentId));
+  return res.data;
+};
+
 export const getActiveDoctorAppointmentAPI = async () => {
   const res = await doctorApi.get(DOCTOR_API.ACTIVE_APPOINTMENT);
   return res.data;

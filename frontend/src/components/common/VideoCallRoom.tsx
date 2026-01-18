@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useContext } from 'react';
+import { useRef, useState, useContext, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   MdMic,
@@ -12,6 +12,7 @@ import {
 import { NotifContext } from '../../context/NotificationContext';
 import PatientHistoryForm from '../../components/doctor/PatientHistoryForm';
 import { getAppointmentByIdAPI } from '../../services/appointmentServices';
+import { getDoctorAppointmentByIdAPI } from '../../services/doctorServices';
 import type { AppointmentTypes } from '../../types/appointment';
 import { assets } from '../../assets/user/assets';
 
@@ -62,14 +63,39 @@ const VideoCallRoom: React.FC<VideoCallRoomProps> = ({ role, backUrl }) => {
 
     (async () => {
       try {
-        const appointment = await getAppointmentByIdAPI(appointmentId);
-        setPatientId(appointment.userData._id);
-        setAppointmentsData(appointment);
+        let appointment;
+        if (role === 'doctor') {
+          const res = await getDoctorAppointmentByIdAPI(appointmentId);
+          // Assuming the structure is similar, but checking structure is important.
+          // The doctor service often returns { success: true, appointment: ... } or just data.
+          // Based on getAppointmentByIdAPI in appointmentServices, it returns res.data.appointment directly.
+          // I should verify getDoctorAppointmentByIdAPI return.
+          // Looking at getDoctorAppointmentByIdAPI implementation: return res.data.
+          // If backend follows convention, it might be { success: true, data: appointment } or similar.
+          // But getAppointmentByIdAPI (user) returns res.data.appointment (unwrapped).
+          // Let's assume for now, and handle potential structure differences.
+          if (res.success && res.appointment) {
+            appointment = res.appointment;
+          } else if (res.appointment) {
+            appointment = res.appointment;
+          } else {
+            // Fallback or generic 
+            appointment = res;
+          }
+        } else {
+          appointment = await getAppointmentByIdAPI(appointmentId);
+        }
+
+        if (appointment) {
+          // Safe check for userData
+          if (appointment.userData) setPatientId(appointment.userData._id);
+          setAppointmentsData(appointment);
+        }
       } catch (err) {
         console.error('Error fetching appointment:', err);
       }
     })();
-  }, [appointmentId]);
+  }, [appointmentId, role]);
 
   useEffect(() => {
     if (!socket || !appointmentId) return;
@@ -135,9 +161,9 @@ const VideoCallRoom: React.FC<VideoCallRoomProps> = ({ role, backUrl }) => {
       alert('Call ended by the other user.');
       navigate(
         backUrl ||
-          (role === 'doctor'
-            ? `/doctor/consultation-end/${appointmentId}`
-            : `/consultation-end/${appointmentId}`)
+        (role === 'doctor'
+          ? `/doctor/consultation-end/${appointmentId}`
+          : `/consultation-end/${appointmentId}`)
       );
     });
 
@@ -198,9 +224,9 @@ const VideoCallRoom: React.FC<VideoCallRoomProps> = ({ role, backUrl }) => {
     cleanup();
     navigate(
       backUrl ||
-        (role === 'doctor'
-          ? `/doctor/consultation-end/${appointmentId}`
-          : `/consultation-end/${appointmentId}`)
+      (role === 'doctor'
+        ? `/doctor/consultation-end/${appointmentId}`
+        : `/consultation-end/${appointmentId}`)
     );
   };
 

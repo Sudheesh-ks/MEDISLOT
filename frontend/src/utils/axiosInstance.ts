@@ -93,6 +93,17 @@ export function createAxiosInstance({
       } catch (e) {
         isRefreshing = false;
         queue = [];
+        if (logoutFn) {
+          try {
+            await logoutFn();
+          } catch (error) {
+            console.error('Logout failed during refresh error handling', error);
+          }
+        }
+        tokenManager.clearToken();
+        if (!window.location.pathname.endsWith(loginPath)) {
+          window.location.href = loginPath;
+        }
         return Promise.reject(e);
       }
     }

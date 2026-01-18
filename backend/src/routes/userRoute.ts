@@ -40,6 +40,13 @@ userRouter.get(
   userController.listAppointment.bind(userController)
 );
 
+userRouter.get(
+  '/appointments/:appointmentId',
+  authRole(['user']),
+  userController.getAppointmentById.bind(userController)
+);
+
+
 userRouter.patch(
   '/appointments/:appointmentId/cancel',
   authRole(['user']),

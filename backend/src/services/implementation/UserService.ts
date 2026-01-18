@@ -72,7 +72,7 @@ export class UserService implements IUserService {
     private readonly _complaintRepository: IComplaintRepository,
     private readonly _patientHistoryRepository: IPatientHistoryRepository,
     private readonly _tempAppointmentRepository: ITempAppointmentRepository
-  ) {}
+  ) { }
 
   async register(name: string, email: string, password: string): Promise<void> {
     if (!name || !email || !password) {
@@ -758,5 +758,17 @@ export class UserService implements IUserService {
     }
 
     return this._complaintRepository.reportIssue(userId, subject, description);
+  }
+  async getAppointmentById(userId: string, appointmentId: string): Promise<AppointmentDTO | null> {
+    if (!userId || !appointmentId) throw new Error('Missing required details');
+
+    const appointment = await this._userRepository.findAppointmentById(appointmentId);
+    if (!appointment) return null;
+
+    if (appointment.userId.toString() !== userId.toString()) {
+      throw new Error('Unauthorized access to appointment');
+    }
+
+    return toAppointmentDTO(appointment);
   }
 }

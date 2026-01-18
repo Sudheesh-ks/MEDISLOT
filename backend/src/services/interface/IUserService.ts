@@ -85,4 +85,5 @@ export interface IUserService {
   getPrescriptionByAppointmentId(appointmentId: string): Promise<PrescriptionDTO | null>;
   getAllReviews(doctorId: string): Promise<FeedbackDTO[]>;
   reportIssue(userId: string, subject: string, description: string): Promise<ComplaintTypes>;
+  getAppointmentById(userId: string, appointmentId: string): Promise<AppointmentDTO | null>;
 }

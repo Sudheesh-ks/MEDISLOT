@@ -1,4 +1,4 @@
-import { doctorApi, userApi } from '../axios/axiosInstance';
+import { userApi } from '../axios/axiosInstance';
 import { APPOINTMENT_API } from '../constants/apiRoutes';
 
 // Book an appointment
@@ -55,7 +55,7 @@ export const getDoctorReviewsAPI = async (doctorId: string) => {
 };
 
 export const getAppointmentByIdAPI = async (appointmentId: string) => {
-  const res = await doctorApi.get(APPOINTMENT_API.GET_APPOINTMENT_BY_ID(appointmentId));
+  const res = await userApi.get(APPOINTMENT_API.GET_APPOINTMENT_BY_ID(appointmentId));
   return res.data.appointment;
 };
 

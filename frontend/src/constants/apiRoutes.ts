@@ -39,7 +39,7 @@ export const APPOINTMENT_API = {
   FEEDBACKS: '/api/user/feedbacks',
   SUBMIT_FEEDBACK: (appointmentId: string) => `/api/user/appointments/${appointmentId}/feedback`,
   PRESCRIPTION: (appointmentId: string) => `/api/user/appointments/${appointmentId}/prescription`,
-  GET_APPOINTMENT_BY_ID: (appointmentId: string) => `/api/doctor/appointments/${appointmentId}`,
+  GET_APPOINTMENT_BY_ID: (appointmentId: string) => `/api/user/appointments/${appointmentId}`,
   CANCEL_TEMP: '/api/user/appointments/cancel-temp',
 };
 
@@ -71,6 +71,7 @@ export const DOCTOR_API = {
   DOCTORS: '/api/doctor',
   DOCTORS_PAGINATED: '/api/doctor/paginated',
   APPOINTMENTS: '/api/doctor/appointments',
+  APPOINTMENT_BY_ID: (appointmentId: string) => `/api/doctor/appointments/${appointmentId}`,
   APPOINTMENTS_PAGINATED: '/api/doctor/appointments/paginated',
   APPOINTMENT_CONFIRM: (appointmentId: string) =>
     `/api/doctor/appointments/${appointmentId}/confirm`,

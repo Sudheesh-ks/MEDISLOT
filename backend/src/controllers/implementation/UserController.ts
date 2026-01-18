@@ -17,7 +17,7 @@ export class UserController implements IUserController {
     private readonly _notificationService: INotificationService,
     private readonly _blogService: IBlogService,
     private readonly _chatBotService: IChatBotService
-  ) {}
+  ) { }
 
   async registerUser(req: Request, res: Response): Promise<void> {
     const { name, email, password } = req.body;
@@ -797,6 +797,34 @@ export class UserController implements IUserController {
       });
     }
   }
+
+  async getAppointmentById(req: Request, res: Response): Promise<void> {
+    try {
+      const userId = (req as any).userId;
+      const { appointmentId } = req.params;
+
+      const appointment = await this._userService.getAppointmentById(userId, appointmentId);
+
+      if (!appointment) {
+        res.status(HttpStatus.NOT_FOUND).json({
+          success: false,
+          message: 'Appointment not found',
+        });
+        return;
+      }
+
+      res.status(HttpStatus.OK).json({
+        success: true,
+        appointment,
+      });
+    } catch (error: any) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        success: false,
+        message: error.message,
+      });
+    }
+  }
+
 
   async getBlogLikes(req: Request, res: Response): Promise<void> {
     try {
