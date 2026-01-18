@@ -52,7 +52,7 @@ const LoadingButton: React.FC<LoadingButtonProps> = ({
           ></path>
         </svg>
       )}
-      {loading ? 'Processing...' : text}
+      {loading ? 'Please wait...' : text}
     </button>
   );
 };

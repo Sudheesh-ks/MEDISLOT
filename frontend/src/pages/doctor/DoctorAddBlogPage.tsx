@@ -85,18 +85,18 @@ const DoctorAddBlogPage = () => {
   };
 
   useEffect(() => {
-  const fetchCategories = async () => {
-    try {
-      const res = await getBlogCategoriesAPI();
-      if (res.data.success) {
-        setCategories(res.data.categories);
+    const fetchCategories = async () => {
+      try {
+        const res = await getBlogCategoriesAPI();
+        if (res.data.success) {
+          setCategories(res.data.categories);
+        }
+      } catch (error) {
+        console.error('Error fetching categories:', error);
       }
-    } catch (error) {
-      console.error("Error fetching categories:", error);
-    }
-  };
-  fetchCategories();
-}, []);
+    };
+    fetchCategories();
+  }, []);
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -271,7 +271,7 @@ const DoctorAddBlogPage = () => {
                   <option value="">Select category</option>
                   {categories.map((cat) => (
                     <option key={cat} value={cat}>
-                      {cat.replace("-", " ").replace(/\b\w/g, (c) => c.toUpperCase())}
+                      {cat.replace('-', ' ').replace(/\b\w/g, (c) => c.toUpperCase())}
                     </option>
                   ))}
                 </select>

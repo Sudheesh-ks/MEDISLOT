@@ -62,4 +62,3 @@ export const getAppointmentByIdAPI = async (appointmentId: string) => {
 export const cancelTempBookingAPI = async (tempBookingId: string) => {
   return userApi.post(APPOINTMENT_API.CANCEL_TEMP, { tempBookingId });
 };
-

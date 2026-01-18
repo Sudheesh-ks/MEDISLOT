@@ -54,7 +54,7 @@ export const AUTH_API = {
 
   FORGOT_PASSWORD: '/api/user/password/forgot',
   RESET_PASSWORD: '/api/user/password/reset',
-  CHANGE_PASSWORD: '/api/user/change-password'
+  CHANGE_PASSWORD: '/api/user/change-password',
 };
 
 export const DOCTOR_API = {
@@ -145,5 +145,4 @@ export const BLOG_API = {
   BLOG_COMMENTS: (id: string) => `/api/user/blogs/${id}/comments`,
   LIKE_BLOG: (id: string) => `api/user/blogs/${id}/like`,
   BLOG_LIKES: (id: string) => `api/user/blogs/${id}/likes`,
-
 };

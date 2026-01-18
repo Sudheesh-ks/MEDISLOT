@@ -5,6 +5,7 @@ import bcrypt from 'bcrypt';
 import { v2 as cloudinary } from 'cloudinary';
 import { AppointmentTypes } from '../../types/appointment';
 import {
+  isValidAddress,
   isValidDateOfBirth,
   isValidEmail,
   isValidName,
@@ -292,8 +293,14 @@ export class UserService implements IUserService {
     if (!data.name || !data.phone || !data.address || !data.dob || !data.gender)
       throw new Error('Please provide all details');
 
+    if (!isValidName(data.name)) throw new Error('Invalid name format');
     if (!isValidPhone(data.phone)) throw new Error('Phone number must be 10 numbers');
     if (!isValidDateOfBirth(data.dob)) throw new Error('Enter a valid birth date');
+    if (!isValidAddress(data.address.line1))
+      throw new Error('Address should contain 4 - 50 characters');
+    if (!isValidAddress(data.address.line2))
+      throw new Error('Address should contain 4 - 50 characters');
+    if (!['Male', 'Female'].includes(data.gender)) throw new Error('Invalid gender value');
 
     if (
       typeof data.address !== 'object' ||

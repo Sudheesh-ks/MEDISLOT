@@ -22,7 +22,25 @@ export const isValidPhone = (phone: string): boolean => {
 export const isValidDateOfBirth = (dob: string): boolean => {
   const selectedDate = new Date(dob);
   const today = new Date();
-  return selectedDate instanceof Date && !isNaN(selectedDate.getTime()) && selectedDate <= today;
+
+  if (!(selectedDate instanceof Date) || isNaN(selectedDate.getTime())) {
+    return false;
+  }
+
+  const onlyDateToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+
+  if (selectedDate >= onlyDateToday) {
+    return false;
+  }
+
+  let age = today.getFullYear() - selectedDate.getFullYear();
+  const m = today.getMonth() - selectedDate.getMonth();
+
+  if (m < 0 || (m === 0 && today.getDate() < selectedDate.getDate())) {
+    age--;
+  }
+
+  return age >= 18;
 };
 
 export const isValidAddress = (address: string): boolean => {

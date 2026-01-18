@@ -14,6 +14,7 @@ import { showErrorToast } from '../../utils/errorHandler';
 import { currencySymbol } from '../../utils/commonUtils';
 import ReportBugModal from '../../components/user/BugReportModal';
 import ChangePasswordModal from '../../components/user/ChangePasswordModal';
+import LoadingButton from '../../components/common/LoadingButton';
 
 const MyProfile = () => {
   const navigate = useNavigate();
@@ -23,6 +24,7 @@ const MyProfile = () => {
 
   const [isEdit, setEdit] = useState(false);
   const [image, setImage] = useState<File | null>(null);
+  const [saving, setSaving] = useState(false);
   const [walletBalance, setWalletBalance] = useState(0);
   const [showBugModal, setShowBugModal] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
@@ -46,35 +48,59 @@ const MyProfile = () => {
     fetchWalletBalance();
   }, [token, navigate]);
 
+  useEffect(() => {
+    if (userData && !userData.gender) {
+      setUserData((p) => (p ? { ...p, gender: 'Male' } : p));
+    }
+  }, [userData, setUserData]);
+
   if (!userData) return null;
 
   const save = async () => {
+    if (saving) return;
+
     try {
+      setSaving(true);
+
       if (!token) return toast.error('Login to continue');
+
       if (!isValidName(userData.name)) return toast.error('Name should contain 4 - 50 characters');
+
       if (!isValidPhone(userData.phone)) return toast.error('Phone must be 10 digits');
-      if (!isValidDateOfBirth(userData.dob)) return toast.error('Enter a valid birth date');
+
+      if (!isValidDateOfBirth(userData.dob)) return toast.error('You must be atleast 18 years old');
+
       if (!isValidAddress(userData.address.line1))
         return toast.error('Address should contain 4 - 50 characters');
+
       if (!isValidAddress(userData.address.line2))
         return toast.error('Address should contain 4 - 50 characters');
 
+      if (!['Male', 'Female'].includes(userData.gender))
+        return toast.error('Please select valid gender');
+
       const { message } = await updateUserProfileAPI(
         {
-          name: userData.name,
-          phone: userData.phone,
-          address: userData.address,
+          name: userData.name.trim(),
+          phone: userData.phone.trim(),
+          address: {
+            line1: userData.address.line1.trim(),
+            line2: userData.address.line2.trim(),
+          },
           gender: userData.gender,
           dob: userData.dob,
         },
         image
       );
+
       toast.success(message);
       await loadUserProfileData();
       setEdit(false);
       setImage(null);
     } catch (err) {
       showErrorToast(err);
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -185,11 +211,11 @@ const MyProfile = () => {
                 {isEdit ? (
                   <select
                     className={input}
-                    value={userData.gender}
+                    value={userData.gender || 'Male'}
                     onChange={(e) => setUserData((p) => (p ? { ...p, gender: e.target.value } : p))}
                   >
-                    <option>Male</option>
-                    <option>Female</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
                   </select>
                 ) : (
                   <div className="p-3 bg-gray-700 rounded-lg">
@@ -208,6 +234,7 @@ const MyProfile = () => {
                 {isEdit ? (
                   <input
                     type="date"
+                    max={new Date(Date.now() - 86400000).toISOString().split('T')[0]}
                     className={input}
                     value={userData.dob}
                     onChange={(e) => setUserData((p) => (p ? { ...p, dob: e.target.value } : p))}
@@ -296,13 +323,15 @@ const MyProfile = () => {
             <div className="flex gap-3 pt-4 border-t border-gray-700">
               {isEdit ? (
                 <>
-                  <button
+                  <LoadingButton
+                    text="Save Changes"
+                    loading={saving}
                     onClick={save}
-                    className="flex-1 bg-blue-600 text-white px-6 py-2 rounded-lg font-medium hover:bg-blue-700 transition-colors duration-200"
-                  >
-                    Save Changes
-                  </button>
+                    className="flex-1"
+                  />
+
                   <button
+                    disabled={saving}
                     onClick={() => {
                       setEdit(false);
                       setImage(null);
