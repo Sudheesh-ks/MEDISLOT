@@ -9,6 +9,7 @@ import DataTable from '../../components/common/DataTable';
 import { updateItemInList } from '../../utils/stateHelper.util';
 import { calculateAge, currencySymbol, slotDateFormat } from '../../utils/commonUtils';
 import { assets } from '../../assets/user/assets';
+import ConfirmationModal from '../../components/common/ConfirmationModal';
 
 const glass = 'bg-white/5 backdrop-blur ring-1 ring-white/10';
 
@@ -28,6 +29,11 @@ const AdminAppointments = () => {
   const [dateFilter, setDateFilter] = useState<string>('');
   const perPage = 6;
 
+  // Confirmation Modal State
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedAppointmentId, setSelectedAppointmentId] = useState<string | null>(null);
+  const [modalLoading, setModalLoading] = useState(false);
+
   useEffect(() => {
     if (aToken) fetchRows();
   }, [aToken, page, search, dateFilter]);
@@ -46,6 +52,27 @@ const AdminAppointments = () => {
   useEffect(() => {
     if (!aToken) navigate('/admin/login');
   }, [aToken, navigate]);
+
+  const openCancelModal = (id: string) => {
+    setSelectedAppointmentId(id);
+    setIsModalOpen(true);
+  };
+
+  const handleConfirmCancel = async () => {
+    if (!selectedAppointmentId) return;
+
+    try {
+      setModalLoading(true);
+      await cancelAppointment(selectedAppointmentId);
+      setRows((prev) => updateItemInList(prev, selectedAppointmentId, { cancelled: true }));
+    } catch (err) {
+      console.error('Failed to cancel appointment', err);
+    } finally {
+      setModalLoading(false);
+      setIsModalOpen(false);
+      setSelectedAppointmentId(null);
+    }
+  };
 
   const columns = [
     {
@@ -127,8 +154,7 @@ const AdminAppointments = () => {
             className="w-7 cursor-pointer hover:opacity-80"
             onClick={(e) => {
               e.stopPropagation();
-              cancelAppointment(it._id);
-              setRows((prev) => updateItemInList(prev, it._id, { cancelled: true }));
+              openCancelModal(it._id);
             }}
           />
         ),
@@ -202,6 +228,18 @@ const AdminAppointments = () => {
       />
 
       {pages > 1 && <Pagination currentPage={page} totalPages={pages} onPageChange={setPage} />}
+
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={handleConfirmCancel}
+        title="Cancel Appointment"
+        message="Are you sure you want to cancel this appointment? This action cannot be undone."
+        confirmText="Yes, Cancel"
+        confirmColor="red"
+        loading={modalLoading}
+      />
     </div>
   );
 };

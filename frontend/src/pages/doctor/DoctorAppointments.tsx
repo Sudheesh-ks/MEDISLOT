@@ -12,6 +12,7 @@ import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import { NotifContext } from '../../context/NotificationContext';
 import { assets } from '../../assets/user/assets';
+import ConfirmationModal from '../../components/common/ConfirmationModal';
 
 dayjs.extend(customParseFormat);
 
@@ -32,6 +33,11 @@ const DoctorAppointments = () => {
   const [loading, setLoading] = useState(false);
   const [filterType, setFilterType] = useState<string>('');
   const [dateFilter, setDateFilter] = useState<string>('');
+
+  // Confirmation Modal State
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedAppointmentId, setSelectedAppointmentId] = useState<string | null>(null);
+  const [modalLoading, setModalLoading] = useState(false);
 
   const perPage = 6;
 
@@ -68,9 +74,26 @@ const DoctorAppointments = () => {
     await confirmAppointment(id);
     setRows((prev) => updateItemInList(prev, id, { isConfirmed: true }));
   };
-  const doCancel = async (id: string) => {
-    await cancelAppointment(id);
-    setRows((prev) => updateItemInList(prev, id, { cancelled: true }));
+
+  const openCancelModal = (id: string) => {
+    setSelectedAppointmentId(id);
+    setIsModalOpen(true);
+  };
+
+  const handleConfirmCancel = async () => {
+    if (!selectedAppointmentId) return;
+
+    try {
+      setModalLoading(true);
+      await cancelAppointment(selectedAppointmentId);
+      setRows((prev) => updateItemInList(prev, selectedAppointmentId, { cancelled: true }));
+    } catch (err) {
+      console.error('Failed to cancel appointment', err);
+    } finally {
+      setModalLoading(false);
+      setIsModalOpen(false);
+      setSelectedAppointmentId(null);
+    }
   };
 
   const filtered = rows.filter((r) => r.userData.name.toLowerCase().includes(search.toLowerCase()));
@@ -103,9 +126,8 @@ const DoctorAppointments = () => {
       width: '1fr',
       render: (it: any) => (
         <span
-          className={`text-xs px-2 py-0.5 rounded-full ring-1 ${
-            it.payment ? 'ring-emerald-500 text-emerald-400' : 'ring-red-500 text-red-400'
-          }`}
+          className={`text-xs px-2 py-0.5 rounded-full ring-1 ${it.payment ? 'ring-emerald-500 text-emerald-400' : 'ring-red-500 text-red-400'
+            }`}
         >
           {it.payment ? 'Paid' : 'failed'}
         </span>
@@ -171,7 +193,7 @@ const DoctorAppointments = () => {
             <img
               onClick={(e) => {
                 e.stopPropagation();
-                doCancel(it._id);
+                openCancelModal(it._id);
               }}
               src={Aassets.cancel_icon}
               className="w-7 cursor-pointer opacity-80 hover:opacity-100"
@@ -280,6 +302,18 @@ const DoctorAppointments = () => {
       ) : (
         <div className="text-slate-400 mt-10 text-center w-full">No appointments found.</div>
       )}
+
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={handleConfirmCancel}
+        title="Cancel Appointment"
+        message="Are you sure you want to cancel this appointment? This action cannot be undone."
+        confirmText="Yes, Cancel"
+        confirmColor="red"
+        loading={modalLoading}
+      />
     </div>
   );
 };

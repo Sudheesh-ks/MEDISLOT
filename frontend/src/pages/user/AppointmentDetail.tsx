@@ -11,6 +11,7 @@ import { downloadPrescriptionPDF } from '../../utils/downloadPrescription';
 import { showErrorToast } from '../../utils/errorHandler';
 import dayjs from 'dayjs';
 import { slotDateFormat } from '../../utils/commonUtils';
+import ConfirmationModal from '../../components/common/ConfirmationModal';
 
 const AppointmentDetail = () => {
   const { appointmentId } = useParams();
@@ -20,6 +21,10 @@ const AppointmentDetail = () => {
   const { token } = context;
 
   const [appointment, setAppointment] = useState<any>(null);
+
+  // Confirmation Modal State
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalLoading, setModalLoading] = useState(false);
 
   useEffect(() => {
     if (!token) {
@@ -57,9 +62,12 @@ const AppointmentDetail = () => {
     }
   };
 
-  const cancelAppointment = async (id: string) => {
+  const handleConfirmCancel = async () => {
+    if (!appointmentId) return;
+
     try {
-      const { data } = await cancelAppointmentAPI(id);
+      setModalLoading(true);
+      const { data } = await cancelAppointmentAPI(appointmentId);
       if (data.success) {
         toast.success(data.message);
         setAppointment((prev: any) => ({
@@ -71,6 +79,9 @@ const AppointmentDetail = () => {
       }
     } catch (err) {
       showErrorToast(err);
+    } finally {
+      setModalLoading(false);
+      setIsModalOpen(false);
     }
   };
 
@@ -152,7 +163,7 @@ const AppointmentDetail = () => {
             <>
               {!hasAppointmentStarted(appointment.slotDate, appointment.slotStartTime) ? (
                 <button
-                  onClick={() => cancelAppointment(appointment._id)}
+                  onClick={() => setIsModalOpen(true)}
                   className="px-4 py-2 border rounded-lg border-red-500 text-red-400 hover:bg-red-500 hover:text-white"
                 >
                   Cancel Appointment
@@ -169,6 +180,18 @@ const AppointmentDetail = () => {
           )}
         </div>
       </div>
+
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={handleConfirmCancel}
+        title="Cancel Appointment"
+        message="Are you sure you want to cancel this appointment? This action cannot be undone."
+        confirmText="Yes, Cancel"
+        confirmColor="red"
+        loading={modalLoading}
+      />
     </div>
   );
 };

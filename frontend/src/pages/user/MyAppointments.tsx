@@ -16,6 +16,7 @@ import Pagination from '../../components/common/Pagination';
 import { slotDateFormat } from '../../utils/commonUtils';
 import { downloadPrescriptionPDF } from '../../utils/downloadPrescription';
 import { to12h } from '../../utils/slotManagementHelper';
+import ConfirmationModal from '../../components/common/ConfirmationModal';
 dayjs.extend(customParseFormat);
 
 const MyAppointments = () => {
@@ -28,6 +29,11 @@ const MyAppointments = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [filterType, setFilterType] = useState<'all' | 'upcoming' | 'ended'>('all');
+
+  // Confirmation Modal State
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedAppointmentId, setSelectedAppointmentId] = useState<string | null>(null);
+  const [modalLoading, setModalLoading] = useState(false);
 
   const navigate = useNavigate();
 
@@ -68,15 +74,27 @@ const MyAppointments = () => {
     }
   };
 
-  const cancelAppointment = async (id: string) => {
+  const openCancelModal = (id: string) => {
+    setSelectedAppointmentId(id);
+    setIsModalOpen(true);
+  };
+
+  const handleConfirmCancel = async () => {
+    if (!selectedAppointmentId) return;
+
     try {
-      const { data } = await cancelAppointmentAPI(id);
+      setModalLoading(true);
+      const { data } = await cancelAppointmentAPI(selectedAppointmentId);
       if (data.success) {
         toast.success(data.message);
-        setAppointments((prev) => updateItemInList(prev, id, { cancelled: true }));
+        setAppointments((prev) => updateItemInList(prev, selectedAppointmentId, { cancelled: true }));
       } else toast.error(data.message);
     } catch (err) {
       showErrorToast(err);
+    } finally {
+      setModalLoading(false);
+      setIsModalOpen(false);
+      setSelectedAppointmentId(null);
     }
   };
 
@@ -133,18 +151,13 @@ const MyAppointments = () => {
           <button
             key={type}
             onClick={() => fetchAppointments(1, type as 'all' | 'upcoming' | 'ended')}
-            className={`px-3 py-1 rounded ${
-              filterType === type ? 'bg-blue-500 text-white' : 'bg-gray-700 text-gray-200'
-            }`}
+            className={`px-3 py-1 rounded ${filterType === type ? 'bg-blue-500 text-white' : 'bg-gray-700 text-gray-200'
+              }`}
           >
             {type.charAt(0).toUpperCase() + type.slice(1)}
           </button>
         ))}
       </div>
-
-      {/* <div className="flex items-center justify-between mb-6">
-        <DateFilter value={dateRange} onChange={setDateRange} />
-      </div> */}
 
       {appointments.map((a) => (
         <div
@@ -214,7 +227,7 @@ const MyAppointments = () => {
             {/* Cancel Appointment */}
             {!a.cancelled && !hasAppointmentStarted(a.slotDate, a.slotStartTime) && (
               <button
-                onClick={() => cancelAppointment(a._id)}
+                onClick={() => openCancelModal(a._id)}
                 className={`${btn} border-red-500 text-red-400 hover:bg-red-500 hover:text-white w-full sm:w-auto`}
               >
                 Cancel Appointment
@@ -252,6 +265,18 @@ const MyAppointments = () => {
       {totalPages > 1 && (
         <Pagination currentPage={page} totalPages={totalPages} onPageChange={handlePageChange} />
       )}
+
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={handleConfirmCancel}
+        title="Cancel Appointment"
+        message="Are you sure you want to cancel this appointment? This action cannot be undone."
+        confirmText="Yes, Cancel"
+        confirmColor="red"
+        loading={modalLoading}
+      />
     </div>
   );
 };
