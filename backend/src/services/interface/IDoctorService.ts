@@ -37,7 +37,13 @@ export interface IDoctorService {
     search: string,
     period: string,
     txnType?: 'credit' | 'debit' | 'all'
-  ): Promise<{ history: any[]; total: number; balance: number }>;
+  ): Promise<{
+    history: any[];
+    total: number;
+    balance: number;
+    filteredCredits: number;
+    filteredDebits: number;
+  }>;
   getDashboardData(doctorId: string, startDate: string, endDate: string): Promise<any>;
   createPatientHistory(data: patientHistoryTypes): Promise<void>;
   updatePatientHistory(

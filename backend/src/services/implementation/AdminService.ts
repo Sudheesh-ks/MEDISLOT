@@ -39,7 +39,7 @@ export class AdminService implements IAdminService {
     private readonly _notificationService: INotificationService,
     private readonly _feedbackRepository: IFeedbackRepository,
     private readonly _complaintRepository: IComplaintRepository
-  ) {}
+  ) { }
 
   async login(
     email?: string,
@@ -236,11 +236,11 @@ export class AdminService implements IAdminService {
       }),
       ioInstance
         ? Promise.resolve(
-            ioInstance.to(userId).emit('notification', {
-              title: 'Accound blocked by admin',
-              link: '/system',
-            })
-          )
+          ioInstance.to(userId).emit('notification', {
+            title: 'Accound blocked by admin',
+            link: '/system',
+          })
+        )
         : Promise.resolve(),
     ]);
 
@@ -317,19 +317,19 @@ export class AdminService implements IAdminService {
       }),
       ioInstance
         ? Promise.resolve(
-            ioInstance.to(doctorId).emit('notification', {
-              title: 'Appointment cancelled by Admin',
-              link: '/doctor/appointments',
-            })
-          )
+          ioInstance.to(doctorId).emit('notification', {
+            title: 'Appointment cancelled by Admin',
+            link: '/doctor/appointments',
+          })
+        )
         : Promise.resolve(),
       ioInstance
         ? Promise.resolve(
-            ioInstance.to(userId).emit('notification', {
-              title: 'Appointment cancelled by Admin',
-              link: '/appointments',
-            })
-          )
+          ioInstance.to(userId).emit('notification', {
+            title: 'Appointment cancelled by Admin',
+            link: '/appointments',
+          })
+        )
         : Promise.resolve(),
       this._adminRepository.cancelAppointment(appointmentId),
     ]);
@@ -341,7 +341,13 @@ export class AdminService implements IAdminService {
     search: string,
     period: string,
     txnType?: 'credit' | 'debit' | 'all'
-  ): Promise<{ history: WalletTypes[]; total: number; balance: number }> {
+  ): Promise<{
+    history: WalletTypes[];
+    total: number;
+    balance: number;
+    filteredCredits: number;
+    filteredDebits: number;
+  }> {
     const adminId = process.env.ADMIN_ID;
     if (!adminId) throw new Error('ADMIN_ID is not set in environment');
 
@@ -426,11 +432,11 @@ export class AdminService implements IAdminService {
       }),
       ioInstance
         ? Promise.resolve(
-            ioInstance.to(userId!).emit('notification', {
-              title: 'Admin updation on your complaint',
-              link: '/system',
-            })
-          )
+          ioInstance.to(userId!).emit('notification', {
+            title: 'Admin updation on your complaint',
+            link: '/system',
+          })
+        )
         : Promise.resolve(),
     ]);
     return tocomplaintDTO(updated);

@@ -56,7 +56,13 @@ export interface IAdminService {
     search: string,
     period: string,
     txnType?: 'credit' | 'debit' | 'all'
-  ): Promise<{ history: any[]; total: number; balance: number }>;
+  ): Promise<{
+    history: any[];
+    total: number;
+    balance: number;
+    filteredCredits: number;
+    filteredDebits: number;
+  }>;
   getLatestDoctorRequests(limit: number): Promise<DoctorDTO[]>;
   getAppointmentsStats(
     startDate?: string,

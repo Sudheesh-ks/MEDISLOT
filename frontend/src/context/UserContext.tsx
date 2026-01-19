@@ -138,7 +138,8 @@ const UserContextProvider: React.FC<UserContextProviderProps> = ({ children }) =
   useEffect(() => {
     const tryRefresh = async () => {
       try {
-        const res = await refreshAccessTokenAPI();
+        // Pass specialized config to skip redirect on failure
+        const res = await refreshAccessTokenAPI({ _skipAuthRedirect: true });
         const newToken = res.data?.token;
 
         if (newToken) {

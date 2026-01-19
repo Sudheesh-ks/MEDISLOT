@@ -66,6 +66,12 @@ export function createAxiosInstance({
 
       original._retry = true;
 
+      // START CHANGE: Check for skip flag
+      if ((original as any)._skipAuthRedirect) {
+        return Promise.reject(err);
+      }
+      // END CHANGE
+
       if (isRefreshing) {
         return new Promise((resolve) =>
           subscribe((t) => {
@@ -101,9 +107,15 @@ export function createAxiosInstance({
           }
         }
         tokenManager.clearToken();
-        if (!window.location.pathname.endsWith(loginPath)) {
-          window.location.href = loginPath;
+
+        // START CHANGE: Check for skip flag before redirecting
+        if (!(original as any)._skipAuthRedirect) {
+          if (!window.location.pathname.endsWith(loginPath)) {
+            window.location.href = loginPath;
+          }
         }
+        // END CHANGE
+
         return Promise.reject(e);
       }
     }

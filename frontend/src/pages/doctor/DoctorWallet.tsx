@@ -76,10 +76,7 @@ const DoctorWallet = () => {
 
   const availableBalance = Math.max(walletData.balance, 0);
 
-  const totalCredits =
-    walletData.history
-      ?.filter((tx: any) => tx.type === 'credit')
-      .reduce((sum: number, tx: any) => sum + tx.amount, 0) || 0;
+  const totalCredits = walletData.filteredCredits || 0;
 
   const balanceCards = [
     {
@@ -213,11 +210,10 @@ const DoctorWallet = () => {
                   <td className="px-6 py-4 text-white font-medium">{tx.reason || '—'}</td>
                   <td className="px-6 py-4">
                     <span
-                      className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                        tx.type === 'credit'
+                      className={`px-2 py-1 rounded-full text-xs font-semibold ${tx.type === 'credit'
                           ? 'text-green-400 bg-green-500/20'
                           : 'text-red-400 bg-red-500/20'
-                      }`}
+                        }`}
                     >
                       {tx.type}
                     </span>
@@ -249,11 +245,10 @@ const DoctorWallet = () => {
                 <div className="flex justify-between">
                   <p className="text-slate-400 text-xs">Type</p>
                   <span
-                    className={`px-2 py-1 rounded-full text-xs font-semibold ${
-                      tx.type === 'credit'
+                    className={`px-2 py-1 rounded-full text-xs font-semibold ${tx.type === 'credit'
                         ? 'text-green-400 bg-green-500/20'
                         : 'text-red-400 bg-red-500/20'
-                    }`}
+                      }`}
                   >
                     {tx.type}
                   </span>

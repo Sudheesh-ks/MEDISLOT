@@ -28,7 +28,13 @@ export class WalletRepository extends BaseRepository<WalletDocument> implements 
     search?: string,
     period?: string,
     txnType?: 'credit' | 'debit' | 'all'
-  ): Promise<{ history: WalletHistory[]; total: number; balance: number }> {
+  ): Promise<{
+    history: WalletHistory[];
+    total: number;
+    balance: number;
+    filteredCredits: number;
+    filteredDebits: number;
+  }> {
     const wallet = await this.getOrCreateWallet(ownerId, ownerType);
 
     let history = [...wallet.history];
@@ -57,6 +63,14 @@ export class WalletRepository extends BaseRepository<WalletDocument> implements 
       history = history.filter((tx) => tx.type === txnType);
     }
 
+    const filteredCredits = history
+      .filter((tx) => tx.type === 'credit')
+      .reduce((sum, tx) => sum + tx.amount, 0);
+
+    const filteredDebits = history
+      .filter((tx) => tx.type === 'debit')
+      .reduce((sum, tx) => sum + tx.amount, 0);
+
     const total = history.length;
 
     history = history
@@ -67,6 +81,8 @@ export class WalletRepository extends BaseRepository<WalletDocument> implements 
       history,
       total,
       balance: wallet.balance,
+      filteredCredits,
+      filteredDebits,
     };
   }
 

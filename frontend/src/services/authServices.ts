@@ -17,8 +17,8 @@ export const logoutUserAPI = () => {
 };
 
 // Refresh token
-export const refreshAccessTokenAPI = async () => {
-  return await userApi.post(AUTH_API.REFRESH);
+export const refreshAccessTokenAPI = async (config?: any) => {
+  return await userApi.post(AUTH_API.REFRESH, {}, config);
 };
 
 // OTP Verification

@@ -43,7 +43,7 @@ export class DoctorService implements IDoctorService {
     // private readonly _prescriptionRepository: IPrescriptionRepository,
     private readonly _patientHistoryRepository: IPatientHistoryRepository,
     private readonly _complaintRepository: IComplaintRepository
-  ) {}
+  ) { }
 
   async registerDoctor(data: DoctorTypes): Promise<void> {
     const {
@@ -449,7 +449,13 @@ export class DoctorService implements IDoctorService {
     search: string,
     period: string,
     txnType?: 'credit' | 'debit' | 'all'
-  ): Promise<{ history: WalletHistory[]; total: number; balance: number }> {
+  ): Promise<{
+    history: WalletHistory[];
+    total: number;
+    balance: number;
+    filteredCredits: number;
+    filteredDebits: number;
+  }> {
     const doctor = await this._doctorRepository.findById(doctorId);
     if (!doctor) throw new Error('Doctor not found');
 

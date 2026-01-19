@@ -75,10 +75,7 @@ const AdminWallet = () => {
 
   const availableBalance = Math.max(walletData.balance, 0);
 
-  const totalCredits =
-    walletData.history
-      ?.filter((tx: any) => tx.type === 'credit')
-      .reduce((sum: number, tx: any) => sum + tx.amount, 0) || 0;
+  const totalCredits = walletData.filteredCredits || 0;
 
   const balanceCards = [
     {
@@ -192,11 +189,10 @@ const AdminWallet = () => {
                   </td>
                   <td className="px-4 sm:px-6 py-3 sm:py-4">
                     <span
-                      className={`px-2 py-1 rounded-full text-[10px] sm:text-xs font-semibold ${
-                        tx.type === 'credit'
+                      className={`px-2 py-1 rounded-full text-[10px] sm:text-xs font-semibold ${tx.type === 'credit'
                           ? 'text-green-400 bg-green-500/20'
                           : 'text-red-400 bg-red-500/20'
-                      }`}
+                        }`}
                     >
                       {tx.type}
                     </span>
