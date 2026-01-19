@@ -28,7 +28,9 @@ export interface IWalletRepository {
     limit: number,
     search?: string,
     period?: string,
-    txnType?: 'credit' | 'debit' | 'all'
+    txnType?: 'credit' | 'debit' | 'all',
+    startDate?: string,
+    endDate?: string
   ): Promise<{
     history: any[];
     total: number;

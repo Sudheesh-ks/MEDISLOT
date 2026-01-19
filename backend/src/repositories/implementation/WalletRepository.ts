@@ -27,7 +27,9 @@ export class WalletRepository extends BaseRepository<WalletDocument> implements 
     limit: number,
     search?: string,
     period?: string,
-    txnType?: 'credit' | 'debit' | 'all'
+    txnType?: 'credit' | 'debit' | 'all',
+    startDate?: string,
+    endDate?: string
   ): Promise<{
     history: WalletHistory[];
     total: number;
@@ -46,17 +48,34 @@ export class WalletRepository extends BaseRepository<WalletDocument> implements 
 
     if (period && period !== 'all') {
       const now = new Date();
-      const periodDate = new Date();
+      let filterDate: Date | null = null;
+      let start: Date | null = null;
+      let end: Date | null = null;
 
       if (period === 'today') {
-        periodDate.setHours(0, 0, 0, 0);
+        filterDate = new Date();
+        filterDate.setHours(0, 0, 0, 0);
       } else if (period === 'week') {
-        periodDate.setDate(now.getDate() - 7);
+        filterDate = new Date();
+        filterDate.setDate(now.getDate() - 7);
       } else if (period === 'month') {
-        periodDate.setMonth(now.getMonth() - 1);
+        filterDate = new Date();
+        filterDate.setMonth(now.getMonth() - 1);
+      } else if (period === 'custom' && startDate && endDate) {
+        start = new Date(startDate);
+        end = new Date(endDate);
+        // Adjust end date to include the full day
+        end.setHours(23, 59, 59, 999);
       }
 
-      history = history.filter((tx) => new Date(tx.date) >= periodDate);
+      if (filterDate) {
+        history = history.filter((tx) => new Date(tx.date) >= filterDate!);
+      } else if (start && end) {
+        history = history.filter((tx) => {
+          const txDate = new Date(tx.date);
+          return txDate >= start! && txDate <= end!;
+        });
+      }
     }
 
     if (txnType && txnType !== 'all') {

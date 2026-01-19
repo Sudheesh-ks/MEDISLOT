@@ -340,7 +340,9 @@ export class AdminService implements IAdminService {
     limit: number,
     search: string,
     period: string,
-    txnType?: 'credit' | 'debit' | 'all'
+    txnType?: 'credit' | 'debit' | 'all',
+    startDate?: string,
+    endDate?: string
   ): Promise<{
     history: WalletTypes[];
     total: number;
@@ -358,7 +360,9 @@ export class AdminService implements IAdminService {
       limit,
       search,
       period,
-      txnType
+      txnType,
+      startDate,
+      endDate
     );
   }
 

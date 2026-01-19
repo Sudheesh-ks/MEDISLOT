@@ -121,12 +121,16 @@ export const getDoctorWalletAPI = async (
   limit: number,
   search?: string,
   period?: string,
-  type?: string
+  type?: string,
+  startDate?: string,
+  endDate?: string
 ) => {
   let url = `${DOCTOR_API.WALLET}?page=${page}&limit=${limit}`;
   if (search) url += `&search=${encodeURIComponent(search)}`;
   if (period) url += `&period=${encodeURIComponent(period)}`;
   if (type && type !== 'all') url += `&txnType=${encodeURIComponent(type)}`;
+  if (startDate) url += `&startDate=${startDate}`;
+  if (endDate) url += `&endDate=${endDate}`;
 
   return await doctorApi.get(url);
 };

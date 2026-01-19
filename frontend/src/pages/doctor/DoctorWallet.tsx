@@ -23,6 +23,8 @@ const DoctorWallet = () => {
   const [filteredTransactions, setFilteredTransactions] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [transactionType, setTransactionType] = useState('all');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
 
   if (!context) throw new Error('DoctorContext missing');
   const { dToken, profileData } = context;
@@ -41,7 +43,9 @@ const DoctorWallet = () => {
           10,
           searchTerm,
           selectedPeriod,
-          transactionType
+          transactionType,
+          startDate,
+          endDate
         );
         setWalletData(res.data);
         setFilteredTransactions(res.data?.history || []);
@@ -52,7 +56,7 @@ const DoctorWallet = () => {
       }
     };
     fetchWallet();
-  }, [currentPage, searchTerm, selectedPeriod, transactionType]);
+  }, [currentPage, searchTerm, selectedPeriod, transactionType, startDate, endDate]);
 
   const formatDate = (d: string) =>
     new Date(d).toLocaleString('en-US', {
@@ -171,7 +175,26 @@ const DoctorWallet = () => {
               <option value="today">Today</option>
               <option value="week">Last Week</option>
               <option value="month">Last Month</option>
+              <option value="custom">Custom Date</option>
             </select>
+
+            {/* Custom Date Range Inputs */}
+            {selectedPeriod === 'custom' && (
+              <div className="flex gap-2">
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="text-sm bg-slate-800 text-slate-200 border-white/20 rounded-lg px-3 py-1.5"
+                />
+                <input
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="text-sm bg-slate-800 text-slate-200 border-white/20 rounded-lg px-3 py-1.5"
+                />
+              </div>
+            )}
 
             {/* Type */}
             <select
@@ -211,8 +234,8 @@ const DoctorWallet = () => {
                   <td className="px-6 py-4">
                     <span
                       className={`px-2 py-1 rounded-full text-xs font-semibold ${tx.type === 'credit'
-                          ? 'text-green-400 bg-green-500/20'
-                          : 'text-red-400 bg-red-500/20'
+                        ? 'text-green-400 bg-green-500/20'
+                        : 'text-red-400 bg-red-500/20'
                         }`}
                     >
                       {tx.type}
@@ -246,8 +269,8 @@ const DoctorWallet = () => {
                   <p className="text-slate-400 text-xs">Type</p>
                   <span
                     className={`px-2 py-1 rounded-full text-xs font-semibold ${tx.type === 'credit'
-                        ? 'text-green-400 bg-green-500/20'
-                        : 'text-red-400 bg-red-500/20'
+                      ? 'text-green-400 bg-green-500/20'
+                      : 'text-red-400 bg-red-500/20'
                       }`}
                   >
                     {tx.type}

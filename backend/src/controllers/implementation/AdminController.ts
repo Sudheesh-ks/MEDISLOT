@@ -10,7 +10,7 @@ export class AdminController implements IAdminController {
   constructor(
     private readonly _adminService: IAdminService,
     private readonly _notificationService: INotificationService
-  ) {}
+  ) { }
 
   async loginAdmin(req: Request, res: Response): Promise<void> {
     try {
@@ -279,13 +279,17 @@ export class AdminController implements IAdminController {
       const search = (req.query.search as string) || '';
       const period = (req.query.period as string) || 'all';
       const txnType = (req.query.txnType as 'credit' | 'debit' | 'all') || 'all';
+      const startDate = req.query.startDate as string;
+      const endDate = req.query.endDate as string;
 
       const wallet = await this._adminService.getAdminWalletPaginated(
         page,
         limit,
         search,
         period,
-        txnType
+        txnType,
+        startDate,
+        endDate
       );
 
       res.status(200).json(wallet);

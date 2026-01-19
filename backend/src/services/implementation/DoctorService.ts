@@ -448,7 +448,9 @@ export class DoctorService implements IDoctorService {
     limit: number,
     search: string,
     period: string,
-    txnType?: 'credit' | 'debit' | 'all'
+    txnType?: 'credit' | 'debit' | 'all',
+    startDate?: string,
+    endDate?: string
   ): Promise<{
     history: WalletHistory[];
     total: number;
@@ -466,7 +468,9 @@ export class DoctorService implements IDoctorService {
       limit,
       search,
       period,
-      txnType
+      txnType,
+      startDate,
+      endDate
     );
   }
 

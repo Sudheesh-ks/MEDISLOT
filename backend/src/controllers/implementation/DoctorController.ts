@@ -15,7 +15,7 @@ export class DoctorController implements IDoctorController {
     private readonly _doctorService: IDoctorService,
     private readonly _notificationService: INotificationService,
     private readonly _blogService: IBlogService
-  ) {}
+  ) { }
 
   async registerDoctor(req: Request, res: Response): Promise<void> {
     try {
@@ -400,6 +400,8 @@ export class DoctorController implements IDoctorController {
       const search = (req.query.search as string) || '';
       const period = (req.query.period as string) || 'all';
       const txnType = (req.query.txnType as 'credit' | 'debit' | 'all') || 'all';
+      const startDate = req.query.startDate as string;
+      const endDate = req.query.endDate as string;
 
       const wallet = await this._doctorService.getDoctorWalletPaginated(
         doctorId,
@@ -407,7 +409,9 @@ export class DoctorController implements IDoctorController {
         limit,
         search,
         period,
-        txnType
+        txnType,
+        startDate,
+        endDate
       );
 
       res.status(200).json(wallet);

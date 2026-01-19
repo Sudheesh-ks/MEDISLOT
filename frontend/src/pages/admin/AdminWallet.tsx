@@ -27,6 +27,8 @@ const AdminWallet = () => {
   const [filteredTransactions, setFilteredTransactions] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [transactionType, setTransactionType] = useState('all');
+  const [startDate, setStartDate] = useState('');
+  const [endDate, setEndDate] = useState('');
 
   useEffect(() => {
     if (!aToken) navigate('/admin/login');
@@ -40,7 +42,9 @@ const AdminWallet = () => {
           10,
           searchTerm,
           selectedPeriod,
-          transactionType
+          transactionType,
+          startDate,
+          endDate
         );
         setWalletData(res.data);
         setFilteredTransactions(res.data?.history || []);
@@ -51,7 +55,7 @@ const AdminWallet = () => {
       }
     };
     fetchWallet();
-  }, [currentPage, searchTerm, selectedPeriod, transactionType]);
+  }, [currentPage, searchTerm, selectedPeriod, transactionType, startDate, endDate]);
 
   const formatDate = (d: string) =>
     new Date(d).toLocaleString('en-US', {
@@ -149,7 +153,26 @@ const AdminWallet = () => {
               <option value="today">Today</option>
               <option value="week">Last Week</option>
               <option value="month">Last Month</option>
+              <option value="custom">Custom Date</option>
             </select>
+
+            {/* Custom Date Range Inputs */}
+            {selectedPeriod === 'custom' && (
+              <div className="flex gap-2">
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="text-sm bg-slate-800 text-slate-200 border-white/20 rounded-lg px-3 py-1.5"
+                />
+                <input
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="text-sm bg-slate-800 text-slate-200 border-white/20 rounded-lg px-3 py-1.5"
+                />
+              </div>
+            )}
 
             {/* Transaction Type Filter */}
             <select
@@ -190,8 +213,8 @@ const AdminWallet = () => {
                   <td className="px-4 sm:px-6 py-3 sm:py-4">
                     <span
                       className={`px-2 py-1 rounded-full text-[10px] sm:text-xs font-semibold ${tx.type === 'credit'
-                          ? 'text-green-400 bg-green-500/20'
-                          : 'text-red-400 bg-red-500/20'
+                        ? 'text-green-400 bg-green-500/20'
+                        : 'text-red-400 bg-red-500/20'
                         }`}
                     >
                       {tx.type}
