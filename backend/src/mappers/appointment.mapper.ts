@@ -17,5 +17,6 @@ export const toAppointmentDTO = (a: AppointmentDocument): AppointmentDTO => {
     payment: a.payment,
     isConfirmed: a.isConfirmed,
     isCompleted: a.isCompleted,
+    patientDetails: a.patientDetails,
   };
 };

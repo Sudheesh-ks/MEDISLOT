@@ -58,6 +58,12 @@ adminRouter.get(
   adminController.appointmentsListPaginated.bind(adminController)
 );
 
+adminRouter.get(
+  '/appointments/:appointmentId',
+  authRole(['admin']),
+  adminController.getAppointmentById.bind(adminController)
+);
+
 adminRouter.patch(
   '/appointments/:appointmentId/cancel',
   authRole(['admin']),

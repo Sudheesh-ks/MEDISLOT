@@ -390,16 +390,32 @@ export class UserService implements IUserService {
     slotDate,
     slotStartTime,
     slotEndTime,
+    patientDetails,
   }: {
     userId: string;
     docId: string;
     slotDate: string;
     slotStartTime: string;
     slotEndTime: string;
+    patientDetails: {
+      name: string;
+      age: number;
+      gender: 'Male' | 'Female' | 'Other';
+      height?: string;
+      weight?: string;
+      problemDescription: string;
+      vitals?: {
+        temperature?: string;
+        bloodPressure?: string;
+        heartRate?: string;
+      };
+    };
   }): Promise<{ lockExpiresAt: Date; order: RazorpayOrderDTO; tempBookingId: string }> {
-    if (!userId || !docId || !slotDate || !slotStartTime || !slotEndTime) {
+    if (!userId || !docId || !slotDate || !slotStartTime || !slotEndTime || !patientDetails) {
+      console.log('Missing fields:', { userId, docId, slotDate, slotStartTime, slotEndTime, patientDetails });
       throw new Error('All fields are required');
     }
+    console.log('InitiateBooking received patientDetails:', JSON.stringify(patientDetails));
 
     const existingTempAppointment = await this._tempAppointmentRepository.findActiveTempAppointment(
       docId,
@@ -441,6 +457,7 @@ export class UserService implements IUserService {
       razorpayOrderId: order.id,
       status: 'pending_payment' as const,
       expiresAt,
+      patientDetails,
     };
 
     const tempAppointment =
@@ -588,6 +605,7 @@ export class UserService implements IUserService {
     if (tempAppointment.expiresAt < new Date()) {
       throw new Error('Temporary appointment has expired');
     }
+    console.log('VerifyPayment found tempAppointment:', JSON.stringify(tempAppointment.patientDetails));
 
     if (tempAppointment.userId.toString() !== userId.toString()) {
       throw new Error('Unauthorized access to temporary appointment');
@@ -613,9 +631,16 @@ export class UserService implements IUserService {
       amount: tempAppointment.amount,
       date: Date.now(),
       payment: true,
+      patientDetails: tempAppointment.patientDetails as any,
     };
 
-    const booked = await this._userRepository.bookAppointment(appointmentData);
+    let booked;
+    try {
+      booked = await this._userRepository.bookAppointment(appointmentData);
+    } catch (error: any) {
+      console.error('Booking failed. Data:', JSON.stringify(appointmentData, null, 2));
+      throw new Error(`Booking Validation Failed: ${error.message}. Data: ${JSON.stringify(appointmentData.patientDetails)}`);
+    }
     await this._userRepository.markAppointmentPaid(booked._id.toString());
 
     const amount = booked.amount;

@@ -161,53 +161,67 @@ const DoctorAppointments = () => {
       key: 'act',
       header: 'Action',
       width: '1fr',
-      render: (it: any) =>
-        it.cancelled ? (
-          <span className="text-red-500">Cancelled</span>
-        ) : it.isConfirmed ? (
-          isSessionEnded(it.slotDate, it.slotEndTime) ? (
-            <button
-              disabled
-              className="bg-gray-600 px-4 py-1.5 text-sm rounded-lg text-white cursor-not-allowed"
-            >
-              Session Ended
-            </button>
+      render: (it: any) => (
+        <div className="flex items-center gap-3">
+          <span
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(`/doctor/appointment-details/${it._id}`);
+            }}
+            className="text-cyan-400 hover:text-cyan-300 cursor-pointer text-sm font-semibold underline underline-offset-4"
+          >
+            View
+          </span>
+          {it.cancelled ? (
+            <span className="text-red-500 text-sm font-semibold">Cancelled</span>
+          ) : it.isConfirmed ? (
+            isSessionEnded(it.slotDate, it.slotEndTime) ? (
+              <button
+                disabled
+                className="bg-gray-600 px-4 py-1.5 text-sm rounded-lg text-white cursor-not-allowed"
+              >
+                Ended
+              </button>
+            ) : (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(`/doctor/consultation/${it.userData._id}/${it._id}`);
+                }}
+                className="bg-gradient-to-r from-cyan-500 to-blue-600 px-4 py-1.5 text-sm rounded-lg text-white shadow relative"
+              >
+                Consult
+                {notificationContext?.unread?.[`${it.userData._id}_${profileData!._id}`] > 0 && (
+                  <span className="absolute -top-2 -right-2 h-5 min-w-[20px] px-1 bg-red-500 text-xs rounded-full flex items-center justify-center">
+                    {notificationContext.unread[`${it.userData._id}_${profileData!._id}`]}
+                  </span>
+                )}
+              </button>
+            )
           ) : (
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                navigate(`/doctor/consultation/${it.userData._id}/${it._id}`);
-              }}
-              className="bg-gradient-to-r from-cyan-500 to-blue-600 px-4 py-1.5 text-sm rounded-lg text-white shadow relative"
-            >
-              Consultation
-              {notificationContext?.unread?.[`${it.userData._id}_${profileData!._id}`] > 0 && (
-                <span className="absolute -top-2 -right-2 h-5 min-w-[20px] px-1 bg-red-500 text-xs rounded-full flex items-center justify-center">
-                  {notificationContext.unread[`${it.userData._id}_${profileData!._id}`]}
-                </span>
-              )}
-            </button>
-          )
-        ) : (
-          <div className="flex gap-3">
-            <img
-              onClick={(e) => {
-                e.stopPropagation();
-                openCancelModal(it._id);
-              }}
-              src={Aassets.cancel_icon}
-              className="w-7 cursor-pointer opacity-80 hover:opacity-100"
-            />
-            <img
-              onClick={(e) => {
-                e.stopPropagation();
-                doConfirm(it._id);
-              }}
-              src={Aassets.tick_icon}
-              className="w-7 cursor-pointer opacity-80 hover:opacity-100"
-            />
-          </div>
-        ),
+            <div className="flex gap-2">
+              <img
+                onClick={(e) => {
+                  e.stopPropagation();
+                  openCancelModal(it._id);
+                }}
+                src={Aassets.cancel_icon}
+                title="Cancel"
+                className="w-7 cursor-pointer opacity-80 hover:opacity-100"
+              />
+              <img
+                onClick={(e) => {
+                  e.stopPropagation();
+                  doConfirm(it._id);
+                }}
+                src={Aassets.tick_icon}
+                title="Confirm"
+                className="w-7 cursor-pointer opacity-80 hover:opacity-100"
+              />
+            </div>
+          )}
+        </div>
+      ),
     },
   ];
 

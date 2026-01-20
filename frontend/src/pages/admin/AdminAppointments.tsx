@@ -142,22 +142,35 @@ const AdminAppointments = () => {
       key: 'actions',
       header: 'Actions',
       width: '1fr',
-      render: (it: any) =>
-        it.cancelled ? (
-          <span className="text-xs font-semibold text-red-400">Cancelled</span>
-        ) : it.isConfirmed ? (
-          <span className="text-xs font-semibold text-emerald-400">Confirmed</span>
-        ) : (
-          <motion.img
-            whileTap={{ scale: 0.9 }}
-            src={Aassets.cancel_icon}
-            className="w-7 cursor-pointer hover:opacity-80"
+      render: (it: any) => (
+        <div className="flex items-center gap-3">
+          <span
+            className="text-indigo-400 hover:text-indigo-300 cursor-pointer text-sm font-semibold underline underline-offset-4"
             onClick={(e) => {
               e.stopPropagation();
-              openCancelModal(it._id);
+              navigate(`/admin/appointment-details/${it._id}`);
             }}
-          />
-        ),
+          >
+            View
+          </span>
+          {it.cancelled ? (
+            <span className="text-xs font-semibold text-red-400">Cancelled</span>
+          ) : it.isConfirmed ? (
+            <span className="text-xs font-semibold text-emerald-400">Confirmed</span>
+          ) : (
+            <motion.img
+              whileTap={{ scale: 0.9 }}
+              src={Aassets.cancel_icon}
+              title="Cancel"
+              className="w-7 cursor-pointer hover:opacity-80"
+              onClick={(e) => {
+                e.stopPropagation();
+                openCancelModal(it._id);
+              }}
+            />
+          )}
+        </div>
+      ),
     },
   ];
 

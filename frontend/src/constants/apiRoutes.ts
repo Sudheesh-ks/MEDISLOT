@@ -15,6 +15,7 @@ export const ADMIN_API = {
   BLOCK_USER: (userId: string) => `/api/admin/users/${userId}/block`,
   APPOINTMENTS: '/api/admin/appointments',
   APPOINTMENTS_PAGINATED: '/api/admin/appointments/paginated',
+  APPOINTMENT_BY_ID: (appointmentId: string) => `/api/admin/appointments/${appointmentId}`,
   CANCEL_APPOINTMENT: (appointmentId: string) => `/api/admin/appointments/${appointmentId}/cancel`,
   WALLET: '/api/admin/wallet',
   DASHBOARD: '/api/admin/dashboard',

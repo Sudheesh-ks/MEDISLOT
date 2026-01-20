@@ -14,6 +14,19 @@ export interface TempAppointmentTypes {
   status: 'pending_payment' | 'cancelled' | 'expired';
   createdAt: Date;
   expiresAt: Date;
+  patientDetails: {
+    name: string;
+    age: number;
+    gender: string;
+    height?: string;
+    weight?: string;
+    problemDescription: string;
+    vitals?: {
+      temperature?: string;
+      bloodPressure?: string;
+      heartRate?: string;
+    };
+  };
 }
 
 export interface TempAppointmentDocument extends Omit<TempAppointmentTypes, '_id'>, Document {
@@ -69,6 +82,10 @@ const tempAppointmentSchema: Schema<TempAppointmentDocument> = new mongoose.Sche
     },
     expiresAt: {
       type: Date,
+      required: true,
+    },
+    patientDetails: {
+      type: Object,
       required: true,
     },
   },

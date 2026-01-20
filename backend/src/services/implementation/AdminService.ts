@@ -253,6 +253,12 @@ export class AdminService implements IAdminService {
     return appointments.map(toAppointmentDTO);
   }
 
+  async getAppointmentById(id: string): Promise<AppointmentDTO | null> {
+    const appointment = await this._adminRepository.getAppointmentById(id);
+    if (!appointment) throw new Error('Appointment not found');
+    return toAppointmentDTO(appointment);
+  }
+
   async listAppointmentsPaginated(
     page: number,
     limit: number,

@@ -253,6 +253,8 @@ export class AdminController implements IAdminController {
     }
   }
 
+
+
   async adminCancelAppointment(req: Request, res: Response): Promise<void> {
     try {
       const { appointmentId } = req.params;
@@ -527,6 +529,19 @@ export class AdminController implements IAdminController {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
         success: false,
         message: 'Something went wrong',
+      });
+    }
+  }
+  async getAppointmentById(req: Request, res: Response): Promise<void> {
+    try {
+      const { appointmentId } = req.params;
+      const appointment = await this._adminService.getAppointmentById(appointmentId);
+      res.status(HttpStatus.OK).json({ success: true, appointment });
+    } catch (error) {
+      logger.error(`Failed to fetch appointment by id: ${(error as Error).message}`);
+      res.status(HttpStatus.NOT_FOUND).json({
+        success: false,
+        message: (error as Error).message,
       });
     }
   }

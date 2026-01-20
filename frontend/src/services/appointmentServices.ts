@@ -1,14 +1,15 @@
-import { userApi } from '../axios/axiosInstance';
-import { APPOINTMENT_API } from '../constants/apiRoutes';
+import { userApi, adminApi, doctorApi } from '../axios/axiosInstance';
+import { APPOINTMENT_API, DOCTOR_API, ADMIN_API } from '../constants/apiRoutes';
 
 // Book an appointment
 export const appointmentBookingAPI = async (
   docId: string,
   slotDate: string,
   slotStartTime: string,
-  slotEndTime: string
+  slotEndTime: string,
+  patientDetails: any
 ) => {
-  return userApi.post(APPOINTMENT_API.BASE, { docId, slotDate, slotStartTime, slotEndTime });
+  return userApi.post(APPOINTMENT_API.BASE, { docId, slotDate, slotStartTime, slotEndTime, patientDetails });
 };
 
 // Get all appointments
@@ -56,6 +57,16 @@ export const getDoctorReviewsAPI = async (doctorId: string) => {
 
 export const getAppointmentByIdAPI = async (appointmentId: string) => {
   const res = await userApi.get(APPOINTMENT_API.GET_APPOINTMENT_BY_ID(appointmentId));
+  return res.data.appointment;
+};
+
+export const getDoctorAppointmentByIdAPI = async (appointmentId: string) => {
+  const res = await doctorApi.get(DOCTOR_API.APPOINTMENT_BY_ID(appointmentId));
+  return res.data.appointment;
+};
+
+export const getAdminAppointmentByIdAPI = async (appointmentId: string) => {
+  const res = await adminApi.get(ADMIN_API.APPOINTMENT_BY_ID(appointmentId));
   return res.data.appointment;
 };
 

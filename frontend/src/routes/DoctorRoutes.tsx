@@ -22,6 +22,8 @@ import DoctorBlogsPage from '../pages/doctor/DoctorBlogPage';
 import DoctorEditBlogPage from '../pages/doctor/DoctorUpdateBlogs';
 import DoctorChatList from '../pages/doctor/DoctorChatList';
 
+import DoctorAppointmentDetail from '../pages/doctor/DoctorAppointmentDetail';
+
 const DoctorRoutes = () => {
   return (
     <>
@@ -40,6 +42,14 @@ const DoctorRoutes = () => {
         element={
           <DoctorLayout>
             <DoctorAppointments />
+          </DoctorLayout>
+        }
+      />
+      <Route
+        path="/doctor/appointment-details/:id"
+        element={
+          <DoctorLayout>
+            <DoctorAppointmentDetail />
           </DoctorLayout>
         }
       />

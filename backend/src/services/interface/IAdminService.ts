@@ -38,7 +38,9 @@ export interface IAdminService {
     search?: string
   ): Promise<PaginationResult<UserDTO>>;
   toggleUserBlock(userId: string, block: boolean): Promise<UserDTO>;
+  toggleUserBlock(userId: string, block: boolean): Promise<UserDTO>;
   listAppointments(): Promise<AppointmentDTO[]>;
+  getAppointmentById(id: string): Promise<AppointmentDTO | null>;
   listAppointmentsPaginated(
     page: number,
     limit: number,

@@ -23,6 +23,7 @@ import { currencySymbol } from '../../utils/commonUtils';
 import type { feedbackTypes } from '../../types/feedback';
 import StarRating from '../../components/common/StarRating';
 import { to12h } from '../../utils/slotManagementHelper';
+import BookingModal from '../../components/user/BookingModal';
 
 dayjs.extend(relativeTime);
 
@@ -189,25 +190,40 @@ const Appointment = () => {
     new window.Razorpay(opts).open();
   };
 
-  const book = async () => {
+  const [showBookingModal, setShowBookingModal] = useState(false);
+  const [bookingLoading, setBookingLoading] = useState(false);
+
+  const handleBookClick = () => {
+    if (!slotTime) return toast.error('No slot selected');
+    setShowBookingModal(true);
+  };
+
+  const confirmBooking = async (patientDetails: any) => {
     const target = slots[dayIdx]?.find((s) => s.slotStartTime === slotTime);
     if (!target) return toast.error('No slot selected');
 
+    setBookingLoading(true);
     try {
       const res = await appointmentBookingAPI(
         docId!,
         ymd(target.datetime),
         target.slotStartTime,
-        target.slotEndTime
+        target.slotEndTime,
+        patientDetails
       );
 
-      if (!res.data.success) return toast.error(res.data.message);
+      if (!res.data.success) {
+        setBookingLoading(false);
+        return toast.error(res.data.message);
+      }
 
       const { tempBookingId, order } = res.data;
-      console.log('Order amount:', order.amount);
       initPay(order, tempBookingId);
+      setShowBookingModal(false); // Close modal on success (payment will proceed)
     } catch (err) {
       showErrorToast(err);
+    } finally {
+      setBookingLoading(false);
     }
   };
 
@@ -253,9 +269,8 @@ const Appointment = () => {
   }) => (
     <button
       onClick={onClick}
-      className={`px-6 py-3 font-medium text-sm transition-all relative ${
-        isActive ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-100 hover:text-blue-600'
-      }`}
+      className={`px-6 py-3 font-medium text-sm transition-all relative ${isActive ? 'text-blue-600 border-b-2 border-blue-600' : 'text-gray-100 hover:text-blue-600'
+        }`}
     >
       {label}
     </button>
@@ -456,11 +471,10 @@ const Appointment = () => {
                             setShowPicker(false);
                             setSlotTime('');
                           }}
-                          className={`min-w-[80px] py-3 md:py-4 px-3 rounded-xl text-center text-sm transition-all border ${
-                            dayIdx === idx && !showPicker
-                              ? 'bg-blue-600 text-gray-100 border-blue-600 shadow-md'
-                              : 'bg-gray-900 border-gray-700 hover:border-blue-500 text-gray-300'
-                          }`}
+                          className={`min-w-[80px] py-3 md:py-4 px-3 rounded-xl text-center text-sm transition-all border ${dayIdx === idx && !showPicker
+                            ? 'bg-blue-600 text-gray-100 border-blue-600 shadow-md'
+                            : 'bg-gray-900 border-gray-700 hover:border-blue-500 text-gray-300'
+                            }`}
                         >
                           <p className="text-xs font-medium opacity-80">
                             {days[day[0].datetime.getDay()]}
@@ -478,11 +492,10 @@ const Appointment = () => {
                         void (showPicker ? fetchInitialSlots() : setShowPicker(true));
                         setSlotTime('');
                       }}
-                      className={`min-w-[80px] py-3 md:py-4 px-3 rounded-xl text-center text-sm transition-all border ${
-                        showPicker
-                          ? 'bg-blue-600 text-gray-100 border-blue-600 shadow-md'
-                          : 'bg-gray-900 border-gray-700 hover:border-blue-500 text-gray-300'
-                      }`}
+                      className={`min-w-[80px] py-3 md:py-4 px-3 rounded-xl text-center text-sm transition-all border ${showPicker
+                        ? 'bg-blue-600 text-gray-100 border-blue-600 shadow-md'
+                        : 'bg-gray-900 border-gray-700 hover:border-blue-500 text-gray-300'
+                        }`}
                     >
                       📅
                       <p className="text-xs font-medium mt-1">{showPicker ? 'Back' : 'More'}</p>
@@ -517,11 +530,10 @@ const Appointment = () => {
                         <button
                           key={i}
                           onClick={() => setSlotTime(s.slotStartTime)}
-                          className={`p-2 md:p-3 rounded-lg text-xs md:text-sm font-medium transition-all border ${
-                            slotTime === s.slotStartTime
-                              ? 'bg-blue-600 text-gray-100 border-blue-600 shadow-md'
-                              : 'bg-gray-900 border-gray-700 hover:border-blue-500 text-gray-300'
-                          }`}
+                          className={`p-2 md:p-3 rounded-lg text-xs md:text-sm font-medium transition-all border ${slotTime === s.slotStartTime
+                            ? 'bg-blue-600 text-gray-100 border-blue-600 shadow-md'
+                            : 'bg-gray-900 border-gray-700 hover:border-blue-500 text-gray-300'
+                            }`}
                         >
                           {to12h(s.slotStartTime)}
                         </button>
@@ -545,7 +557,7 @@ const Appointment = () => {
                         End Time:{' '}
                         {to12h(
                           slots[dayIdx]?.find((s) => s.slotStartTime === slotTime)?.slotEndTime ||
-                            ''
+                          ''
                         )}
                       </p>
                       <p>
@@ -557,7 +569,7 @@ const Appointment = () => {
                 )}
 
                 <button
-                  onClick={book}
+                  onClick={handleBookClick}
                   disabled={!slotTime}
                   className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-700 disabled:cursor-not-allowed text-gray-100 py-3 md:py-4 rounded-lg font-semibold text-base md:text-lg transition-colors shadow-md"
                 >
@@ -565,6 +577,13 @@ const Appointment = () => {
                     ? `Book Appointment - ${currencySymbol}${info?.fees}`
                     : 'Select a time slot'}
                 </button>
+
+                <BookingModal
+                  isOpen={showBookingModal}
+                  onClose={() => setShowBookingModal(false)}
+                  onConfirm={confirmBooking}
+                  isLoading={bookingLoading}
+                />
               </div>
             )}
 

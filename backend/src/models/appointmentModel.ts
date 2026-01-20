@@ -76,6 +76,20 @@ const appointmentSchema: Schema<AppointmentDocument> = new mongoose.Schema(
       type: String,
       default: null,
     },
+
+    patientDetails: {
+      name: { type: String, required: true },
+      age: { type: Number, required: true },
+      gender: { type: String, required: true },
+      height: { type: String },
+      weight: { type: String },
+      problemDescription: { type: String, required: true },
+      vitals: {
+        temperature: { type: String },
+        bloodPressure: { type: String },
+        heartRate: { type: String },
+      },
+    },
   },
   {
     timestamps: true,

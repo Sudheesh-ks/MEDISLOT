@@ -62,6 +62,19 @@ export interface IUserService {
     slotDate: string;
     slotStartTime: string;
     slotEndTime: string;
+    patientDetails: {
+      name: string;
+      age: number;
+      gender: 'Male' | 'Female' | 'Other';
+      height?: string;
+      weight?: string;
+      problemDescription: string;
+      vitals?: {
+        temperature?: string;
+        bloodPressure?: string;
+        heartRate?: string;
+      };
+    };
   }): Promise<{ lockExpiresAt: Date; order: RazorpayOrderDTO; tempBookingId: string }>;
   listUserAppointmentsPaginated(
     userId: string,

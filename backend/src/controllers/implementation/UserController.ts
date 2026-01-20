@@ -331,7 +331,7 @@ export class UserController implements IUserController {
   async bookAppointment(req: Request, res: Response): Promise<void> {
     try {
       const userId = (req as any).userId;
-      const { docId, slotDate, slotStartTime, slotEndTime } = req.body;
+      const { docId, slotDate, slotStartTime, slotEndTime, patientDetails } = req.body;
 
       const { tempBookingId, order, lockExpiresAt } = await this._userService.initiateBooking({
         userId,
@@ -339,6 +339,7 @@ export class UserController implements IUserController {
         slotDate,
         slotStartTime,
         slotEndTime,
+        patientDetails,
       });
       logger.info(`Appointment booking initiated for user ${userId}`);
       res.status(HttpStatus.OK).json({

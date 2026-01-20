@@ -40,7 +40,7 @@ export class UserRepository extends BaseRepository<userDocument> implements IUse
     return !!updatedUser;
   }
   async bookAppointment(appointmentData: AppointmentTypes): Promise<AppointmentDocument> {
-    const { userId, docId, slotDate, slotStartTime, slotEndTime } = appointmentData;
+    const { userId, docId, slotDate, slotStartTime, slotEndTime, patientDetails } = appointmentData;
 
     const doctor = await doctorModel.findById(docId);
     if (!doctor || !doctor.available) throw new Error('Doctor not available');
@@ -119,6 +119,7 @@ export class UserRepository extends BaseRepository<userDocument> implements IUse
       slotEndTime,
       slotDate,
       date: new Date(),
+      patientDetails,
     });
 
     return await appointment.save();

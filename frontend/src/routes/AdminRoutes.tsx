@@ -16,6 +16,8 @@ import AdminNotificationsPage from '../pages/admin/AdminNotificationPage';
 import AdminRequestedDoctorDetail from '../pages/admin/AdminRequestedDoctorDetails';
 import AdminDoctorDetailsPage from '../pages/admin/AdminDoctorDetailPage';
 
+import AdminAppointmentDetail from '../pages/admin/AdminAppointmentDetail';
+
 const AdminRoutes = () => {
   return (
     <>
@@ -42,6 +44,14 @@ const AdminRoutes = () => {
         element={
           <AdminLayout>
             <AdminAppointments />
+          </AdminLayout>
+        }
+      />
+      <Route
+        path="/admin/appointment-details/:id"
+        element={
+          <AdminLayout>
+            <AdminAppointmentDetail />
           </AdminLayout>
         }
       />

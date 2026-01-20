@@ -17,4 +17,17 @@ export interface AppointmentTypes {
   isConfirmed?: boolean;
   isCompleted?: boolean;
   razorpayOrderId?: string | null;
+  patientDetails: {
+    name: string;
+    age: number;
+    gender: 'Male' | 'Female' | 'Other';
+    height?: string;
+    weight?: string;
+    problemDescription: string;
+    vitals?: {
+      temperature?: string;
+      bloodPressure?: string;
+      heartRate?: string;
+    };
+  };
 }

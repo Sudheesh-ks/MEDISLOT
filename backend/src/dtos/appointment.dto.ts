@@ -14,4 +14,17 @@ export interface AppointmentDTO {
   payment?: boolean;
   isConfirmed?: boolean;
   isCompleted?: boolean;
+  patientDetails: {
+    name: string;
+    age: number;
+    gender: string;
+    height?: string;
+    weight?: string;
+    problemDescription: string;
+    vitals?: {
+      temperature?: string;
+      bloodPressure?: string;
+      heartRate?: string;
+    };
+  };
 }
