@@ -103,8 +103,24 @@ export class UserRepository extends BaseRepository<userDocument> implements IUse
     }
 
     if (slotIndex === -1) throw new Error('Slot not available');
-    slotDoc!.slots[slotIndex].booked = true;
-    await slotDoc!.save();
+
+    // Atomic update to mark slot as booked ONLY if it's currently unbooked
+    const updatedSlot = await slotModel.findOneAndUpdate(
+      {
+        _id: slotDoc!._id,
+        'slots.start': slotStartTime,
+        'slots.end': slotEndTime,
+        'slots.booked': false,
+      },
+      {
+        $set: { 'slots.$.booked': true },
+      },
+      { new: true }
+    );
+
+    if (!updatedSlot) {
+      throw new Error('Slot already booked');
+    }
 
     const userData = await userModel.findById(userId).select('-password').lean();
     const docData = await doctorModel.findById(docId).select('-password').lean();

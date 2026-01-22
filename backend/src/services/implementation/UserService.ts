@@ -428,6 +428,16 @@ export class UserService implements IUserService {
       throw new Error('Slot temporarily unavailable - another user is booking this slot');
     }
 
+    const realSlotDoc = await this._slotRepository.getSlotByDate(docId, slotDate);
+    if (realSlotDoc) {
+      const isAlreadyBooked = realSlotDoc.slots.some(
+        (s) => s.start === slotStartTime && s.end === slotEndTime && s.booked
+      );
+      if (isAlreadyBooked) {
+        throw new Error('Slot already booked');
+      }
+    }
+
     const [user, doctor] = await Promise.all([
       this._userRepository.findUserById(userId),
       this._userRepository.findDoctorById(docId),
