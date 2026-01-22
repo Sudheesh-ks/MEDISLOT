@@ -6,7 +6,7 @@ import { showErrorToast } from '../utils/errorHandler';
 import { refreshAccessTokenAPI } from '../services/authServices';
 import { clearAccessToken, getAccessToken, updateAccessToken } from './tokenManagerContext';
 
-interface userData {
+interface IUserData {
   _id?: string;
   name: string;
   email: string;
@@ -41,9 +41,10 @@ interface UserContextType {
   backendUrl: string;
   token: string | null;
   setToken: (token: string | null) => void;
-  userData: userData | null;
-  setUserData: React.Dispatch<React.SetStateAction<userData | null>>;
+  userData: IUserData | null;
+  setUserData: React.Dispatch<React.SetStateAction<IUserData | null>>;
   loadUserProfileData: () => Promise<void>;
+  isProfileComplete: boolean;
 }
 
 export const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -56,7 +57,7 @@ const UserContextProvider: React.FC<UserContextProviderProps> = ({ children }) =
   const backendUrl = import.meta.env.VITE_BACKEND_URL;
 
   const [token, setTokenState] = useState<string | null>(getAccessToken('USER'));
-  const [userData, setUserData] = useState<null | userData>(null);
+  const [userData, setUserData] = useState<null | IUserData>(null);
 
   const getDoctorsPaginated = useCallback(
     async (
@@ -138,7 +139,6 @@ const UserContextProvider: React.FC<UserContextProviderProps> = ({ children }) =
   useEffect(() => {
     const tryRefresh = async () => {
       try {
-        // Pass specialized config to skip redirect on failure
         const res = await refreshAccessTokenAPI({ _skipAuthRedirect: true });
         const newToken = res.data?.token;
 
@@ -165,6 +165,16 @@ const UserContextProvider: React.FC<UserContextProviderProps> = ({ children }) =
     }
   }, []);
 
+  const isProfileComplete = !!(
+    userData &&
+    userData.phone &&
+    userData.gender &&
+    userData.dob &&
+    userData.address?.line1 &&
+    userData.address?.line2 &&
+    userData.image
+  );
+
   const value: UserContextType = {
     getDoctorsPaginated,
     backendUrl,
@@ -173,6 +183,7 @@ const UserContextProvider: React.FC<UserContextProviderProps> = ({ children }) =
     userData,
     setUserData,
     loadUserProfileData,
+    isProfileComplete,
   };
 
   return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
