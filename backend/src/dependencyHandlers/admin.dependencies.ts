@@ -19,7 +19,7 @@ const complaintRepository = new ComplaintRepository();
 
 // Services
 const notificationService = new NotificationService(notificationRepository);
-const adminService = new AdminService(
+export const adminService = new AdminService(
   adminRepository,
   doctorRepository,
   walletRepository,

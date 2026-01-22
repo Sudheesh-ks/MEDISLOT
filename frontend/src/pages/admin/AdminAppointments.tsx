@@ -10,8 +10,15 @@ import { updateItemInList } from '../../utils/stateHelper.util';
 import { calculateAge, currencySymbol, slotDateFormat } from '../../utils/commonUtils';
 import { assets } from '../../assets/user/assets';
 import ConfirmationModal from '../../components/common/ConfirmationModal';
+import dayjs from 'dayjs';
+import { to12h } from '../../utils/slotManagementHelper';
 
 const glass = 'bg-white/5 backdrop-blur ring-1 ring-white/10';
+
+const isSessionEnded = (slotDate: string, slotEndTime: string) => {
+  const endDateTime = dayjs(`${slotDate} ${slotEndTime}`, 'YYYY-MM-DD HH:mm');
+  return dayjs().isAfter(endDateTime);
+};
 
 const AdminAppointments = () => {
   const navigate = useNavigate();
@@ -109,7 +116,7 @@ const AdminAppointments = () => {
       width: '3fr',
       render: (it: any) => (
         <p className="truncate text-xs">
-          {slotDateFormat(it.slotDate)}, {it.slotTime}
+          {slotDateFormat(it.slotDate)}, {to12h(it.slotStartTime)}
         </p>
       ),
     },
@@ -155,6 +162,10 @@ const AdminAppointments = () => {
           </span>
           {it.cancelled ? (
             <span className="text-xs font-semibold text-red-400">Cancelled</span>
+          ) : it.isCompleted ? (
+            <span className="text-xs font-semibold text-emerald-400">Session Ended</span>
+          ) : isSessionEnded(it.slotDate, it.slotEndTime) ? (
+            <span className="text-xs font-semibold text-slate-400">Session Ended</span>
           ) : it.isConfirmed ? (
             <span className="text-xs font-semibold text-emerald-400">Confirmed</span>
           ) : (

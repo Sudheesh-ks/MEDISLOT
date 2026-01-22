@@ -134,11 +134,11 @@ const AdminAppointmentDetail: React.FC = () => {
                             <h3 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-4">Status Overview</h3>
                             <div className="grid grid-cols-2 gap-4">
                                 <div className={`p-4 rounded-xl border flex flex-col items-center justify-center text-center ${cancelled ? 'bg-red-500/10 border-red-500/20 text-red-400' :
-                                    appointment.isCompleted ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' :
+                                    appointment.isCompleted || dayjs().isAfter(dayjs(`${slotDate} ${slotEndTime}`, 'YYYY-MM-DD HH:mm')) ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' :
                                         'bg-blue-500/10 border-blue-500/20 text-blue-400'
                                     }`}>
                                     <span className="text-[10px] uppercase font-bold mb-1 opacity-60">Appointment</span>
-                                    <span className="font-bold">{cancelled ? 'Cancelled' : appointment.isCompleted ? 'Completed' : 'Upcoming'}</span>
+                                    <span className="font-bold">{cancelled ? 'Cancelled' : (appointment.isCompleted || dayjs().isAfter(dayjs(`${slotDate} ${slotEndTime}`, 'YYYY-MM-DD HH:mm'))) ? 'Session Ended' : 'Upcoming'}</span>
                                 </div>
                                 <div className={`p-4 rounded-xl border flex flex-col items-center justify-center text-center ${payment ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'bg-orange-500/10 border-orange-500/20 text-orange-400'
                                     }`}>

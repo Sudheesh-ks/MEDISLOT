@@ -28,6 +28,8 @@ import slotRouter from './routes/slotRoute';
 import aiChatRouter from './routes/aiChatBotRoutes';
 import './utils/activeAppointmentChecker';
 import { startLockCleanupJob } from './jobs/cleanupLock';
+import { startStaleAppointmentCleaner } from './jobs/appointmentAutoCancel';
+
 
 const allowedOrigins = [
   'https://medislot-eight.vercel.app',
@@ -82,8 +84,10 @@ const io = new SocketIOServer(server, {
 registerChatSocket(io, chatService);
 
 startLockCleanupJob();
+startStaleAppointmentCleaner();
 
 server.listen(PORT, () => {
   console.log('Server Started', PORT);
-  console.log('Periodic cleanup of expired locks scheduled every 5 minutes');
+  console.log('Periodic cleanup of expired locks scheduled (5m)');
+  console.log('Stale appointment auto-cancellation scheduled (Hourly)');
 });

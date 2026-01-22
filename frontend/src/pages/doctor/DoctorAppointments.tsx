@@ -18,7 +18,7 @@ dayjs.extend(customParseFormat);
 
 const isSessionEnded = (slotDate: string, slotEndTime: string) => {
   const endDateTime = dayjs(`${slotDate} ${slotEndTime}`, 'YYYY-MM-DD HH:mm');
-  return dayjs().isAfter(endDateTime.add(24, 'hour'));
+  return dayjs().isAfter(endDateTime);
 };
 
 const DoctorAppointments = () => {

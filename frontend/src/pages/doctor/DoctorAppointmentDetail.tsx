@@ -111,10 +111,10 @@ const DoctorAppointmentDetail: React.FC = () => {
                                 <div className="flex justify-between items-center py-2 border-b border-white/5">
                                     <span className="text-slate-400">Status</span>
                                     <span className={`px-2.5 py-1 rounded-full text-[10px] uppercase font-bold tracking-wider ${cancelled ? 'bg-red-500/20 text-red-400 border border-red-500/20' :
-                                        appointment.isCompleted ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/20' :
+                                        appointment.isCompleted || dayjs().isAfter(dayjs(`${slotDate} ${slotEndTime}`, 'YYYY-MM-DD HH:mm')) ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/20' :
                                             'bg-cyan-500/20 text-cyan-400 border border-cyan-500/20'
                                         }`}>
-                                        {cancelled ? 'Cancelled' : appointment.isCompleted ? 'Completed' : 'Upcoming'}
+                                        {cancelled ? 'Cancelled' : (appointment.isCompleted || dayjs().isAfter(dayjs(`${slotDate} ${slotEndTime}`, 'YYYY-MM-DD HH:mm'))) ? 'Session Ended' : 'Upcoming'}
                                     </span>
                                 </div>
                                 <div className="flex justify-between items-center py-2">
