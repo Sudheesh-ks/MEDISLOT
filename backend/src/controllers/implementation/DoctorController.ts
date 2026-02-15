@@ -187,7 +187,7 @@ export class DoctorController implements IDoctorController {
 
       res.status(HttpStatus.UNAUTHORIZED).json({
         success: false,
-        message: HttpResponse.REFRESH_TOKEN_FAILED,
+        message: (error as Error).message || HttpResponse.REFRESH_TOKEN_FAILED,
       });
     }
   }

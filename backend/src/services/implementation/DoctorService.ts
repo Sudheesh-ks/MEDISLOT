@@ -175,8 +175,8 @@ export class DoctorService implements IDoctorService {
     const match = await bcrypt.compare(password, doctor.password);
     if (!match) throw new Error(HttpResponse.INCORRECT_PASSWORD);
 
-    const token = generateAccessToken(doctor._id!, doctor.email, 'doctor');
-    const refreshToken = generateRefreshToken(doctor._id!);
+    const token = generateAccessToken(doctor._id.toString(), doctor.email, 'doctor');
+    const refreshToken = generateRefreshToken(doctor._id.toString());
 
     return { token, refreshToken };
   }
@@ -196,8 +196,8 @@ export class DoctorService implements IDoctorService {
     const doctor = await this.getDoctorProfile(decoded.id);
     if (!doctor) throw new Error('Doctor not found');
 
-    const newAccessToken = generateAccessToken(doctor._id!, doctor.email, 'doctor');
-    const newRefreshToken = generateRefreshToken(doctor._id!);
+    const newAccessToken = generateAccessToken(doctor._id!.toString(), doctor.email, 'doctor');
+    const newRefreshToken = generateRefreshToken(doctor._id!.toString());
 
     return { token: newAccessToken, refreshToken: newRefreshToken };
   }
