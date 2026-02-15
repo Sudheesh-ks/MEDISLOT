@@ -41,6 +41,12 @@ userRouter.get(
 );
 
 userRouter.get(
+  '/appointments/active',
+  authRole(['user']),
+  userController.getActiveAppointment.bind(userController)
+);
+
+userRouter.get(
   '/appointments/:appointmentId',
   authRole(['user']),
   userController.getAppointmentById.bind(userController)
@@ -51,12 +57,6 @@ userRouter.patch(
   '/appointments/:appointmentId/cancel',
   authRole(['user']),
   userController.cancelAppointment.bind(userController)
-);
-
-userRouter.get(
-  '/appointments/active',
-  authRole(['user']),
-  userController.getActiveAppointment.bind(userController)
 );
 
 userRouter.post(
