@@ -30,7 +30,7 @@ const Navbar = () => {
   };
 
   const navItems = [
-    { to: '/home', label: 'Homey' },
+    { to: '/home', label: 'Home' },
     { to: '/all-doctors', label: 'Doctors' },
     { to: '/about', label: 'About' },
     { to: '/contact', label: 'Contact' },
