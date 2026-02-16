@@ -171,8 +171,8 @@ const UserContextProvider: React.FC<UserContextProviderProps> = ({ children }) =
     userData.gender &&
     userData.dob &&
     userData.address?.line1 &&
-    userData.address?.line2 &&
-    userData.image
+    userData.address?.line2
+    // userData.image
   );
 
   const value: UserContextType = {
