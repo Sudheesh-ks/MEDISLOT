@@ -37,7 +37,7 @@ const Appointment = () => {
   const { docId } = useParams();
   const context = useContext(UserContext);
   if (!context) throw new Error('AppContext missing');
-  const { token } = context;
+  const { token, isProfileComplete } = context;
 
   useEffect(() => {
     if (!token) navigate('/login');
@@ -195,6 +195,11 @@ const Appointment = () => {
 
   const handleBookClick = () => {
     if (!slotTime) return toast.error('No slot selected');
+    if (!isProfileComplete) {
+      toast.warn('Please update your profile with necessary details before booking');
+      navigate('/my-profile');
+      return;
+    }
     setShowBookingModal(true);
   };
 
