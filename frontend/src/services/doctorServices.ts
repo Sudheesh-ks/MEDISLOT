@@ -148,7 +148,7 @@ export const addDoctorSlotsAPI = upsertDaySlotsAPI;
 
 export const getDefaultSlotAPI = async (weekday: number) => {
   const res = await doctorApi.get(`${SLOT_API.SLOTS}/default`, { params: { weekday } });
-  return res.data.data as { start: string; end: string; isAvailable: boolean }[];
+  return (res.data.data?.slots ?? []) as { start: string; end: string; isAvailable: boolean }[];
 };
 
 export const saveWeeklyDefaultAPI = (
@@ -158,7 +158,7 @@ export const saveWeeklyDefaultAPI = (
 
 export const getDaySlotsAPI = async (date: string) => {
   const res = await doctorApi.get(`${SLOT_API.SLOTS}/day`, { params: { date } });
-  return res.data.data as { start: string; end: string; isAvailable: boolean }[];
+  return (res.data.data ?? []) as { start: string; end: string; isAvailable: boolean }[];
 };
 
 export const getWeeklyDefaultsAPI = async () => {
