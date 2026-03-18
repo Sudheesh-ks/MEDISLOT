@@ -110,7 +110,7 @@ export function createAxiosInstance({
 
         // START CHANGE: Check for skip flag before redirecting
         if (!(original as any)._skipAuthRedirect) {
-          if (!window.location.pathname.endsWith(loginPath)) {
+          if (!window.location.pathname.endsWith(loginPath) && window.location.pathname !== '/' && window.location.pathname !== '/doctor/register') {
             window.location.href = loginPath;
           }
         }

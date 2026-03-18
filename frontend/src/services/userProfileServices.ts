@@ -3,8 +3,8 @@ import { USER_PROFILE_API } from '../constants/apiRoutes';
 import { userApi } from '../axios/axiosInstance';
 
 // Get user profile
-export const getUserProfileAPI = async () => {
-  return userApi.get(USER_PROFILE_API.GET);
+export const getUserProfileAPI = async (config?: any) => {
+  return userApi.get(USER_PROFILE_API.GET, config);
 };
 
 // Update user profile

@@ -139,7 +139,7 @@ const DoctorContextProvider = ({ children }: DoctorContextProviderProps) => {
 
   const getProfileData = async () => {
     try {
-      const { data } = await getDoctorProfileAPI();
+      const { data } = await getDoctorProfileAPI({ _skipAuthRedirect: true });
       if (data.success) {
         setProfileData(data.profileData);
       }

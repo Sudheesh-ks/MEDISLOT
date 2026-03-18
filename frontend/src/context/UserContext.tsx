@@ -106,7 +106,7 @@ const UserContextProvider: React.FC<UserContextProviderProps> = ({ children }) =
         return;
       }
 
-      const { data } = await getUserProfileAPI();
+      const { data } = await getUserProfileAPI({ _skipAuthRedirect: true });
       if (data.success) {
         if (data.userData.isBlocked) {
           toast.error('Your account has been blocked. Logging out.');

@@ -82,8 +82,8 @@ export const getActiveDoctorAppointmentAPI = async () => {
 };
 
 // Get doctor profile
-export const getDoctorProfileAPI = () => {
-  return doctorApi.get(DOCTOR_API.PROFILE);
+export const getDoctorProfileAPI = (config?: any) => {
+  return doctorApi.get(DOCTOR_API.PROFILE, config);
 };
 
 // Update doctor profile

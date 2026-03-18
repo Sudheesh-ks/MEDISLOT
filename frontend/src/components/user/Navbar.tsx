@@ -23,6 +23,7 @@ const Navbar = () => {
       clearAccessToken('USER');
       setToken(null);
       setUserData(null);
+      localStorage.setItem('isUserLoggedOut', 'true');
       navigate('/login');
     } catch (e) {
       console.error(e);
