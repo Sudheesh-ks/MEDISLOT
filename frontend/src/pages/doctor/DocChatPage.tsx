@@ -31,24 +31,10 @@ const DocChatPage: React.FC = () => {
 
   const { dToken, profileData, loading } = useContext(DoctorContext);
   const { socket, markRead } = useContext(NotifContext);
-
-  useEffect(() => {
-    if (!dToken) navigate('/doctor/login');
-  }, [dToken]);
-
-  if (loading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500"></div>
-      </div>
-    );
-  }
-
-  if (!profileData) throw new Error('DoctorContext missing profile');
-
-  const doctorId = profileData._id;
   const { userId } = useParams<'userId'>();
-  const chatId = userId ? `${userId}_${doctorId}` : '';
+
+  const doctorId = profileData?._id;
+  const chatId = userId && doctorId ? `${userId}_${doctorId}` : '';
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
@@ -69,11 +55,9 @@ const DocChatPage: React.FC = () => {
     lastSeen?: string;
   } | null>(null);
 
-  const clearFileInput = () => {
-    if (fileInputRef.current) fileInputRef.current.value = '';
-    if (previewUrl) URL.revokeObjectURL(previewUrl);
-    setPreviewUrl(null);
-  };
+  useEffect(() => {
+    if (!dToken) navigate('/doctor/login');
+  }, [dToken, navigate]);
 
   useEffect(() => {
     if (!userId) return;
@@ -166,6 +150,22 @@ const DocChatPage: React.FC = () => {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-64">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-500"></div>
+      </div>
+    );
+  }
+
+  if (!profileData) throw new Error('DoctorContext missing profile');
+
+  const clearFileInput = () => {
+    if (fileInputRef.current) fileInputRef.current.value = '';
+    if (previewUrl) URL.revokeObjectURL(previewUrl);
+    setPreviewUrl(null);
+  };
 
   const send = async (e: FormEvent | MouseEvent) => {
     e.preventDefault();
