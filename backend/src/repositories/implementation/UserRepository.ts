@@ -104,7 +104,6 @@ export class UserRepository extends BaseRepository<userDocument> implements IUse
 
     if (slotIndex === -1) throw new Error('Slot not available');
 
-    // Atomic update to mark slot as booked ONLY if it's currently unbooked
     const updatedSlot = await slotModel.findOneAndUpdate(
       {
         _id: slotDoc!._id,

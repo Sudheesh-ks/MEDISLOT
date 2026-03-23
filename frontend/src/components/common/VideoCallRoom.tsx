@@ -66,20 +66,11 @@ const VideoCallRoom: React.FC<VideoCallRoomProps> = ({ role, backUrl }) => {
         let appointment;
         if (role === 'doctor') {
           const res = await getDoctorAppointmentByIdAPI(appointmentId);
-          // Assuming the structure is similar, but checking structure is important.
-          // The doctor service often returns { success: true, appointment: ... } or just data.
-          // Based on getAppointmentByIdAPI in appointmentServices, it returns res.data.appointment directly.
-          // I should verify getDoctorAppointmentByIdAPI return.
-          // Looking at getDoctorAppointmentByIdAPI implementation: return res.data.
-          // If backend follows convention, it might be { success: true, data: appointment } or similar.
-          // But getAppointmentByIdAPI (user) returns res.data.appointment (unwrapped).
-          // Let's assume for now, and handle potential structure differences.
           if (res.success && res.appointment) {
             appointment = res.appointment;
           } else if (res.appointment) {
             appointment = res.appointment;
           } else {
-            // Fallback or generic 
             appointment = res;
           }
         } else {
@@ -87,7 +78,6 @@ const VideoCallRoom: React.FC<VideoCallRoomProps> = ({ role, backUrl }) => {
         }
 
         if (appointment) {
-          // Safe check for userData
           if (appointment.userData) setPatientId(appointment.userData._id);
           setAppointmentsData(appointment);
         }

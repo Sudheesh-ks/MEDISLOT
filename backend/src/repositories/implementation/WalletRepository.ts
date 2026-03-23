@@ -64,7 +64,6 @@ export class WalletRepository extends BaseRepository<WalletDocument> implements 
       } else if (period === 'custom' && startDate && endDate) {
         start = new Date(startDate);
         end = new Date(endDate);
-        // Adjust end date to include the full day
         end.setHours(23, 59, 59, 999);
       }
 
