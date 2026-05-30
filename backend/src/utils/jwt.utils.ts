@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 const JWT_SECRET = process.env.JWT_SECRET!;
 const JWT_REFRESH_SECRET = process.env.JWT_REFRESH_SECRET!;
 
-type Role = 'user' | 'doctor' | 'admin';
+type Role = 'user' | 'doctor' | 'admin' | 'lab';
 
 interface JwtPayload {
   id: string;

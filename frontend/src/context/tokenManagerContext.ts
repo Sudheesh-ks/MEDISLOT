@@ -2,6 +2,7 @@ export const TOKEN_KEYS = {
   ADMIN: 'adminAccessToken',
   DOCTOR: 'doctorAccessToken',
   USER: 'userAccessToken',
+  LAB: 'labAccessToken',
 } as const;
 
 type TokenType = keyof typeof TOKEN_KEYS;

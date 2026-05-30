@@ -10,7 +10,7 @@ export class WalletRepository extends BaseRepository<WalletDocument> implements 
 
   async getOrCreateWallet(
     ownerId: string,
-    ownerType: 'user' | 'doctor' | 'admin'
+    ownerType: 'user' | 'doctor' | 'admin' | 'lab'
   ): Promise<WalletDocument> {
     let wallet = await walletModel.findOne({ ownerId, ownerType });
     // console.log(ownerId)
@@ -22,7 +22,7 @@ export class WalletRepository extends BaseRepository<WalletDocument> implements 
 
   async getWalletHistoryPaginated(
     ownerId: string,
-    ownerType: 'user' | 'doctor' | 'admin',
+    ownerType: 'user' | 'doctor' | 'admin' | 'lab',
     page: number,
     limit: number,
     search?: string,
@@ -107,7 +107,7 @@ export class WalletRepository extends BaseRepository<WalletDocument> implements 
 
   async creditWallet(
     ownerId: string,
-    ownerType: 'user' | 'doctor' | 'admin',
+    ownerType: 'user' | 'doctor' | 'admin' | 'lab',
     amount: number,
     reason: string
   ): Promise<void> {
@@ -120,7 +120,7 @@ export class WalletRepository extends BaseRepository<WalletDocument> implements 
 
   async debitWallet(
     ownerId: string,
-    ownerType: 'user' | 'doctor' | 'admin',
+    ownerType: 'user' | 'doctor' | 'admin' | 'lab',
     amount: number,
     reason: string
   ): Promise<void> {
@@ -133,7 +133,7 @@ export class WalletRepository extends BaseRepository<WalletDocument> implements 
 
   async findWalletByOwner(
     ownerId: string,
-    ownerType: 'admin' | 'doctor' | 'user'
+    ownerType: 'admin' | 'doctor' | 'user' | 'lab'
   ): Promise<WalletDocument | null> {
     // console.log(ownerId)
     return this.model.findOne({ ownerId, ownerType });

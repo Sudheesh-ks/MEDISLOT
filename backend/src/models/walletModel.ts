@@ -14,7 +14,7 @@ const walletSchema: Schema<WalletDocument> = new mongoose.Schema({
   ownerType: {
     type: String,
     required: true,
-    enum: ['user', 'doctor', 'admin'],
+    enum: ['user', 'doctor', 'admin', 'lab'],
   },
   balance: {
     type: Number,

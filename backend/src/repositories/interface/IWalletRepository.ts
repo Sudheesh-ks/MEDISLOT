@@ -3,27 +3,27 @@ import { WalletDocument } from '../../models/walletModel';
 export interface IWalletRepository {
   getOrCreateWallet(
     ownerId: string,
-    ownerType: 'user' | 'doctor' | 'admin'
+    ownerType: 'user' | 'doctor' | 'admin' | 'lab'
   ): Promise<WalletDocument>;
   creditWallet(
     ownerId: string,
-    ownerType: 'user' | 'doctor' | 'admin',
+    ownerType: 'user' | 'doctor' | 'admin' | 'lab',
     amount: number,
     reason: string
   ): Promise<void>;
   debitWallet(
     ownerId: string,
-    ownerType: 'user' | 'doctor' | 'admin',
+    ownerType: 'user' | 'doctor' | 'admin' | 'lab',
     amount: number,
     reason: string
   ): Promise<void>;
   findWalletByOwner(
     ownerId: string,
-    ownerType: 'admin' | 'doctor' | 'user'
+    ownerType: 'admin' | 'doctor' | 'user' | 'lab'
   ): Promise<WalletDocument | null>;
   getWalletHistoryPaginated(
     ownerId: string,
-    ownerType: 'user' | 'doctor' | 'admin',
+    ownerType: 'user' | 'doctor' | 'admin' | 'lab',
     page: number,
     limit: number,
     search?: string,

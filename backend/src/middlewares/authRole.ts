@@ -4,8 +4,9 @@ import { verifyAccessToken } from '../utils/jwt.utils';
 import User from '../models/userModel';
 import Doctor from '../models/doctorModel';
 import Admin from '../models/adminModel';
+import Lab from '../models/labModel';
 
-const authRole = (allowedRoles: Array<'user' | 'doctor' | 'admin'>) => {
+const authRole = (allowedRoles: Array<'user' | 'doctor' | 'admin' | 'lab'>) => {
   return async (req: Request, res: Response, next: NextFunction): Promise<void> => {
     try {
       const authHeader = req.headers.authorization;
@@ -84,6 +85,28 @@ const authRole = (allowedRoles: Array<'user' | 'doctor' | 'admin'>) => {
             return;
           }
           (req as any).adminId = admin._id;
+          break;
+        }
+
+        case 'lab': {
+          const lab = await Lab.findById(decoded.id);
+          if (!lab) {
+            res.status(HttpStatus.FORBIDDEN).json({
+              success: false,
+              message: 'Access denied or lab not found',
+            });
+            return;
+          }
+
+          if (lab.status === 'blocked') {
+            res.status(HttpStatus.FORBIDDEN).json({
+              success: false,
+              message: 'Your account has been blocked by the admin.',
+            });
+            return;
+          }
+
+          (req as any).labId = lab._id;
           break;
         }
       }
