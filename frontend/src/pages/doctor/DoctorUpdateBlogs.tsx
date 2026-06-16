@@ -1,8 +1,8 @@
 import React, { useContext, useEffect, useState } from 'react';
-import { getDoctorBlogByIdAPI, updateDoctorBlogAPI } from '../../services/doctorServices';
+import { getDoctorBlogByIdAPI, updateDoctorBlogAPI } from '../../services/DoctorService';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { showErrorToast } from '../../utils/errorHandler';
+import { showErrorToast } from '../../utils/ErrorHandler';
 
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
@@ -22,7 +22,7 @@ import {
   isValidReadTime,
   isValidTags,
   isValidBlogContent,
-} from '../../utils/validator';
+} from '../../utils/Validator';
 
 function LoadContentPlugin({ initialHTML }: { initialHTML: string }) {
   const [editor] = useLexicalComposerContext();

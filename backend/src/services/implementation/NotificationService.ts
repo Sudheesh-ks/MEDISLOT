@@ -1,8 +1,8 @@
-import { NotificationDTO } from '../../dtos/notification.dto';
-import { toNotificationDTO } from '../../mappers/notification.mapper';
+import { NotificationDTO } from '../../dtos/Notification.dto';
+import { toNotificationDTO } from '../../mappers/Notification.mapper';
 import { INotificationRepository } from '../../repositories/interface/INotificationRepository';
 import { ioInstance } from '../../sockets/ChatSocket';
-import { NotificationTypes } from '../../types/notificationTypes';
+import { NotificationTypes } from '../../types/NotificationTypes';
 import { INotificationService } from '../interface/INotificationService';
 
 export class NotificationService implements INotificationService {

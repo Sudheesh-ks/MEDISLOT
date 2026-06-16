@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document, Model, Types } from 'mongoose';
-import { ComplaintTypes } from '../types/complaint';
+import { ComplaintTypes } from '../types/Complaint';
 
 export interface ComplaintDocument extends Omit<ComplaintTypes, '_id'>, Document {
   _id: Types.ObjectId;

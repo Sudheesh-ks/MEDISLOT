@@ -1,7 +1,7 @@
 import { IWalletRepository } from '../interface/IWalletRepository';
-import walletModel, { WalletDocument } from '../../models/walletModel';
+import walletModel, { WalletDocument } from '../../models/WalletModel';
 import { BaseRepository } from '../BaseRepository';
-import { WalletHistory } from '../../types/wallet';
+import { WalletHistory } from '../../types/Wallet';
 
 export class WalletRepository extends BaseRepository<WalletDocument> implements IWalletRepository {
   constructor() {

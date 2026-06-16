@@ -8,7 +8,7 @@ import {
   getBlogsLikeAPI,
   getBlogsPaginatedAPI,
   likeBlogAPI,
-} from '../../services/blogService';
+} from '../../services/BlogService';
 import { Heart } from 'lucide-react';
 
 interface Blog {

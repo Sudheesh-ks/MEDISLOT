@@ -2,7 +2,7 @@ import { useContext } from 'react';
 import { assets } from '../../assets/admin/assets';
 import { AdminContext } from '../../context/AdminContext';
 import { useNavigate } from 'react-router-dom';
-import { logoutAdminAPI } from '../../services/adminServices';
+import { logoutAdminAPI } from '../../services/AdminService';
 import NotificationBell from '../common/NotificationBell';
 import { clearAccessToken } from '../../context/tokenManagerContext';
 

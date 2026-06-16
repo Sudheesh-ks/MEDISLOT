@@ -1,12 +1,12 @@
 import { IUserRepository } from '../../repositories/interface/IUserRepository';
-import userModel, { userDocument } from '../../models/userModel';
-import doctorModel, { DoctorDocument } from '../../models/doctorModel';
-import slotModel, { SlotDocument } from '../../models/slotModel';
-import { AppointmentTypes } from '../../types/appointment';
-import appointmentModel, { AppointmentDocument } from '../../models/appointmentModel';
+import userModel, { userDocument } from '../../models/UserModel';
+import doctorModel, { DoctorDocument } from '../../models/DoctorModel';
+import slotModel, { SlotDocument } from '../../models/SlotModel';
+import { AppointmentTypes } from '../../types/Appointment';
+import appointmentModel, { AppointmentDocument } from '../../models/AppointmentModel';
 import { BaseRepository } from '../BaseRepository';
-import { userTypes } from '../../types/user';
-import { PaginationResult } from '../../types/pagination';
+import { userTypes } from '../../types/User';
+import { PaginationResult } from '../../types/Pagination';
 import dayjs from 'dayjs';
 
 export class UserRepository extends BaseRepository<userDocument> implements IUserRepository {

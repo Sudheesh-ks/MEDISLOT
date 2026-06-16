@@ -1,5 +1,5 @@
 import cron from 'node-cron';
-import appointmentModel from '../models/appointmentModel';
+import appointmentModel from '../models/AppointmentModel';
 import { ioInstance } from '../sockets/ChatSocket';
 
 const emitted = new Set<string>();

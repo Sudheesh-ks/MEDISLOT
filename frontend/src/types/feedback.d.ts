@@ -1,4 +1,4 @@
-import { userTypes } from './user';
+import { userTypes } from './User';
 
 export interface feedbackTypes {
   _id?: string;

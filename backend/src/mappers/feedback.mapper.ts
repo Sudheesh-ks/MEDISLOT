@@ -1,5 +1,5 @@
-import { FeedbackDTO } from '../dtos/feedback.dto';
-import { FeedbackDocument } from '../models/feedbackModel';
+import { FeedbackDTO } from '../dtos/Feedback.dto';
+import { FeedbackDocument } from '../models/FeedbackModel';
 
 export const toFeedbackDTO = (feedback: FeedbackDocument): FeedbackDTO => {
   return {

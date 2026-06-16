@@ -1,5 +1,5 @@
-import { NotificationDocument } from '../../models/notificationModel';
-import { NotificationTypes } from '../../types/notificationTypes';
+import { NotificationDocument } from '../../models/NotificationModel';
+import { NotificationTypes } from '../../types/NotificationTypes';
 
 export interface INotificationRepository {
   createNotification(data: Partial<NotificationTypes>): Promise<NotificationDocument>;

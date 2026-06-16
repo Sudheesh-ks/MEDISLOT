@@ -2,8 +2,8 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { UserContext } from '../../context/UserContext';
-import { verifyEmailAPI } from '../../services/authServices';
-import { showErrorToast } from '../../utils/errorHandler';
+import { verifyEmailAPI } from '../../services/AuthService';
+import { showErrorToast } from '../../utils/ErrorHandler';
 
 const EmailVerificationPage = () => {
   const [email, setEmail] = useState('');

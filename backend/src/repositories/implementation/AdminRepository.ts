@@ -1,13 +1,13 @@
 import { BaseRepository } from '../BaseRepository';
-import adminModel, { AdminDocument } from '../../models/adminModel';
-import doctorModel, { DoctorDocument } from '../../models/doctorModel';
-import userModel, { userDocument } from '../../models/userModel';
-import appointmentModel, { AppointmentDocument } from '../../models/appointmentModel';
+import adminModel, { AdminDocument } from '../../models/AdminModel';
+import doctorModel, { DoctorDocument } from '../../models/DoctorModel';
+import userModel, { userDocument } from '../../models/UserModel';
+import appointmentModel, { AppointmentDocument } from '../../models/AppointmentModel';
 import { FilterQuery, PipelineStage } from 'mongoose';
-import { PaginationResult } from '../../types/pagination';
+import { PaginationResult } from '../../types/Pagination';
 import { IAdminRepository } from '../interface/IAdminRepository';
-import slotModel from '../../models/slotModel';
-import { getDateRange } from '../../utils/dateRange.util';
+import slotModel from '../../models/SlotModel';
+import { getDateRange } from '../../utils/DateRange.util';
 
 export class AdminRepository extends BaseRepository<AdminDocument> implements IAdminRepository {
   constructor() {

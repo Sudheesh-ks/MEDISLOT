@@ -2,16 +2,16 @@ import { useContext, useEffect, useState } from 'react';
 import { UserContext } from '../../context/UserContext';
 import { assets } from '../../assets/user/assets';
 import { toast } from 'react-toastify';
-import { getUserWallet, updateUserProfileAPI } from '../../services/userProfileServices';
+import { getUserWallet, updateUserProfileAPI } from '../../services/UserProfileService';
 import { useNavigate } from 'react-router-dom';
 import {
   isValidAddress,
   isValidDateOfBirth,
   isValidName,
   isValidPhone,
-} from '../../utils/validator';
-import { showErrorToast } from '../../utils/errorHandler';
-import { currencySymbol } from '../../utils/commonUtils';
+} from '../../utils/Validator';
+import { showErrorToast } from '../../utils/ErrorHandler';
+import { currencySymbol } from '../../utils/Common.util';
 import ReportBugModal from '../../components/user/BugReportModal';
 import ChangePasswordModal from '../../components/user/ChangePasswordModal';
 import LoadingButton from '../../components/common/LoadingButton';

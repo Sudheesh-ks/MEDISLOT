@@ -1,8 +1,8 @@
 import { useContext, useEffect, useState } from 'react';
-import { deleteDoctorBlogAPI, getDoctorBlogsAPI } from '../../services/doctorServices';
+import { deleteDoctorBlogAPI, getDoctorBlogsAPI } from '../../services/DoctorService';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { showErrorToast } from '../../utils/errorHandler';
+import { showErrorToast } from '../../utils/ErrorHandler';
 import { DoctorContext } from '../../context/DoctorContext';
 
 interface Blog {

@@ -1,5 +1,5 @@
-import type { DoctorProfileType } from './doctor';
-import type { userData } from './user';
+import type { DoctorProfileType } from './Doctor';
+import type { userData } from './User';
 
 export interface AppointmentTypes {
   _id: string;

@@ -1,6 +1,6 @@
 import express from 'express';
-import authRole from '../middlewares/authRole';
-import { adminController } from '../dependencyHandlers/admin.dependencies';
+import authRole from '../middlewares/AuthRole';
+import { adminController } from '../dependencyHandlers/Admin.dependencies';
 
 const adminRouter = express.Router();
 

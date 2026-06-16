@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useContext } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { showErrorToast } from '../../utils/errorHandler';
+import { showErrorToast } from '../../utils/ErrorHandler';
 import {
   createPatientHistoryAPI,
   getPatientDetailsAPI,
   getPatientHistoriesByPatientAPI,
   getPatientHistoryByIdAPI,
   updatePatientHistoryAPI,
-} from '../../services/doctorServices';
-import type { PatientHistoryTypes } from '../../types/patientHistoryTypes';
+} from '../../services/DoctorService';
+import type { PatientHistoryTypes } from '../../types/PatientHistoryTypes';
 import { DoctorContext } from '../../context/DoctorContext';
 import {
   isValidChiefComplaint,
@@ -20,7 +20,7 @@ import {
   isValidSymptom,
   isValidTime,
   isValidVitalField,
-} from '../../utils/validator';
+} from '../../utils/Validator';
 import { assets } from '../../assets/user/assets';
 
 const PatientHistoryPage = () => {

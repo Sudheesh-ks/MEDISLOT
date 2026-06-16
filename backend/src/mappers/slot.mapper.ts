@@ -1,5 +1,5 @@
-import { slotDTO } from '../dtos/slot.dto';
-import { SlotDocument } from '../models/slotModel';
+import { slotDTO } from '../dtos/Slot.dto';
+import { SlotDocument } from '../models/SlotModel';
 
 export const toSlotDTO = (slot: SlotDocument): slotDTO => {
   return {

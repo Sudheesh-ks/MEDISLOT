@@ -1,6 +1,6 @@
 import Razorpay from 'razorpay';
 import { IPaymentService } from '../interface/IPaymentService';
-import { RazorpayOrderDTO } from '../../types/payment';
+import { RazorpayOrderDTO } from '../../types/Payment';
 
 export class PaymentService implements IPaymentService {
   private razorpay: Razorpay;

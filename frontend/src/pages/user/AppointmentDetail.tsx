@@ -4,13 +4,13 @@ import {
   cancelAppointmentAPI,
   getAppointmentByIdAPI,
   getPrescriptionAPI,
-} from '../../services/appointmentServices';
+} from '../../services/AppointmentService';
 import { UserContext } from '../../context/UserContext';
 import { toast } from 'react-toastify';
-import { downloadPrescriptionPDF } from '../../utils/downloadPrescription';
-import { showErrorToast } from '../../utils/errorHandler';
+import { downloadPrescriptionPDF } from '../../utils/DownloadPrescription';
+import { showErrorToast } from '../../utils/ErrorHandler';
 import dayjs from 'dayjs';
-import { slotDateFormat } from '../../utils/commonUtils';
+import { slotDateFormat } from '../../utils/Common.util';
 import ConfirmationModal from '../../components/common/ConfirmationModal';
 
 const AppointmentDetail = () => {

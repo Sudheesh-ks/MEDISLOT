@@ -1,9 +1,9 @@
-import { HttpStatus } from '../../constants/status.constants';
-import { BlogDTO } from '../../dtos/blog.dto';
-import { toBlogDTO } from '../../mappers/blog.mapper';
+import { HttpStatus } from '../../constants/Status.constants';
+import { BlogDTO } from '../../dtos/Blog.dto';
+import { toBlogDTO } from '../../mappers/Blog.mapper';
 import { IBlogRepository } from '../../repositories/interface/IBlogRepository';
 import { IUserRepository } from '../../repositories/interface/IUserRepository';
-import { BlogTypes } from '../../types/blog';
+import { BlogTypes } from '../../types/Blog';
 import { IBlogService } from '../interface/IBlogService';
 import { v2 as cloudinary } from 'cloudinary';
 

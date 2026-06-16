@@ -1,5 +1,5 @@
-import { doctorApi, userApi } from '../axios/axiosInstance';
-import { CHAT_API } from '../constants/apiRoutes';
+import { doctorApi, userApi } from '../axios/AxiosInstance';
+import { CHAT_API } from '../constants/ApiRoutes';
 
 export const sendChatMessageAPI = async (message: string) => {
   const res = await userApi.post(CHAT_API.SEND, { message });

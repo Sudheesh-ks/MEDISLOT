@@ -1,4 +1,4 @@
-import { TempAppointmentDocument } from '../../models/tempAppointmentModel';
+import { TempAppointmentDocument } from '../../models/TempAppointmentModel';
 
 export interface ITempAppointmentRepository {
   createTempAppointment(data: any): Promise<TempAppointmentDocument>;

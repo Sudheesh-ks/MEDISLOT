@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { assets } from '../../assets/user/assets';
-import { getActiveAppointmentAPI } from '../../services/appointmentServices';
+import { getActiveAppointmentAPI } from '../../services/AppointmentService';
 import { useNavigate } from 'react-router-dom';
 
 interface VideoCallCardProps {

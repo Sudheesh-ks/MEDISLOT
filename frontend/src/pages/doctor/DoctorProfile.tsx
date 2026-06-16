@@ -4,9 +4,9 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { toast } from 'react-toastify';
 import { assets } from '../../assets/user/assets';
-import { showErrorToast } from '../../utils/errorHandler';
-import { updateDoctorProfileAPI } from '../../services/doctorServices';
-import { currencySymbol } from '../../utils/commonUtils';
+import { showErrorToast } from '../../utils/ErrorHandler';
+import { updateDoctorProfileAPI } from '../../services/DoctorService';
+import { currencySymbol } from '../../utils/Common.util';
 import ReportBugModal from '../../components/user/BugReportModal';
 import DoctorChangePasswordModal from '../../components/doctor/DoctorChangePasswordModal';
 import {
@@ -16,7 +16,7 @@ import {
   isValidExperience,
   isValidFees,
   isValidShortText,
-} from '../../utils/validator';
+} from '../../utils/Validator';
 
 const DoctorProfile = () => {
   const context = useContext(DoctorContext);

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { toast } from 'react-toastify';
-import { showErrorToast } from '../../utils/errorHandler';
-import { changeDoctorPasswordAPI } from '../../services/doctorServices';
+import { showErrorToast } from '../../utils/ErrorHandler';
+import { changeDoctorPasswordAPI } from '../../services/DoctorService';
 
 interface Props {
   isOpen: boolean;

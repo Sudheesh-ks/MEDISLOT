@@ -1,7 +1,7 @@
 import express from 'express';
 import passport from 'passport';
 import dotenv from 'dotenv';
-import { generateAccessToken, generateRefreshToken } from '../utils/jwt.utils';
+import { generateAccessToken, generateRefreshToken } from '../utils/Jwt.utils';
 
 dotenv.config();
 

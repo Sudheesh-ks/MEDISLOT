@@ -1,7 +1,7 @@
 import React, { createContext, useEffect, useState, useContext } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { getActiveAppointmentAPI } from '../services/appointmentServices';
-import { getActiveDoctorAppointmentAPI } from '../services/doctorServices';
+import { getActiveAppointmentAPI } from '../services/AppointmentService';
+import { getActiveDoctorAppointmentAPI } from '../services/DoctorService';
 import { NotifContext } from './NotificationContext';
 
 interface VideoCallCtx {

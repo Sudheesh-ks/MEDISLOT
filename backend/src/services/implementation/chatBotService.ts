@@ -1,9 +1,9 @@
 import { IChatBotService } from '../interface/IChatBotService';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { HttpResponse } from '../../constants/responseMessage.constants';
+import { HttpResponse } from '../../constants/ResponseMessage.constants';
 import { IChatBotRepository } from '../../repositories/interface/IChatBotRepository';
-import { chatBotDTO } from '../../dtos/chatBot.dto';
-import { toChatBotDTO } from '../../mappers/chatBot.mapper';
+import { chatBotDTO } from '../../dtos/Chatbot.dto';
+import { toChatBotDTO } from '../../mappers/ChatBot.mapper';
 
 export class ChatBotService implements IChatBotService {
   private readonly _model;

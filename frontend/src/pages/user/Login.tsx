@@ -3,10 +3,10 @@ import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../../context/UserContext';
-import { loginUserAPI, registerUserAPI } from '../../services/authServices';
+import { loginUserAPI, registerUserAPI } from '../../services/AuthService';
 import LoadingButton from '../../components/common/LoadingButton';
 import { toast } from 'react-toastify';
-import { showErrorToast } from '../../utils/errorHandler';
+import { showErrorToast } from '../../utils/ErrorHandler';
 import { assets } from '../../assets/user/assets';
 
 const validationSchema = Yup.object({

@@ -1,4 +1,4 @@
-import { ComplaintDocument } from '../../models/complaintModel';
+import { ComplaintDocument } from '../../models/ComplaintModel';
 
 export interface IComplaintRepository {
   findComplaintById(id: string): Promise<ComplaintDocument | null>;

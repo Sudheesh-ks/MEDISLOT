@@ -15,16 +15,16 @@ import {
   Tooltip,
   Legend,
 } from 'chart.js';
-import { updateItemInList } from '../../utils/stateHelper.util';
-import { slotDateFormat } from '../../utils/commonUtils';
+import { updateItemInList } from '../../utils/StateHelper.util';
+import { slotDateFormat } from '../../utils/Common.util';
 import type { DateRange } from '../../components/common/DateFilter';
 import {
   getAppointmentsStatsAPI,
   getRevenueStatsAPI,
   getTopDoctorsAPI,
-} from '../../services/adminServices';
+} from '../../services/AdminService';
 import DateFilter from '../../components/common/DateFilter';
-import { computeRange } from '../../utils/computeDateRangeFilter.util';
+import { computeRange } from '../../utils/ComputeDateRangeFilter.util';
 
 ChartJS.register(
   CategoryScale,

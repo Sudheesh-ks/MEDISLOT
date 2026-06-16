@@ -1,7 +1,7 @@
 import React, { useState, useRef, useContext, useEffect } from 'react';
-import { createDoctorBlogAPI, getBlogCategoriesAPI } from '../../services/doctorServices';
+import { createDoctorBlogAPI, getBlogCategoriesAPI } from '../../services/DoctorService';
 import { toast } from 'react-toastify';
-import { showErrorToast } from '../../utils/errorHandler';
+import { showErrorToast } from '../../utils/ErrorHandler';
 
 import { LexicalComposer } from '@lexical/react/LexicalComposer';
 import { RichTextPlugin } from '@lexical/react/LexicalRichTextPlugin';
@@ -20,7 +20,7 @@ import {
   isValidReadTime,
   isValidTags,
   isValidBlogContent,
-} from '../../utils/validator';
+} from '../../utils/Validator';
 
 const DoctorAddBlogPage = () => {
   const navigate = useNavigate();

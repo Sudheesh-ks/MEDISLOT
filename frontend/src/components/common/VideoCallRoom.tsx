@@ -11,9 +11,9 @@ import {
 } from 'react-icons/md';
 import { NotifContext } from '../../context/NotificationContext';
 import PatientHistoryForm from '../../components/doctor/PatientHistoryForm';
-import { getAppointmentByIdAPI } from '../../services/appointmentServices';
-import { getDoctorAppointmentByIdAPI } from '../../services/doctorServices';
-import type { AppointmentTypes } from '../../types/appointment';
+import { getAppointmentByIdAPI } from '../../services/AppointmentService';
+import { getDoctorAppointmentByIdAPI } from '../../services/DoctorService';
+import type { AppointmentTypes } from '../../types/Appointment';
 import { assets } from '../../assets/user/assets';
 
 interface VideoCallRoomProps {

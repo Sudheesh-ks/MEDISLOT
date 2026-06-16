@@ -5,17 +5,17 @@ import {
   cancelAppointmentAPI,
   getAppointmentsPaginatedAPI,
   getPrescriptionAPI,
-} from '../../services/appointmentServices';
-import { showErrorToast } from '../../utils/errorHandler';
+} from '../../services/AppointmentService';
+import { showErrorToast } from '../../utils/ErrorHandler';
 import { useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import { NotifContext } from '../../context/NotificationContext';
-import { updateItemInList } from '../../utils/stateHelper.util';
+import { updateItemInList } from '../../utils/StateHelper.util';
 import Pagination from '../../components/common/Pagination';
-import { slotDateFormat } from '../../utils/commonUtils';
-import { downloadPrescriptionPDF } from '../../utils/downloadPrescription';
-import { to12h } from '../../utils/slotManagementHelper';
+import { slotDateFormat } from '../../utils/Common.util';
+import { downloadPrescriptionPDF } from '../../utils/DownloadPrescription';
+import { to12h } from '../../utils/SlotManagementHelper';
 import ConfirmationModal from '../../components/common/ConfirmationModal';
 dayjs.extend(customParseFormat);
 

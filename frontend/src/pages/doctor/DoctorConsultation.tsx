@@ -4,7 +4,7 @@ import { Info } from 'lucide-react';
 import DocVideoCallCard from '../../components/doctor/DocVideoCallCard';
 import DocChatCard from '../../components/doctor/DocChatCard';
 import PatientHistoryCard from '../../components/doctor/PatientHistoryCard';
-import { getChatSummaryAPI } from '../../services/aiChatService';
+import { getChatSummaryAPI } from '../../services/AiChatService';
 import ChatBotSummaryModal from '../../components/doctor/ChatBotSummaryModal';
 import { DoctorContext } from '../../context/DoctorContext';
 

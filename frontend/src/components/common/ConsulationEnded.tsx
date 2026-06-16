@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { submitFeedbackAPI } from '../../services/appointmentServices';
+import { submitFeedbackAPI } from '../../services/AppointmentService';
 import { toast } from 'react-toastify';
 import { FaStar } from 'react-icons/fa';
-import { isValidFeedback } from '../../utils/validator';
+import { isValidFeedback } from '../../utils/Validator';
 
 interface ConsultationEndedCardProps {
   role: 'user' | 'doctor';

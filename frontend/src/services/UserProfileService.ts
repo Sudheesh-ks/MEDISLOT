@@ -1,6 +1,6 @@
-import { showErrorToast } from '../utils/errorHandler';
-import { USER_PROFILE_API } from '../constants/apiRoutes';
-import { userApi } from '../axios/axiosInstance';
+import { showErrorToast } from '../utils/ErrorHandler';
+import { USER_PROFILE_API } from '../constants/ApiRoutes';
+import { userApi } from '../axios/AxiosInstance';
 
 // Get user profile
 export const getUserProfileAPI = async (config?: any) => {

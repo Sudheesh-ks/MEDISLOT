@@ -1,5 +1,5 @@
-import { slotDTO } from '../../dtos/slot.dto';
-import { SlotRange } from '../../types/slots';
+import { slotDTO } from '../../dtos/Slot.dto';
+import { SlotRange } from '../../types/Slots';
 
 export interface ISlotService {
   getMonthlySlots(doctorId: string, year: number, month: number): Promise<slotDTO[]>;

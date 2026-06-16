@@ -1,7 +1,7 @@
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import type { PrescriptionData } from '../types/prescription';
-import { generateShortAppointmentId } from './generateApptId.utils';
+import type { PrescriptionData } from '../types/Prescription';
+import { generateShortAppointmentId } from './GenerateApptId.utils';
 
 export const downloadPrescriptionPDF = (data: PrescriptionData) => {
   const doc = new jsPDF();

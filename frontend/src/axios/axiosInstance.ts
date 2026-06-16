@@ -1,5 +1,5 @@
-import { createAxiosInstance } from '../utils/axiosInstance';
-import { logoutUserAPI } from '../services/authServices';
+import { createAxiosInstance } from '../utils/AxiosInstance';
+import { logoutUserAPI } from '../services/AuthService';
 import {
   clearAccessToken,
   getAccessToken,

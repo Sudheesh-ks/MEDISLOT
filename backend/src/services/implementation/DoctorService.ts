@@ -1,33 +1,33 @@
 import { IDoctorRepository } from '../../repositories/interface/IDoctorRepository';
 import bcrypt from 'bcrypt';
 import { IDoctorService } from '../interface/IDoctorService';
-import { DoctorTypes } from '../../types/doctor';
+import { DoctorTypes } from '../../types/Doctor';
 import { v2 as cloudinary } from 'cloudinary';
 import fs from 'fs';
 import {
   generateAccessToken,
   generateRefreshToken,
   verifyRefreshToken,
-} from '../../utils/jwt.utils';
-import { DoctorDTO } from '../../dtos/doctor.dto';
-import { toDoctorDTO } from '../../mappers/doctor.mapper';
-import { AppointmentDTO } from '../../dtos/appointment.dto';
-import { toAppointmentDTO } from '../../mappers/appointment.mapper';
-import { PaginationResult } from '../../types/pagination';
-import { HttpResponse } from '../../constants/responseMessage.constants';
+} from '../../utils/Jwt.utils';
+import { DoctorDTO } from '../../dtos/Doctor.dto';
+import { toDoctorDTO } from '../../mappers/Doctor.mapper';
+import { AppointmentDTO } from '../../dtos/Appointment.dto';
+import { toAppointmentDTO } from '../../mappers/Appointment.mapper';
+import { PaginationResult } from '../../types/Pagination';
+import { HttpResponse } from '../../constants/ResponseMessage.constants';
 import { IWalletRepository } from '../../repositories/interface/IWalletRepository';
 import { INotificationService } from '../interface/INotificationService';
 import { Types } from 'mongoose';
 import { ioInstance } from '../../sockets/ChatSocket';
 import { IPatientHistoryRepository } from '../../repositories/interface/IPatientHistoryRepository';
-import { patientHistoryTypes } from '../../types/patientHistoryTypes';
+import { patientHistoryTypes } from '../../types/PatientHistoryTypes';
 import { IUserRepository } from '../../repositories/interface/IUserRepository';
 import { IComplaintRepository } from '../../repositories/interface/IComplaintRepository';
-import { isValidPassword } from '../../utils/validator';
-import { generateShortAppointmentId } from '../../utils/generateApptId.utils';
-import { WalletHistory } from '../../types/wallet';
-import { ComplaintDTO } from '../../dtos/complaint.dto';
-import { tocomplaintDTO } from '../../mappers/complaint.mapper';
+import { isValidPassword } from '../../utils/Validator';
+import { generateShortAppointmentId } from '../../utils/GenerateApptId.utils';
+import { WalletHistory } from '../../types/Wallet';
+import { ComplaintDTO } from '../../dtos/Complaint.dto';
+import { tocomplaintDTO } from '../../mappers/Complaint.mapper';
 import { notifyActiveAppointment } from '../../sockets/ActiveAppointmentSocket';
 
 export interface DoctorDocument extends DoctorTypes {

@@ -1,6 +1,6 @@
 import express from 'express';
-import { uploadMemory } from '../middlewares/multer';
-import { chatController } from '../dependencyHandlers/chats.dependencies';
+import { uploadMemory } from '../middlewares/Multer';
+import { chatController } from '../dependencyHandlers/Chats.dependencies';
 
 const chatRouter = express.Router();
 

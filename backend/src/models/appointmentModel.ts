@@ -1,5 +1,5 @@
 import mongoose, { Schema, Model, Document, Types } from 'mongoose';
-import { AppointmentTypes } from '../types/appointment';
+import { AppointmentTypes } from '../types/Appointment';
 
 export interface AppointmentDocument extends Omit<AppointmentTypes, '_id'>, Document {
   _id: Types.ObjectId;

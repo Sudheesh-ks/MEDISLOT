@@ -1,9 +1,9 @@
 import { IUserService } from '../interface/IUserService';
 import { IUserRepository } from '../../repositories/interface/IUserRepository';
-import { userTypes } from '../../types/user';
+import { userTypes } from '../../types/User';
 import bcrypt from 'bcrypt';
 import { v2 as cloudinary } from 'cloudinary';
-import { AppointmentTypes } from '../../types/appointment';
+import { AppointmentTypes } from '../../types/Appointment';
 import {
   isValidAddress,
   isValidDateOfBirth,
@@ -11,31 +11,31 @@ import {
   isValidName,
   isValidPassword,
   isValidPhone,
-} from '../../utils/validator';
+} from '../../utils/Validator';
 import {
   generateAccessToken,
   generateRefreshToken,
   verifyRefreshToken,
-} from '../../utils/jwt.utils';
-import { SlotRange } from '../../types/slots';
-import { isoDate } from '../../utils/date.util';
-import { UserDTO } from '../../dtos/user.dto';
-import { toUserDTO } from '../../mappers/user.mapper';
-import { userDocument } from '../../models/userModel';
-import { HttpResponse } from '../../constants/responseMessage.constants';
-import { generateOTP } from '../../utils/otp.util';
+} from '../../utils/Jwt.utils';
+import { SlotRange } from '../../types/Slots';
+import { isoDate } from '../../utils/Date.util';
+import { UserDTO } from '../../dtos/User.dto';
+import { toUserDTO } from '../../mappers/User.mapper';
+import { userDocument } from '../../models/UserModel';
+import { HttpResponse } from '../../constants/ResponseMessage.constants';
+import { generateOTP } from '../../utils/Otp.util';
 // import { this._OtpRedisService } from '../../utils/this._OtpRedisService';
-import { sendOTP } from '../../utils/mail.util';
-import { AppointmentDTO } from '../../dtos/appointment.dto';
-import { toAppointmentDTO } from '../../mappers/appointment.mapper';
-import { PaginationResult } from '../../types/pagination';
-import { WalletDTO } from '../../dtos/wallet.dto';
-import { PrescriptionDTO } from '../../dtos/prescription.dto';
-import { toPrescriptionDTO } from '../../mappers/prescription.mapper';
+import { sendOTP } from '../../utils/Mail.util';
+import { AppointmentDTO } from '../../dtos/Appointment.dto';
+import { toAppointmentDTO } from '../../mappers/Appointment.mapper';
+import { PaginationResult } from '../../types/Pagination';
+import { WalletDTO } from '../../dtos/Wallet.dto';
+import { PrescriptionDTO } from '../../dtos/Prescription.dto';
+import { toPrescriptionDTO } from '../../mappers/Prescription.mapper';
 import { ioInstance } from '../../sockets/ChatSocket';
-import { FeedbackDTO } from '../../dtos/feedback.dto';
-import { toFeedbackDTO } from '../../mappers/feedback.mapper';
-import { ComplaintTypes } from '../../types/complaint';
+import { FeedbackDTO } from '../../dtos/Feedback.dto';
+import { toFeedbackDTO } from '../../mappers/Feedback.mapper';
+import { ComplaintTypes } from '../../types/Complaint';
 import { IPaymentService } from '../interface/IPaymentService';
 import { ISlotRepository } from '../../repositories/interface/ISlotRepository';
 import { IWalletRepository } from '../../repositories/interface/IWalletRepository';
@@ -43,13 +43,13 @@ import { INotificationService } from '../interface/INotificationService';
 import { IFeedbackRepository } from '../../repositories/interface/IFeedbackRepository';
 import { IComplaintRepository } from '../../repositories/interface/IComplaintRepository';
 import { IPatientHistoryRepository } from '../../repositories/interface/IPatientHistoryRepository';
-import { DoctorDTO } from '../../dtos/doctor.dto';
-import { generateShortAppointmentId } from '../../utils/generateApptId.utils';
-import { RazorpayOrderDTO } from '../../types/payment';
-import { slotDTO } from '../../dtos/slot.dto';
+import { DoctorDTO } from '../../dtos/Doctor.dto';
+import { generateShortAppointmentId } from '../../utils/GenerateApptId.utils';
+import { RazorpayOrderDTO } from '../../types/Payment';
+import { slotDTO } from '../../dtos/Slot.dto';
 import { ISlotService } from '../interface/ISlotService';
 import { ITempAppointmentRepository } from '../../repositories/interface/ITempAppointmentRepository';
-import { toDoctorDTO } from '../../mappers/doctor.mapper';
+import { toDoctorDTO } from '../../mappers/Doctor.mapper';
 import { notifyActiveAppointment } from '../../sockets/ActiveAppointmentSocket';
 import { IOtpRedisService } from '../interface/IOtpRedisService';
 

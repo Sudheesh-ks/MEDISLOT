@@ -1,5 +1,5 @@
-import { MessageDTO } from '../dtos/message.dto';
-import { MessageDocument } from '../models/messageModel';
+import { MessageDTO } from '../dtos/Message.dto';
+import { MessageDocument } from '../models/MessageModel';
 
 export const toMessageDTO = (m: MessageDocument): MessageDTO => {
   return {

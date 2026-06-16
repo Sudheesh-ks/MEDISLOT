@@ -1,5 +1,5 @@
-import { userDocument } from '../models/userModel';
-import { DoctorDocument } from '../models/doctorModel';
+import { userDocument } from '../models/UserModel';
+import { DoctorDocument } from '../models/DoctorModel';
 
 export interface CommentType {
   userId: string;

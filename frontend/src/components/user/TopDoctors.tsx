@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { UserContext } from '../../context/UserContext';
-import type { DoctorProfileType } from '../../types/doctor';
+import type { DoctorProfileType } from '../../types/Doctor';
 
 const TopDoctors = () => {
   const navigate = useNavigate();

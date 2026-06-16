@@ -1,5 +1,5 @@
-import { NotificationDTO } from '../../dtos/notification.dto';
-import { NotificationTypes } from '../../types/notificationTypes';
+import { NotificationDTO } from '../../dtos/Notification.dto';
+import { NotificationTypes } from '../../types/NotificationTypes';
 
 export interface INotificationService {
   sendNotification(payload: Partial<NotificationTypes>): Promise<NotificationDTO>;

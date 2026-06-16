@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
 import { IUserService } from '../../services/interface/IUserService';
-import { HttpStatus } from '../../constants/status.constants';
-import { HttpResponse } from '../../constants/responseMessage.constants';
-import { IUserController } from '../interface/IuserController.interface';
-import { generateAccessToken } from '../../utils/jwt.utils';
-import logger from '../../utils/logger';
+import { HttpStatus } from '../../constants/Status.constants';
+import { HttpResponse } from '../../constants/ResponseMessage.constants';
+import { IUserController } from '../interface/IUserController';
+import { generateAccessToken } from '../../utils/Jwt.utils';
+import logger from '../../utils/Logger';
 import { INotificationService } from '../../services/interface/INotificationService';
 import { IPaymentService } from '../../services/interface/IPaymentService';
 import { IBlogService } from '../../services/interface/IBlogService';

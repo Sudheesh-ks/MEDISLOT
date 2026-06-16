@@ -1,7 +1,7 @@
 import express from 'express';
-import upload from '../middlewares/multer';
-import authRole from '../middlewares/authRole';
-import { doctorController } from '../dependencyHandlers/doctor.dependencies';
+import upload from '../middlewares/Multer';
+import authRole from '../middlewares/AuthRole';
+import { doctorController } from '../dependencyHandlers/Doctor.dependencies';
 
 const doctorRouter = express.Router();
 

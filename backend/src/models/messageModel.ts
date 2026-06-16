@@ -1,5 +1,5 @@
 import { Schema, model, Types, Document } from 'mongoose';
-import { MessageType } from '../types/message';
+import { MessageType } from '../types/Message';
 
 export interface MessageDocument extends Omit<MessageType, '_id'>, Document {
   _id: Types.ObjectId;

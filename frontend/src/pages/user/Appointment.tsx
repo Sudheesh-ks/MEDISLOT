@@ -13,16 +13,16 @@ import {
   cancelTempBookingAPI,
   getAvailableSlotsAPI,
   getDoctorReviewsAPI,
-} from '../../services/appointmentServices';
-import { showErrorToast } from '../../utils/errorHandler';
-import type { RazorpayOptions, RazorpayPaymentResponse } from '../../types/razorpay';
-import { VerifyRazorpayAPI } from '../../services/paymentServices';
-import { getDoctorsByIDAPI } from '../../services/doctorServices';
-import type { DoctorProfileType } from '../../types/doctor';
-import { currencySymbol } from '../../utils/commonUtils';
-import type { feedbackTypes } from '../../types/feedback';
+} from '../../services/AppointmentService';
+import { showErrorToast } from '../../utils/ErrorHandler';
+import type { RazorpayOptions, RazorpayPaymentResponse } from '../../types/Razorpay';
+import { VerifyRazorpayAPI } from '../../services/PaymentService';
+import { getDoctorsByIDAPI } from '../../services/DoctorService';
+import type { DoctorProfileType } from '../../types/Doctor';
+import { currencySymbol } from '../../utils/Common.util';
+import type { feedbackTypes } from '../../types/Feedback';
 import StarRating from '../../components/common/StarRating';
-import { to12h } from '../../utils/slotManagementHelper';
+import { to12h } from '../../utils/SlotManagementHelper';
 import BookingModal from '../../components/user/BookingModal';
 
 dayjs.extend(relativeTime);

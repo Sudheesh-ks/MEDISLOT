@@ -1,8 +1,8 @@
 import { useContext, useEffect, useState } from 'react';
 import { CreditCard, Eye, EyeOff, TrendingUp, Wallet } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { getDoctorWalletAPI } from '../../services/doctorServices';
-import { currencySymbol } from '../../utils/commonUtils';
+import { getDoctorWalletAPI } from '../../services/DoctorService';
+import { currencySymbol } from '../../utils/Common.util';
 import Pagination from '../../components/common/Pagination';
 import { DoctorContext } from '../../context/DoctorContext';
 import { useNavigate } from 'react-router-dom';

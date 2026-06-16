@@ -1,6 +1,6 @@
 import { FilterQuery } from 'mongoose';
-import NotificationModel, { NotificationDocument } from '../../models/notificationModel';
-import { NotificationTypes } from '../../types/notificationTypes';
+import NotificationModel, { NotificationDocument } from '../../models/NotificationModel';
+import { NotificationTypes } from '../../types/NotificationTypes';
 import { BaseRepository } from '../BaseRepository';
 import { INotificationRepository } from '../interface/INotificationRepository';
 

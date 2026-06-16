@@ -1,8 +1,8 @@
 import { useContext, useEffect, useState } from 'react';
 import { CreditCard, Eye, EyeOff, TrendingUp, Wallet } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { getAdminWalletAPI } from '../../services/adminServices';
-import { currencySymbol } from '../../utils/commonUtils';
+import { getAdminWalletAPI } from '../../services/AdminService';
+import { currencySymbol } from '../../utils/Common.util';
 import Pagination from '../../components/common/Pagination';
 import { useNavigate } from 'react-router-dom';
 import { AdminContext } from '../../context/AdminContext';

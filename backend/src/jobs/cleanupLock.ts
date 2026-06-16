@@ -1,4 +1,4 @@
-import { userService } from '../dependencyHandlers/user.dependencies';
+import { userService } from '../dependencyHandlers/User.dependencies';
 
 export function startLockCleanupJob() {
   async function cleanup() {

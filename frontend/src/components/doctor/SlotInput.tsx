@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { cn } from '../../utils/slotManagementHelper';
+import { cn } from '../../utils/SlotManagementHelper';
 
 export const Input = React.forwardRef<
   HTMLInputElement,

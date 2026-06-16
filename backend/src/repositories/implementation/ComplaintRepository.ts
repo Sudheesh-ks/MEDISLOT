@@ -1,6 +1,6 @@
-import ComplaintModel, { ComplaintDocument } from '../../models/complaintModel';
-import doctorModel from '../../models/doctorModel';
-import userModel from '../../models/userModel';
+import ComplaintModel, { ComplaintDocument } from '../../models/ComplaintModel';
+import doctorModel from '../../models/DoctorModel';
+import userModel from '../../models/UserModel';
 import { BaseRepository } from '../BaseRepository';
 import { IComplaintRepository } from '../interface/IComplaintRepository';
 

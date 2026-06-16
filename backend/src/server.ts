@@ -1,18 +1,18 @@
 import express from 'express';
 import cors from 'cors';
-import { connectDB } from './config/mongodb';
-import connectCloudinary from './config/cloudinary';
+import { connectDB } from './config/Mongodb';
+import connectCloudinary from './config/Cloudinary';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
-import adminRouter from './routes/adminRoute';
-import doctorRouter from './routes/doctorRoute';
-import userRouter from './routes/userRoute';
-import authRouter from './routes/authRoute';
-import './utils/passport';
+import adminRouter from './routes/AdminRoute';
+import doctorRouter from './routes/DoctorRoute';
+import userRouter from './routes/UserRoute';
+import authRouter from './routes/AuthRoute';
+import './utils/Passport';
 import passport from 'passport';
 import http from 'http';
 import { Server as SocketIOServer } from 'socket.io';
-import chatRouter from './routes/chatRoute';
+import chatRouter from './routes/ChatRoute';
 
 process.env.TZ = 'Asia/Kolkata';
 
@@ -24,11 +24,11 @@ import { ChatService } from './services/implementation/ChatService';
 
 // socket registration
 import { registerChatSocket } from './sockets/ChatSocket';
-import slotRouter from './routes/slotRoute';
-import aiChatRouter from './routes/aiChatBotRoutes';
-import './utils/activeAppointmentChecker';
-import { startLockCleanupJob } from './jobs/cleanupLock';
-import { startStaleAppointmentCleaner } from './jobs/appointmentAutoCancel';
+import slotRouter from './routes/SlotRoute';
+import aiChatRouter from './routes/AiChatbotRoute';
+import './utils/ActiveAppointmentChecker';
+import { startLockCleanupJob } from './jobs/CleanupLock';
+import { startStaleAppointmentCleaner } from './jobs/AppointmentAutoCancel';
 
 
 const allowedOrigins = [

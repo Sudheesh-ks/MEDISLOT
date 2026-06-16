@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import { reportBugAPI } from '../../services/userProfileServices';
+import { reportBugAPI } from '../../services/UserProfileService';
 import { toast } from 'react-toastify';
-import { showErrorToast } from '../../utils/errorHandler';
-import { reportDoctorIssueAPI } from '../../services/doctorServices';
+import { showErrorToast } from '../../utils/ErrorHandler';
+import { reportDoctorIssueAPI } from '../../services/DoctorService';
 
 interface Props {
   token: string | null;

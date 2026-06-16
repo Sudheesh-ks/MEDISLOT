@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document, Model, Types } from 'mongoose';
-import { patientHistoryTypes } from '../types/patientHistoryTypes';
+import { patientHistoryTypes } from '../types/PatientHistoryTypes';
 
 export interface PatientHistoryDocument extends Omit<patientHistoryTypes, '_id'>, Document {
   _id: Types.ObjectId;

@@ -1,7 +1,7 @@
 import express from 'express';
-import upload from '../middlewares/multer';
-import authRole from '../middlewares/authRole';
-import { userController } from '../dependencyHandlers/user.dependencies';
+import upload from '../middlewares/Multer';
+import authRole from '../middlewares/AuthRole';
+import { userController } from '../dependencyHandlers/User.dependencies';
 
 const userRouter = express.Router();
 

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
-import { showErrorToast } from '../../utils/errorHandler';
-import { createPatientHistoryAPI } from '../../services/doctorServices';
-import type { PatientHistoryTypes } from '../../types/patientHistoryTypes';
+import { showErrorToast } from '../../utils/ErrorHandler';
+import { createPatientHistoryAPI } from '../../services/DoctorService';
+import type { PatientHistoryTypes } from '../../types/PatientHistoryTypes';
 import {
   isValidChiefComplaint,
   isValidDate,
@@ -12,7 +12,7 @@ import {
   isValidSymptom,
   isValidTime,
   isValidVitalField,
-} from '../../utils/validator';
+} from '../../utils/Validator';
 
 interface PatientHistoryFormProps {
   patientId: string;

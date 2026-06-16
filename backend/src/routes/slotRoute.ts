@@ -1,6 +1,6 @@
 import express from 'express';
-import authRole from '../middlewares/authRole';
-import { slotController } from '../dependencyHandlers/slots.dependencies';
+import authRole from '../middlewares/AuthRole';
+import { slotController } from '../dependencyHandlers/Slots.dependencies';
 
 const slotRouter = express.Router();
 

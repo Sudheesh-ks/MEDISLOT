@@ -1,9 +1,9 @@
-import { userTypes } from '../../types/user';
-import { AppointmentTypes } from '../../types/appointment';
-import { userDocument } from '../../models/userModel';
-import { AppointmentDocument } from '../../models/appointmentModel';
-import { DoctorDocument } from '../../models/doctorModel';
-import { PaginationResult } from '../../types/pagination';
+import { userTypes } from '../../types/User';
+import { AppointmentTypes } from '../../types/Appointment';
+import { userDocument } from '../../models/UserModel';
+import { AppointmentDocument } from '../../models/AppointmentModel';
+import { DoctorDocument } from '../../models/DoctorModel';
+import { PaginationResult } from '../../types/Pagination';
 
 export interface IUserRepository {
   createUser(user: Partial<userDocument>): Promise<userDocument>;

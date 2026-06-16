@@ -1,4 +1,4 @@
-import { PatientHistoryDocument } from '../../models/patientHistoryModel';
+import { PatientHistoryDocument } from '../../models/PatientHistoryModel';
 
 export interface IPatientHistoryRepository {
   createHistory(history: Partial<PatientHistoryDocument>): Promise<PatientHistoryDocument>;

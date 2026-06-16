@@ -1,5 +1,5 @@
-import { BlogDocument } from '../../models/blogModel';
-import { BlogTypes, CommentType } from '../../types/blog';
+import { BlogDocument } from '../../models/BlogModel';
+import { BlogTypes, CommentType } from '../../types/Blog';
 
 export interface IBlogRepository {
   createBlog(data: Partial<BlogDocument>): Promise<BlogDocument>;

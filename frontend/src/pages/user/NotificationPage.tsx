@@ -4,7 +4,7 @@ import {
   getUserNotificationsAPI,
   markAllUserNotificationsAsReadAPI,
   markUserNotificationAsReadAPI,
-} from '../../services/userProfileServices';
+} from '../../services/UserProfileService';
 import Pagination from '../../components/common/Pagination';
 import { UserContext } from '../../context/UserContext';
 import { useNavigate } from 'react-router-dom';

@@ -1,14 +1,14 @@
-import { AppointmentDTO } from '../../dtos/appointment.dto';
-import { DoctorDTO } from '../../dtos/doctor.dto';
-import { FeedbackDTO } from '../../dtos/feedback.dto';
-import { PrescriptionDTO } from '../../dtos/prescription.dto';
-import { UserDTO } from '../../dtos/user.dto';
-import { WalletDTO } from '../../dtos/wallet.dto';
-import { ComplaintTypes } from '../../types/complaint';
-import { PaginationResult } from '../../types/pagination';
-import { RazorpayOrderDTO } from '../../types/payment';
-import { SlotRange } from '../../types/slots';
-import { userTypes } from '../../types/user';
+import { AppointmentDTO } from '../../dtos/Appointment.dto';
+import { DoctorDTO } from '../../dtos/Doctor.dto';
+import { FeedbackDTO } from '../../dtos/Feedback.dto';
+import { PrescriptionDTO } from '../../dtos/Prescription.dto';
+import { UserDTO } from '../../dtos/User.dto';
+import { WalletDTO } from '../../dtos/Wallet.dto';
+import { ComplaintTypes } from '../../types/Complaint';
+import { PaginationResult } from '../../types/Pagination';
+import { RazorpayOrderDTO } from '../../types/Payment';
+import { SlotRange } from '../../types/Slots';
+import { userTypes } from '../../types/User';
 
 export interface UserDocument extends userTypes {
   _id: string;

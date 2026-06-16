@@ -10,9 +10,9 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { DoctorContext } from '../../context/DoctorContext';
 import { NotifContext } from '../../context/NotificationContext';
 
-import { getUserByIDAPI } from '../../services/userProfileServices';
-import { doctorChat, getPresence, uploadChatFile } from '../../services/chatService';
-import type { Message } from '../../types/message';
+import { getUserByIDAPI } from '../../services/UserProfileService';
+import { doctorChat, getPresence, uploadChatFile } from '../../services/ChatService';
+import type { Message } from '../../types/Message';
 import { assets } from '../../assets/user/assets';
 
 const timeOf = (iso?: string) =>

@@ -1,4 +1,4 @@
-import { FeedbackDocument } from '../../models/feedbackModel';
+import { FeedbackDocument } from '../../models/FeedbackModel';
 
 export interface IFeedbackRepository {
   submitFeedback(

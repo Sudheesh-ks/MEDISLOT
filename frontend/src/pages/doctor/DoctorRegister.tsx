@@ -4,8 +4,8 @@ import { Formik, Form, Field, ErrorMessage } from 'formik';
 import * as Yup from 'yup';
 import { toast } from 'react-toastify';
 import { DoctorContext } from '../../context/DoctorContext';
-import { registerDoctorAPI } from '../../services/doctorServices';
-import { showErrorToast } from '../../utils/errorHandler';
+import { registerDoctorAPI } from '../../services/DoctorService';
+import { showErrorToast } from '../../utils/ErrorHandler';
 import { assets } from '../../assets/admin/assets';
 
 const glass = 'bg-white/5 backdrop-blur ring-1 ring-white/10';

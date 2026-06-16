@@ -9,11 +9,11 @@ import {
   Clock,
   ActivitySquareIcon,
 } from 'lucide-react';
-import { getDoctorAppointmentsAPI } from '../../services/doctorServices';
-import { doctorChat } from '../../services/chatService';
+import { getDoctorAppointmentsAPI } from '../../services/DoctorService';
+import { doctorChat } from '../../services/ChatService';
 import { DoctorContext } from '../../context/DoctorContext';
 import { NotifContext } from '../../context/NotificationContext';
-import type { AppointmentTypes } from '../../types/appointment';
+import type { AppointmentTypes } from '../../types/Appointment';
 import { assets } from '../../assets/user/assets';
 
 interface Chat {

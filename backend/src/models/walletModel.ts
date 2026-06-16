@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document, Model, Types } from 'mongoose';
-import { WalletTypes } from '../types/wallet';
+import { WalletTypes } from '../types/Wallet';
 
 export interface WalletDocument extends Omit<WalletTypes, '_id'>, Document {
   _id: Types.ObjectId;

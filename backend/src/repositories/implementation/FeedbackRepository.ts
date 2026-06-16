@@ -1,7 +1,7 @@
-import appointmentModel from '../../models/appointmentModel';
-import doctorModel from '../../models/doctorModel';
-import feedbackModel, { FeedbackDocument } from '../../models/feedbackModel';
-import userModel from '../../models/userModel';
+import appointmentModel from '../../models/AppointmentModel';
+import doctorModel from '../../models/DoctorModel';
+import feedbackModel, { FeedbackDocument } from '../../models/FeedbackModel';
+import userModel from '../../models/UserModel';
 import { BaseRepository } from '../BaseRepository';
 import { IFeedbackRepository } from '../interface/IFeedbackRepository';
 

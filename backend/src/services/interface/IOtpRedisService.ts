@@ -1,4 +1,4 @@
-import { OtpStoreData } from '../../utils/otpStore';
+import { OtpStoreData } from '../../utils/OtpStore';
 
 export interface IOtpRedisService {
   storeOtp(email: string, data: OtpStoreData): Promise<void>;

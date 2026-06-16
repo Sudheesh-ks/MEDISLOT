@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { toast } from 'react-toastify';
-import { showErrorToast } from '../utils/errorHandler';
+import { showErrorToast } from '../utils/ErrorHandler';
 import {
   AppointmentCancelAPI,
   AppointmentConfirmAPI,
@@ -9,9 +9,9 @@ import {
   getDoctorAppointmentsPaginatedAPI,
   getDoctorProfileAPI,
   refreshDoctorAccessTokenAPI,
-} from '../services/doctorServices';
-import type { AppointmentTypes } from '../types/appointment';
-import type { DoctorProfileType } from '../types/doctor';
+} from '../services/DoctorService';
+import type { AppointmentTypes } from '../types/Appointment';
+import type { DoctorProfileType } from '../types/Doctor';
 import { clearAccessToken, getAccessToken, updateAccessToken } from './tokenManagerContext';
 
 interface PaginationData {

@@ -1,4 +1,4 @@
-import chatBotModel, { chatBotDocument } from '../../models/chatBotModel';
+import chatBotModel, { chatBotDocument } from '../../models/ChatBotModel';
 import { BaseRepository } from '../BaseRepository';
 import { IChatBotRepository } from '../interface/IChatBotRepository';
 

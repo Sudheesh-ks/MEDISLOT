@@ -4,7 +4,7 @@ import {
   getAdminNotificationsAPI,
   markAdminNotificationAsReadAPI,
   markAllAdminNotificationsAsReadAPI,
-} from '../../services/adminServices';
+} from '../../services/AdminService';
 import { AdminContext } from '../../context/AdminContext';
 import Pagination from '../../components/common/Pagination';
 import { useNavigate } from 'react-router-dom';

@@ -1,5 +1,5 @@
-import { DoctorDTO } from '../dtos/doctor.dto';
-import { DoctorDocument } from '../models/doctorModel';
+import { DoctorDTO } from '../dtos/Doctor.dto';
+import { DoctorDocument } from '../models/DoctorModel';
 import { v2 as cloudinary } from 'cloudinary';
 
 export const toDoctorDTO = (doc: DoctorDocument): DoctorDTO => {

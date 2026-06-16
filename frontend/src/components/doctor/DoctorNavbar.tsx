@@ -2,7 +2,7 @@ import { useContext } from 'react';
 import { assets } from '../../assets/admin/assets';
 import { DoctorContext } from '../../context/DoctorContext';
 import { useNavigate } from 'react-router-dom';
-import { logoutDoctorAPI } from '../../services/doctorServices';
+import { logoutDoctorAPI } from '../../services/DoctorService';
 import NotificationBell from '../common/NotificationBell';
 import { clearAccessToken } from '../../context/tokenManagerContext';
 

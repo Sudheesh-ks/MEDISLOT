@@ -1,5 +1,5 @@
-import { doctorApi } from '../axios/axiosInstance';
-import { BLOG_API, DOCTOR_API, SLOT_API } from '../constants/apiRoutes';
+import { doctorApi } from '../axios/AxiosInstance';
+import { BLOG_API, DOCTOR_API, SLOT_API } from '../constants/ApiRoutes';
 
 // Get paginated doctors
 export const getDoctorsPaginatedAPI = (

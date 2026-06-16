@@ -20,11 +20,11 @@ import {
   getDefaultSlotAPI,
   saveWeeklyDefaultAPI,
   upsertDaySlotsAPI,
-} from '../../services/doctorServices';
+} from '../../services/DoctorService';
 import { toast } from 'react-toastify';
 import { DoctorContext } from '../../context/DoctorContext';
 import { useNavigate } from 'react-router-dom';
-import { to12h } from '../../utils/slotManagementHelper';
+import { to12h } from '../../utils/SlotManagementHelper';
 
 interface Range {
   start: string;

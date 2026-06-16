@@ -1,5 +1,5 @@
 import { FilterQuery } from 'mongoose';
-import slotModel, { SlotDocument } from '../../models/slotModel';
+import slotModel, { SlotDocument } from '../../models/SlotModel';
 import { BaseRepository } from '../BaseRepository';
 import { ISlotRepository } from '../interface/ISlotRepository';
 

@@ -1,5 +1,5 @@
 import { ITempAppointmentRepository } from '../interface/ITempAppointmentRepository';
-import tempAppointmentModel, { TempAppointmentDocument } from '../../models/tempAppointmentModel';
+import tempAppointmentModel, { TempAppointmentDocument } from '../../models/TempAppointmentModel';
 import { BaseRepository } from '../BaseRepository';
 
 export class TempAppointmentRepository

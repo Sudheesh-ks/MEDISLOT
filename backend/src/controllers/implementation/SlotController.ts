@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
-import logger from '../../utils/logger';
-import { HttpStatus } from '../../constants/status.constants';
-import { ISlotController } from '../interface/IslotController';
+import logger from '../../utils/Logger';
+import { HttpStatus } from '../../constants/Status.constants';
+import { ISlotController } from '../interface/ISlotController';
 import { ISlotService } from '../../services/interface/ISlotService';
 
 export class SlotController implements ISlotController {

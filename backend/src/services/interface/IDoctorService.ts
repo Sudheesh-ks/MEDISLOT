@@ -1,8 +1,8 @@
-import { DoctorTypes } from '../../types/doctor';
-import { DoctorDTO } from '../../dtos/doctor.dto';
-import { AppointmentDTO } from '../../dtos/appointment.dto';
-import { PaginationResult } from '../../types/pagination';
-import { patientHistoryTypes } from '../../types/patientHistoryTypes';
+import { DoctorTypes } from '../../types/Doctor';
+import { DoctorDTO } from '../../dtos/Doctor.dto';
+import { AppointmentDTO } from '../../dtos/Appointment.dto';
+import { PaginationResult } from '../../types/Pagination';
+import { patientHistoryTypes } from '../../types/PatientHistoryTypes';
 
 export interface IDoctorService {
   registerDoctor(data: DoctorTypes): Promise<void>;

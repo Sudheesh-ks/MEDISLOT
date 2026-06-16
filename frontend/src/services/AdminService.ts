@@ -1,5 +1,5 @@
-import { adminApi } from '../axios/axiosInstance';
-import { ADMIN_API } from '../constants/apiRoutes';
+import { adminApi } from '../axios/AxiosInstance';
+import { ADMIN_API } from '../constants/ApiRoutes';
 
 export const adminLoginAPI = async (email: string, password: string) => {
   return await adminApi.post(ADMIN_API.LOGIN, { email, password });

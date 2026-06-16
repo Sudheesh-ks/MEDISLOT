@@ -1,7 +1,7 @@
-import { BlogDTO } from '../dtos/blog.dto';
-import { BlogDocument } from '../models/blogModel';
-import { toDoctorDTO } from './doctor.mapper';
-import { toUserDTO } from './user.mapper';
+import { BlogDTO } from '../dtos/Blog.dto';
+import { BlogDocument } from '../models/BlogModel';
+import { toDoctorDTO } from './Doctor.mapper';
+import { toUserDTO } from './User.mapper';
 
 export const toBlogDTO = (blog: BlogDocument): BlogDTO => {
   return {

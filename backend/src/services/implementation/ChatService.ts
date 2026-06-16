@@ -1,7 +1,7 @@
-import { MessageDTO } from '../../dtos/message.dto';
-import { toMessageDTO } from '../../mappers/message.mapper';
+import { MessageDTO } from '../../dtos/Message.dto';
+import { toMessageDTO } from '../../mappers/Message.mapper';
 import { IChatRepository } from '../../repositories/interface/IChatRepository';
-import { MessageKind } from '../../types/message';
+import { MessageKind } from '../../types/Message';
 import { IChatService } from '../interface/IChatService';
 import { v2 as cloudinary } from 'cloudinary';
 import streamifier from 'streamifier';

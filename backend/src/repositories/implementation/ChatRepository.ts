@@ -1,8 +1,8 @@
-import MessageModel, { MessageDocument } from '../../models/messageModel';
-import ChatModel from '../../models/chatModel';
+import MessageModel, { MessageDocument } from '../../models/MessageModel';
+import ChatModel from '../../models/ChatModel';
 import { IChatRepository } from '../interface/IChatRepository';
 import { BaseRepository } from '../BaseRepository';
-import messageModel from '../../models/messageModel';
+import messageModel from '../../models/MessageModel';
 
 export class ChatRepository extends BaseRepository<MessageDocument> implements IChatRepository {
   constructor() {

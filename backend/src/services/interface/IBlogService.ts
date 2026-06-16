@@ -1,5 +1,5 @@
-import { BlogDTO } from '../../dtos/blog.dto';
-import { BlogTypes } from '../../types/blog';
+import { BlogDTO } from '../../dtos/Blog.dto';
+import { BlogTypes } from '../../types/Blog';
 
 export interface IBlogService {
   createBlog(data: BlogTypes): Promise<BlogDTO>;

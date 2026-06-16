@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
-import { HttpStatus } from '../../constants/status.constants';
-import { HttpResponse } from '../../constants/responseMessage.constants';
-import logger from '../../utils/logger';
-import { IChatBotController } from '../interface/IChatBotController';
+import { HttpStatus } from '../../constants/Status.constants';
+import { HttpResponse } from '../../constants/ResponseMessage.constants';
+import logger from '../../utils/Logger';
+import { IChatBotController } from '../interface/IChatbotController';
 import { IChatBotService } from '../../services/interface/IChatBotService';
 
 export class ChatBotController implements IChatBotController {

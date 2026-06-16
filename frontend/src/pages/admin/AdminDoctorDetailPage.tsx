@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { AdminContext } from '../../context/AdminContext';
-import { blockDoctorAPI, unBlockDoctorAPI } from '../../services/adminServices';
+import { blockDoctorAPI, unBlockDoctorAPI } from '../../services/AdminService';
 
 const AdminDoctorDetailsPage = () => {
   const { id } = useParams();

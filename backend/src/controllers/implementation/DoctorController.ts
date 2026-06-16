@@ -1,11 +1,11 @@
 import { Request, Response } from 'express';
-import { IDoctorController } from '../interface/IdoctorController.interface';
-import { HttpStatus } from '../../constants/status.constants';
-import { HttpResponse } from '../../constants/responseMessage.constants';
-import { DoctorTypes } from '../../types/doctor';
-import logger from '../../utils/logger';
-import { BlogTypes } from '../../types/blog';
-import { patientHistoryTypes } from '../../types/patientHistoryTypes';
+import { IDoctorController } from '../interface/IDoctorController';
+import { HttpStatus } from '../../constants/Status.constants';
+import { HttpResponse } from '../../constants/ResponseMessage.constants';
+import { DoctorTypes } from '../../types/Doctor';
+import logger from '../../utils/Logger';
+import { BlogTypes } from '../../types/Blog';
+import { patientHistoryTypes } from '../../types/PatientHistoryTypes';
 import { INotificationService } from '../../services/interface/INotificationService';
 import { IDoctorService } from '../../services/interface/IDoctorService';
 import { IBlogService } from '../../services/interface/IBlogService';

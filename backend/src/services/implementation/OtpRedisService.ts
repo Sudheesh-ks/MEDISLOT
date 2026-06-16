@@ -1,5 +1,5 @@
-import redisClient from '../../config/redisClient';
-import { OtpStoreData } from '../../utils/otpStore';
+import redisClient from '../../config/RedisClient';
+import { OtpStoreData } from '../../utils/OtpStore';
 import { IOtpRedisService } from '../interface/IOtpRedisService';
 
 const OTP_EXPIRY_SECONDS = 300;

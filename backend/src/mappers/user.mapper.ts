@@ -1,5 +1,5 @@
-import { UserDTO } from '../dtos/user.dto';
-import { userDocument } from '../models/userModel';
+import { UserDTO } from '../dtos/User.dto';
+import { userDocument } from '../models/UserModel';
 import { v2 as cloudinary } from 'cloudinary';
 
 export const toUserDTO = (user: userDocument): UserDTO => {

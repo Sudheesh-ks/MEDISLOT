@@ -1,13 +1,13 @@
 import { BaseRepository } from '../BaseRepository';
-import appointmentModel, { AppointmentDocument } from '../../models/appointmentModel';
-import doctorModel, { DoctorDocument } from '../../models/doctorModel';
-import { DoctorTypes } from '../../types/doctor';
+import appointmentModel, { AppointmentDocument } from '../../models/AppointmentModel';
+import doctorModel, { DoctorDocument } from '../../models/DoctorModel';
+import { DoctorTypes } from '../../types/Doctor';
 import { IDoctorRepository } from '../interface/IDoctorRepository';
-import { PaginationResult } from '../../types/pagination';
+import { PaginationResult } from '../../types/Pagination';
 import { FilterQuery, PipelineStage, SortOrder } from 'mongoose';
-import slotModel from '../../models/slotModel';
+import slotModel from '../../models/SlotModel';
 import dayjs from 'dayjs';
-import { getDateRange } from '../../utils/dateRange.util';
+import { getDateRange } from '../../utils/DateRange.util';
 
 export class DoctorRepository extends BaseRepository<DoctorDocument> implements IDoctorRepository {
   constructor() {

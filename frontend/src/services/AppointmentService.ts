@@ -1,5 +1,5 @@
-import { userApi, adminApi, doctorApi } from '../axios/axiosInstance';
-import { APPOINTMENT_API, DOCTOR_API, ADMIN_API } from '../constants/apiRoutes';
+import { userApi, adminApi, doctorApi } from '../axios/AxiosInstance';
+import { APPOINTMENT_API, DOCTOR_API, ADMIN_API } from '../constants/ApiRoutes';
 
 // Book an appointment
 export const appointmentBookingAPI = async (

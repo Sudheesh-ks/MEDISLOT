@@ -1,6 +1,6 @@
 import cron from 'node-cron';
-import appointmentModel from '../models/appointmentModel';
-import { adminService } from '../dependencyHandlers/admin.dependencies';
+import appointmentModel from '../models/AppointmentModel';
+import { adminService } from '../dependencyHandlers/Admin.dependencies';
 
 export function startStaleAppointmentCleaner() {
     cron.schedule('0 * * * *', async () => {

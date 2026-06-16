@@ -1,4 +1,4 @@
-import patientHistoryModel, { PatientHistoryDocument } from '../../models/patientHistoryModel';
+import patientHistoryModel, { PatientHistoryDocument } from '../../models/PatientHistoryModel';
 import { BaseRepository } from '../BaseRepository';
 import { IPatientHistoryRepository } from '../interface/IPatientHistoryRepository';
 

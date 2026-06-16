@@ -1,12 +1,12 @@
 import dayjs from 'dayjs';
 import customParse from 'dayjs/plugin/customParseFormat';
 import { ISlotService } from '../interface/ISlotService';
-import { SlotRange } from '../../types/slots';
+import { SlotRange } from '../../types/Slots';
 import { ISlotRepository } from '../../repositories/interface/ISlotRepository';
-import { slotDTO } from '../../dtos/slot.dto';
-import slotModel from '../../models/slotModel';
+import { slotDTO } from '../../dtos/Slot.dto';
+import slotModel from '../../models/SlotModel';
 import mongoose from 'mongoose';
-import { toSlotDTO } from '../../mappers/slot.mapper';
+import { toSlotDTO } from '../../mappers/Slot.mapper';
 
 dayjs.extend(customParse);
 

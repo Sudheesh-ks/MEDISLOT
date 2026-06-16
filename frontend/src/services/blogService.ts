@@ -1,5 +1,5 @@
-import { userApi } from '../axios/axiosInstance';
-import { BLOG_API } from '../constants/apiRoutes';
+import { userApi } from '../axios/AxiosInstance';
+import { BLOG_API } from '../constants/ApiRoutes';
 
 export const getBlogsPaginatedAPI = (
   page: number,

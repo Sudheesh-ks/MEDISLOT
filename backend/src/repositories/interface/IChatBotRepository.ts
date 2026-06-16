@@ -1,4 +1,4 @@
-import { chatBotDocument } from '../../models/chatBotModel';
+import { chatBotDocument } from '../../models/ChatBotModel';
 
 export interface IChatBotRepository {
   saveMessage(userId: string, role: 'user' | 'bot', text: string): Promise<chatBotDocument>;

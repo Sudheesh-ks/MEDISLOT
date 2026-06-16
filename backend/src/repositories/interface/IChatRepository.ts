@@ -1,4 +1,4 @@
-import { MessageDocument } from '../../models/messageModel';
+import { MessageDocument } from '../../models/MessageModel';
 
 export interface IChatRepository {
   getMessagesByChatId(chatId: string, limit?: number, before?: Date): Promise<MessageDocument[]>;

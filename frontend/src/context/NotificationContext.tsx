@@ -3,9 +3,9 @@ import { matchPath, useLocation } from 'react-router-dom';
 import { io } from 'socket.io-client';
 import type { Socket } from 'socket.io-client';
 import { toast } from 'react-toastify';
-import { getUserUnreadCountAPI } from '../services/userProfileServices';
-import { getDoctorUnreadCountAPI } from '../services/doctorServices';
-import { getAdminUnreadCountAPI } from '../services/adminServices';
+import { getUserUnreadCountAPI } from '../services/UserProfileService';
+import { getDoctorUnreadCountAPI } from '../services/DoctorService';
+import { getAdminUnreadCountAPI } from '../services/AdminService';
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL ?? 'http://localhost:4000';
 

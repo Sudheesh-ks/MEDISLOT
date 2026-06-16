@@ -1,9 +1,9 @@
 import { Request, Response } from 'express';
 import { IAdminService } from '../../services/interface/IAdminService';
-import { IAdminController } from '../interface/IadminController.interface';
-import { HttpStatus } from '../../constants/status.constants';
-import { HttpResponse } from '../../constants/responseMessage.constants';
-import logger from '../../utils/logger';
+import { IAdminController } from '../interface/IAdminController';
+import { HttpStatus } from '../../constants/Status.constants';
+import { HttpResponse } from '../../constants/ResponseMessage.constants';
+import logger from '../../utils/Logger';
 import { INotificationService } from '../../services/interface/INotificationService';
 
 export class AdminController implements IAdminController {

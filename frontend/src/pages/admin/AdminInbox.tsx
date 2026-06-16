@@ -2,8 +2,8 @@ import { useState, useEffect, useContext } from 'react';
 import { MessageSquare, Clock, User, ChevronLeft, ChevronRight } from 'lucide-react';
 import SearchBar from '../../components/common/SearchBar';
 import { AdminContext } from '../../context/AdminContext';
-import { getComplaintsPaginatedAPI, updateComplainStatusAPI } from '../../services/adminServices';
-import type { ComplaintTypes } from '../../types/complaint';
+import { getComplaintsPaginatedAPI, updateComplainStatusAPI } from '../../services/AdminService';
+import type { ComplaintTypes } from '../../types/Complaint';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 

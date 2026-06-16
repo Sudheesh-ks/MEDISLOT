@@ -1,5 +1,5 @@
 import mongoose, { Schema, Model, Document, Types } from 'mongoose';
-import { adminTypes } from '../types/admin';
+import { adminTypes } from '../types/Admin';
 
 export interface AdminDocument extends Omit<adminTypes, '_id'>, Document {
   _id: Types.ObjectId;

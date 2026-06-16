@@ -1,6 +1,6 @@
 import express from 'express';
-import authRole from '../middlewares/authRole';
-import { chatBotController } from '../dependencyHandlers/aiChatBot.dependencies';
+import authRole from '../middlewares/AuthRole';
+import { chatBotController } from '../dependencyHandlers/AiChatBot.dependencies';
 
 const chatRouter = express.Router();
 

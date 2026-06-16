@@ -2,7 +2,7 @@ import { useContext, useState } from 'react';
 import { assets } from '../../assets/user/assets';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { UserContext } from '../../context/UserContext';
-import { logoutUserAPI } from '../../services/authServices';
+import { logoutUserAPI } from '../../services/AuthService';
 import { NotifContext } from '../../context/NotificationContext';
 import NotificationBell from '../common/NotificationBell';
 import { clearAccessToken } from '../../context/tokenManagerContext';

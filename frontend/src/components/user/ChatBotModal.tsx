@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { getChatHistoryAPI, sendChatMessageAPI } from '../../services/aiChatService';
+import { getChatHistoryAPI, sendChatMessageAPI } from '../../services/AiChatService';
 
 type Message = { role: 'user' | 'bot'; text: string };
 

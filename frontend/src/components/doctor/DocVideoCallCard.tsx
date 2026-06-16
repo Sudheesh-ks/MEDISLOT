@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { assets } from '../../assets/user/assets';
 import { useNavigate } from 'react-router-dom';
-import { getActiveDoctorAppointmentAPI } from '../../services/doctorServices';
+import { getActiveDoctorAppointmentAPI } from '../../services/DoctorService';
 
 interface DocVideoCallCardProps {
   appointmentId?: string;

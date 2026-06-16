@@ -1,10 +1,10 @@
 import { useContext, useEffect, useState } from 'react';
 import { UserContext } from '../../context/UserContext';
 import { useNavigate } from 'react-router-dom';
-import { getUserWallet } from '../../services/userProfileServices';
+import { getUserWallet } from '../../services/UserProfileService';
 import Pagination from '../../components/common/Pagination';
-import { currencySymbol } from '../../utils/commonUtils';
-import type { WalletHistoryEntry, WalletTypes } from '../../types/wallet';
+import { currencySymbol } from '../../utils/Common.util';
+import type { WalletHistoryEntry, WalletTypes } from '../../types/Wallet';
 
 const Wallet = () => {
   const navigate = useNavigate();

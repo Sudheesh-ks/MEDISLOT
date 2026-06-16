@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 import SearchBar from '../../components/common/SearchBar';
 import Pagination from '../../components/common/Pagination';
 import DataTable from '../../components/common/DataTable';
-import { updateItemInList } from '../../utils/stateHelper.util';
+import { updateItemInList } from '../../utils/StateHelper.util';
 import { assets } from '../../assets/user/assets';
 
 const AdminUsersList = () => {

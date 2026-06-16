@@ -1,5 +1,5 @@
-import { MessageDTO } from '../../dtos/message.dto';
-import { MessageKind } from '../../types/message';
+import { MessageDTO } from '../../dtos/Message.dto';
+import { MessageKind } from '../../types/Message';
 
 export interface IChatService {
   fetchChatHistory(chatId: string, limit?: number, before?: Date): Promise<MessageDTO[]>;

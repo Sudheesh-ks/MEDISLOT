@@ -2,11 +2,11 @@ import React, { useState, useEffect, useContext } from 'react';
 import { UserContext } from '../../context/UserContext';
 import { useNavigate } from 'react-router-dom';
 import ChatBotModal from '../../components/user/ChatBotModal';
-import { formatPublishDate, getCategoryColor } from '../../utils/blogUtils';
+import { formatPublishDate, getCategoryColor } from '../../utils/Blog.util';
 import BlogCard from '../../components/user/BlogCard';
 import ChatbotButton from '../../components/user/ChatbotButton';
 import Pagination from '../../components/common/Pagination';
-import { getBlogsPaginatedAPI } from '../../services/blogService';
+import { getBlogsPaginatedAPI } from '../../services/BlogService';
 
 const BlogPage: React.FC = () => {
   const navigate = useNavigate();

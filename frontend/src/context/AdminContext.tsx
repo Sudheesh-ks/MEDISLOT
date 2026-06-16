@@ -2,7 +2,7 @@ import { createContext, useEffect, useState } from 'react';
 import type { ReactNode } from 'react';
 import { toast } from 'react-toastify';
 import type { Doctor } from '../assets/user/assets';
-import type { userData } from '../types/user';
+import type { userData } from '../types/User';
 import {
   adminCancelAppointmentAPI,
   adminDashboardAPI,
@@ -14,9 +14,9 @@ import {
   refreshAdminAccessTokenAPI,
   rejectDoctorAPI,
   toggleUserBlockAPI,
-} from '../services/adminServices';
-import { showErrorToast } from '../utils/errorHandler';
-import type { AppointmentTypes } from '../types/appointment';
+} from '../services/AdminService';
+import { showErrorToast } from '../utils/ErrorHandler';
+import type { AppointmentTypes } from '../types/Appointment';
 import { clearAccessToken, getAccessToken, updateAccessToken } from './tokenManagerContext';
 
 interface PaginationData {

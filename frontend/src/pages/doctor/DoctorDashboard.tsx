@@ -14,8 +14,8 @@ import {
 import type { DateRange } from '../../components/common/DateFilter';
 import DateFilter from '../../components/common/DateFilter';
 import { assets } from '../../assets/admin/assets';
-import { getDoctorDashboardDataAPI } from '../../services/doctorServices';
-import { currencySymbol } from '../../utils/commonUtils';
+import { getDoctorDashboardDataAPI } from '../../services/DoctorService';
+import { currencySymbol } from '../../utils/Common.util';
 import { DoctorContext } from '../../context/DoctorContext';
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, Legend);

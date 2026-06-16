@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { UserContext } from '../../context/UserContext';
-import { resetPasswordAPI } from '../../services/authServices';
+import { resetPasswordAPI } from '../../services/AuthService';
 import axios from 'axios';
 
 const NewPasswordPage = () => {

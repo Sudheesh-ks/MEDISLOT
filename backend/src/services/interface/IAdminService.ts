@@ -1,10 +1,10 @@
-import { UserDTO } from '../../dtos/user.dto';
-import { AppointmentDTO } from '../../dtos/appointment.dto';
-import { DoctorTypes } from '../../types/doctor';
-import { DoctorDTO } from '../../dtos/doctor.dto';
-import { AdminDTO } from '../../dtos/admin.dto';
-import { PaginationResult } from '../../types/pagination';
-import { ComplaintDTO } from '../../dtos/complaint.dto';
+import { UserDTO } from '../../dtos/User.dto';
+import { AppointmentDTO } from '../../dtos/Appointment.dto';
+import { DoctorTypes } from '../../types/Doctor';
+import { DoctorDTO } from '../../dtos/Doctor.dto';
+import { AdminDTO } from '../../dtos/Admin.dto';
+import { PaginationResult } from '../../types/Pagination';
+import { ComplaintDTO } from '../../dtos/Complaint.dto';
 
 export interface DoctorInput extends DoctorTypes {
   imageFile?: Express.Multer.File;

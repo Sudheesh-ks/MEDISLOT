@@ -1,8 +1,8 @@
 import { Types } from 'mongoose';
-import BlogModel, { BlogDocument } from '../../models/blogModel';
-import doctorModel from '../../models/doctorModel';
-import userModel from '../../models/userModel';
-import { BlogTypes, CommentType } from '../../types/blog';
+import BlogModel, { BlogDocument } from '../../models/BlogModel';
+import doctorModel from '../../models/DoctorModel';
+import userModel from '../../models/UserModel';
+import { BlogTypes, CommentType } from '../../types/Blog';
 import { BaseRepository } from '../BaseRepository';
 import { IBlogRepository } from '../interface/IBlogRepository';
 

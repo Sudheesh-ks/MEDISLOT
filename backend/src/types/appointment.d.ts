@@ -1,5 +1,5 @@
-import { DoctorDocument } from '../models/doctorModel';
-import { userDocument } from '../models/userModel';
+import { DoctorDocument } from '../models/DoctorModel';
+import { userDocument } from '../models/UserModel';
 
 export interface AppointmentTypes {
   _id?: string;

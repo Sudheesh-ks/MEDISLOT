@@ -1,4 +1,4 @@
-import { MessageKind } from '../types/message';
+import { MessageKind } from '../types/Message';
 
 export interface MessageDTO {
   _id?: string;

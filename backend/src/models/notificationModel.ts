@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document, Model, Types } from 'mongoose';
-import { NotificationTypes } from '../types/notificationTypes';
+import { NotificationTypes } from '../types/NotificationTypes';
 
 export interface NotificationDocument extends Omit<NotificationTypes, '_id'>, Document {
   _id: Types.ObjectId;

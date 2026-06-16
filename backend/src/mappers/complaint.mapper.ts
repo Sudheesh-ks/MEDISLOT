@@ -1,4 +1,4 @@
-import { ComplaintDTO } from '../dtos/complaint.dto';
+import { ComplaintDTO } from '../dtos/Complaint.dto';
 
 export const tocomplaintDTO = (complaint: any): ComplaintDTO => {
   return {

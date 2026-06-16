@@ -4,7 +4,7 @@ import {
   getDoctorNotificationsAPI,
   markAllDoctorNotificationsAsReadAPI,
   markDoctorNotificationAsReadAPI,
-} from '../../services/doctorServices';
+} from '../../services/DoctorService';
 import Pagination from '../../components/common/Pagination';
 import { DoctorContext } from '../../context/DoctorContext';
 import { useNavigate } from 'react-router-dom';

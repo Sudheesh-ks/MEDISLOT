@@ -1,4 +1,4 @@
-import { PrescriptionDTO } from '../dtos/prescription.dto';
+import { PrescriptionDTO } from '../dtos/Prescription.dto';
 
 export const toPrescriptionDTO = (doc: any): PrescriptionDTO => {
   return {

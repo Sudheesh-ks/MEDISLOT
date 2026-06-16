@@ -1,7 +1,7 @@
-import { AppointmentDocument } from '../../models/appointmentModel';
-import { DoctorDocument } from '../../models/doctorModel';
-import { DoctorTypes } from '../../types/doctor';
-import { PaginationResult } from '../../types/pagination';
+import { AppointmentDocument } from '../../models/AppointmentModel';
+import { DoctorDocument } from '../../models/DoctorModel';
+import { DoctorTypes } from '../../types/Doctor';
+import { PaginationResult } from '../../types/Pagination';
 
 export interface IDoctorRepository {
   registerDoctor(data: DoctorTypes): Promise<DoctorDocument>;

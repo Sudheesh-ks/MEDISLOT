@@ -6,12 +6,12 @@ import { motion } from 'framer-motion';
 import SearchBar from '../../components/common/SearchBar';
 import Pagination from '../../components/common/Pagination';
 import DataTable from '../../components/common/DataTable';
-import { updateItemInList } from '../../utils/stateHelper.util';
-import { calculateAge, currencySymbol, slotDateFormat } from '../../utils/commonUtils';
+import { updateItemInList } from '../../utils/StateHelper.util';
+import { calculateAge, currencySymbol, slotDateFormat } from '../../utils/Common.util';
 import { assets } from '../../assets/user/assets';
 import ConfirmationModal from '../../components/common/ConfirmationModal';
 import dayjs from 'dayjs';
-import { to12h } from '../../utils/slotManagementHelper';
+import { to12h } from '../../utils/SlotManagementHelper';
 
 const glass = 'bg-white/5 backdrop-blur ring-1 ring-white/10';
 

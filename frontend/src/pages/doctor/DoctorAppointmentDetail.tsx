@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import dayjs from 'dayjs';
-import { getDoctorAppointmentByIdAPI } from '../../services/appointmentServices';
-import { showErrorToast } from '../../utils/errorHandler';
-import type { AppointmentTypes } from '../../types/appointment.d';
+import { getDoctorAppointmentByIdAPI } from '../../services/AppointmentService';
+import { showErrorToast } from '../../utils/ErrorHandler';
+import type { AppointmentTypes } from '../../types/Appointment';
 
 const DoctorAppointmentDetail: React.FC = () => {
     const { id } = useParams<{ id: string }>();

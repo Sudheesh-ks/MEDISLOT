@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from 'express';
-import { HttpStatus } from '../constants/status.constants';
-import { verifyAccessToken } from '../utils/jwt.utils';
-import User from '../models/userModel';
-import Doctor from '../models/doctorModel';
-import Admin from '../models/adminModel';
+import { HttpStatus } from '../constants/Status.constants';
+import { verifyAccessToken } from '../utils/Jwt.utils';
+import User from '../models/UserModel';
+import Doctor from '../models/DoctorModel';
+import Admin from '../models/AdminModel';
 
 const authRole = (allowedRoles: Array<'user' | 'doctor' | 'admin'>) => {
   return async (req: Request, res: Response, next: NextFunction): Promise<void> => {

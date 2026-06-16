@@ -1,4 +1,4 @@
-import { WalletDocument } from '../../models/walletModel';
+import { WalletDocument } from '../../models/WalletModel';
 
 export interface IWalletRepository {
   getOrCreateWallet(

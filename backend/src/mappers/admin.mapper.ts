@@ -1,5 +1,5 @@
-import { AdminDTO } from '../dtos/admin.dto';
-import { AdminDocument } from '../models/adminModel';
+import { AdminDTO } from '../dtos/Admin.dto';
+import { AdminDocument } from '../models/AdminModel';
 
 export const toAdminDTO = (admin: AdminDocument): AdminDTO => {
   return {

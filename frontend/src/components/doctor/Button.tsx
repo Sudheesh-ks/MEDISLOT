@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { cn } from '../../utils/slotManagementHelper';
+import { cn } from '../../utils/SlotManagementHelper';
 
 type Variant = 'default' | 'secondary' | 'ghost' | 'destructive';
 type Size = 'default' | 'sm' | 'lg' | 'icon';

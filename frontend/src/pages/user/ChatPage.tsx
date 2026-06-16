@@ -2,9 +2,9 @@ import React, { useContext, useEffect, useRef, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { UserContext } from '../../context/UserContext';
 import { NotifContext } from '../../context/NotificationContext';
-import { getDoctorsByIDAPI } from '../../services/doctorServices';
-import { getPresence, uploadChatFile, userChat } from '../../services/chatService';
-import type { Message } from '../../types/message';
+import { getDoctorsByIDAPI } from '../../services/DoctorService';
+import { getPresence, uploadChatFile, userChat } from '../../services/ChatService';
+import type { Message } from '../../types/Message';
 
 const timeOf = (iso?: string) =>
   iso

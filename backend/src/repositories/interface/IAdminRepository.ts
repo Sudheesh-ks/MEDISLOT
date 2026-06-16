@@ -1,8 +1,8 @@
-import { AdminDocument } from '../../models/adminModel';
-import { AppointmentDocument } from '../../models/appointmentModel';
-import { DoctorDocument } from '../../models/doctorModel';
-import { userDocument } from '../../models/userModel';
-import { PaginationResult } from '../../types/pagination';
+import { AdminDocument } from '../../models/AdminModel';
+import { AppointmentDocument } from '../../models/AppointmentModel';
+import { DoctorDocument } from '../../models/DoctorModel';
+import { userDocument } from '../../models/UserModel';
+import { PaginationResult } from '../../types/Pagination';
 
 export interface IAdminRepository {
   findByEmail(email: string): Promise<AdminDocument | null>;

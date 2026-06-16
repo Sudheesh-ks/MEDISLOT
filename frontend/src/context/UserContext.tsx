@@ -1,9 +1,9 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
 import { toast } from 'react-toastify';
-import { getUserProfileAPI } from '../services/userProfileServices';
-import { getDoctorsPaginatedAPI } from '../services/doctorServices';
-import { showErrorToast } from '../utils/errorHandler';
-import { refreshAccessTokenAPI } from '../services/authServices';
+import { getUserProfileAPI } from '../services/UserProfileService';
+import { getDoctorsPaginatedAPI } from '../services/DoctorService';
+import { showErrorToast } from '../utils/ErrorHandler';
+import { refreshAccessTokenAPI } from '../services/AuthService';
 import { clearAccessToken, getAccessToken, updateAccessToken } from './tokenManagerContext';
 
 interface IUserData {

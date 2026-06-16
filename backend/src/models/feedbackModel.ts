@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document, Model, Types } from 'mongoose';
-import { feedbackTypes } from '../types/feedback';
+import { feedbackTypes } from '../types/Feedback';
 
 export interface FeedbackDocument extends Omit<feedbackTypes, '_id'>, Document {
   _id: Types.ObjectId;

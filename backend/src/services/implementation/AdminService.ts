@@ -7,28 +7,28 @@ import {
   generateAccessToken,
   generateRefreshToken,
   verifyRefreshToken,
-} from '../../utils/jwt.utils';
-import { sendDoctorRejectionEmail } from '../../utils/mail.util';
-import { DoctorDTO } from '../../dtos/doctor.dto';
-import { UserDTO } from '../../dtos/user.dto';
-import { AppointmentDTO } from '../../dtos/appointment.dto';
-import { toUserDTO } from '../../mappers/user.mapper';
-import { toAppointmentDTO } from '../../mappers/appointment.mapper';
-import { AdminDTO } from '../../dtos/admin.dto';
-import { toAdminDTO } from '../../mappers/admin.mapper';
-import { PaginationResult } from '../../types/pagination';
-import { HttpResponse } from '../../constants/responseMessage.constants';
+} from '../../utils/Jwt.utils';
+import { sendDoctorRejectionEmail } from '../../utils/Mail.util';
+import { DoctorDTO } from '../../dtos/Doctor.dto';
+import { UserDTO } from '../../dtos/User.dto';
+import { AppointmentDTO } from '../../dtos/Appointment.dto';
+import { toUserDTO } from '../../mappers/User.mapper';
+import { toAppointmentDTO } from '../../mappers/Appointment.mapper';
+import { AdminDTO } from '../../dtos/Admin.dto';
+import { toAdminDTO } from '../../mappers/Admin.mapper';
+import { PaginationResult } from '../../types/Pagination';
+import { HttpResponse } from '../../constants/ResponseMessage.constants';
 import { IWalletRepository } from '../../repositories/interface/IWalletRepository';
 import { INotificationService } from '../interface/INotificationService';
 import { IFeedbackRepository } from '../../repositories/interface/IFeedbackRepository';
 import { ioInstance } from '../../sockets/ChatSocket';
-import { ComplaintDTO } from '../../dtos/complaint.dto';
+import { ComplaintDTO } from '../../dtos/Complaint.dto';
 import { IComplaintRepository } from '../../repositories/interface/IComplaintRepository';
-import { tocomplaintDTO } from '../../mappers/complaint.mapper';
-import { toDoctorDTO } from '../../mappers/doctor.mapper';
-import { generateShortAppointmentId } from '../../utils/generateApptId.utils';
-import appointmentModel from '../../models/appointmentModel';
-import { WalletTypes } from '../../types/wallet';
+import { tocomplaintDTO } from '../../mappers/Complaint.mapper';
+import { toDoctorDTO } from '../../mappers/Doctor.mapper';
+import { generateShortAppointmentId } from '../../utils/GenerateApptId.utils';
+import appointmentModel from '../../models/AppointmentModel';
+import { WalletTypes } from '../../types/Wallet';
 dotenv.config();
 
 export class AdminService implements IAdminService {

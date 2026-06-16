@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getBlogsLikeAPI, likeBlogAPI } from '../../services/blogService';
+import { getBlogsLikeAPI, likeBlogAPI } from '../../services/BlogService';
 import { Heart } from 'lucide-react';
 
 interface BlogCardProps {

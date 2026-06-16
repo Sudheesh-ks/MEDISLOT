@@ -1,5 +1,5 @@
 import mongoose, { Schema, Document, Model, Types } from 'mongoose';
-import { userTypes } from '../types/user';
+import { userTypes } from '../types/User';
 
 export interface userDocument extends Omit<userTypes, '_id'>, Document {
   _id: Types.ObjectId;
