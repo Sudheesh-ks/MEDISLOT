@@ -1,7 +1,7 @@
 import { Types } from 'mongoose';
 import BlogModel, { BlogDocument } from '../../models/BlogModel';
-import doctorModel from '../../models/DoctorModel';
-import userModel from '../../models/UserModel';
+// import doctorModel from '../../models/DoctorModel';
+// import userModel from '../../models/UserModel';
 import { BlogTypes, CommentType } from '../../types/Blog';
 import { BaseRepository } from '../BaseRepository';
 import { IBlogRepository } from '../interface/IBlogRepository';
@@ -12,15 +12,15 @@ export class BlogRepository extends BaseRepository<BlogDocument> implements IBlo
   }
 
   async createBlog(data: Partial<BlogDocument>): Promise<BlogDocument> {
-    if (data.doctorId) {
-      const doctor = await doctorModel
-        .findById(data.doctorId)
-        .select('name speciality email image about')
-        .lean();
-      if (!doctor) throw new Error('Doctor not found');
+    // if (data.doctorId) {
+    //   const doctor = await doctorModel
+    //     .findById(data.doctorId)
+    //     .select('name speciality email image about')
+    //     .lean();
+    //   if (!doctor) throw new Error('Doctor not found');
 
-      data.doctorData = doctor;
-    }
+    //   data.doctorData = doctor;
+    // }
     return this.create(data);
   }
 
@@ -84,18 +84,24 @@ export class BlogRepository extends BaseRepository<BlogDocument> implements IBlo
     );
   }
 
-  async addBlogComment(blogId: string, userId: string, content: string): Promise<any> {
+  async addBlogComment(
+    blogId: string,
+    userId: string,
+    userData: {
+      name: string;
+      email: string;
+      image?: string;
+    },
+    content: string
+  ): Promise<any> {
     const blog = await this.model.findById(blogId);
-    if (!blog) return null;
-
-    const user = await userModel.findById(userId).select('-password').lean();
-    if (!user) throw new Error('User not found');
+    if (!blog) throw new Error('Blog not found');
 
     if (!blog.comments) {
       blog.comments = [];
     }
 
-    blog.comments.push({ userId, userData: user, text: content, createdAt: new Date() });
+    blog.comments.push({ userId, userData, text: content, createdAt: new Date() });
     await blog.save();
 
     return blog.comments[blog.comments.length - 1];

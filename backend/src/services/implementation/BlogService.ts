@@ -3,6 +3,7 @@ import { BlogDTO } from '../../dtos/Blog.dto';
 import { toBlogDTO } from '../../mappers/Blog.mapper';
 import { IBlogRepository } from '../../repositories/interface/IBlogRepository';
 import { IDoctorRepository } from '../../repositories/interface/IDoctorRepository';
+import { IUserRepository } from '../../repositories/interface/IUserRepository';
 import { BlogTypes } from '../../types/Blog';
 import { IBlogService } from '../interface/IBlogService';
 import { v2 as cloudinary } from 'cloudinary';
@@ -10,7 +11,8 @@ import { v2 as cloudinary } from 'cloudinary';
 export class BlogService implements IBlogService {
   constructor(
     private readonly _blogRepository: IBlogRepository,
-    private readonly _doctorRepository: IDoctorRepository
+    private readonly _doctorRepository: IDoctorRepository,
+    private readonly _userRepository: IUserRepository,
   ) {}
 
   async createBlog(data: BlogTypes): Promise<BlogDTO> {
@@ -153,7 +155,25 @@ export class BlogService implements IBlogService {
   }
 
   async addBlogComment(blogId: string, userId: string, content: string) {
-    return this._blogRepository.addBlogComment(blogId, userId, content);
+
+    if(!content.trim()){
+      throw new Error('Content cannot be empty');
+    }
+
+    const user = await this._userRepository.findUserById(userId);
+    if (!user) {
+      throw new Error('User not found');
+    }
+    return this._blogRepository.addBlogComment(
+      blogId,
+      userId,
+      {
+        name: user.name,
+        email: user.email,
+        image: user.image,
+      }, 
+      content
+    );
   }
 
   async toggleLike(

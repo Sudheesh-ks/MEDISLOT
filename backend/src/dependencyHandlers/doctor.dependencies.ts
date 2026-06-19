@@ -30,7 +30,7 @@ const slotRepository = new SlotRepository();
 
 // Services
 const notificationService = new NotificationService(notificationRepository);
-const blogService = new BlogService(blogRepository, doctorRepository);
+const blogService = new BlogService(blogRepository, doctorRepository, userRepository);
 const paymentService = new PaymentService();
 const slotService = new SlotService(slotRepository);
 const appointmentService = new AppointmentService(

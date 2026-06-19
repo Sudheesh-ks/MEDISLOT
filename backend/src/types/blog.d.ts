@@ -1,9 +1,12 @@
-import { userDocument } from '../models/UserModel';
 import { DoctorDocument } from '../models/DoctorModel';
 
 export interface CommentType {
   userId: string;
-  userData: userDocument;
+  userData: {
+    name: string;
+    email: string;
+    image?: string;
+  };
   text: string;
   createdAt?: Date;
 }
