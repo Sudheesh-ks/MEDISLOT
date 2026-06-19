@@ -1,6 +1,4 @@
 import ComplaintModel, { ComplaintDocument } from '../../models/ComplaintModel';
-import doctorModel from '../../models/DoctorModel';
-import userModel from '../../models/UserModel';
 import { BaseRepository } from '../BaseRepository';
 import { IComplaintRepository } from '../interface/IComplaintRepository';
 
@@ -22,9 +20,6 @@ export class ComplaintRepository
     subject: string,
     description: string
   ): Promise<ComplaintDocument> {
-    const user = await userModel.findById(userId).lean();
-    if (!user) throw new Error('User not found');
-
     const issue = new this.model({
       userId,
       subject,
@@ -94,9 +89,6 @@ export class ComplaintRepository
     subject: string,
     description: string
   ): Promise<ComplaintDocument> {
-    const doctor = await doctorModel.findById(doctorId).lean();
-    if (!doctor) throw new Error('Doctor not found');
-
     const issue = new this.model({
       doctorId,
       subject,

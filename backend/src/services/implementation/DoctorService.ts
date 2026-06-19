@@ -409,6 +409,11 @@ export class DoctorService implements IDoctorService {
       throw new Error('Please provide the detailed issue');
     }
 
+    const doctor = await this._doctorRepository.findById(doctorId);
+    if (!doctor) {
+      throw new Error('Doctor not found');
+    }
+
     const complaint = await this._complaintRepository.reportDoctorIssue(
       doctorId,
       subject,

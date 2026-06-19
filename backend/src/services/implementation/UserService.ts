@@ -459,6 +459,11 @@ export class UserService implements IUserService {
       throw new Error('Please provide the detailed issue');
     }
 
+    const user = await this._userRepository.findUserById(userId);
+    if (!user) {
+      throw new Error('User not found');
+    }
+
     return this._complaintRepository.reportIssue(userId, subject, description);
   }
 }
