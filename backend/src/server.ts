@@ -30,7 +30,6 @@ import './utils/ActiveAppointmentChecker';
 import { startLockCleanupJob } from './jobs/CleanupLock';
 import { startStaleAppointmentCleaner } from './jobs/AppointmentAutoCancel';
 
-
 const allowedOrigins = [
   'https://medislot-eight.vercel.app',
   'https://medislot.ddns.net',

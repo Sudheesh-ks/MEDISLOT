@@ -1,6 +1,5 @@
 import { DoctorTypes } from '../../types/Doctor';
 import { DoctorDTO } from '../../dtos/Doctor.dto';
-import { AppointmentDTO } from '../../dtos/Appointment.dto';
 import { PaginationResult } from '../../types/Pagination';
 import { patientHistoryTypes } from '../../types/PatientHistoryTypes';
 
@@ -15,18 +14,6 @@ export interface IDoctorService {
     password: string;
   }): Promise<{ token: string; refreshToken: string }>;
   refreshToken(refreshToken?: string): Promise<{ token: string; refreshToken: string }>;
-  getDoctorAppointments(docId: string): Promise<AppointmentDTO[]>;
-  getDoctorAppointmentsPaginated(
-    docId: string,
-    pageQuery: string,
-    limitQuery: string,
-    search?: string,
-    dateRange?: string
-  ): Promise<PaginationResult<AppointmentDTO>>;
-  confirmAppointment(docId: string, appointmentId: string): Promise<void>;
-  cancelAppointment(docId: string, appointmentId: string): Promise<void>;
-  getActiveAppointment(docId: string): Promise<AppointmentDTO | null>;
-  getAppointmentById(appointmentId: string): Promise<AppointmentDTO>;
   getDoctorProfile(docId: string): Promise<DoctorDTO>;
   changePassword(doctorId: string, oldPassword: string, newPassword: string): Promise<void>;
   updateDoctorProfile(body: any, imageFile?: Express.Multer.File): Promise<void>;

@@ -2,7 +2,7 @@ import { HttpStatus } from '../../constants/Status.constants';
 import { BlogDTO } from '../../dtos/Blog.dto';
 import { toBlogDTO } from '../../mappers/Blog.mapper';
 import { IBlogRepository } from '../../repositories/interface/IBlogRepository';
-import { IUserRepository } from '../../repositories/interface/IUserRepository';
+import { IDoctorRepository } from '../../repositories/interface/IDoctorRepository';
 import { BlogTypes } from '../../types/Blog';
 import { IBlogService } from '../interface/IBlogService';
 import { v2 as cloudinary } from 'cloudinary';
@@ -10,7 +10,7 @@ import { v2 as cloudinary } from 'cloudinary';
 export class BlogService implements IBlogService {
   constructor(
     private readonly _blogRepository: IBlogRepository,
-    private readonly _userRepository: IUserRepository
+    private readonly _doctorRepository: IDoctorRepository
   ) {}
 
   async createBlog(data: BlogTypes): Promise<BlogDTO> {
@@ -34,7 +34,7 @@ export class BlogService implements IBlogService {
       throw error;
     }
 
-    const doctor = await this._userRepository.findDoctorById(doctorId);
+    const doctor = await this._doctorRepository.findDoctorById(doctorId);
     if (!doctor) throw new Error('Doctor not found');
 
     let parsedTags: string[] = [];

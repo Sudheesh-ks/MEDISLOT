@@ -11,24 +11,20 @@ import {
 } from '../../utils/Jwt.utils';
 import { DoctorDTO } from '../../dtos/Doctor.dto';
 import { toDoctorDTO } from '../../mappers/Doctor.mapper';
-import { AppointmentDTO } from '../../dtos/Appointment.dto';
-import { toAppointmentDTO } from '../../mappers/Appointment.mapper';
 import { PaginationResult } from '../../types/Pagination';
 import { HttpResponse } from '../../constants/ResponseMessage.constants';
 import { IWalletRepository } from '../../repositories/interface/IWalletRepository';
 import { INotificationService } from '../interface/INotificationService';
 import { Types } from 'mongoose';
-import { ioInstance } from '../../sockets/ChatSocket';
 import { IPatientHistoryRepository } from '../../repositories/interface/IPatientHistoryRepository';
 import { patientHistoryTypes } from '../../types/PatientHistoryTypes';
 import { IUserRepository } from '../../repositories/interface/IUserRepository';
 import { IComplaintRepository } from '../../repositories/interface/IComplaintRepository';
 import { isValidPassword } from '../../utils/Validator';
-import { generateShortAppointmentId } from '../../utils/GenerateApptId.utils';
 import { WalletHistory } from '../../types/Wallet';
 import { ComplaintDTO } from '../../dtos/Complaint.dto';
 import { tocomplaintDTO } from '../../mappers/Complaint.mapper';
-import { notifyActiveAppointment } from '../../sockets/ActiveAppointmentSocket';
+import { IAppointmentRepository } from '../../repositories/interface/IAppointmentRepository';
 
 export interface DoctorDocument extends DoctorTypes {
   _id: string;
@@ -40,10 +36,10 @@ export class DoctorService implements IDoctorService {
     private readonly _userRepository: IUserRepository,
     private readonly _walletRepository: IWalletRepository,
     private readonly _notificationService: INotificationService,
-    // private readonly _prescriptionRepository: IPrescriptionRepository,
     private readonly _patientHistoryRepository: IPatientHistoryRepository,
-    private readonly _complaintRepository: IComplaintRepository
-  ) { }
+    private readonly _complaintRepository: IComplaintRepository,
+    private readonly _appointmentRepository: IAppointmentRepository
+  ) {}
 
   async registerDoctor(data: DoctorTypes): Promise<void> {
     const {
@@ -111,7 +107,7 @@ export class DoctorService implements IDoctorService {
   async getPublicDoctorById(id: string): Promise<DoctorDTO> {
     if (!id) throw new Error('Doctor ID is required');
 
-    const doctor = await this._doctorRepository.getDoctorProfileById(id);
+    const doctor = await this._doctorRepository.findDoctorById(id);
     if (!doctor) throw new Error('Doctor not found');
 
     return toDoctorDTO(doctor);
@@ -202,153 +198,8 @@ export class DoctorService implements IDoctorService {
     return { token: newAccessToken, refreshToken: newRefreshToken };
   }
 
-  async getDoctorAppointments(docId: string): Promise<AppointmentDTO[]> {
-    if (!docId) throw new Error('Doctor ID is required');
-
-    const doctor = await this._doctorRepository.findById(docId);
-    if (!doctor) throw new Error('Doctor not found');
-
-    const appointments = await this._doctorRepository.findAppointmentsByDoctorId(docId);
-    return appointments.map(toAppointmentDTO);
-  }
-
-  async getDoctorAppointmentsPaginated(
-    docId: string,
-    pageQuery: string,
-    limitQuery: string,
-    search?: string,
-    dateRange?: string
-  ): Promise<PaginationResult<AppointmentDTO>> {
-    if (!docId) throw new Error('Doctor ID is required');
-
-    const page = parseInt(pageQuery) || 1;
-    const limit = parseInt(limitQuery) || 6;
-
-    const paginatedData = await this._doctorRepository.getAppointmentsPaginated(
-      docId,
-      page,
-      limit,
-      search,
-      dateRange
-    );
-
-    return {
-      ...paginatedData,
-      data: paginatedData.data.map(toAppointmentDTO),
-    };
-  }
-
-  async confirmAppointment(docId: string, appointmentId: string): Promise<void> {
-    if (!docId || !appointmentId) throw new Error('Missing required fields');
-
-    const appointment = await this._doctorRepository.findAppointmentById(appointmentId);
-    if (!appointment || appointment.docId.toString() !== docId.toString()) {
-      throw new Error('Mark Failed');
-    }
-
-    const adminId = process.env.ADMIN_ID;
-    const userId = appointment.userData._id.toString();
-
-    await Promise.all([
-      this._notificationService.sendNotification({
-        recipientId: userId,
-        recipientRole: 'user',
-        type: 'appointment',
-        title: 'Appointment Confirmed',
-        message: `${appointment.docData.name} has confirmed your appointment.`,
-        link: '/appointments',
-      }),
-      this._notificationService.sendNotification({
-        recipientId: adminId,
-        recipientRole: 'admin',
-        type: 'appointment',
-        title: 'Appointment Confirmed by Doctor',
-        message: `${appointment.docData.name} confirmed appointment with ${appointment.userData.name}.`,
-        link: '/admin/appointments',
-      }),
-      this._doctorRepository.markAppointmentAsConfirmed(appointmentId),
-    ]);
-    if (ioInstance) {
-      ioInstance.to(userId).emit('notification', {
-        title: `Appointment Confirmed by ${appointment.docData.name}`,
-        link: '/appointments',
-      });
-    }
-  }
-
-  async cancelAppointment(docId: string, appointmentId: string): Promise<void> {
-    if (!docId || !appointmentId) throw new Error('Missing required fields');
-
-    const appointment = await this._doctorRepository.findAppointmentById(appointmentId);
-    if (!appointment || appointment.docId.toString() !== docId.toString()) {
-      throw new Error('Cancellation Failed');
-    }
-
-    const amount = appointment.amount;
-    if (!amount || amount <= 0) return;
-
-    const adminId = process.env.ADMIN_ID;
-    const userId = appointment.userData._id.toString();
-    const doctorId = appointment.docData._id.toString();
-    const reason = `Refund for Cancelled Appointment ${generateShortAppointmentId(appointment._id.toString())} of ${appointment.userData.name}`;
-
-    const doctorShare = amount * 0.8;
-    const adminShare = amount * 0.2;
-
-    await Promise.all([
-      this._walletRepository.creditWallet(userId, 'user', amount, reason),
-      this._walletRepository.debitWallet(doctorId, 'doctor', doctorShare, reason),
-      this._walletRepository.debitWallet(adminId!, 'admin', adminShare, reason),
-    ]);
-
-    await Promise.all([
-      this._notificationService.sendNotification({
-        recipientId: userId,
-        recipientRole: 'user',
-        type: 'appointment',
-        title: 'Appointment Canceled by Doctor',
-        message: `${appointment.docData.name} canceled your appointment. ₹${amount} refunded.`,
-        link: '/appointments',
-      }),
-      this._notificationService.sendNotification({
-        recipientId: adminId,
-        recipientRole: 'admin',
-        type: 'appointment',
-        title: 'Doctor Canceled Appointment',
-        message: `${appointment.docData.name} canceled the appointment with ${appointment.userData.name}. ₹${adminShare} refunded to user from your wallet.`,
-        link: '/admin/appointments',
-      }),
-      this._doctorRepository.cancelAppointment(appointmentId),
-    ]);
-
-    if (ioInstance) {
-      ioInstance.to(userId).emit('notification', {
-        title: `Appointment Cancelled by ${appointment.docData.name}`,
-        link: '/appointments',
-      });
-    }
-  }
-
-  async getActiveAppointment(docId: string): Promise<AppointmentDTO | null> {
-    if (!docId) throw new Error('User not found');
-
-    const appointment = await this._doctorRepository.findActiveAppointment(docId);
-    const active = appointment ? toAppointmentDTO(appointment) : null;
-
-    if (active) {
-      await notifyActiveAppointment(appointment);
-    }
-    return active;
-  }
-
-  async getAppointmentById(appointmentId: string): Promise<AppointmentDTO> {
-    const appointment = await this._userRepository.findAppointmentById(appointmentId);
-    if (!appointment) throw new Error('appointment not found');
-    return toAppointmentDTO(appointment);
-  }
-
   async getDoctorProfile(docId: string): Promise<DoctorDTO> {
-    const doctor = await this._doctorRepository.getDoctorProfileById(docId);
+    const doctor = await this._doctorRepository.findDoctorById(docId);
     if (!doctor) throw new Error('Doctor not found');
     return toDoctorDTO(doctor);
   }
@@ -477,7 +328,7 @@ export class DoctorService implements IDoctorService {
   async getDashboardData(doctorId: string, startDate: string, endDate: string) {
     const [revenueData, appointmentData] = await Promise.all([
       this._doctorRepository.getRevenueOverTime(doctorId, startDate, endDate),
-      this._doctorRepository.getAppointmentsOverTime(doctorId, startDate, endDate),
+      this._appointmentRepository.getAppointmentsOverTime(doctorId, startDate, endDate),
     ]);
 
     return {

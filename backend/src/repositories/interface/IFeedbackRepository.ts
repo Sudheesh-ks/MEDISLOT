@@ -4,6 +4,11 @@ export interface IFeedbackRepository {
   submitFeedback(
     userId: string,
     apptId: string,
+    doctorId: string,
+    userData: {
+      name: string;
+      email: string;
+    },
     message: string,
     rating: number
   ): Promise<FeedbackDocument>;

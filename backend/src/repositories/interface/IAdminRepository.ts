@@ -1,5 +1,4 @@
 import { AdminDocument } from '../../models/AdminModel';
-import { AppointmentDocument } from '../../models/AppointmentModel';
 import { DoctorDocument } from '../../models/DoctorModel';
 import { userDocument } from '../../models/UserModel';
 import { PaginationResult } from '../../types/Pagination';
@@ -20,17 +19,7 @@ export interface IAdminRepository {
     search?: string
   ): Promise<PaginationResult<userDocument>>;
   toggleUserBlock(userId: string): Promise<userDocument>;
-  getAllAppointments(): Promise<AppointmentDocument[]>;
-  getAppointmentById(id: string): Promise<AppointmentDocument | null>;
-  getAppointmentsPaginated(
-    page: number,
-    limit: number,
-    search?: string,
-    dateRange?: string
-  ): Promise<PaginationResult<AppointmentDocument>>;
-  cancelAppointment(appointmentId: string): Promise<void>;
   getLatestDoctorRequests(limit: number): Promise<DoctorDocument[]>;
-  getAppointmentsStats(start?: string, end?: string): Promise<{ date: string; count: number }[]>;
   getTopDoctors(
     limit: number
   ): Promise<{ doctorId: string; doctorName: string; appointments: number; revenue: number }[]>;

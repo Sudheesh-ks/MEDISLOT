@@ -9,13 +9,15 @@ import { patientHistoryTypes } from '../../types/PatientHistoryTypes';
 import { INotificationService } from '../../services/interface/INotificationService';
 import { IDoctorService } from '../../services/interface/IDoctorService';
 import { IBlogService } from '../../services/interface/IBlogService';
+import { IAppointmentService } from '../../services/interface/IAppointmentService';
 
 export class DoctorController implements IDoctorController {
   constructor(
     private readonly _doctorService: IDoctorService,
     private readonly _notificationService: INotificationService,
-    private readonly _blogService: IBlogService
-  ) { }
+    private readonly _blogService: IBlogService,
+    private readonly _appointmentService: IAppointmentService
+  ) {}
 
   async registerDoctor(req: Request, res: Response): Promise<void> {
     try {
@@ -213,7 +215,7 @@ export class DoctorController implements IDoctorController {
     try {
       const docId = (req as any).docId;
 
-      const appointments = await this._doctorService.getDoctorAppointments(docId);
+      const appointments = await this._appointmentService.getAppointmentsByDoctorId(docId);
       logger.info(`Fetched appointments for doctor: ${docId}`);
 
       res.status(HttpStatus.OK).json({ success: true, appointments });
@@ -234,7 +236,7 @@ export class DoctorController implements IDoctorController {
 
       const { page, limit, search, dateRange } = req.query;
 
-      const result = await this._doctorService.getDoctorAppointmentsPaginated(
+      const result = await this._appointmentService.getDoctorAppointments(
         docId,
         page as string,
         limit as string,
@@ -257,7 +259,7 @@ export class DoctorController implements IDoctorController {
       const docId = (req as any).docId;
       const { appointmentId } = req.params;
 
-      await this._doctorService.confirmAppointment(docId, appointmentId);
+      await this._appointmentService.confirmAppointment(docId, appointmentId);
       logger.info(`Appointment confirmed: ${appointmentId} by ${docId}`);
 
       res.status(HttpStatus.OK).json({
@@ -279,7 +281,7 @@ export class DoctorController implements IDoctorController {
       const docId = (req as any).docId;
       const { appointmentId } = req.params;
 
-      await this._doctorService.cancelAppointment(docId, appointmentId);
+      await this._appointmentService.cancelAppointmentByDoctor(docId, appointmentId);
       logger.info(`Appointment cancelled: ${appointmentId} by ${docId}`);
 
       res.status(HttpStatus.OK).json({
@@ -299,7 +301,7 @@ export class DoctorController implements IDoctorController {
   async getActiveAppointment(req: Request, res: Response): Promise<void> {
     try {
       const docId = (req as any).docId;
-      const appointment = await this._doctorService.getActiveAppointment(docId);
+      const appointment = await this._appointmentService.getActiveDoctorAppointments(docId);
 
       if (!appointment) {
         res.json({ active: false });
@@ -327,7 +329,7 @@ export class DoctorController implements IDoctorController {
   async getAppointmentById(req: Request, res: Response): Promise<void> {
     try {
       const { appointmentId } = req.params;
-      const appointment = await this._doctorService.getAppointmentById(appointmentId);
+      const appointment = await this._appointmentService.getAppointmentById(appointmentId);
 
       logger.info(`Appointment is found`);
 

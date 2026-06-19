@@ -1,9 +1,9 @@
-import { userService } from '../dependencyHandlers/User.dependencies';
+import { appointmentService } from '../dependencyHandlers/Appointment.dependency';
 
 export function startLockCleanupJob() {
   async function cleanup() {
     try {
-      await userService.cleanupExpiredLocks();
+      await appointmentService.cleanupExpiredLocks();
       console.log('Periodic cleanup of expired locks completed');
     } catch (error) {
       console.error('Error during periodic cleanup:', error);

@@ -11,9 +11,7 @@ import {
 import { sendDoctorRejectionEmail } from '../../utils/Mail.util';
 import { DoctorDTO } from '../../dtos/Doctor.dto';
 import { UserDTO } from '../../dtos/User.dto';
-import { AppointmentDTO } from '../../dtos/Appointment.dto';
 import { toUserDTO } from '../../mappers/User.mapper';
-import { toAppointmentDTO } from '../../mappers/Appointment.mapper';
 import { AdminDTO } from '../../dtos/Admin.dto';
 import { toAdminDTO } from '../../mappers/Admin.mapper';
 import { PaginationResult } from '../../types/Pagination';
@@ -26,9 +24,9 @@ import { ComplaintDTO } from '../../dtos/Complaint.dto';
 import { IComplaintRepository } from '../../repositories/interface/IComplaintRepository';
 import { tocomplaintDTO } from '../../mappers/Complaint.mapper';
 import { toDoctorDTO } from '../../mappers/Doctor.mapper';
-import { generateShortAppointmentId } from '../../utils/GenerateApptId.utils';
 import appointmentModel from '../../models/AppointmentModel';
 import { WalletTypes } from '../../types/Wallet';
+import { IAppointmentRepository } from '../../repositories/interface/IAppointmentRepository';
 dotenv.config();
 
 export class AdminService implements IAdminService {
@@ -38,8 +36,9 @@ export class AdminService implements IAdminService {
     private readonly _walletRepository: IWalletRepository,
     private readonly _notificationService: INotificationService,
     private readonly _feedbackRepository: IFeedbackRepository,
-    private readonly _complaintRepository: IComplaintRepository
-  ) { }
+    private readonly _complaintRepository: IComplaintRepository,
+    private readonly _appointmentRepository: IAppointmentRepository
+  ) {}
 
   async login(
     email?: string,
@@ -148,7 +147,9 @@ export class AdminService implements IAdminService {
       cancelled: false,
     });
 
-    await Promise.all(appointments.map((appt) => this.cancelAppointment(appt._id.toString())));
+    await Promise.all(
+      appointments.map((appt) => this._appointmentRepository.cancelAppointment(appt._id.toString()))
+    );
 
     return 'Doctor rejected and notified by email';
   }
@@ -169,7 +170,7 @@ export class AdminService implements IAdminService {
   }
 
   async getDoctorById(id: string): Promise<DoctorDTO | null> {
-    const doctor = await this._doctorRepository.getDoctorProfileById(id);
+    const doctor = await this._doctorRepository.findDoctorById(id);
     if (!doctor) {
       throw new Error('Doctor not found');
     }
@@ -236,109 +237,16 @@ export class AdminService implements IAdminService {
       }),
       ioInstance
         ? Promise.resolve(
-          ioInstance.to(userId).emit('notification', {
-            title: 'Accound blocked by admin',
-            link: '/system',
-          })
-        )
+            ioInstance.to(userId).emit('notification', {
+              title: 'Accound blocked by admin',
+              link: '/system',
+            })
+          )
         : Promise.resolve(),
     ]);
 
     const user = await this._adminRepository.toggleUserBlock(userId);
     return toUserDTO(user);
-  }
-
-  async listAppointments(): Promise<AppointmentDTO[]> {
-    const appointments = await this._adminRepository.getAllAppointments();
-    return appointments.map(toAppointmentDTO);
-  }
-
-  async getAppointmentById(id: string): Promise<AppointmentDTO | null> {
-    const appointment = await this._adminRepository.getAppointmentById(id);
-    if (!appointment) throw new Error('Appointment not found');
-    return toAppointmentDTO(appointment);
-  }
-
-  async listAppointmentsPaginated(
-    page: number,
-    limit: number,
-    search: string,
-    dateRange: string
-  ): Promise<PaginationResult<AppointmentDTO>> {
-    const result = await this._adminRepository.getAppointmentsPaginated(
-      page,
-      limit,
-      search,
-      dateRange
-    );
-
-    return {
-      data: result.data.map(toAppointmentDTO),
-      totalCount: result.totalCount,
-      currentPage: result.currentPage,
-      totalPages: result.totalPages,
-      hasNextPage: result.hasNextPage,
-      hasPrevPage: result.hasPrevPage,
-    };
-  }
-
-  async cancelAppointment(appointmentId: string): Promise<void> {
-    if (!appointmentId) throw new Error('Missing required fields');
-
-    const appointment = await this._adminRepository.getAppointmentById(appointmentId);
-    if (!appointment) {
-      throw new Error('Cancellation Failed');
-    }
-
-    const amount = appointment.amount;
-    if (!amount || amount <= 0) return;
-
-    const adminId = process.env.ADMIN_ID;
-    const userId = appointment.userData._id.toString();
-    const doctorId = appointment.docData._id.toString();
-    const reason = `Refund for Cancelled Appointment ${generateShortAppointmentId(appointment._id.toString())} of ${appointment.userData.name}`;
-
-    const doctorShare = amount * 0.8;
-    const adminShare = amount * 0.2;
-
-    await Promise.all([
-      this._walletRepository.creditWallet(userId, 'user', amount, reason),
-      this._walletRepository.debitWallet(doctorId, 'doctor', doctorShare, reason),
-      this._walletRepository.debitWallet(adminId!, 'admin', adminShare, reason),
-      this._notificationService.sendNotification({
-        recipientId: doctorId,
-        recipientRole: 'doctor',
-        type: 'appointment',
-        title: 'Appointment Canceled by Admin',
-        message: `Admin canceled your appointment with ${appointment.userData.name}. ₹${doctorShare} refunded to user from your wallet.`,
-        link: '/doctor/appointments',
-      }),
-      this._notificationService.sendNotification({
-        recipientId: userId,
-        recipientRole: 'user',
-        type: 'appointment',
-        title: 'Appointment Canceled by Admin',
-        message: `Admin canceled your appointment with ${appointment.docData.name}. ₹${amount} refunded to your wallet.`,
-        link: '/appointments',
-      }),
-      ioInstance
-        ? Promise.resolve(
-          ioInstance.to(doctorId).emit('notification', {
-            title: 'Appointment cancelled by Admin',
-            link: '/doctor/appointments',
-          })
-        )
-        : Promise.resolve(),
-      ioInstance
-        ? Promise.resolve(
-          ioInstance.to(userId).emit('notification', {
-            title: 'Appointment cancelled by Admin',
-            link: '/appointments',
-          })
-        )
-        : Promise.resolve(),
-      this._adminRepository.cancelAppointment(appointmentId),
-    ]);
   }
 
   async getAdminWalletPaginated(
@@ -375,13 +283,6 @@ export class AdminService implements IAdminService {
   async getLatestDoctorRequests(limit = 5): Promise<DoctorDTO[]> {
     const requests = await this._adminRepository.getLatestDoctorRequests(limit);
     return requests.map((doctor) => doctor as DoctorDTO);
-  }
-
-  async getAppointmentsStats(
-    startDate?: string,
-    endDate?: string
-  ): Promise<{ date: string; count: number }[]> {
-    return await this._adminRepository.getAppointmentsStats(startDate, endDate);
   }
 
   async getTopDoctors(
@@ -442,11 +343,11 @@ export class AdminService implements IAdminService {
       }),
       ioInstance
         ? Promise.resolve(
-          ioInstance.to(userId!).emit('notification', {
-            title: 'Admin updation on your complaint',
-            link: '/system',
-          })
-        )
+            ioInstance.to(userId!).emit('notification', {
+              title: 'Admin updation on your complaint',
+              link: '/system',
+            })
+          )
         : Promise.resolve(),
     ]);
     return tocomplaintDTO(updated);

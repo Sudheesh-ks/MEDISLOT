@@ -2,12 +2,10 @@ import { BaseRepository } from '../BaseRepository';
 import adminModel, { AdminDocument } from '../../models/AdminModel';
 import doctorModel, { DoctorDocument } from '../../models/DoctorModel';
 import userModel, { userDocument } from '../../models/UserModel';
-import appointmentModel, { AppointmentDocument } from '../../models/AppointmentModel';
+import appointmentModel from '../../models/AppointmentModel';
 import { FilterQuery, PipelineStage } from 'mongoose';
 import { PaginationResult } from '../../types/Pagination';
 import { IAdminRepository } from '../interface/IAdminRepository';
-import slotModel from '../../models/SlotModel';
-import { getDateRange } from '../../utils/DateRange.util';
 
 export class AdminRepository extends BaseRepository<AdminDocument> implements IAdminRepository {
   constructor() {
@@ -99,148 +97,6 @@ export class AdminRepository extends BaseRepository<AdminDocument> implements IA
     return user;
   }
 
-  async getAllAppointments(): Promise<AppointmentDocument[]> {
-    return appointmentModel.find({});
-  }
-
-  async getAppointmentById(id: string): Promise<AppointmentDocument | null> {
-    return appointmentModel.findById(id);
-  }
-
-  async getAppointmentsPaginated(
-    page: number,
-    limit: number,
-    search?: string,
-    dateRange?: string
-  ): Promise<PaginationResult<AppointmentDocument>> {
-    const skip = (page - 1) * limit;
-    const andConditions: Record<string, unknown>[] = [];
-
-    console.log(dateRange);
-
-    if (search) {
-      andConditions.push({
-        $or: [
-          { 'user.name': { $regex: search, $options: 'i' } },
-          { 'doctor.name': { $regex: search, $options: 'i' } },
-        ],
-      });
-    }
-
-    if (dateRange) {
-      const { start, end } = getDateRange(dateRange);
-
-      if (start && end) {
-        andConditions.push({
-          slotDate: { $gte: start, $lte: end },
-        });
-      }
-    }
-
-    const matchStage = andConditions.length > 0 ? { $and: andConditions } : {};
-
-    const pipeline: PipelineStage[] = [
-      {
-        $addFields: {
-          userIdObj: { $toObjectId: '$userId' },
-          docIdObj: { $toObjectId: '$docId' },
-        },
-      },
-      {
-        $lookup: {
-          from: 'users',
-          localField: 'userIdObj',
-          foreignField: '_id',
-          as: 'user',
-        },
-      },
-      { $unwind: '$user' },
-      {
-        $lookup: {
-          from: 'doctors',
-          localField: 'docIdObj',
-          foreignField: '_id',
-          as: 'doctor',
-        },
-      },
-      { $unwind: '$doctor' },
-      { $match: matchStage },
-      { $sort: { createdAt: -1 } },
-      { $skip: skip },
-      { $limit: limit },
-    ];
-
-    const data = await appointmentModel.aggregate(pipeline);
-
-    const totalCountAgg = await appointmentModel.aggregate([
-      {
-        $addFields: {
-          userIdObj: { $toObjectId: '$userId' },
-          docIdObj: { $toObjectId: '$docId' },
-        },
-      },
-      {
-        $lookup: {
-          from: 'users',
-          localField: 'userIdObj',
-          foreignField: '_id',
-          as: 'user',
-        },
-      },
-      { $unwind: '$user' },
-      {
-        $lookup: {
-          from: 'doctors',
-          localField: 'docIdObj',
-          foreignField: '_id',
-          as: 'doctor',
-        },
-      },
-      { $unwind: '$doctor' },
-      { $match: matchStage },
-      { $count: 'total' },
-    ]);
-
-    const totalCount = totalCountAgg[0]?.total || 0;
-    const totalPages = Math.ceil(totalCount / limit);
-
-    return {
-      data,
-      totalCount,
-      currentPage: page,
-      totalPages,
-      hasNextPage: page < totalPages,
-      hasPrevPage: page > 1,
-    };
-  }
-
-  async cancelAppointment(appointmentId: string): Promise<void> {
-    const appointment = await appointmentModel.findById(appointmentId);
-    if (!appointment) throw new Error('Appointment not found');
-
-    if (appointment.cancelled) {
-      throw new Error('Appointment already cancelled');
-    }
-
-    appointment.cancelled = true;
-    await appointment.save();
-
-    const { docId, slotDate, slotStartTime } = appointment;
-    const slotDoc = await slotModel.findOne({
-      doctorId: docId,
-      date: slotDate,
-    });
-    if (slotDoc) {
-      const slotIndex = slotDoc.slots.findIndex(
-        (slot) => slot.start === slotStartTime && slot.booked
-      );
-      if (slotIndex !== -1) {
-        slotDoc.slots[slotIndex].booked = false;
-        await slotDoc.save();
-      }
-    }
-  }
-
   async getLatestDoctorRequests(limit = 5): Promise<DoctorDocument[]> {
     const docs = await doctorModel.find({ status: 'pending' }).sort({ createdAt: -1 }).limit(limit);
 
@@ -256,34 +112,6 @@ export class AdminRepository extends BaseRepository<AdminDocument> implements IA
       endDate.setHours(23, 59, 59, 999);
     }
     return { startDate, endDate };
-  }
-
-  async getAppointmentsStats(
-    start?: string,
-    end?: string
-  ): Promise<{ date: string; count: number }[]> {
-    const { startDate, endDate } = this._parseRange(start, end);
-
-    const match: Record<string, unknown> = { payment: true, cancelled: false };
-    if (startDate || endDate) match.createdAt = {};
-    if (startDate) (match.createdAt as Record<string, Date>).$gte = startDate;
-    if (endDate) (match.createdAt as Record<string, Date>).$lte = endDate;
-
-    const pipeline: PipelineStage[] = [
-      { $match: match },
-      {
-        $group: {
-          _id: {
-            $dateToString: { format: '%Y-%m-%d', date: '$createdAt' },
-          },
-          count: { $sum: 1 },
-        },
-      },
-      { $sort: { _id: 1 } },
-    ];
-
-    const res = await appointmentModel.aggregate(pipeline).exec();
-    return res.map((r) => ({ date: r._id, count: r.count }));
   }
 
   async getTopDoctors(

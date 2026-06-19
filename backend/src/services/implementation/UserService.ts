@@ -3,7 +3,6 @@ import { IUserRepository } from '../../repositories/interface/IUserRepository';
 import { userTypes } from '../../types/User';
 import bcrypt from 'bcrypt';
 import { v2 as cloudinary } from 'cloudinary';
-import { AppointmentTypes } from '../../types/Appointment';
 import {
   isValidAddress,
   isValidDateOfBirth,
@@ -26,13 +25,9 @@ import { HttpResponse } from '../../constants/ResponseMessage.constants';
 import { generateOTP } from '../../utils/Otp.util';
 // import { this._OtpRedisService } from '../../utils/this._OtpRedisService';
 import { sendOTP } from '../../utils/Mail.util';
-import { AppointmentDTO } from '../../dtos/Appointment.dto';
-import { toAppointmentDTO } from '../../mappers/Appointment.mapper';
-import { PaginationResult } from '../../types/Pagination';
 import { WalletDTO } from '../../dtos/Wallet.dto';
 import { PrescriptionDTO } from '../../dtos/Prescription.dto';
 import { toPrescriptionDTO } from '../../mappers/Prescription.mapper';
-import { ioInstance } from '../../sockets/ChatSocket';
 import { FeedbackDTO } from '../../dtos/Feedback.dto';
 import { toFeedbackDTO } from '../../mappers/Feedback.mapper';
 import { ComplaintTypes } from '../../types/Complaint';
@@ -44,20 +39,17 @@ import { IFeedbackRepository } from '../../repositories/interface/IFeedbackRepos
 import { IComplaintRepository } from '../../repositories/interface/IComplaintRepository';
 import { IPatientHistoryRepository } from '../../repositories/interface/IPatientHistoryRepository';
 import { DoctorDTO } from '../../dtos/Doctor.dto';
-import { generateShortAppointmentId } from '../../utils/GenerateApptId.utils';
-import { RazorpayOrderDTO } from '../../types/Payment';
 import { slotDTO } from '../../dtos/Slot.dto';
 import { ISlotService } from '../interface/ISlotService';
 import { ITempAppointmentRepository } from '../../repositories/interface/ITempAppointmentRepository';
 import { toDoctorDTO } from '../../mappers/Doctor.mapper';
-import { notifyActiveAppointment } from '../../sockets/ActiveAppointmentSocket';
 import { IOtpRedisService } from '../interface/IOtpRedisService';
+import { IDoctorRepository } from '../../repositories/interface/IDoctorRepository';
+import { IAppointmentRepository } from '../../repositories/interface/IAppointmentRepository';
 
 export interface UserDocument extends userTypes {
   _id: string;
 }
-
-const adminId = process.env.ADMIN_ID;
 
 export class UserService implements IUserService {
   constructor(
@@ -71,8 +63,10 @@ export class UserService implements IUserService {
     private readonly _feedbackRepository: IFeedbackRepository,
     private readonly _complaintRepository: IComplaintRepository,
     private readonly _patientHistoryRepository: IPatientHistoryRepository,
-    private readonly _tempAppointmentRepository: ITempAppointmentRepository
-  ) { }
+    private readonly _tempAppointmentRepository: ITempAppointmentRepository,
+    private readonly _doctorRepository: IDoctorRepository,
+    private readonly _appointmentRepository: IAppointmentRepository
+  ) {}
 
   async register(name: string, email: string, password: string): Promise<void> {
     if (!name || !email || !password) {
@@ -354,7 +348,7 @@ export class UserService implements IUserService {
   }
 
   async getDoctorById(id: string): Promise<DoctorDTO> {
-    const doctor = await this._userRepository.findDoctorById(id);
+    const doctor = await this._doctorRepository.findDoctorById(id);
     if (!doctor) throw new Error('Doctor not found');
     return toDoctorDTO(doctor);
   }
@@ -384,348 +378,6 @@ export class UserService implements IUserService {
     };
   }
 
-  async initiateBooking({
-    userId,
-    docId,
-    slotDate,
-    slotStartTime,
-    slotEndTime,
-    patientDetails,
-  }: {
-    userId: string;
-    docId: string;
-    slotDate: string;
-    slotStartTime: string;
-    slotEndTime: string;
-    patientDetails: {
-      name: string;
-      age: number;
-      gender: 'Male' | 'Female' | 'Other';
-      height?: string;
-      weight?: string;
-      problemDescription: string;
-      vitals?: {
-        temperature?: string;
-        bloodPressure?: string;
-        heartRate?: string;
-      };
-    };
-  }): Promise<{ lockExpiresAt: Date; order: RazorpayOrderDTO; tempBookingId: string }> {
-    if (!userId || !docId || !slotDate || !slotStartTime || !slotEndTime || !patientDetails) {
-      console.log('Missing fields:', { userId, docId, slotDate, slotStartTime, slotEndTime, patientDetails });
-      throw new Error('All fields are required');
-    }
-    console.log('InitiateBooking received patientDetails:', JSON.stringify(patientDetails));
-
-    const existingTempAppointment = await this._tempAppointmentRepository.findActiveTempAppointment(
-      docId,
-      slotDate,
-      slotStartTime,
-      slotEndTime
-    );
-
-    if (existingTempAppointment) {
-      throw new Error('Slot temporarily unavailable - another user is booking this slot');
-    }
-
-    const realSlotDoc = await this._slotRepository.getSlotByDate(docId, slotDate);
-    if (realSlotDoc) {
-      const isAlreadyBooked = realSlotDoc.slots.some(
-        (s) => s.start === slotStartTime && s.end === slotEndTime && s.booked
-      );
-      if (isAlreadyBooked) {
-        throw new Error('Slot already booked');
-      }
-    }
-
-    const [user, doctor] = await Promise.all([
-      this._userRepository.findUserById(userId),
-      this._userRepository.findDoctorById(docId),
-    ]);
-
-    if (!user) throw new Error('User not found');
-    if (!doctor) throw new Error('Doctor not found');
-
-    const amountInPaise = doctor.fees * 100;
-    if (!amountInPaise || amountInPaise <= 0) {
-      throw new Error('Invalid appointment amount');
-    }
-
-    const order = await this._paymentService.createOrder(amountInPaise, `temp_${Date.now()}`);
-
-    const expiresAt = new Date(Date.now() + 5 * 60 * 1000);
-
-    const tempAppointmentData = {
-      userId,
-      docId,
-      slotDate,
-      slotStartTime,
-      slotEndTime,
-      userData: user,
-      docData: doctor,
-      amount: doctor.fees,
-      razorpayOrderId: order.id,
-      status: 'pending_payment' as const,
-      expiresAt,
-      patientDetails,
-    };
-
-    const tempAppointment =
-      await this._tempAppointmentRepository.createTempAppointment(tempAppointmentData);
-
-    console.log(`Temporary appointment created: ${tempAppointment._id}`);
-    console.log(`Expires at: ${expiresAt}`);
-
-    return {
-      lockExpiresAt: expiresAt,
-      order,
-      tempBookingId: tempAppointment._id.toString(),
-    };
-  }
-
-  async listUserAppointmentsPaginated(
-    userId: string,
-    page: number,
-    limit: number,
-    filterType?: 'all' | 'upcoming' | 'ended'
-  ): Promise<PaginationResult<AppointmentDTO>> {
-    const paginatedData = await this._userRepository.getAppointmentsByUserIdPaginated(
-      userId,
-      page,
-      limit,
-      filterType
-    );
-
-    return {
-      ...paginatedData,
-      data: paginatedData.data.map(toAppointmentDTO),
-    };
-  }
-
-  async getActiveAppointment(userId: string): Promise<AppointmentDTO | null> {
-    if (!userId) throw new Error('User not found');
-
-    const appointment = await this._userRepository.findActiveAppointment(userId);
-
-    if (
-      appointment &&
-      appointment.isConfirmed === true &&
-      appointment.cancelled === false &&
-      appointment.payment === true
-    ) {
-      const now = new Date();
-      const start = new Date(`${appointment.slotDate}T${appointment.slotStartTime}:00`);
-      const end = new Date(`${appointment.slotDate}T${appointment.slotEndTime}:00`);
-
-      if (now >= start && now <= end) {
-        await notifyActiveAppointment(appointment);
-        return toAppointmentDTO(appointment);
-      }
-    }
-
-    return null;
-  }
-
-  async cancelAppointment(userId: string, appointmentId: string): Promise<void> {
-    if (!userId || !appointmentId) throw new Error('Missing required details');
-
-    const appointment = await this._userRepository.findAppointmentById(appointmentId);
-    if (!appointment) throw new Error('Appointment not found');
-
-    if (appointment.userId.toString() !== userId.toString()) {
-      throw new Error('Unauthorized cancellation');
-    }
-
-    if (!appointment.payment) {
-      await this._userRepository.cancelAppointment(userId, appointmentId);
-      return;
-    }
-
-    const amount = appointment.amount;
-    if (!amount || amount <= 0) return;
-
-    const doctorId = appointment.docData._id.toString();
-    const reason = `Refund for Cancelled Appointment ${generateShortAppointmentId(appointment._id.toString())} of ${appointment.docData.name}`;
-
-    const doctorShare = amount * 0.8;
-    const adminShare = amount * 0.2;
-
-    await Promise.all([
-      this._walletRepository.creditWallet(userId.toString(), 'user', amount, reason),
-      this._walletRepository.debitWallet(doctorId, 'doctor', doctorShare, reason),
-      this._walletRepository.debitWallet(adminId!, 'admin', adminShare, reason),
-      this._userRepository.cancelAppointment(userId, appointmentId),
-      this._slotService.releaseSlotLock(
-        doctorId,
-        appointment.slotDate,
-        appointment.slotStartTime,
-        appointment.slotEndTime,
-        userId
-      ),
-      this._notificationService.sendNotification({
-        recipientId: doctorId,
-        recipientRole: 'doctor',
-        type: 'appointment',
-        title: 'Appointment Canceled',
-        message: `User ${appointment.userData.name} canceled the appointment. ₹${doctorShare} refunded to user from your wallet.`,
-        link: '/doctor/appointments',
-      }),
-      this._notificationService.sendNotification({
-        recipientId: adminId,
-        recipientRole: 'admin',
-        type: 'appointment',
-        title: 'Appointment Canceled by User',
-        message: `Appointment between ${appointment.userData.name} and ${appointment.docData.name} was canceled. ₹${adminShare} refunded to user from your wallet.`,
-        link: '/admin/appointments',
-      }),
-    ]);
-
-    if (ioInstance) {
-      ioInstance.to(doctorId).emit('notification', {
-        title: `Appointment cancelled by ${appointment.userData.name}`,
-        link: '/doctor/appointments',
-      });
-    }
-  }
-
-  async startPayment(userId: string, appointmentId: string): Promise<{ order: RazorpayOrderDTO }> {
-    if (!userId || !appointmentId) {
-      throw new Error('User ID and Appointment ID are required');
-    }
-
-    const appointment = await this._userRepository.findPayableAppointment(userId, appointmentId);
-    if (!appointment || !appointment._id) {
-      throw new Error('Invalid appointment for payment');
-    }
-
-    const amountInPaise = appointment.amount * 100;
-
-    const order = await this._paymentService.createOrder(amountInPaise, appointment._id.toString());
-
-    return { order };
-  }
-
-  async verifyPayment(userId: string, tempBookingId: string, razorpay_order_id: string) {
-    const tempAppointment =
-      await this._tempAppointmentRepository.findTempAppointmentById(tempBookingId);
-    if (!tempAppointment) {
-      throw new Error('Temporary appointment not found or expired');
-    }
-
-    if (tempAppointment.expiresAt < new Date()) {
-      throw new Error('Temporary appointment has expired');
-    }
-    console.log('VerifyPayment found tempAppointment:', JSON.stringify(tempAppointment.patientDetails));
-
-    if (tempAppointment.userId.toString() !== userId.toString()) {
-      throw new Error('Unauthorized access to temporary appointment');
-    }
-
-    const orderInfo = await this._paymentService.fetchOrder(razorpay_order_id);
-    if (orderInfo.status !== 'paid') {
-      throw new Error('Payment not completed');
-    }
-
-    if (orderInfo.id !== tempAppointment.razorpayOrderId) {
-      throw new Error('Order ID mismatch');
-    }
-
-    const appointmentData: AppointmentTypes = {
-      userId: tempAppointment.userId,
-      docId: tempAppointment.docId,
-      slotDate: tempAppointment.slotDate,
-      slotStartTime: tempAppointment.slotStartTime,
-      slotEndTime: tempAppointment.slotEndTime,
-      userData: tempAppointment.userData,
-      docData: tempAppointment.docData,
-      amount: tempAppointment.amount,
-      date: Date.now(),
-      payment: true,
-      patientDetails: tempAppointment.patientDetails as any,
-    };
-
-    let booked;
-    try {
-      booked = await this._userRepository.bookAppointment(appointmentData);
-    } catch (error: any) {
-      console.error('Booking failed. Data:', JSON.stringify(appointmentData, null, 2));
-      throw new Error(`Booking Validation Failed: ${error.message}. Data: ${JSON.stringify(appointmentData.patientDetails)}`);
-    }
-    await this._userRepository.markAppointmentPaid(booked._id.toString());
-
-    const amount = booked.amount;
-    const doctorId = booked.docData._id.toString();
-    const doctorShare = amount * 0.8;
-    const adminShare = amount * 0.2;
-
-    await Promise.all([
-      this._walletRepository.creditWallet(
-        doctorId,
-        'doctor',
-        doctorShare,
-        `Earnings for Appointment ${generateShortAppointmentId(booked._id.toString())}`
-      ),
-      this._walletRepository.creditWallet(
-        adminId!,
-        'admin',
-        adminShare,
-        `Commission for Appointment ${generateShortAppointmentId(booked._id.toString())}`
-      ),
-    ]);
-
-    await Promise.all([
-      this._slotRepository.markSlotBooked(
-        tempAppointment.docId,
-        tempAppointment.slotDate,
-        tempAppointment.slotStartTime,
-        tempAppointment.slotEndTime
-      ),
-      this._tempAppointmentRepository.deleteTempAppointment(tempBookingId),
-    ]);
-
-    console.log(`Appointment created successfully: ${booked._id}`);
-    console.log(`Temporary appointment cleaned up: ${tempBookingId}`);
-
-    return toAppointmentDTO(booked);
-  }
-
-  async cancelTempBooking(tempBookingId: string): Promise<any> {
-    console.log(`Attempting to cancel temp booking: ${tempBookingId}`);
-
-    const tempAppointment =
-      await this._tempAppointmentRepository.findTempAppointmentById(tempBookingId);
-
-    if (!tempAppointment) {
-      console.log('No temp appointment found');
-      return;
-    }
-
-    console.log('Temp appointment data:', {
-      id: tempAppointment._id,
-      userId: tempAppointment.userId,
-      docId: tempAppointment.docId,
-      slotDate: tempAppointment.slotDate,
-      slotStartTime: tempAppointment.slotStartTime,
-      slotEndTime: tempAppointment.slotEndTime,
-      status: tempAppointment.status,
-      expiresAt: tempAppointment.expiresAt,
-    });
-
-    await this._tempAppointmentRepository.updateTempAppointmentStatus(tempBookingId, 'cancelled');
-    await this._tempAppointmentRepository.deleteTempAppointment(tempBookingId);
-
-    console.log('Temp appointment cancelled and deleted successfully');
-  }
-
-  async cleanupExpiredLocks(): Promise<void> {
-    try {
-      const deletedCount = await this._tempAppointmentRepository.cleanupExpiredTempAppointments();
-      console.log(`Cleaned up ${deletedCount} expired temp appointments`);
-    } catch (error) {
-      console.error('Error cleaning up expired temp appointments:', error);
-    }
-  }
-
   async getAvailableSlotsByDate(
     doctorId: string,
     date: string,
@@ -748,7 +400,7 @@ export class UserService implements IUserService {
       throw new Error('doctorId, year, and month are required');
     }
 
-    return this._userRepository.getAvailableSlotsByDoctorAndMonth(doctorId, year, month);
+    return this._slotRepository.getAvailableSlotsByDoctorAndMonth(doctorId, year, month);
   }
 
   async submitFeedback(
@@ -760,12 +412,27 @@ export class UserService implements IUserService {
     if (!message) throw new Error('Feedback message is required');
     if (!apptId) throw new Error('Appointment ID is required');
     if (!rating || rating < 1 || rating > 5) throw new Error('Rating must be 1–5');
+
+    const user = await this._userRepository.findUserById(userId);
+    if (!user) throw new Error('User not found');
+
+    const appointment = await this._appointmentRepository.findAppointmentById(apptId);
+    if (!appointment) throw new Error('Appointment not found');
+
     const feedbackDoc = await this._feedbackRepository.submitFeedback(
       userId,
       apptId,
+      appointment.docId.toString(),
+      {
+        name: user.name,
+        email: user.email,
+      },
       message,
       rating
     );
+
+    await this._doctorRepository.updateDoctorRating(appointment.docId.toString(), rating);
+
     return toFeedbackDTO(feedbackDoc);
   }
 
@@ -793,17 +460,5 @@ export class UserService implements IUserService {
     }
 
     return this._complaintRepository.reportIssue(userId, subject, description);
-  }
-  async getAppointmentById(userId: string, appointmentId: string): Promise<AppointmentDTO | null> {
-    if (!userId || !appointmentId) throw new Error('Missing required details');
-
-    const appointment = await this._userRepository.findAppointmentById(appointmentId);
-    if (!appointment) return null;
-
-    if (appointment.userId.toString() !== userId.toString()) {
-      throw new Error('Unauthorized access to appointment');
-    }
-
-    return toAppointmentDTO(appointment);
   }
 }

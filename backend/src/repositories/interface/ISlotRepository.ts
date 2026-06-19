@@ -25,4 +25,5 @@ export interface ISlotRepository {
   ): Promise<void>;
 
   markSlotBooked(doctorId: string, date: string, start: string, end: string): Promise<void>;
+  getAvailableSlotsByDoctorAndMonth(doctorId: string, year: number, month: number): Promise<any[]>;
 }

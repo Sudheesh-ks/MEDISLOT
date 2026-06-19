@@ -16,9 +16,13 @@ import { PatientHistoryRepository } from '../repositories/implementation/Patient
 import { SlotService } from '../services/implementation/SlotService';
 import { TempAppointmentRepository } from '../repositories/implementation/TempAppointmentRepository';
 import { OtpRedisService } from '../services/implementation/OtpRedisService';
+import { AppointmentService } from '../services/implementation/AppointmentService';
+import { DoctorRepository } from '../repositories/implementation/DoctorRepository';
+import { AppointmentRepository } from '../repositories/implementation/AppointmentRepository';
 
 // Repositories
 const userRepository = new UserRepository();
+const doctorRepository = new DoctorRepository();
 const blogRepository = new BlogRepository();
 const chatBotRepository = new ChatBotRepository();
 const notificationRepository = new NotificationRepository();
@@ -28,14 +32,26 @@ const feedbackRepository = new FeedbackRepository();
 const complaintRepository = new ComplaintRepository();
 const patientHistoryRepository = new PatientHistoryRepository();
 const tempAppointmentRepository = new TempAppointmentRepository();
+const appointmentRepository = new AppointmentRepository();
 
 // Services
 const paymentService = new PaymentService();
 const otpRedisService = new OtpRedisService();
 const notificationService = new NotificationService(notificationRepository);
-const blogService = new BlogService(blogRepository, userRepository);
+const blogService = new BlogService(blogRepository, doctorRepository);
 const chatBotService = new ChatBotService(chatBotRepository);
 const slotService = new SlotService(slotRepository);
+const appointmentService = new AppointmentService(
+  appointmentRepository,
+  userRepository,
+  doctorRepository,
+  tempAppointmentRepository,
+  slotRepository,
+  walletRepository,
+  notificationService,
+  paymentService,
+  slotService
+);
 
 const userService = new UserService(
   userRepository,
@@ -48,7 +64,9 @@ const userService = new UserService(
   feedbackRepository,
   complaintRepository,
   patientHistoryRepository,
-  tempAppointmentRepository
+  tempAppointmentRepository,
+  doctorRepository,
+  appointmentRepository
 );
 
 // Controller
@@ -57,7 +75,8 @@ export const userController = new UserController(
   paymentService,
   notificationService,
   blogService,
-  chatBotService
+  chatBotService,
+  appointmentService
 );
 
 export { userService };

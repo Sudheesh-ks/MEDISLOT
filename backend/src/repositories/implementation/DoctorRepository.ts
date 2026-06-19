@@ -1,13 +1,10 @@
 import { BaseRepository } from '../BaseRepository';
-import appointmentModel, { AppointmentDocument } from '../../models/AppointmentModel';
+import appointmentModel from '../../models/AppointmentModel';
 import doctorModel, { DoctorDocument } from '../../models/DoctorModel';
 import { DoctorTypes } from '../../types/Doctor';
 import { IDoctorRepository } from '../interface/IDoctorRepository';
 import { PaginationResult } from '../../types/Pagination';
 import { FilterQuery, PipelineStage, SortOrder } from 'mongoose';
-import slotModel from '../../models/SlotModel';
-import dayjs from 'dayjs';
-import { getDateRange } from '../../utils/DateRange.util';
 
 export class DoctorRepository extends BaseRepository<DoctorDocument> implements IDoctorRepository {
   constructor() {
@@ -32,45 +29,6 @@ export class DoctorRepository extends BaseRepository<DoctorDocument> implements 
 
   async findAllDoctors(): Promise<DoctorDocument[]> {
     return doctorModel.find({}).select('-password');
-  }
-
-  async findAppointmentsByDoctorId(docId: string): Promise<AppointmentDocument[]> {
-    return appointmentModel.find({ docId });
-  }
-
-  async findAppointmentById(id: string): Promise<AppointmentDocument | null> {
-    return appointmentModel.findById(id);
-  }
-
-  async markAppointmentAsConfirmed(id: string): Promise<void> {
-    await appointmentModel.findByIdAndUpdate(id, { isConfirmed: true });
-  }
-
-  async cancelAppointment(id: string): Promise<void> {
-    const appointment = await appointmentModel.findById(id);
-    if (!appointment) throw new Error('Appointment not found');
-
-    if (appointment.cancelled) {
-      throw new Error('Appointment already cancelled');
-    }
-
-    appointment.cancelled = true;
-    await appointment.save();
-
-    const { docId, slotDate, slotStartTime } = appointment;
-    const slotDoc = await slotModel.findOne({
-      doctorId: docId,
-      date: slotDate,
-    });
-    if (slotDoc) {
-      const slotIndex = slotDoc.slots.findIndex(
-        (slot) => slot.start === slotStartTime && slot.booked
-      );
-      if (slotIndex !== -1) {
-        slotDoc.slots[slotIndex].booked = false;
-        await slotDoc.save();
-      }
-    }
   }
 
   async getDoctorsPaginated(
@@ -125,79 +83,7 @@ export class DoctorRepository extends BaseRepository<DoctorDocument> implements 
     };
   }
 
-  async getAppointmentsPaginated(
-    docId: string,
-    page: number,
-    limit: number,
-    search?: string,
-    dateRange?: string
-  ): Promise<PaginationResult<AppointmentDocument>> {
-    const skip = (page - 1) * limit;
-
-    const query: FilterQuery<AppointmentDocument> = { docId };
-
-    if (search) {
-      query.$or = [
-        { 'userId.name': { $regex: search, $options: 'i' } },
-        { 'userId.email': { $regex: search, $options: 'i' } },
-      ];
-    }
-
-    if (dateRange) {
-      const { start, end } = getDateRange(dateRange);
-
-      if (start && end) {
-        query.slotDate = {
-          $gte: dayjs(start).format('YYYY-MM-DD'),
-          $lte: dayjs(end).format('YYYY-MM-DD'),
-        };
-      }
-    }
-
-    const totalCount = await appointmentModel.countDocuments(query);
-    const data = await appointmentModel
-      .find(query)
-      .populate('userId', 'name email image dob')
-      .populate('docId', 'name image speciality')
-      .skip(skip)
-      .limit(limit)
-      .sort({ createdAt: -1 });
-
-    const totalPages = Math.ceil(totalCount / limit);
-
-    return {
-      data,
-      totalCount,
-      currentPage: page,
-      totalPages,
-      hasNextPage: page < totalPages,
-      hasPrevPage: page > 1,
-    };
-  }
-
-  async findActiveAppointment(docId: string): Promise<AppointmentDocument | null> {
-    const now = new Date();
-
-    const appointments = await appointmentModel.find({
-      docId,
-      payment: true,
-      cancelled: false,
-      isConfirmed: true,
-    });
-
-    for (const appt of appointments) {
-      const start = new Date(`${appt.slotDate}T${appt.slotStartTime}:00`);
-      const end = new Date(`${appt.slotDate}T${appt.slotEndTime}:00`);
-
-      if (now >= start && now <= end) {
-        return appt;
-      }
-    }
-
-    return null;
-  }
-
-  async getDoctorProfileById(id: string): Promise<DoctorDocument | null> {
+  async findDoctorById(id: string): Promise<DoctorDocument | null> {
     return doctorModel.findById(id).select('-password');
   }
 
@@ -223,6 +109,21 @@ export class DoctorRepository extends BaseRepository<DoctorDocument> implements 
     >
   ): Promise<void> {
     await this.updateById(id, updateData);
+  }
+
+  async updateDoctorRating(doctorId: string, rating: number): Promise<void> {
+    const doctor = await doctorModel.findById(doctorId);
+
+    if (!doctor) throw new Error('Doctor not found');
+
+    const currentCount = doctor.ratingCount ?? 0;
+    const currentAverage = doctor.averageRating ?? 0;
+
+    doctor.ratingCount = currentCount + 1;
+
+    doctor.averageRating = (currentAverage * currentCount + rating) / doctor.ratingCount;
+
+    await doctor.save();
   }
 
   private _parseRange(start?: string, end?: string) {
@@ -265,32 +166,5 @@ export class DoctorRepository extends BaseRepository<DoctorDocument> implements 
     const res = await appointmentModel.aggregate(pipeline).exec();
     console.log(res);
     return res.map((r) => ({ date: r._id, revenue: r.revenue }));
-  }
-
-  async getAppointmentsOverTime(
-    doctorId: string,
-    start?: string,
-    end?: string
-  ): Promise<{ date: string; count: number }[]> {
-    const { startDate, endDate } = this._parseRange(start, end);
-
-    const match: any = { docId: String(doctorId), payment: true, cancelled: false };
-    if (startDate || endDate) match.createdAt = {};
-    if (startDate) match.createdAt.$gte = startDate;
-    if (endDate) match.createdAt.$lte = endDate;
-
-    const pipeline: PipelineStage[] = [
-      { $match: match },
-      {
-        $group: {
-          _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
-          count: { $sum: 1 },
-        },
-      },
-      { $sort: { _id: 1 } },
-    ];
-
-    const res = await appointmentModel.aggregate(pipeline).exec();
-    return res.map((r) => ({ date: r._id, count: r.count }));
   }
 }

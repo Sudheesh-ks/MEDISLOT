@@ -94,4 +94,22 @@ export class SlotRepository extends BaseRepository<SlotDocument> implements ISlo
       }
     );
   }
+
+  async getAvailableSlotsByDoctorAndMonth(
+    doctorId: string,
+    year: number,
+    month: number
+  ): Promise<SlotDocument[]> {
+    const regexMonth = String(month).padStart(2, '0');
+    const regex = new RegExp(`^${year}-${regexMonth}`);
+
+    return slotModel
+      .find({
+        doctorId,
+        date: { $regex: regex },
+        isCancelled: false,
+        'slots.booked': false,
+      })
+      .select('date slots');
+  }
 }

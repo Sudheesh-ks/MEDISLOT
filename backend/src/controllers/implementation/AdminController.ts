@@ -5,12 +5,14 @@ import { HttpStatus } from '../../constants/Status.constants';
 import { HttpResponse } from '../../constants/ResponseMessage.constants';
 import logger from '../../utils/Logger';
 import { INotificationService } from '../../services/interface/INotificationService';
+import { IAppointmentService } from '../../services/interface/IAppointmentService';
 
 export class AdminController implements IAdminController {
   constructor(
     private readonly _adminService: IAdminService,
-    private readonly _notificationService: INotificationService
-  ) { }
+    private readonly _notificationService: INotificationService,
+    private readonly _appointmentService: IAppointmentService
+  ) {}
 
   async loginAdmin(req: Request, res: Response): Promise<void> {
     try {
@@ -235,12 +237,7 @@ export class AdminController implements IAdminController {
       const search = (req.query.search as string) || '';
       const dateRange = req.query.dateRange as string;
 
-      const result = await this._adminService.listAppointmentsPaginated(
-        page,
-        limit,
-        search,
-        dateRange
-      );
+      const result = await this._appointmentService.getAppointments(page, limit, search, dateRange);
       logger.info(`Admin fetched appointments page: ${page} with search: "${search}"`);
       res.status(HttpStatus.OK).json({ success: true, ...result });
     } catch (error) {
@@ -253,13 +250,11 @@ export class AdminController implements IAdminController {
     }
   }
 
-
-
   async adminCancelAppointment(req: Request, res: Response): Promise<void> {
     try {
       const { appointmentId } = req.params;
 
-      await this._adminService.cancelAppointment(appointmentId);
+      await this._appointmentService.cancelAppointmentByAdmin(appointmentId);
       logger.info(`Admin canceled appointment ID: ${appointmentId}`);
       res
         .status(HttpStatus.OK)
@@ -309,7 +304,7 @@ export class AdminController implements IAdminController {
     try {
       const doctors = await this._adminService.getDoctors();
       const users = await this._adminService.getUsers();
-      const appointments = await this._adminService.listAppointments();
+      const appointments = await this._appointmentService.getAllAppointments();
 
       const dashData = {
         doctors: doctors.length,
@@ -345,7 +340,7 @@ export class AdminController implements IAdminController {
   async getAppointmentsStats(req: Request, res: Response): Promise<void> {
     try {
       const { startDate, endDate } = req.query as any;
-      const data = await this._adminService.getAppointmentsStats(startDate, endDate);
+      const data = await this._appointmentService.getAppointmentsStats(startDate, endDate);
       res.status(HttpStatus.OK).json({ success: true, data });
     } catch (err) {
       logger.error(`Appointments stats failed: ${(err as Error).message}`);
@@ -535,7 +530,7 @@ export class AdminController implements IAdminController {
   async getAppointmentById(req: Request, res: Response): Promise<void> {
     try {
       const { appointmentId } = req.params;
-      const appointment = await this._adminService.getAppointmentById(appointmentId);
+      const appointment = await this._appointmentService.getAppointmentById(appointmentId);
       res.status(HttpStatus.OK).json({ success: true, appointment });
     } catch (error) {
       logger.error(`Failed to fetch appointment by id: ${(error as Error).message}`);

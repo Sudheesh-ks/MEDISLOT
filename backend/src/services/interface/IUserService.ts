@@ -1,12 +1,9 @@
-import { AppointmentDTO } from '../../dtos/Appointment.dto';
 import { DoctorDTO } from '../../dtos/Doctor.dto';
 import { FeedbackDTO } from '../../dtos/Feedback.dto';
 import { PrescriptionDTO } from '../../dtos/Prescription.dto';
 import { UserDTO } from '../../dtos/User.dto';
 import { WalletDTO } from '../../dtos/Wallet.dto';
 import { ComplaintTypes } from '../../types/Complaint';
-import { PaginationResult } from '../../types/Pagination';
-import { RazorpayOrderDTO } from '../../types/Payment';
 import { SlotRange } from '../../types/Slots';
 import { userTypes } from '../../types/User';
 
@@ -50,53 +47,10 @@ export interface IUserService {
   finalizeRegister(userTypes: { name: string; email: string; password: string }): Promise<UserDTO>;
   getUserById(id: string): Promise<UserDTO | null>;
   getDoctorById(id: string): Promise<DoctorDTO>;
-  initiateBooking({
-    userId,
-    docId,
-    slotDate,
-    slotStartTime,
-    slotEndTime,
-  }: {
-    userId: string;
-    docId: string;
-    slotDate: string;
-    slotStartTime: string;
-    slotEndTime: string;
-    patientDetails: {
-      name: string;
-      age: number;
-      gender: 'Male' | 'Female' | 'Other';
-      height?: string;
-      weight?: string;
-      problemDescription: string;
-      vitals?: {
-        temperature?: string;
-        bloodPressure?: string;
-        heartRate?: string;
-      };
-    };
-  }): Promise<{ lockExpiresAt: Date; order: RazorpayOrderDTO; tempBookingId: string }>;
-  listUserAppointmentsPaginated(
-    userId: string,
-    page: number,
-    limit: number,
-    filterType?: 'all' | 'upcoming' | 'ended'
-  ): Promise<PaginationResult<AppointmentDTO>>;
-  getActiveAppointment(userId: string): Promise<AppointmentDTO | null>;
-  cancelAppointment(userId: string, appointmentId: string): Promise<void>;
-  startPayment(userId: string, appointmentId: string): Promise<{ order: any }>;
-  verifyPayment(
-    userId: string,
-    appointmentId: string,
-    razorpay_order_id: string
-  ): Promise<AppointmentDTO>;
-  cancelTempBooking(tempBookingId: string): Promise<any>;
-  cleanupExpiredLocks(): Promise<void>;
   getAvailableSlotsByDate(doctorId: string, date: string, userId: string): Promise<SlotRange[]>;
   getAvailableSlotsForDoctor(doctorId: string, year: number, month: number): Promise<any[]>;
   submitFeedback(userId: string, apptId: string, message: string, rating: number): Promise<any>;
   getPrescriptionByAppointmentId(appointmentId: string): Promise<PrescriptionDTO | null>;
   getAllReviews(doctorId: string): Promise<FeedbackDTO[]>;
   reportIssue(userId: string, subject: string, description: string): Promise<ComplaintTypes>;
-  getAppointmentById(userId: string, appointmentId: string): Promise<AppointmentDTO | null>;
 }

@@ -1,4 +1,3 @@
-import { AppointmentDocument } from '../../models/AppointmentModel';
 import { DoctorDocument } from '../../models/DoctorModel';
 import { DoctorTypes } from '../../types/Doctor';
 import { PaginationResult } from '../../types/Pagination';
@@ -18,19 +17,7 @@ export interface IDoctorRepository {
   ): Promise<PaginationResult<DoctorDocument>>;
   findByEmail(email: string): Promise<DoctorDocument | null>;
   save(doctor: DoctorDocument): Promise<void>;
-  findAppointmentsByDoctorId(docId: string): Promise<AppointmentDocument[]>;
-  getAppointmentsPaginated(
-    docId: string,
-    page: number,
-    limit: number,
-    search?: string,
-    dateRange?: string
-  ): Promise<PaginationResult<AppointmentDocument>>;
-  findAppointmentById(id: string): Promise<AppointmentDocument | null>;
-  markAppointmentAsConfirmed(id: string): Promise<void>;
-  cancelAppointment(id: string): Promise<void>;
-  findActiveAppointment(docId: string): Promise<AppointmentDocument | null>;
-  getDoctorProfileById(id: string): Promise<DoctorDocument | null>;
+  findDoctorById(id: string): Promise<DoctorDocument | null>;
   updateDoctorById(id: string, data: Partial<DoctorTypes>): Promise<void>;
   updateDoctorProfile(
     id: string,
@@ -49,14 +36,10 @@ export interface IDoctorRepository {
       >
     >
   ): Promise<void>;
+  updateDoctorRating(doctorId: string, rating: number): Promise<void>;
   getRevenueOverTime(
     doctorId: string,
     start?: string,
     end?: string
   ): Promise<{ date: string; revenue: number }[]>;
-  getAppointmentsOverTime(
-    doctorId: string,
-    start?: string,
-    end?: string
-  ): Promise<{ date: string; count: number }[]>;
 }

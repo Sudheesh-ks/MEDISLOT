@@ -52,7 +52,6 @@ userRouter.get(
   userController.getAppointmentById.bind(userController)
 );
 
-
 userRouter.patch(
   '/appointments/:appointmentId/cancel',
   authRole(['user']),

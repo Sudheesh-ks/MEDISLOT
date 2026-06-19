@@ -9,6 +9,7 @@ import { INotificationService } from '../../services/interface/INotificationServ
 import { IPaymentService } from '../../services/interface/IPaymentService';
 import { IBlogService } from '../../services/interface/IBlogService';
 import { IChatBotService } from '../../services/interface/IChatBotService';
+import { IAppointmentService } from '../../services/interface/IAppointmentService';
 
 export class UserController implements IUserController {
   constructor(
@@ -16,8 +17,9 @@ export class UserController implements IUserController {
     private readonly _paymentService: IPaymentService,
     private readonly _notificationService: INotificationService,
     private readonly _blogService: IBlogService,
-    private readonly _chatBotService: IChatBotService
-  ) { }
+    private readonly _chatBotService: IChatBotService,
+    private readonly _appointmentService: IAppointmentService
+  ) {}
 
   async registerUser(req: Request, res: Response): Promise<void> {
     const { name, email, password } = req.body;
@@ -333,14 +335,15 @@ export class UserController implements IUserController {
       const userId = (req as any).userId;
       const { docId, slotDate, slotStartTime, slotEndTime, patientDetails } = req.body;
 
-      const { tempBookingId, order, lockExpiresAt } = await this._userService.initiateBooking({
-        userId,
-        docId,
-        slotDate,
-        slotStartTime,
-        slotEndTime,
-        patientDetails,
-      });
+      const { tempBookingId, order, lockExpiresAt } =
+        await this._appointmentService.initiateBooking({
+          userId,
+          docId,
+          slotDate,
+          slotStartTime,
+          slotEndTime,
+          patientDetails,
+        });
       logger.info(`Appointment booking initiated for user ${userId}`);
       res.status(HttpStatus.OK).json({
         success: true,
@@ -365,7 +368,7 @@ export class UserController implements IUserController {
       const limit = parseInt(req.query.limit as string) || 5;
       const filterType = req.query.filterType as 'all' | 'upcoming' | 'ended';
 
-      const result = await this._userService.listUserAppointmentsPaginated(
+      const result = await this._appointmentService.getUserAppointments(
         userId,
         page,
         limit,
@@ -388,7 +391,7 @@ export class UserController implements IUserController {
   async getActiveAppointment(req: Request, res: Response): Promise<void> {
     try {
       const userId = (req as any).userId;
-      const appointment = await this._userService.getActiveAppointment(userId);
+      const appointment = await this._appointmentService.getActiveUserAppointment(userId);
 
       if (!appointment) {
         res.json({ active: false });
@@ -419,7 +422,7 @@ export class UserController implements IUserController {
       const { appointmentId } = req.params;
       console.log('userId from token:', userId);
 
-      await this._userService.cancelAppointment(userId, appointmentId);
+      await this._appointmentService.cancelAppointmentByUser(userId, appointmentId);
       logger.info(`Appointment ${appointmentId} cancelled by user ${userId}`);
       res.status(HttpStatus.OK).json({
         success: true,
@@ -439,7 +442,7 @@ export class UserController implements IUserController {
       const userId = (req as any).userId;
       const { appointmentId } = req.body;
 
-      const { order } = await this._userService.startPayment(userId, appointmentId);
+      const { order } = await this._appointmentService.startPayment(userId, appointmentId);
       logger.info(`Payment started for appointment ${appointmentId}`);
       res.status(HttpStatus.OK).json({ success: true, order });
     } catch (error) {
@@ -457,7 +460,7 @@ export class UserController implements IUserController {
       console.log(userId);
       const { appointmentId, razorpay_order_id } = req.body;
 
-      const result = await this._userService.verifyPayment(
+      const result = await this._appointmentService.verifyPayment(
         userId,
         appointmentId,
         razorpay_order_id
@@ -484,7 +487,7 @@ export class UserController implements IUserController {
         res.status(400).json({ success: false, message: 'tempBookingId required' });
         return;
       }
-      await this._userService.cancelTempBooking(tempBookingId);
+      await this._appointmentService.cancelTempBooking(tempBookingId);
       res.json({ success: true });
     } catch (err) {
       res.status(500).json({ success: false, message: (err as Error).message });
@@ -801,10 +804,9 @@ export class UserController implements IUserController {
 
   async getAppointmentById(req: Request, res: Response): Promise<void> {
     try {
-      const userId = (req as any).userId;
       const { appointmentId } = req.params;
 
-      const appointment = await this._userService.getAppointmentById(userId, appointmentId);
+      const appointment = await this._appointmentService.getAppointmentById(appointmentId);
 
       if (!appointment) {
         res.status(HttpStatus.NOT_FOUND).json({
@@ -825,7 +827,6 @@ export class UserController implements IUserController {
       });
     }
   }
-
 
   async getBlogLikes(req: Request, res: Response): Promise<void> {
     try {
@@ -911,7 +912,7 @@ export class UserController implements IUserController {
 
   async cleanupExpiredLocks(req: Request, res: Response): Promise<void> {
     try {
-      await this._userService.cleanupExpiredLocks();
+      await this._appointmentService.cleanupExpiredLocks();
       logger.info('Expired locks cleaned up successfully');
       res.status(HttpStatus.OK).json({
         success: true,

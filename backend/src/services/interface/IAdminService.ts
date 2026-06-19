@@ -1,5 +1,4 @@
 import { UserDTO } from '../../dtos/User.dto';
-import { AppointmentDTO } from '../../dtos/Appointment.dto';
 import { DoctorTypes } from '../../types/Doctor';
 import { DoctorDTO } from '../../dtos/Doctor.dto';
 import { AdminDTO } from '../../dtos/Admin.dto';
@@ -39,15 +38,6 @@ export interface IAdminService {
   ): Promise<PaginationResult<UserDTO>>;
   toggleUserBlock(userId: string, block: boolean): Promise<UserDTO>;
   toggleUserBlock(userId: string, block: boolean): Promise<UserDTO>;
-  listAppointments(): Promise<AppointmentDTO[]>;
-  getAppointmentById(id: string): Promise<AppointmentDTO | null>;
-  listAppointmentsPaginated(
-    page: number,
-    limit: number,
-    search: string,
-    dateRange: string
-  ): Promise<PaginationResult<AppointmentDTO>>;
-  cancelAppointment(appointmentId: string): Promise<void>;
   approveDoctor(doctorId: string): Promise<string>;
   rejectDoctor(doctorId: string, reason?: string): Promise<string>;
   blockDoctor(doctorId: string, reason?: string): Promise<string>;
@@ -68,10 +58,6 @@ export interface IAdminService {
     filteredDebits: number;
   }>;
   getLatestDoctorRequests(limit: number): Promise<DoctorDTO[]>;
-  getAppointmentsStats(
-    startDate?: string,
-    endDate?: string
-  ): Promise<{ date: string; count: number }[]>;
   getTopDoctors(
     limit: number
   ): Promise<{ doctorId: string; doctorName: string; appointments: number; revenue: number }[]>;

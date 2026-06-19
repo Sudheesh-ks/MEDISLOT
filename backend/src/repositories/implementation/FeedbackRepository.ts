@@ -1,7 +1,4 @@
-import appointmentModel from '../../models/AppointmentModel';
-import doctorModel from '../../models/DoctorModel';
 import feedbackModel, { FeedbackDocument } from '../../models/FeedbackModel';
-import userModel from '../../models/UserModel';
 import { BaseRepository } from '../BaseRepository';
 import { IFeedbackRepository } from '../interface/IFeedbackRepository';
 
@@ -16,40 +13,42 @@ export class FeedbackRepository
   async submitFeedback(
     userId: string,
     apptId: string,
+    doctorId: string,
+    userData: {
+      name: string;
+      email: string;
+    },
     message: string,
     rating: number
   ): Promise<FeedbackDocument> {
-    const user = await userModel.findById(userId).lean();
-    if (!user) throw new Error('User not found');
+    // const user = await userModel.findById(userId).lean();
+    // if (!user) throw new Error('User not found');
 
-    const appointment = await appointmentModel.findById(apptId).lean();
-    if (!appointment) throw new Error('Appointment not found');
+    // const appointment = await appointmentModel.findById(apptId).lean();
+    // if (!appointment) throw new Error('Appointment not found');
 
     const feedback = new this.model({
       userId,
       apptId,
-      doctorId: appointment.docId,
-      userData: {
-        name: user.name,
-        email: user.email,
-      },
+      doctorId,
+      userData,
       message,
       rating,
       timestamp: new Date(),
       isRead: false,
     });
 
-    const saved = await feedback.save();
+    // const saved = await feedback.save();
 
-    const doctor = await doctorModel.findById(appointment.docId);
-    if (doctor) {
-      doctor.ratingCount! += 1;
-      doctor.averageRating =
-        (doctor.averageRating! * (doctor.ratingCount! - 1) + rating) / doctor.ratingCount!;
-      await doctor.save();
-    }
+    // const doctor = await doctorModel.findById(appointment.docId);
+    // if (doctor) {
+    //   doctor.ratingCount! += 1;
+    //   doctor.averageRating =
+    //     (doctor.averageRating! * (doctor.ratingCount! - 1) + rating) / doctor.ratingCount!;
+    //   await doctor.save();
+    // }
 
-    return saved;
+    return await feedback.save();
   }
 
   async getFeedbacks(doctorId: string): Promise<FeedbackDocument[]> {
