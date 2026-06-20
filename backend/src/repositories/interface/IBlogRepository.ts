@@ -18,15 +18,15 @@ export interface IBlogRepository {
   findAllPublicBlogs(): Promise<BlogDocument[]>;
   getBlogComments(blogId: string): Promise<CommentType[] | undefined>;
   addBlogComment(
-  blogId: string,
-  userId: string,
-  userData: {
-    name: string;
-    email: string;
-    image?: string;
-  },
-  content: string
-): Promise<any>;
+    blogId: string,
+    userId: string,
+    userData: {
+      name: string;
+      email: string;
+      image?: string;
+    },
+    content: string
+  ): Promise<any>;
   findBlogsByDoctorId(doctorId: string): Promise<BlogDocument[]>;
   updateBlog(id: string, data: Partial<BlogTypes>): Promise<BlogDocument>;
   deleteBlog(id: string): Promise<void>;

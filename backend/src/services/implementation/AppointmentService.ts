@@ -16,6 +16,7 @@ import { INotificationService } from '../interface/INotificationService';
 import { IPaymentService } from '../interface/IPaymentService';
 import { ioInstance } from '../../sockets/ChatSocket';
 import { ISlotService } from '../interface/ISlotService';
+import { AppointmentDocument } from '../../models/AppointmentModel';
 
 const adminId = process.env.ADMIN_ID;
 
@@ -209,6 +210,12 @@ export class AppointmentService implements IAppointmentService {
       this._walletRepository.debitWallet(doctorId, 'doctor', doctorShare, reason),
       this._walletRepository.debitWallet(adminId!, 'admin', adminShare, reason),
       this._appointmentRepository.cancelAppointment(appointmentId),
+      this._slotRepository.unbookSlot(
+        appointment.docId.toString(),
+        appointment.slotDate,
+        appointment.slotStartTime,
+        appointment.slotEndTime
+      ),
       this._slotService.releaseSlotLock(
         doctorId,
         appointment.slotDate,
@@ -310,7 +317,7 @@ export class AppointmentService implements IAppointmentService {
 
     let booked;
     try {
-      booked = await this._appointmentRepository.bookAppointment(appointmentData);
+      booked = await this.bookAppointment(appointmentData);
     } catch (error: any) {
       console.error('Booking failed. Data:', JSON.stringify(appointmentData, null, 2));
       throw new Error(
@@ -353,6 +360,34 @@ export class AppointmentService implements IAppointmentService {
     console.log(`Temporary appointment cleaned up: ${tempBookingId}`);
 
     return toAppointmentDTO(booked);
+  }
+
+  async bookAppointment(data: AppointmentTypes): Promise<AppointmentDocument> {
+    const doctor = await this._doctorRepository.findDoctorById(data.docId);
+    if (!doctor || !doctor.available) {
+      throw new Error('Doctor unavailable for booking');
+    }
+
+    const user = await this._userRepository.findUserById(data.userId);
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    await this._slotService.reserveSlotForAppointment(
+      data.docId,
+      data.slotDate,
+      data.slotStartTime,
+      data.slotEndTime
+    );
+
+    const appointment = await this._appointmentRepository.createAppointment({
+      ...data,
+      userData: user,
+      docData: doctor,
+      amount: doctor.fees,
+    });
+
+    return appointment;
   }
 
   async cancelTempBooking(tempBookingId: string): Promise<any> {
@@ -509,6 +544,12 @@ export class AppointmentService implements IAppointmentService {
         link: '/admin/appointments',
       }),
       this._appointmentRepository.cancelAppointment(appointmentId),
+      this._slotRepository.unbookSlot(
+        appointment.docId.toString(),
+        appointment.slotDate,
+        appointment.slotStartTime,
+        appointment.slotEndTime
+      ),
     ]);
 
     if (ioInstance) {
@@ -541,12 +582,6 @@ export class AppointmentService implements IAppointmentService {
     const appointments = await this._appointmentRepository.getAllAppointments();
     return appointments.map(toAppointmentDTO);
   }
-
-  //   async getAppointmentById(id: string): Promise<AppointmentDTO | null> {
-  //     const appointment = await this._appointmentRepository.getAppointmentById(id);
-  //     if (!appointment) throw new Error('Appointment not found');
-  //     return toAppointmentDTO(appointment);
-  //   }
 
   async getAppointments(
     page: number,
@@ -627,6 +662,12 @@ export class AppointmentService implements IAppointmentService {
           )
         : Promise.resolve(),
       this._appointmentRepository.cancelAppointment(appointmentId),
+      this._slotRepository.unbookSlot(
+        appointment.docId.toString(),
+        appointment.slotDate,
+        appointment.slotStartTime,
+        appointment.slotEndTime
+      ),
     ]);
   }
 

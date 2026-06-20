@@ -12,7 +12,7 @@ export class BlogService implements IBlogService {
   constructor(
     private readonly _blogRepository: IBlogRepository,
     private readonly _doctorRepository: IDoctorRepository,
-    private readonly _userRepository: IUserRepository,
+    private readonly _userRepository: IUserRepository
   ) {}
 
   async createBlog(data: BlogTypes): Promise<BlogDTO> {
@@ -155,8 +155,7 @@ export class BlogService implements IBlogService {
   }
 
   async addBlogComment(blogId: string, userId: string, content: string) {
-
-    if(!content.trim()){
+    if (!content.trim()) {
       throw new Error('Content cannot be empty');
     }
 
@@ -171,7 +170,7 @@ export class BlogService implements IBlogService {
         name: user.name,
         email: user.email,
         image: user.image,
-      }, 
+      },
       content
     );
   }

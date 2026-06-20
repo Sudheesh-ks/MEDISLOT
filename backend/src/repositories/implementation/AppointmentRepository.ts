@@ -1,8 +1,5 @@
 import dayjs from 'dayjs';
 import appointmentModel, { AppointmentDocument } from '../../models/AppointmentModel';
-import doctorModel from '../../models/DoctorModel';
-import slotModel from '../../models/SlotModel';
-import userModel from '../../models/UserModel';
 import { AppointmentTypes } from '../../types/Appointment';
 import { PaginationResult } from '../../types/Pagination';
 import { BaseRepository } from '../BaseRepository';
@@ -18,103 +15,8 @@ export class AppointmentRepository
     super(appointmentModel);
   }
 
-  async bookAppointment(appointmentData: AppointmentTypes): Promise<AppointmentDocument> {
-    const { userId, docId, slotDate, slotStartTime, slotEndTime, patientDetails } = appointmentData;
-
-    const doctor = await doctorModel.findById(docId);
-    if (!doctor || !doctor.available) throw new Error('Doctor not available');
-
-    let slotDoc = await slotModel.findOne({
-      doctorId: docId,
-      date: slotDate,
-    });
-
-    let slotIndex = -1;
-
-    if (slotDoc && !slotDoc.isCancelled) {
-      slotIndex = slotDoc.slots.findIndex(
-        (slot) => slot.start === slotStartTime && slot.end === slotEndTime && !slot.booked
-      );
-    }
-
-    if (slotIndex === -1) {
-      const weekday = dayjs(slotDate).day();
-      const weeklyDefault = await slotModel.findOne({
-        doctorId: docId,
-        weekday,
-        isDefault: true,
-      });
-
-      if (!weeklyDefault) {
-        throw new Error('Slot not available');
-      }
-
-      const defIndex = weeklyDefault.slots.findIndex(
-        (slot) => slot.start === slotStartTime && slot.end === slotEndTime && slot.isAvailable
-      );
-
-      if (defIndex === -1) {
-        throw new Error('Slot not available');
-      }
-
-      slotDoc = await slotModel.findOneAndUpdate(
-        { doctorId: docId, date: slotDate },
-        {
-          $setOnInsert: {
-            doctorId: docId,
-            date: slotDate,
-            slots: weeklyDefault.slots.map((s) => ({
-              ...s,
-              booked: false,
-            })),
-          },
-        },
-        { upsert: true, new: true }
-      );
-
-      if (!slotDoc) {
-        throw new Error('Failed to create or fetch slot document');
-      }
-
-      slotIndex = slotDoc.slots.findIndex(
-        (slot) => slot.start === slotStartTime && slot.end === slotEndTime
-      );
-    }
-
-    if (slotIndex === -1) throw new Error('Slot not available');
-
-    const updatedSlot = await slotModel.findOneAndUpdate(
-      {
-        _id: slotDoc!._id,
-        'slots.start': slotStartTime,
-        'slots.end': slotEndTime,
-        'slots.booked': false,
-      },
-      {
-        $set: { 'slots.$.booked': true },
-      },
-      { new: true }
-    );
-
-    if (!updatedSlot) {
-      throw new Error('Slot already booked');
-    }
-
-    const userData = await userModel.findById(userId).select('-password').lean();
-    const docData = await doctorModel.findById(docId).select('-password').lean();
-
-    const appointment = new appointmentModel({
-      userId,
-      docId,
-      userData,
-      docData,
-      amount: docData!.fees,
-      slotStartTime,
-      slotEndTime,
-      slotDate,
-      date: new Date(),
-      patientDetails,
-    });
+  async createAppointment(appointmentData: AppointmentTypes): Promise<AppointmentDocument> {
+    const appointment = new appointmentModel(appointmentData);
 
     return await appointment.save();
   }
@@ -448,35 +350,7 @@ export class AppointmentRepository
   }
 
   async cancelAppointment(appointmentId: string): Promise<void> {
-    const appointment = await appointmentModel.findById(appointmentId);
-    // if (!appointment) throw new Error('Appointment not found');
-
-    // if (appointment.userId.toString() !== userId.toString()) {
-    //   throw new Error('Unauthorized action');
-    // }
-
-    // if (appointment.cancelled) {
-    //   throw new Error('Appointment already cancelled');
-    // }
-    if (appointment) {
-      appointment.cancelled = true;
-      await appointment.save();
-
-      const { docId, slotDate, slotStartTime } = appointment;
-      const slotDoc = await slotModel.findOne({
-        doctorId: docId,
-        date: slotDate,
-      });
-      if (slotDoc) {
-        const slotIndex = slotDoc.slots.findIndex(
-          (slot) => slot.start === slotStartTime && slot.booked
-        );
-        if (slotIndex !== -1) {
-          slotDoc.slots[slotIndex].booked = false;
-          await slotDoc.save();
-        }
-      }
-    }
+    await appointmentModel.findByIdAndUpdate(appointmentId, { cancelled: true });
   }
 
   async getAppointmentsOverTime(

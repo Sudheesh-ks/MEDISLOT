@@ -3,6 +3,12 @@ import { SlotRange } from '../../types/Slots';
 
 export interface ISlotService {
   getMonthlySlots(doctorId: string, year: number, month: number): Promise<slotDTO[]>;
+  reserveSlotForAppointment(
+    doctorId: string,
+    slotDate: string,
+    slotStartTime: string,
+    slotEndTime: string
+  ): Promise<void>;
   updateDaySlot(
     doctorId: string,
     date: string,
@@ -18,6 +24,7 @@ export interface ISlotService {
     isCancelled: boolean
   ): Promise<slotDTO>;
   getDefaultSlot(doctorId: string, weekday: number): Promise<slotDTO>;
+  unbookSlot(doctorId: string, date: string, start: string, end: string): Promise<void>;
   lockSlot(
     doctorId: string,
     date: string,

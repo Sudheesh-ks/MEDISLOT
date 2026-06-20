@@ -3,7 +3,7 @@ import { AppointmentTypes } from '../../types/Appointment';
 import { PaginationResult } from '../../types/Pagination';
 
 export interface IAppointmentRepository {
-  bookAppointment(appointmentData: AppointmentTypes): Promise<AppointmentDocument>;
+  createAppointment(appointmentData: AppointmentTypes): Promise<AppointmentDocument>;
   getAppointments(
     page: number,
     limit: number,

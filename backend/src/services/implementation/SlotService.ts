@@ -4,8 +4,6 @@ import { ISlotService } from '../interface/ISlotService';
 import { SlotRange } from '../../types/Slots';
 import { ISlotRepository } from '../../repositories/interface/ISlotRepository';
 import { slotDTO } from '../../dtos/Slot.dto';
-import slotModel from '../../models/SlotModel';
-import mongoose from 'mongoose';
 import { toSlotDTO } from '../../mappers/Slot.mapper';
 
 dayjs.extend(customParse);
@@ -16,6 +14,64 @@ export class SlotService implements ISlotService {
   async getMonthlySlots(doctorId: string, year: number, month: number): Promise<slotDTO[]> {
     const slots = await this._slotRepository.getSlotsByMonth(doctorId, year, month);
     return slots.map(toSlotDTO);
+  }
+
+  async reserveSlotForAppointment(
+    doctorId: string,
+    slotDate: string,
+    slotStartTime: string,
+    slotEndTime: string
+  ): Promise<void> {
+    let slotDoc = await this._slotRepository.getSlotByDate(doctorId, slotDate);
+
+    let slotIndex = -1;
+
+    if (slotDoc && !slotDoc.isCancelled) {
+      slotIndex = slotDoc.slots.findIndex(
+        (slot) => slot.start === slotStartTime && slot.end === slotEndTime && !slot.booked
+      );
+    }
+
+    if (slotIndex === -1) {
+      const weekday = dayjs(slotDate).day();
+      const weeklyDefault = await this._slotRepository.getDefaultSlotByWeekday(doctorId, weekday);
+
+      if (!weeklyDefault) {
+        throw new Error('Slot not available');
+      }
+
+      const defIndex = weeklyDefault.slots.findIndex(
+        (slot) => slot.start === slotStartTime && slot.end === slotEndTime && slot.isAvailable
+      );
+
+      if (defIndex === -1) {
+        throw new Error('Slot not available');
+      }
+
+      slotDoc = await this._slotRepository.upsertSlot(
+        doctorId,
+        slotDate,
+        weeklyDefault.slots.map((s) => ({
+          start: s.start,
+          end: s.end,
+          isAvailable: s.isAvailable,
+          booked: false,
+        })),
+        false
+      );
+
+      if (!slotDoc) {
+        throw new Error('Failed to create or fetch slot document');
+      }
+
+      slotIndex = slotDoc.slots.findIndex(
+        (slot) => slot.start === slotStartTime && slot.end === slotEndTime
+      );
+    }
+
+    if (slotIndex === -1) throw new Error('Slot not available');
+
+    await this._slotRepository.markSlotBooked(doctorId, slotDate, slotStartTime, slotEndTime);
   }
 
   private validateRanges(ranges: SlotRange[]) {
@@ -98,6 +154,10 @@ export class SlotService implements ISlotService {
     return toSlotDTO(slot);
   }
 
+  async unbookSlot(doctorId: string, date: string, start: string, end: string): Promise<void> {
+    await this._slotRepository.unbookSlot(doctorId, date, start, end);
+  }
+
   async lockSlot(
     doctorId: string,
     date: string,
@@ -135,21 +195,6 @@ export class SlotService implements ISlotService {
     end: string,
     userId: string
   ): Promise<void> {
-    await slotModel.updateOne(
-      {
-        doctorId,
-        date,
-        'slots.start': start,
-        'slots.end': end,
-        'slots.lockedBy': new mongoose.Types.ObjectId(userId),
-      },
-      {
-        $set: {
-          'slots.$.locked': false,
-          'slots.$.lockedBy': null,
-          'slots.$.lockExpiresAt': null,
-        },
-      }
-    );
+    await this._slotRepository.releaseSlotLock(doctorId, date, start, end, userId);
   }
 }

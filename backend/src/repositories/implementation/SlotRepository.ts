@@ -1,4 +1,4 @@
-import { FilterQuery } from 'mongoose';
+import mongoose, { FilterQuery } from 'mongoose';
 import slotModel, { SlotDocument } from '../../models/SlotModel';
 import { BaseRepository } from '../BaseRepository';
 import { ISlotRepository } from '../interface/ISlotRepository';
@@ -111,5 +111,47 @@ export class SlotRepository extends BaseRepository<SlotDocument> implements ISlo
         'slots.booked': false,
       })
       .select('date slots');
+  }
+
+  async unbookSlot(doctorId: string, date: string, start: string, end: string): Promise<void> {
+    await slotModel.updateOne(
+      {
+        doctorId,
+        date,
+        'slots.start': start,
+        'slots.end': end,
+        'slots.booked': true,
+      },
+      {
+        $set: {
+          'slots.$.booked': false,
+        },
+      }
+    );
+  }
+
+  async releaseSlotLock(
+    doctorId: string,
+    date: string,
+    start: string,
+    end: string,
+    userId: string
+  ): Promise<void> {
+    await slotModel.updateOne(
+      {
+        doctorId,
+        date,
+        'slots.start': start,
+        'slots.end': end,
+        'slots.lockedBy': new mongoose.Types.ObjectId(userId),
+      },
+      {
+        $set: {
+          'slots.$.locked': false,
+          'slots.$.lockedBy': null,
+          'slots.$.lockExpiresAt': null,
+        },
+      }
+    );
   }
 }
