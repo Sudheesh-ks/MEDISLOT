@@ -431,7 +431,18 @@ export class UserService implements IUserService {
       rating
     );
 
-    await this._doctorRepository.updateDoctorRating(appointment.docId.toString(), rating);
+    const doctor = await this._doctorRepository.findDoctorById(appointment.docId.toString());
+
+    if (!doctor) throw new Error('Doctor not found');
+
+    const currentCount = doctor.ratingCount ?? 0;
+    const currentAverage = doctor.averageRating ?? 0;
+
+    const newCount = currentCount + 1;
+
+    const newAverage = (currentAverage * currentCount + rating) / newCount;
+
+    await this._doctorRepository.updateDoctorRating(doctor._id.toString(), newAverage, newCount);
 
     return toFeedbackDTO(feedbackDoc);
   }

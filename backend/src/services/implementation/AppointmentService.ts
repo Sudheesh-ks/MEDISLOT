@@ -254,12 +254,22 @@ export class AppointmentService implements IAppointmentService {
       throw new Error('User ID and Appointment ID are required');
     }
 
-    const appointment = await this._appointmentRepository.findPayableAppointment(
-      userId,
-      appointmentId
-    );
-    if (!appointment || !appointment._id) {
-      throw new Error('Invalid appointment for payment');
+    const appointment = await this._appointmentRepository.findPayableAppointment(appointmentId);
+
+    if (!appointment) {
+      throw new Error('Appointment not found');
+    }
+
+    if (appointment.userId.toString() !== userId) {
+      throw new Error('Unauthorized');
+    }
+
+    if (appointment.cancelled) {
+      throw new Error('Appointment cancelled');
+    }
+
+    if (appointment.payment) {
+      throw new Error('Appointment already paid');
     }
 
     const amountInPaise = appointment.amount * 100;
@@ -430,7 +440,7 @@ export class AppointmentService implements IAppointmentService {
   async getAppointmentsByDoctorId(docId: string): Promise<AppointmentDTO[]> {
     if (!docId) throw new Error('Doctor ID is required');
 
-    const doctor = await this._doctorRepository.findById(docId);
+    const doctor = await this._doctorRepository.findDoctorById(docId);
     if (!doctor) throw new Error('Doctor not found');
 
     const appointments = await this._appointmentRepository.findAppointmentsByDoctorId(docId);

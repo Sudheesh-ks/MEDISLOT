@@ -17,19 +17,11 @@ export interface IBlogRepository {
   }>;
   findAllPublicBlogs(): Promise<BlogDocument[]>;
   getBlogComments(blogId: string): Promise<CommentType[] | undefined>;
-  addBlogComment(
-    blogId: string,
-    userId: string,
-    userData: {
-      name: string;
-      email: string;
-      image?: string;
-    },
-    content: string
-  ): Promise<any>;
+  addBlogComment(blogId: string, comment: CommentType): Promise<any>;
   findBlogsByDoctorId(doctorId: string): Promise<BlogDocument[]>;
-  updateBlog(id: string, data: Partial<BlogTypes>): Promise<BlogDocument>;
+  updateBlog(id: string, data: Partial<BlogTypes>): Promise<BlogDocument | null>;
   deleteBlog(id: string): Promise<void>;
-  toggleLike(blogId: string, userId: string): Promise<{ count: number; likedByUser: boolean }>;
-  getLikes(blogId: string, userId: string): Promise<{ count: number; likedByUser: boolean }>;
+  addLike(blogId: string, userId: string): Promise<BlogDocument | null>;
+  removeLike(blogId: string, userId: string): Promise<BlogDocument | null>;
+  getLikes(blogId: string): Promise<BlogDocument | null>;
 }

@@ -4,9 +4,9 @@ import { PaginationResult } from '../../types/Pagination';
 
 export interface IDoctorRepository {
   registerDoctor(data: DoctorTypes): Promise<DoctorDocument>;
-  findById(id: string): Promise<DoctorDocument | null>;
+  findDoctorById(id: string): Promise<DoctorDocument | null>;
   updateAvailability(id: string, available: boolean): Promise<void>;
-  findAllDoctors(): Promise<DoctorDocument[]>;
+  getAllDoctors(): Promise<DoctorDocument[]>;
   getDoctorsPaginated(
     page: number,
     limit: number,
@@ -15,10 +15,10 @@ export interface IDoctorRepository {
     minRating?: number,
     sortOrder?: string
   ): Promise<PaginationResult<DoctorDocument>>;
-  findByEmail(email: string): Promise<DoctorDocument | null>;
-  save(doctor: DoctorDocument): Promise<void>;
-  findDoctorById(id: string): Promise<DoctorDocument | null>;
+  findDoctorByEmail(email: string): Promise<DoctorDocument | null>;
+  saveDoctorData(doctor: DoctorDocument): Promise<void>;
   updateDoctorById(id: string, data: Partial<DoctorTypes>): Promise<void>;
+  getLatestDoctorRequests(limit: number): Promise<DoctorDocument[]>;
   updateDoctorProfile(
     id: string,
     updateData: Partial<
@@ -36,10 +36,5 @@ export interface IDoctorRepository {
       >
     >
   ): Promise<void>;
-  updateDoctorRating(doctorId: string, rating: number): Promise<void>;
-  getRevenueOverTime(
-    doctorId: string,
-    start?: string,
-    end?: string
-  ): Promise<{ date: string; revenue: number }[]>;
+  updateDoctorRating(doctorId: string, averageRating: number, ratingCount: number): Promise<void>;
 }

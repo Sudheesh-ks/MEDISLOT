@@ -30,8 +30,6 @@ export class AppointmentRepository
     const skip = (page - 1) * limit;
     const andConditions: Record<string, unknown>[] = [];
 
-    console.log(dateRange);
-
     if (search) {
       andConditions.push({
         $or: [
@@ -212,19 +210,8 @@ export class AppointmentRepository
     return null;
   }
 
-  async findPayableAppointment(
-    userId: string,
-    appointmentId: string
-  ): Promise<AppointmentDocument> {
+  async findPayableAppointment(appointmentId: string): Promise<AppointmentDocument> {
     const appointment = await appointmentModel.findById(appointmentId);
-    if (!appointment) throw new Error('Appointment not found');
-
-    if (appointment.userId.toString() !== userId.toString()) {
-      throw new Error('Unauthorized');
-    }
-
-    if (appointment.cancelled) throw new Error('Appointment cancelled');
-
     return appointment as AppointmentDocument;
   }
 
@@ -408,17 +395,6 @@ export class AppointmentRepository
     return res.map((r) => ({ date: r._id, count: r.count }));
   }
 
-  private _parseRange(start?: string, end?: string) {
-    let startDate: Date | undefined;
-    let endDate: Date | undefined;
-    if (start) startDate = new Date(start);
-    if (end) {
-      endDate = new Date(end);
-      endDate.setHours(23, 59, 59, 999);
-    }
-    return { startDate, endDate };
-  }
-
   async findStaleAppointments(): Promise<AppointmentDocument[]> {
     const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
 
@@ -428,5 +404,108 @@ export class AppointmentRepository
       cancelled: false,
       createdAt: { $lt: twentyFourHoursAgo },
     });
+  }
+
+  async getDoctorRevenueFromAppointments(
+    doctorId: string,
+    start?: string,
+    end?: string
+  ): Promise<{ date: string; revenue: number }[]> {
+    const { startDate, endDate } = this._parseRange(start, end);
+
+    const match: any = { docId: String(doctorId), payment: true, cancelled: false };
+    if (startDate || endDate) match.createdAt = {};
+    if (startDate) match.createdAt.$gte = startDate;
+    if (endDate) match.createdAt.$lte = endDate;
+
+    const pipeline: PipelineStage[] = [
+      { $match: match },
+      {
+        $group: {
+          _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
+          revenue: { $sum: { $multiply: [{ $ifNull: ['$amount', 0] }, 0.8] } },
+        },
+      },
+      { $sort: { _id: 1 } },
+    ];
+
+    const res = await appointmentModel.aggregate(pipeline).exec();
+    return res.map((r) => ({ date: r._id, revenue: r.revenue }));
+  }
+
+  async getTopDoctorsByAppointments(
+    limit: number
+  ): Promise<{ doctorId: string; doctorName: string; appointments: number; revenue: number }[]> {
+    const pipeline: PipelineStage[] = [
+      {
+        $addFields: {
+          docIdObj: { $toObjectId: '$docId' },
+        },
+      },
+      {
+        $group: {
+          _id: '$docIdObj',
+          appointments: { $sum: 1 },
+          revenue: { $sum: { $ifNull: ['$amount', 0] } },
+        },
+      },
+      { $sort: { appointments: -1 } },
+      { $limit: limit },
+      {
+        $lookup: {
+          from: 'doctors',
+          localField: '_id',
+          foreignField: '_id',
+          as: 'doctor',
+        },
+      },
+      { $unwind: { path: '$doctor', preserveNullAndEmptyArrays: true } },
+      {
+        $project: {
+          doctorId: '$_id',
+          doctorName: '$doctor.name',
+          appointments: 1,
+          revenue: 1,
+        },
+      },
+    ];
+
+    return await appointmentModel.aggregate(pipeline).exec();
+  }
+
+  async getAdminRevenueFromAppointments(
+    start?: string,
+    end?: string
+  ): Promise<{ date: string; revenue: number }[]> {
+    const { startDate, endDate } = this._parseRange(start, end);
+    const match: any = { payment: true, cancelled: false };
+    if (startDate || endDate) match.createdAt = {};
+    if (startDate) match.createdAt.$gte = startDate;
+    if (endDate) match.createdAt.$lte = endDate;
+
+    const pipeline: PipelineStage[] = [
+      { $match: match },
+      {
+        $group: {
+          _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
+          revenue: { $sum: { $multiply: [{ $ifNull: ['$amount', 0] }, 0.2] } },
+        },
+      },
+      { $sort: { _id: 1 } },
+    ];
+
+    const res = await appointmentModel.aggregate(pipeline).exec();
+    return res.map((r) => ({ date: r._id, revenue: r.revenue }));
+  }
+
+  private _parseRange(start?: string, end?: string) {
+    let startDate: Date | undefined;
+    let endDate: Date | undefined;
+    if (start) startDate = new Date(start);
+    if (end) {
+      endDate = new Date(end);
+      endDate.setHours(23, 59, 59, 999);
+    }
+    return { startDate, endDate };
   }
 }

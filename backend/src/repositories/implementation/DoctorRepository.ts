@@ -1,10 +1,9 @@
 import { BaseRepository } from '../BaseRepository';
-import appointmentModel from '../../models/AppointmentModel';
 import doctorModel, { DoctorDocument } from '../../models/DoctorModel';
 import { DoctorTypes } from '../../types/Doctor';
 import { IDoctorRepository } from '../interface/IDoctorRepository';
 import { PaginationResult } from '../../types/Pagination';
-import { FilterQuery, PipelineStage, SortOrder } from 'mongoose';
+import { FilterQuery, SortOrder } from 'mongoose';
 
 export class DoctorRepository extends BaseRepository<DoctorDocument> implements IDoctorRepository {
   constructor() {
@@ -15,11 +14,11 @@ export class DoctorRepository extends BaseRepository<DoctorDocument> implements 
     return doctorModel.create(data);
   }
 
-  async findByEmail(email: string): Promise<DoctorDocument | null> {
+  async findDoctorByEmail(email: string): Promise<DoctorDocument | null> {
     return this.findOne({ email });
   }
 
-  async save(doctor: DoctorDocument): Promise<void> {
+  async saveDoctorData(doctor: DoctorDocument): Promise<void> {
     await doctor.save();
   }
 
@@ -27,7 +26,7 @@ export class DoctorRepository extends BaseRepository<DoctorDocument> implements 
     await this.updateById(id, { available });
   }
 
-  async findAllDoctors(): Promise<DoctorDocument[]> {
+  async getAllDoctors(): Promise<DoctorDocument[]> {
     return doctorModel.find({}).select('-password');
   }
 
@@ -91,6 +90,12 @@ export class DoctorRepository extends BaseRepository<DoctorDocument> implements 
     await doctorModel.findByIdAndUpdate(id, { $set: data });
   }
 
+  async getLatestDoctorRequests(limit: number): Promise<DoctorDocument[]> {
+    const docs = await doctorModel.find({ status: 'pending' }).sort({ createdAt: -1 }).limit(limit);
+
+    return docs as unknown as DoctorDocument[];
+  }
+
   async updateDoctorProfile(
     id: string,
     updateData: Partial<
@@ -111,60 +116,14 @@ export class DoctorRepository extends BaseRepository<DoctorDocument> implements 
     await this.updateById(id, updateData);
   }
 
-  async updateDoctorRating(doctorId: string, rating: number): Promise<void> {
-    const doctor = await doctorModel.findById(doctorId);
-
-    if (!doctor) throw new Error('Doctor not found');
-
-    const currentCount = doctor.ratingCount ?? 0;
-    const currentAverage = doctor.averageRating ?? 0;
-
-    doctor.ratingCount = currentCount + 1;
-
-    doctor.averageRating = (currentAverage * currentCount + rating) / doctor.ratingCount;
-
-    await doctor.save();
-  }
-
-  private _parseRange(start?: string, end?: string) {
-    let startDate: Date | undefined;
-    let endDate: Date | undefined;
-    if (start) startDate = new Date(start);
-    if (end) {
-      endDate = new Date(end);
-      endDate.setHours(23, 59, 59, 999);
-    }
-    return { startDate, endDate };
-  }
-
-  async getRevenueOverTime(
+  async updateDoctorRating(
     doctorId: string,
-    start?: string,
-    end?: string
-  ): Promise<{ date: string; revenue: number }[]> {
-    const { startDate, endDate } = this._parseRange(start, end);
-
-    console.log(startDate);
-    console.log(endDate);
-
-    const match: any = { docId: String(doctorId), payment: true, cancelled: false };
-    if (startDate || endDate) match.createdAt = {};
-    if (startDate) match.createdAt.$gte = startDate;
-    if (endDate) match.createdAt.$lte = endDate;
-
-    const pipeline: PipelineStage[] = [
-      { $match: match },
-      {
-        $group: {
-          _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
-          revenue: { $sum: { $multiply: [{ $ifNull: ['$amount', 0] }, 0.8] } },
-        },
-      },
-      { $sort: { _id: 1 } },
-    ];
-
-    const res = await appointmentModel.aggregate(pipeline).exec();
-    console.log(res);
-    return res.map((r) => ({ date: r._id, revenue: r.revenue }));
+    averageRating: number,
+    ratingCount: number
+  ): Promise<void> {
+    await doctorModel.findByIdAndUpdate(doctorId, {
+      averageRating,
+      ratingCount,
+    });
   }
 }

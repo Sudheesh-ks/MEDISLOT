@@ -27,12 +27,14 @@ import { toDoctorDTO } from '../../mappers/Doctor.mapper';
 import appointmentModel from '../../models/AppointmentModel';
 import { WalletTypes } from '../../types/Wallet';
 import { IAppointmentRepository } from '../../repositories/interface/IAppointmentRepository';
+import { IUserRepository } from '../../repositories/interface/IUserRepository';
 dotenv.config();
 
 export class AdminService implements IAdminService {
   constructor(
     private readonly _adminRepository: IAdminRepository,
     private readonly _doctorRepository: IDoctorRepository,
+    private readonly _userRepository: IUserRepository,
     private readonly _walletRepository: IWalletRepository,
     private readonly _notificationService: INotificationService,
     private readonly _feedbackRepository: IFeedbackRepository,
@@ -102,24 +104,24 @@ export class AdminService implements IAdminService {
   }
 
   async approveDoctor(doctorId: string): Promise<string> {
-    const doctor = await this._doctorRepository.findById(doctorId);
+    const doctor = await this._doctorRepository.findDoctorById(doctorId);
     if (!doctor) throw new Error('Doctor not found');
     if (doctor.status === 'approved') throw new Error('Doctor already approved');
 
     doctor.status = 'approved';
-    await this._doctorRepository.save(doctor);
+    await this._doctorRepository.saveDoctorData(doctor);
     return 'Doctor approved successfully';
   }
 
   async rejectDoctor(doctorId: string, reason?: string): Promise<string> {
-    const doctor = await this._doctorRepository.findById(doctorId);
+    const doctor = await this._doctorRepository.findDoctorById(doctorId);
     if (!doctor) throw new Error('Doctor not found');
     if (doctor.status === 'rejected') throw new Error('Doctor already rejected');
 
     doctor.status = 'rejected';
     if (reason) doctor.rejectionReason = reason;
     await Promise.all([
-      this._doctorRepository.save(doctor),
+      this._doctorRepository.saveDoctorData(doctor),
       sendDoctorRejectionEmail(doctor.email, doctor.name, reason).catch(console.error),
     ]);
 
@@ -127,13 +129,13 @@ export class AdminService implements IAdminService {
   }
 
   async blockDoctor(doctorId: string, reason?: string): Promise<string> {
-    const doctor = await this._doctorRepository.findById(doctorId);
+    const doctor = await this._doctorRepository.findDoctorById(doctorId);
     if (!doctor) throw new Error('Doctor not found');
     if (doctor.status === 'blocked') throw new Error('Doctor already blocked');
 
     doctor.status = 'blocked';
     if (reason) doctor.rejectionReason = reason;
-    await this._doctorRepository.save(doctor);
+    await this._doctorRepository.saveDoctorData(doctor);
 
     sendDoctorRejectionEmail(doctor.email, doctor.name, reason).catch((err) =>
       console.error('Doctor blocking email failed:', err)
@@ -155,18 +157,18 @@ export class AdminService implements IAdminService {
   }
 
   async unBlockDoctor(doctorId: string): Promise<string> {
-    const doctor = await this._doctorRepository.findById(doctorId);
+    const doctor = await this._doctorRepository.findDoctorById(doctorId);
     if (!doctor) throw new Error('Doctor not found');
     if (doctor.status === 'approved') throw new Error('Doctor already approved');
 
     doctor.status = 'approved';
-    await this._doctorRepository.save(doctor);
+    await this._doctorRepository.saveDoctorData(doctor);
 
     return 'Doctor unblocked';
   }
 
   async getDoctors(): Promise<DoctorDTO[]> {
-    return await this._adminRepository.getAllDoctors();
+    return await this._doctorRepository.getAllDoctors();
   }
 
   async getDoctorById(id: string): Promise<DoctorDTO | null> {
@@ -185,7 +187,11 @@ export class AdminService implements IAdminService {
     const pageNumber = parseInt(page) || 1;
     const limitNumber = parseInt(limit) || 8;
 
-    const result = await this._adminRepository.getDoctorsPaginated(pageNumber, limitNumber, search);
+    const result = await this._doctorRepository.getDoctorsPaginated(
+      pageNumber,
+      limitNumber,
+      search
+    );
 
     return {
       data: result.data.map(toDoctorDTO),
@@ -205,7 +211,7 @@ export class AdminService implements IAdminService {
     const pageNumber = parseInt(page) || 1;
     const limitNumber = parseInt(limit) || 8;
 
-    const result = await this._adminRepository.getUsersPaginated(pageNumber, limitNumber, search);
+    const result = await this._userRepository.getUsersPaginated(pageNumber, limitNumber, search);
 
     return {
       data: result.data.map(toUserDTO),
@@ -218,7 +224,7 @@ export class AdminService implements IAdminService {
   }
 
   async getUsers(): Promise<UserDTO[]> {
-    const users = await this._adminRepository.getAllUsers();
+    const users = await this._userRepository.getAllUsers();
     return users.map(toUserDTO);
   }
 
@@ -227,25 +233,32 @@ export class AdminService implements IAdminService {
       throw new Error(HttpResponse.BLOCK_STATUS_INVALID);
     }
 
-    await Promise.all([
-      this._notificationService.sendNotification({
-        recipientId: userId,
-        recipientRole: 'user',
-        type: 'system',
-        title: 'You have been blocked',
-        message: 'Your account has been blocked by the Admin.',
-      }),
-      ioInstance
-        ? Promise.resolve(
-            ioInstance.to(userId).emit('notification', {
-              title: 'Accound blocked by admin',
-              link: '/system',
-            })
-          )
-        : Promise.resolve(),
-    ]);
+    const user = await this._userRepository.toggleUserBlock(userId, block);
 
-    const user = await this._adminRepository.toggleUserBlock(userId);
+    if (!user) {
+      throw new Error('User not found');
+    }
+
+    if (block) {
+      await Promise.all([
+        this._notificationService.sendNotification({
+          recipientId: userId,
+          recipientRole: 'user',
+          type: 'system',
+          title: 'You have been blocked',
+          message: 'Your account has been blocked by the Admin.',
+        }),
+        ioInstance
+          ? Promise.resolve(
+              ioInstance.to(userId).emit('notification', {
+                title: 'Account blocked by admin',
+                link: '/system',
+              })
+            )
+          : Promise.resolve(),
+      ]);
+    }
+
     return toUserDTO(user);
   }
 
@@ -281,21 +294,21 @@ export class AdminService implements IAdminService {
   }
 
   async getLatestDoctorRequests(limit = 5): Promise<DoctorDTO[]> {
-    const requests = await this._adminRepository.getLatestDoctorRequests(limit);
+    const requests = await this._doctorRepository.getLatestDoctorRequests(limit);
     return requests.map((doctor) => doctor as DoctorDTO);
   }
 
   async getTopDoctors(
     limit = 5
   ): Promise<{ doctorId: string; doctorName: string; appointments: number; revenue: number }[]> {
-    return await this._adminRepository.getTopDoctors(limit);
+    return await this._appointmentRepository.getTopDoctorsByAppointments(limit);
   }
 
   async getRevenueStats(
     startDate?: string,
     endDate?: string
   ): Promise<{ date: string; revenue: number }[]> {
-    return await this._adminRepository.getRevenueStats(startDate, endDate);
+    return await this._appointmentRepository.getAdminRevenueFromAppointments(startDate, endDate);
   }
 
   async getAllComplaints(

@@ -1,3 +1,4 @@
+import { Types } from 'mongoose';
 import { HttpStatus } from '../../constants/Status.constants';
 import { BlogDTO } from '../../dtos/Blog.dto';
 import { toBlogDTO } from '../../mappers/Blog.mapper';
@@ -117,6 +118,10 @@ export class BlogService implements IBlogService {
       image: imageUrl,
     });
 
+    if (!updated) {
+      throw new Error('Blog not found');
+    }
+
     return toBlogDTO(updated);
   }
 
@@ -163,29 +168,61 @@ export class BlogService implements IBlogService {
     if (!user) {
       throw new Error('User not found');
     }
-    return this._blogRepository.addBlogComment(
-      blogId,
+    const comment = {
       userId,
-      {
+      userData: {
         name: user.name,
         email: user.email,
         image: user.image,
       },
-      content
-    );
+      text: content,
+      createdAt: new Date(),
+    };
+
+    await this._blogRepository.addBlogComment(blogId, comment);
   }
 
   async toggleLike(
     blogId: string,
     userId: string
   ): Promise<{ count: number; likedByUser: boolean }> {
-    return this._blogRepository.toggleLike(blogId, userId);
+    const blog = await this._blogRepository.getBlogById(blogId);
+
+    if (!blog) {
+      throw new Error('Blog not found');
+    }
+
+    const alreadyLiked = blog.likes.some((id: Types.ObjectId | string) => id.toString() === userId);
+
+    let updated;
+
+    if (alreadyLiked) {
+      updated = await this._blogRepository.removeLike(blogId, userId);
+    } else {
+      updated = await this._blogRepository.addLike(blogId, userId);
+    }
+
+    return {
+      count: updated!.likes.length,
+      likedByUser: !alreadyLiked,
+    };
   }
 
   async getBlogLikes(
     blogId: string,
     userId: string
   ): Promise<{ count: number; likedByUser: boolean }> {
-    return this._blogRepository.getLikes(blogId, userId);
+    const blog = await this._blogRepository.getLikes(blogId);
+
+    if (!blog) {
+      throw new Error('Blog not found');
+    }
+
+    const likedByUser = blog.likes.some((id: Types.ObjectId | string) => id.toString() === userId);
+
+    return {
+      count: blog.likes.length,
+      likedByUser,
+    };
   }
 }

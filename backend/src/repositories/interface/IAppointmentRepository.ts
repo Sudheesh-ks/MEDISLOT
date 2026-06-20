@@ -18,7 +18,7 @@ export interface IAppointmentRepository {
     filterType?: 'all' | 'upcoming' | 'ended'
   ): Promise<PaginationResult<AppointmentDocument>>;
   findActiveUserAppointment(userId: string): Promise<AppointmentDocument | null>;
-  findPayableAppointment(userId: string, appointmentId: string): Promise<AppointmentDocument>;
+  findPayableAppointment(appointmentId: string): Promise<AppointmentDocument>;
   saveRazorpayOrderId(appointmentId: string, orderId: string): Promise<void>;
   markAppointmentPaid(appointmentId: string): Promise<void>;
   confirmAppointment(id: string): Promise<void>;
@@ -45,4 +45,16 @@ export interface IAppointmentRepository {
   ): Promise<{ date: string; count: number }[]>;
   getAppointmentsStats(start?: string, end?: string): Promise<{ date: string; count: number }[]>;
   findStaleAppointments(): Promise<AppointmentDocument[]>;
+  getDoctorRevenueFromAppointments(
+    doctorId: string,
+    start?: string,
+    end?: string
+  ): Promise<{ date: string; revenue: number }[]>;
+  getTopDoctorsByAppointments(
+    limit: number
+  ): Promise<{ doctorId: string; doctorName: string; appointments: number; revenue: number }[]>;
+  getAdminRevenueFromAppointments(
+    start?: string,
+    end?: string
+  ): Promise<{ date: string; revenue: number }[]>;
 }

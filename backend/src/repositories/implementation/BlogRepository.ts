@@ -1,7 +1,4 @@
-import { Types } from 'mongoose';
 import BlogModel, { BlogDocument } from '../../models/BlogModel';
-// import doctorModel from '../../models/DoctorModel';
-// import userModel from '../../models/UserModel';
 import { BlogTypes, CommentType } from '../../types/Blog';
 import { BaseRepository } from '../BaseRepository';
 import { IBlogRepository } from '../interface/IBlogRepository';
@@ -12,15 +9,6 @@ export class BlogRepository extends BaseRepository<BlogDocument> implements IBlo
   }
 
   async createBlog(data: Partial<BlogDocument>): Promise<BlogDocument> {
-    // if (data.doctorId) {
-    //   const doctor = await doctorModel
-    //     .findById(data.doctorId)
-    //     .select('name speciality email image about')
-    //     .lean();
-    //   if (!doctor) throw new Error('Doctor not found');
-
-    //   data.doctorData = doctor;
-    // }
     return this.create(data);
   }
 
@@ -29,10 +17,7 @@ export class BlogRepository extends BaseRepository<BlogDocument> implements IBlo
   }
 
   async deleteBlog(id: string): Promise<void> {
-    const deleted = await this.model.findByIdAndDelete(id);
-    if (!deleted) {
-      throw new Error('Blog not found');
-    }
+    await this.model.findByIdAndDelete(id);
   }
 
   async getBlogsPaginated(
@@ -84,81 +69,62 @@ export class BlogRepository extends BaseRepository<BlogDocument> implements IBlo
     );
   }
 
-  async addBlogComment(
-    blogId: string,
-    userId: string,
-    userData: {
-      name: string;
-      email: string;
-      image?: string;
-    },
-    content: string
-  ): Promise<any> {
-    const blog = await this.model.findById(blogId);
-    if (!blog) throw new Error('Blog not found');
-
-    if (!blog.comments) {
-      blog.comments = [];
-    }
-
-    blog.comments.push({ userId, userData, text: content, createdAt: new Date() });
-    await blog.save();
-
-    return blog.comments[blog.comments.length - 1];
+  async addBlogComment(blogId: string, comment: CommentType): Promise<any> {
+    return this.model.findByIdAndUpdate(
+      blogId,
+      {
+        $push: {
+          comments: comment,
+        },
+      },
+      { new: true }
+    );
   }
 
   async findBlogsByDoctorId(doctorId: string): Promise<BlogDocument[]> {
     return this.model.find({ doctorId }).sort({ createdAt: -1 });
   }
 
-  async updateBlog(id: string, data: Partial<BlogTypes>): Promise<BlogDocument> {
-    const updated = await this.model.findByIdAndUpdate(id, data, { new: true });
-
-    if (!updated) {
-      throw new Error('Blog not found');
-    }
-
-    return updated;
+  async updateBlog(id: string, data: Partial<BlogTypes>): Promise<BlogDocument | null> {
+    return this.model.findByIdAndUpdate(id, data, { new: true });
   }
 
-  async toggleLike(
-    blogId: string,
-    userId: string
-  ): Promise<{ count: number; likedByUser: boolean }> {
-    const blog = await this.model.findById(blogId);
-    if (!blog) throw new Error('Blog not found');
+  // async toggleLike(
+  //   blogId: string,
+  //   userId: string
+  // ): Promise<{ count: number; likedByUser: boolean }> {
+  //   // const blog = await this.model.findById(blogId);
+  //   // if (!blog) throw new Error('Blog not found');
 
-    const alreadyLiked = blog.likes.some(
-      (id: Types.ObjectId | string) => id.toString() === userId.toString()
-    );
+  //   const alreadyLiked = blog.likes.some(
+  //     (id: Types.ObjectId | string) => id.toString() === userId.toString()
+  //   );
 
-    if (alreadyLiked) {
-      blog.likes = blog.likes.filter(
-        (id: Types.ObjectId | string) => id.toString() !== userId.toString()
-      );
-    } else {
-      blog.likes.push(userId);
-    }
+  //   if (alreadyLiked) {
+  //     blog.likes = blog.likes.filter(
+  //       (id: Types.ObjectId | string) => id.toString() !== userId.toString()
+  //     );
+  //   } else {
+  //     blog.likes.push(userId);
+  //   }
 
-    await blog.save();
+  //   await blog.save();
 
-    return {
-      count: blog.likes!.length,
-      likedByUser: !alreadyLiked,
-    };
+  //   return {
+  //     count: blog.likes!.length,
+  //     likedByUser: !alreadyLiked,
+  //   };
+  // }
+
+  async addLike(blogId: string, userId: string): Promise<BlogDocument | null> {
+    return this.model.findByIdAndUpdate(blogId, { $addToSet: { likes: userId } }, { new: true });
   }
 
-  async getLikes(blogId: string, userId: string): Promise<{ count: number; likedByUser: boolean }> {
-    const blog = await this.model.findById(blogId).select('likes');
-    if (!blog) throw new Error('Blog not found');
+  async removeLike(blogId: string, userId: string): Promise<BlogDocument | null> {
+    return this.model.findByIdAndUpdate(blogId, { $pull: { likes: userId } }, { new: true });
+  }
 
-    const likedByUser = blog.likes.some(
-      (id: Types.ObjectId | string) => id.toString() === userId.toString()
-    );
-
-    return {
-      count: blog.likes!.length,
-      likedByUser,
-    };
+  async getLikes(blogId: string): Promise<BlogDocument | null> {
+    return this.model.findById(blogId).select('likes');
   }
 }

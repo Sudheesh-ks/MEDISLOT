@@ -46,6 +46,7 @@ const appointmentService = new AppointmentService(
 export const adminService = new AdminService(
   adminRepository,
   doctorRepository,
+  userRepository,
   walletRepository,
   notificationService,
   feedbackRepository,

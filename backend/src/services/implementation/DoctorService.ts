@@ -72,7 +72,7 @@ export class DoctorService implements IDoctorService {
       throw new Error('All Fields Required');
     }
 
-    const existing = await this._doctorRepository.findByEmail(email);
+    const existing = await this._doctorRepository.findDoctorByEmail(email);
     if (existing) throw new Error('Email already registered');
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -116,14 +116,14 @@ export class DoctorService implements IDoctorService {
   async toggleAvailability(docId: string): Promise<void> {
     if (!docId) throw new Error('Doctor ID is required');
 
-    const doctor = await this._doctorRepository.findById(docId);
+    const doctor = await this._doctorRepository.findDoctorById(docId);
     if (!doctor) throw new Error('Doctor not found');
 
     await this._doctorRepository.updateAvailability(docId, !doctor.available);
   }
 
   async getAllDoctors(): Promise<DoctorDTO[]> {
-    const doctors = await this._doctorRepository.findAllDoctors();
+    const doctors = await this._doctorRepository.getAllDoctors();
     return doctors.map(toDoctorDTO);
   }
 
@@ -165,7 +165,7 @@ export class DoctorService implements IDoctorService {
 
     if (!email || !password) throw new Error('Email and password required');
 
-    const doctor = await this._doctorRepository.findByEmail(email);
+    const doctor = await this._doctorRepository.findDoctorByEmail(email);
     if (!doctor) throw new Error(HttpResponse.INVALID_CREDENTIALS);
 
     const match = await bcrypt.compare(password, doctor.password);
@@ -209,7 +209,7 @@ export class DoctorService implements IDoctorService {
 
     if (!doctId) throw new Error('Doctor ID is required');
 
-    const doctor = await this._doctorRepository.findById(doctId);
+    const doctor = await this._doctorRepository.findDoctorById(doctId);
     if (!doctor) throw new Error('Doctor not found');
 
     if (!name || typeof name !== 'string' || !name.trim()) throw new Error('Name is required');
@@ -282,7 +282,7 @@ export class DoctorService implements IDoctorService {
       throw new Error(HttpResponse.INVALID_PASSWORD);
     }
 
-    const doctor = await this._doctorRepository.findById(doctorId);
+    const doctor = await this._doctorRepository.findDoctorById(doctorId);
     if (!doctor) throw new Error('Doctor not found');
 
     const isMatch = await bcrypt.compare(oldPassword, doctor.password);
@@ -309,7 +309,7 @@ export class DoctorService implements IDoctorService {
     filteredCredits: number;
     filteredDebits: number;
   }> {
-    const doctor = await this._doctorRepository.findById(doctorId);
+    const doctor = await this._doctorRepository.findDoctorById(doctorId);
     if (!doctor) throw new Error('Doctor not found');
 
     return await this._walletRepository.getWalletHistoryPaginated(
@@ -327,7 +327,7 @@ export class DoctorService implements IDoctorService {
 
   async getDashboardData(doctorId: string, startDate: string, endDate: string) {
     const [revenueData, appointmentData] = await Promise.all([
-      this._doctorRepository.getRevenueOverTime(doctorId, startDate, endDate),
+      this._appointmentRepository.getDoctorRevenueFromAppointments(doctorId, startDate, endDate),
       this._appointmentRepository.getAppointmentsOverTime(doctorId, startDate, endDate),
     ]);
 
@@ -409,7 +409,7 @@ export class DoctorService implements IDoctorService {
       throw new Error('Please provide the detailed issue');
     }
 
-    const doctor = await this._doctorRepository.findById(doctorId);
+    const doctor = await this._doctorRepository.findDoctorById(doctorId);
     if (!doctor) {
       throw new Error('Doctor not found');
     }

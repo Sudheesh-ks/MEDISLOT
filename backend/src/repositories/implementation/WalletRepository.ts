@@ -13,7 +13,6 @@ export class WalletRepository extends BaseRepository<WalletDocument> implements 
     ownerType: 'user' | 'doctor' | 'admin'
   ): Promise<WalletDocument> {
     let wallet = await walletModel.findOne({ ownerId, ownerType });
-    // console.log(ownerId)
     if (!wallet) {
       wallet = await walletModel.create({ ownerId, ownerType, balance: 0 });
     }
@@ -134,7 +133,6 @@ export class WalletRepository extends BaseRepository<WalletDocument> implements 
     ownerId: string,
     ownerType: 'admin' | 'doctor' | 'user'
   ): Promise<WalletDocument | null> {
-    // console.log(ownerId)
     return this.model.findOne({ ownerId, ownerType });
   }
 }
