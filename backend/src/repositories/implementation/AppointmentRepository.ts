@@ -395,6 +395,17 @@ export class AppointmentRepository
     return res.map((r) => ({ date: r._id, count: r.count }));
   }
 
+  async findUpcomingAppointmentsByDoctorId(
+    doctorId: string,
+    fromDate: string
+  ): Promise<AppointmentDocument[]> {
+    return await appointmentModel.find({
+      docId: doctorId,
+      slotDate: { $gte: fromDate },
+      cancelled: false,
+    });
+  }
+
   async findStaleAppointments(): Promise<AppointmentDocument[]> {
     const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
 

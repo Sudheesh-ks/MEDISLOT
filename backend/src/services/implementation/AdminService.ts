@@ -24,7 +24,6 @@ import { ComplaintDTO } from '../../dtos/Complaint.dto';
 import { IComplaintRepository } from '../../repositories/interface/IComplaintRepository';
 import { tocomplaintDTO } from '../../mappers/Complaint.mapper';
 import { toDoctorDTO } from '../../mappers/Doctor.mapper';
-import appointmentModel from '../../models/AppointmentModel';
 import { WalletTypes } from '../../types/Wallet';
 import { IAppointmentRepository } from '../../repositories/interface/IAppointmentRepository';
 import { IUserRepository } from '../../repositories/interface/IUserRepository';
@@ -143,11 +142,10 @@ export class AdminService implements IAdminService {
 
     const today = new Date().toISOString().split('T')[0];
 
-    const appointments = await appointmentModel.find({
-      docId: doctorId,
-      slotDate: { $gte: today },
-      cancelled: false,
-    });
+    const appointments = await this._appointmentRepository.findUpcomingAppointmentsByDoctorId(
+      doctorId,
+      today
+    );
 
     await Promise.all(
       appointments.map((appt) => this._appointmentRepository.cancelAppointment(appt._id.toString()))

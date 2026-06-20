@@ -44,6 +44,10 @@ export interface IAppointmentRepository {
     end?: string
   ): Promise<{ date: string; count: number }[]>;
   getAppointmentsStats(start?: string, end?: string): Promise<{ date: string; count: number }[]>;
+  findUpcomingAppointmentsByDoctorId(
+    doctorId: string,
+    fromDate: string
+  ): Promise<AppointmentDocument[]>;
   findStaleAppointments(): Promise<AppointmentDocument[]>;
   getDoctorRevenueFromAppointments(
     doctorId: string,
