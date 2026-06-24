@@ -15,10 +15,13 @@ export class AppointmentRepository
     super(appointmentModel);
   }
 
-  async createAppointment(appointmentData: AppointmentTypes): Promise<AppointmentDocument> {
+  async createAppointment(
+    appointmentData: AppointmentTypes,
+    session?: any
+  ): Promise<AppointmentDocument> {
     const appointment = new appointmentModel(appointmentData);
 
-    return await appointment.save();
+    return await appointment.save({ session });
   }
 
   async getAppointments(
@@ -221,8 +224,8 @@ export class AppointmentRepository
     });
   }
 
-  async markAppointmentPaid(appointmentId: string): Promise<void> {
-    await appointmentModel.findByIdAndUpdate(appointmentId, { payment: true });
+  async markAppointmentPaid(appointmentId: string, session?: any): Promise<void> {
+    await appointmentModel.findByIdAndUpdate(appointmentId, { payment: true }, { session });
   }
 
   async findAppointmentsByDoctorId(docId: string): Promise<AppointmentDocument[]> {
@@ -336,8 +339,8 @@ export class AppointmentRepository
     return appointmentModel.find({});
   }
 
-  async cancelAppointment(appointmentId: string): Promise<void> {
-    await appointmentModel.findByIdAndUpdate(appointmentId, { cancelled: true });
+  async cancelAppointment(appointmentId: string, session?: any): Promise<void> {
+    await appointmentModel.findByIdAndUpdate(appointmentId, { cancelled: true }, { session });
   }
 
   async getAppointmentsOverTime(

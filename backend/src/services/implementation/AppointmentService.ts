@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import { AppointmentDTO } from '../../dtos/Appointment.dto';
 import { toAppointmentDTO } from '../../mappers/Appointment.mapper';
 import { IAppointmentRepository } from '../../repositories/interface/IAppointmentRepository';
@@ -205,24 +206,44 @@ export class AppointmentService implements IAppointmentService {
     const doctorShare = amount * 0.8;
     const adminShare = amount * 0.2;
 
-    await Promise.all([
-      this._walletRepository.creditWallet(userId.toString(), 'user', amount, reason),
-      this._walletRepository.debitWallet(doctorId, 'doctor', doctorShare, reason),
-      this._walletRepository.debitWallet(adminId!, 'admin', adminShare, reason),
-      this._appointmentRepository.cancelAppointment(appointmentId),
-      this._slotRepository.unbookSlot(
-        appointment.docId.toString(),
-        appointment.slotDate,
-        appointment.slotStartTime,
-        appointment.slotEndTime
-      ),
-      this._slotService.releaseSlotLock(
-        doctorId,
-        appointment.slotDate,
-        appointment.slotStartTime,
-        appointment.slotEndTime,
-        userId
-      ),
+    const session = await mongoose.startSession();
+    try {
+      await session.withTransaction(async () => {
+        await this._walletRepository.creditWallet(
+          userId.toString(),
+          'user',
+          amount,
+          reason,
+          session
+        );
+        await this._walletRepository.debitWallet(doctorId, 'doctor', doctorShare, reason, session);
+        await this._walletRepository.debitWallet(adminId!, 'admin', adminShare, reason, session);
+        await this._appointmentRepository.cancelAppointment(appointmentId, session);
+        await this._slotRepository.unbookSlot(
+          appointment.docId.toString(),
+          appointment.slotDate,
+          appointment.slotStartTime,
+          appointment.slotEndTime,
+          session
+        );
+        await this._slotService.releaseSlotLock(
+          doctorId,
+          appointment.slotDate,
+          appointment.slotStartTime,
+          appointment.slotEndTime,
+          userId,
+          session
+        );
+      });
+    } catch (error) {
+      console.error('Cancel appointment by user transaction failed:', error);
+      throw error;
+    } finally {
+      await session.endSession();
+    }
+
+    // Run notifications asynchronously after transaction commits successfully
+    Promise.all([
       this._notificationService.sendNotification({
         recipientId: doctorId,
         recipientRole: 'doctor',
@@ -239,7 +260,7 @@ export class AppointmentService implements IAppointmentService {
         message: `Appointment between ${appointment.userData.name} and ${appointment.docData.name} was canceled. ₹${adminShare} refunded to user from your wallet.`,
         link: '/admin/appointments',
       }),
-    ]);
+    ]).catch((err) => console.error('Failed to send cancellation notifications:', err));
 
     if (ioInstance) {
       ioInstance.to(doctorId).emit('notification', {
@@ -325,54 +346,58 @@ export class AppointmentService implements IAppointmentService {
       patientDetails: tempAppointment.patientDetails as any,
     };
 
-    let booked;
+    const session = await mongoose.startSession();
+    let booked: AppointmentDocument;
     try {
-      booked = await this.bookAppointment(appointmentData);
-    } catch (error: any) {
-      console.error('Booking failed. Data:', JSON.stringify(appointmentData, null, 2));
-      throw new Error(
-        `Booking Validation Failed: ${error.message}. Data: ${JSON.stringify(appointmentData.patientDetails)}`
-      );
+      await session.withTransaction(async () => {
+        booked = await this.bookAppointment(appointmentData, session);
+        await this._appointmentRepository.markAppointmentPaid(booked._id.toString(), session);
+
+        const amount = booked.amount;
+        const doctorId = booked.docData._id.toString();
+        const doctorShare = amount * 0.8;
+        const adminShare = amount * 0.2;
+
+        await this._walletRepository.creditWallet(
+          doctorId,
+          'doctor',
+          doctorShare,
+          `Earnings for Appointment ${generateShortAppointmentId(booked._id.toString())}`,
+          session
+        );
+
+        await this._walletRepository.creditWallet(
+          adminId!,
+          'admin',
+          adminShare,
+          `Commission for Appointment ${generateShortAppointmentId(booked._id.toString())}`,
+          session
+        );
+
+        await this._slotRepository.markSlotBooked(
+          tempAppointment.docId,
+          tempAppointment.slotDate,
+          tempAppointment.slotStartTime,
+          tempAppointment.slotEndTime,
+          session
+        );
+
+        await this._tempAppointmentRepository.deleteTempAppointment(tempBookingId, session);
+      });
+    } catch (error) {
+      console.error('Booking payment verification transaction failed:', error);
+      throw error;
+    } finally {
+      await session.endSession();
     }
-    await this._appointmentRepository.markAppointmentPaid(booked._id.toString());
 
-    const amount = booked.amount;
-    const doctorId = booked.docData._id.toString();
-    const doctorShare = amount * 0.8;
-    const adminShare = amount * 0.2;
-
-    await Promise.all([
-      this._walletRepository.creditWallet(
-        doctorId,
-        'doctor',
-        doctorShare,
-        `Earnings for Appointment ${generateShortAppointmentId(booked._id.toString())}`
-      ),
-      this._walletRepository.creditWallet(
-        adminId!,
-        'admin',
-        adminShare,
-        `Commission for Appointment ${generateShortAppointmentId(booked._id.toString())}`
-      ),
-    ]);
-
-    await Promise.all([
-      this._slotRepository.markSlotBooked(
-        tempAppointment.docId,
-        tempAppointment.slotDate,
-        tempAppointment.slotStartTime,
-        tempAppointment.slotEndTime
-      ),
-      this._tempAppointmentRepository.deleteTempAppointment(tempBookingId),
-    ]);
-
-    console.log(`Appointment created successfully: ${booked._id}`);
+    console.log(`Appointment created successfully: ${booked!._id}`);
     console.log(`Temporary appointment cleaned up: ${tempBookingId}`);
 
-    return toAppointmentDTO(booked);
+    return toAppointmentDTO(booked!);
   }
 
-  async bookAppointment(data: AppointmentTypes): Promise<AppointmentDocument> {
+  async bookAppointment(data: AppointmentTypes, session?: any): Promise<AppointmentDocument> {
     const doctor = await this._doctorRepository.findDoctorById(data.docId);
     if (!doctor || !doctor.available) {
       throw new Error('Doctor unavailable for booking');
@@ -387,15 +412,19 @@ export class AppointmentService implements IAppointmentService {
       data.docId,
       data.slotDate,
       data.slotStartTime,
-      data.slotEndTime
+      data.slotEndTime,
+      session
     );
 
-    const appointment = await this._appointmentRepository.createAppointment({
-      ...data,
-      userData: user,
-      docData: doctor,
-      amount: doctor.fees,
-    });
+    const appointment = await this._appointmentRepository.createAppointment(
+      {
+        ...data,
+        userData: user,
+        docData: doctor,
+        amount: doctor.fees,
+      },
+      session
+    );
 
     return appointment;
   }
@@ -530,13 +559,30 @@ export class AppointmentService implements IAppointmentService {
     const doctorShare = amount * 0.8;
     const adminShare = amount * 0.2;
 
-    await Promise.all([
-      this._walletRepository.creditWallet(userId, 'user', amount, reason),
-      this._walletRepository.debitWallet(doctorId, 'doctor', doctorShare, reason),
-      this._walletRepository.debitWallet(adminId!, 'admin', adminShare, reason),
-    ]);
+    const session = await mongoose.startSession();
+    try {
+      await session.withTransaction(async () => {
+        await this._walletRepository.creditWallet(userId, 'user', amount, reason, session);
+        await this._walletRepository.debitWallet(doctorId, 'doctor', doctorShare, reason, session);
+        await this._walletRepository.debitWallet(adminId!, 'admin', adminShare, reason, session);
+        await this._appointmentRepository.cancelAppointment(appointmentId, session);
+        await this._slotRepository.unbookSlot(
+          appointment.docId.toString(),
+          appointment.slotDate,
+          appointment.slotStartTime,
+          appointment.slotEndTime,
+          session
+        );
+      });
+    } catch (error) {
+      console.error('Cancel appointment by doctor transaction failed:', error);
+      throw error;
+    } finally {
+      await session.endSession();
+    }
 
-    await Promise.all([
+    // Run notifications asynchronously after transaction commits successfully
+    Promise.all([
       this._notificationService.sendNotification({
         recipientId: userId,
         recipientRole: 'user',
@@ -553,14 +599,7 @@ export class AppointmentService implements IAppointmentService {
         message: `${appointment.docData.name} canceled the appointment with ${appointment.userData.name}. ₹${adminShare} refunded to user from your wallet.`,
         link: '/admin/appointments',
       }),
-      this._appointmentRepository.cancelAppointment(appointmentId),
-      this._slotRepository.unbookSlot(
-        appointment.docId.toString(),
-        appointment.slotDate,
-        appointment.slotStartTime,
-        appointment.slotEndTime
-      ),
-    ]);
+    ]).catch((err) => console.error('Failed to send cancellation notifications:', err));
 
     if (ioInstance) {
       ioInstance.to(userId).emit('notification', {
@@ -635,10 +674,30 @@ export class AppointmentService implements IAppointmentService {
     const doctorShare = amount * 0.8;
     const adminShare = amount * 0.2;
 
-    await Promise.all([
-      this._walletRepository.creditWallet(userId, 'user', amount, reason),
-      this._walletRepository.debitWallet(doctorId, 'doctor', doctorShare, reason),
-      this._walletRepository.debitWallet(adminId!, 'admin', adminShare, reason),
+    const session = await mongoose.startSession();
+    try {
+      await session.withTransaction(async () => {
+        await this._walletRepository.creditWallet(userId, 'user', amount, reason, session);
+        await this._walletRepository.debitWallet(doctorId, 'doctor', doctorShare, reason, session);
+        await this._walletRepository.debitWallet(adminId!, 'admin', adminShare, reason, session);
+        await this._appointmentRepository.cancelAppointment(appointmentId, session);
+        await this._slotRepository.unbookSlot(
+          appointment.docId.toString(),
+          appointment.slotDate,
+          appointment.slotStartTime,
+          appointment.slotEndTime,
+          session
+        );
+      });
+    } catch (error) {
+      console.error('Cancel appointment by admin transaction failed:', error);
+      throw error;
+    } finally {
+      await session.endSession();
+    }
+
+    // Run notifications asynchronously after transaction commits successfully
+    Promise.all([
       this._notificationService.sendNotification({
         recipientId: doctorId,
         recipientRole: 'doctor',
@@ -655,30 +714,22 @@ export class AppointmentService implements IAppointmentService {
         message: `Admin canceled your appointment with ${appointment.docData.name}. ₹${amount} refunded to your wallet.`,
         link: '/appointments',
       }),
-      ioInstance
-        ? Promise.resolve(
-            ioInstance.to(doctorId).emit('notification', {
-              title: 'Appointment cancelled by Admin',
-              link: '/doctor/appointments',
-            })
-          )
-        : Promise.resolve(),
-      ioInstance
-        ? Promise.resolve(
-            ioInstance.to(userId).emit('notification', {
-              title: 'Appointment cancelled by Admin',
-              link: '/appointments',
-            })
-          )
-        : Promise.resolve(),
-      this._appointmentRepository.cancelAppointment(appointmentId),
-      this._slotRepository.unbookSlot(
-        appointment.docId.toString(),
-        appointment.slotDate,
-        appointment.slotStartTime,
-        appointment.slotEndTime
-      ),
-    ]);
+    ]).catch((err) => console.error('Failed to send cancellation notifications:', err));
+
+    if (ioInstance) {
+      try {
+        ioInstance.to(doctorId).emit('notification', {
+          title: 'Appointment cancelled by Admin',
+          link: '/doctor/appointments',
+        });
+        ioInstance.to(userId).emit('notification', {
+          title: 'Appointment cancelled by Admin',
+          link: '/appointments',
+        });
+      } catch (err) {
+        console.error('Socket notification emit failed:', err);
+      }
+    }
   }
 
   async getAppointmentsStats(

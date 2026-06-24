@@ -10,11 +10,13 @@ export class WalletRepository extends BaseRepository<WalletDocument> implements 
 
   async getOrCreateWallet(
     ownerId: string,
-    ownerType: 'user' | 'doctor' | 'admin'
+    ownerType: 'user' | 'doctor' | 'admin',
+    session?: any
   ): Promise<WalletDocument> {
-    let wallet = await walletModel.findOne({ ownerId, ownerType });
+    let wallet = await walletModel.findOne({ ownerId, ownerType }).session(session);
     if (!wallet) {
-      wallet = await walletModel.create({ ownerId, ownerType, balance: 0 });
+      const created = await walletModel.create([{ ownerId, ownerType, balance: 0 }], { session });
+      wallet = created[0];
     }
     return wallet;
   }
@@ -107,26 +109,28 @@ export class WalletRepository extends BaseRepository<WalletDocument> implements 
     ownerId: string,
     ownerType: 'user' | 'doctor' | 'admin',
     amount: number,
-    reason: string
+    reason: string,
+    session?: any
   ): Promise<void> {
-    const wallet = await this.getOrCreateWallet(ownerId, ownerType);
+    const wallet = await this.getOrCreateWallet(ownerId, ownerType, session);
     console.log(ownerId);
     wallet.balance += amount;
     wallet.history.push({ type: 'credit', amount, reason, date: new Date() });
-    await wallet.save();
+    await wallet.save({ session });
   }
 
   async debitWallet(
     ownerId: string,
     ownerType: 'user' | 'doctor' | 'admin',
     amount: number,
-    reason: string
+    reason: string,
+    session?: any
   ): Promise<void> {
-    const wallet = await this.getOrCreateWallet(ownerId, ownerType);
+    const wallet = await this.getOrCreateWallet(ownerId, ownerType, session);
     console.log(ownerId);
     wallet.balance -= amount;
     wallet.history.push({ type: 'debit', amount, reason, date: new Date() });
-    await wallet.save();
+    await wallet.save({ session });
   }
 
   async findWalletByOwner(

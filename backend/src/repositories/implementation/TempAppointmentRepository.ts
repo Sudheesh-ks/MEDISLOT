@@ -46,8 +46,8 @@ export class TempAppointmentRepository
     await tempAppointmentModel.findByIdAndUpdate(id, { status });
   }
 
-  async deleteTempAppointment(id: string): Promise<void> {
-    await tempAppointmentModel.findByIdAndDelete(id);
+  async deleteTempAppointment(id: string, session?: any): Promise<void> {
+    await tempAppointmentModel.findByIdAndDelete(id, { session });
   }
 
   async findUserTempAppointments(userId: string): Promise<TempAppointmentDocument[]> {

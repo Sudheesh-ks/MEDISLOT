@@ -3,19 +3,22 @@ import { WalletDocument } from '../../models/WalletModel';
 export interface IWalletRepository {
   getOrCreateWallet(
     ownerId: string,
-    ownerType: 'user' | 'doctor' | 'admin'
+    ownerType: 'user' | 'doctor' | 'admin',
+    session?: any
   ): Promise<WalletDocument>;
   creditWallet(
     ownerId: string,
     ownerType: 'user' | 'doctor' | 'admin',
     amount: number,
-    reason: string
+    reason: string,
+    session?: any
   ): Promise<void>;
   debitWallet(
     ownerId: string,
     ownerType: 'user' | 'doctor' | 'admin',
     amount: number,
-    reason: string
+    reason: string,
+    session?: any
   ): Promise<void>;
   findWalletByOwner(
     ownerId: string,

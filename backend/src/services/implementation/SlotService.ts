@@ -20,9 +20,10 @@ export class SlotService implements ISlotService {
     doctorId: string,
     slotDate: string,
     slotStartTime: string,
-    slotEndTime: string
+    slotEndTime: string,
+    session?: any
   ): Promise<void> {
-    let slotDoc = await this._slotRepository.getSlotByDate(doctorId, slotDate);
+    let slotDoc = await this._slotRepository.getSlotByDate(doctorId, slotDate, session);
 
     let slotIndex = -1;
 
@@ -34,7 +35,11 @@ export class SlotService implements ISlotService {
 
     if (slotIndex === -1) {
       const weekday = dayjs(slotDate).day();
-      const weeklyDefault = await this._slotRepository.getDefaultSlotByWeekday(doctorId, weekday);
+      const weeklyDefault = await this._slotRepository.getDefaultSlotByWeekday(
+        doctorId,
+        weekday,
+        session
+      );
 
       if (!weeklyDefault) {
         throw new Error('Slot not available');
@@ -57,7 +62,10 @@ export class SlotService implements ISlotService {
           isAvailable: s.isAvailable,
           booked: false,
         })),
-        false
+        false,
+        undefined,
+        false,
+        session
       );
 
       if (!slotDoc) {
@@ -71,7 +79,13 @@ export class SlotService implements ISlotService {
 
     if (slotIndex === -1) throw new Error('Slot not available');
 
-    await this._slotRepository.markSlotBooked(doctorId, slotDate, slotStartTime, slotEndTime);
+    await this._slotRepository.markSlotBooked(
+      doctorId,
+      slotDate,
+      slotStartTime,
+      slotEndTime,
+      session
+    );
   }
 
   private validateRanges(ranges: SlotRange[]) {
@@ -193,8 +207,9 @@ export class SlotService implements ISlotService {
     date: string,
     start: string,
     end: string,
-    userId: string
+    userId: string,
+    session?: any
   ): Promise<void> {
-    await this._slotRepository.releaseSlotLock(doctorId, date, start, end, userId);
+    await this._slotRepository.releaseSlotLock(doctorId, date, start, end, userId, session);
   }
 }

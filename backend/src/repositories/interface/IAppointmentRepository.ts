@@ -3,7 +3,7 @@ import { AppointmentTypes } from '../../types/Appointment';
 import { PaginationResult } from '../../types/Pagination';
 
 export interface IAppointmentRepository {
-  createAppointment(appointmentData: AppointmentTypes): Promise<AppointmentDocument>;
+  createAppointment(appointmentData: AppointmentTypes, session?: any): Promise<AppointmentDocument>;
   getAppointments(
     page: number,
     limit: number,
@@ -20,7 +20,7 @@ export interface IAppointmentRepository {
   findActiveUserAppointment(userId: string): Promise<AppointmentDocument | null>;
   findPayableAppointment(appointmentId: string): Promise<AppointmentDocument>;
   saveRazorpayOrderId(appointmentId: string, orderId: string): Promise<void>;
-  markAppointmentPaid(appointmentId: string): Promise<void>;
+  markAppointmentPaid(appointmentId: string, session?: any): Promise<void>;
   confirmAppointment(id: string): Promise<void>;
   findDoctorAppointments(
     docId: string,
@@ -37,7 +37,7 @@ export interface IAppointmentRepository {
     end?: string
   ): Promise<{ date: string; count: number }[]>;
   getAllAppointments(): Promise<AppointmentDocument[]>;
-  cancelAppointment(appointmentId: string): Promise<void>;
+  cancelAppointment(appointmentId: string, session?: any): Promise<void>;
   getAppointmentsOverTime(
     doctorId: string,
     start?: string,

@@ -46,7 +46,7 @@ export interface IAppointmentService {
     tempBookingId: string,
     razorpay_order_id: string
   ): Promise<AppointmentDTO>;
-  bookAppointment(data: AppointmentTypes): Promise<AppointmentDocument>;
+  bookAppointment(data: AppointmentTypes, session?: any): Promise<AppointmentDocument>;
   cancelTempBooking(tempBookingId: string): Promise<any>;
   cleanupExpiredLocks(): Promise<void>;
   getAppointmentsByDoctorId(docId: string): Promise<AppointmentDTO[]>;

@@ -7,7 +7,8 @@ export interface ISlotService {
     doctorId: string,
     slotDate: string,
     slotStartTime: string,
-    slotEndTime: string
+    slotEndTime: string,
+    session?: any
   ): Promise<void>;
   updateDaySlot(
     doctorId: string,
@@ -38,6 +39,7 @@ export interface ISlotService {
     date: string,
     start: string,
     end: string,
-    userId: string
+    userId: string,
+    session?: any
   ): Promise<void>;
 }

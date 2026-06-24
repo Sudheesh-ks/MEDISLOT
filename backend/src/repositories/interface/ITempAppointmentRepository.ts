@@ -14,7 +14,7 @@ export interface ITempAppointmentRepository {
     id: string,
     status: 'pending_payment' | 'cancelled' | 'expired'
   ): Promise<void>;
-  deleteTempAppointment(id: string): Promise<void>;
+  deleteTempAppointment(id: string, session?: any): Promise<void>;
   findUserTempAppointments(userId: string): Promise<TempAppointmentDocument[]>;
   cleanupExpiredTempAppointments(): Promise<number>;
 }

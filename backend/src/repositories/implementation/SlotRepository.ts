@@ -29,7 +29,8 @@ export class SlotRepository extends BaseRepository<SlotDocument> implements ISlo
     slots: { start: string; end: string; isAvailable?: boolean }[],
     isCancelled: boolean,
     weekday?: number,
-    isDefault: boolean = false
+    isDefault: boolean = false,
+    session?: any
   ): Promise<SlotDocument | null> {
     const query: FilterQuery<SlotDocument> = { doctorId };
     if (date) query.date = date;
@@ -41,7 +42,7 @@ export class SlotRepository extends BaseRepository<SlotDocument> implements ISlo
     return slotModel.findOneAndUpdate(
       query,
       { slots, isCancelled, isDefault, weekday },
-      { upsert: true, new: true }
+      { upsert: true, new: true, session }
     );
   }
 
@@ -49,12 +50,16 @@ export class SlotRepository extends BaseRepository<SlotDocument> implements ISlo
     return slotModel.findOneAndDelete({ doctorId, date });
   }
 
-  async getSlotByDate(doctorId: string, date: string): Promise<SlotDocument | null> {
-    return slotModel.findOne({ doctorId, date }).exec();
+  async getSlotByDate(doctorId: string, date: string, session?: any): Promise<SlotDocument | null> {
+    return slotModel.findOne({ doctorId, date }).session(session).exec();
   }
 
-  async getDefaultSlotByWeekday(doctorId: string, weekday: number): Promise<SlotDocument | null> {
-    return slotModel.findOne({ doctorId, weekday, isDefault: true }).exec();
+  async getDefaultSlotByWeekday(
+    doctorId: string,
+    weekday: number,
+    session?: any
+  ): Promise<SlotDocument | null> {
+    return slotModel.findOne({ doctorId, weekday, isDefault: true }).session(session).exec();
   }
 
   async getDefaultSlot(doctorId: string, weekday: number): Promise<SlotDocument | null> {
@@ -81,7 +86,13 @@ export class SlotRepository extends BaseRepository<SlotDocument> implements ISlo
     );
   }
 
-  async markSlotBooked(doctorId: string, date: string, start: string, end: string): Promise<void> {
+  async markSlotBooked(
+    doctorId: string,
+    date: string,
+    start: string,
+    end: string,
+    session?: any
+  ): Promise<void> {
     await slotModel.updateOne(
       { doctorId, date, 'slots.start': start, 'slots.end': end },
       {
@@ -91,7 +102,8 @@ export class SlotRepository extends BaseRepository<SlotDocument> implements ISlo
           'slots.$.lockedBy': null,
           'slots.$.lockExpiresAt': null,
         },
-      }
+      },
+      { session }
     );
   }
 
@@ -113,7 +125,13 @@ export class SlotRepository extends BaseRepository<SlotDocument> implements ISlo
       .select('date slots');
   }
 
-  async unbookSlot(doctorId: string, date: string, start: string, end: string): Promise<void> {
+  async unbookSlot(
+    doctorId: string,
+    date: string,
+    start: string,
+    end: string,
+    session?: any
+  ): Promise<void> {
     await slotModel.updateOne(
       {
         doctorId,
@@ -126,7 +144,8 @@ export class SlotRepository extends BaseRepository<SlotDocument> implements ISlo
         $set: {
           'slots.$.booked': false,
         },
-      }
+      },
+      { session }
     );
   }
 
@@ -135,7 +154,8 @@ export class SlotRepository extends BaseRepository<SlotDocument> implements ISlo
     date: string,
     start: string,
     end: string,
-    userId: string
+    userId: string,
+    session?: any
   ): Promise<void> {
     await slotModel.updateOne(
       {
@@ -151,7 +171,8 @@ export class SlotRepository extends BaseRepository<SlotDocument> implements ISlo
           'slots.$.lockedBy': null,
           'slots.$.lockExpiresAt': null,
         },
-      }
+      },
+      { session }
     );
   }
 }
