@@ -63,7 +63,7 @@ const DoctorBlogsPage = () => {
         <div className="flex items-center justify-between mb-6">
           <h1 className="text-2xl font-bold text-blue-400">My Articles</h1>
           <Link
-            to="/doctor/blogs/new"
+            to="/doctor/add-blog"
             className="px-4 py-2 bg-gradient-to-r from-blue-600 to-cyan-600 rounded-lg text-white"
           >
             + New Article
