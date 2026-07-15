@@ -13,7 +13,8 @@ export interface IDoctorRepository {
     search?: string,
     speciality?: string,
     minRating?: number,
-    sortOrder?: string
+    sortOrder?: string,
+    status?: string | null
   ): Promise<PaginationResult<DoctorDocument>>;
   findDoctorByEmail(email: string): Promise<DoctorDocument | null>;
   saveDoctorData(doctor: DoctorDocument): Promise<void>;

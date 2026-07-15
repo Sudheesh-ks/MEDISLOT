@@ -28,7 +28,9 @@ const AdminDoctorRequests = () => {
     if (!aToken) navigate('/admin/login');
   }, [aToken]);
 
-  useEffect(() => window.scrollTo({ top: 0, behavior: 'smooth' }), [page]);
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [page]);
 
   const fetchRows = async () => {
     try {

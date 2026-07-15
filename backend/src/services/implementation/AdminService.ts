@@ -188,7 +188,11 @@ export class AdminService implements IAdminService {
     const result = await this._doctorRepository.getDoctorsPaginated(
       pageNumber,
       limitNumber,
-      search
+      search,
+      undefined,
+      undefined,
+      undefined,
+      null
     );
 
     return {

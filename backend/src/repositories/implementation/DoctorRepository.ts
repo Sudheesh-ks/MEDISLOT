@@ -36,11 +36,15 @@ export class DoctorRepository extends BaseRepository<DoctorDocument> implements 
     search?: string,
     speciality?: string,
     minRating?: number,
-    sortOrder?: string
+    sortOrder?: string,
+    status: string | null = 'approved'
   ): Promise<PaginationResult<DoctorDocument>> {
     const skip = (page - 1) * limit;
 
-    const query: FilterQuery<DoctorDocument> = { status: 'approved' };
+    const query: FilterQuery<DoctorDocument> = {};
+    if (status !== null) {
+      query.status = status;
+    }
 
     const sort: Record<string, SortOrder> = {};
 
